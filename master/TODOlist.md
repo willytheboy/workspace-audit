@@ -882,3 +882,9 @@
 - [x] Add local release build gate API and markdown handoff.
 - [x] Add Governance release gate KPI/deck visibility and command-palette copy action.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Action Plan
+
+- [x] Add machine-readable release gate action plan output.
+- [x] Surface release gate action plan in Governance and markdown handoff.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

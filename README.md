@@ -61,6 +61,7 @@ Architecture:
 - Governance now renders a Release Control deck and KPI so release status, Git state, smoke-check status, validation state, and saved checkpoints are visible inline before the next build pass.
 - Release Control now exposes latest-checkpoint drift so Governance can compare the saved release state against live Git, deployment smoke, and validation evidence before another build pass.
 - Release Control now includes a local release build gate that turns Git state, deployment smoke, validation evidence, and checkpoint drift into a ready/review/hold build-pass decision without triggering Vercel updates.
+- Release Build Gate now emits an action plan so missing smoke checks, checkpoints, Git access, drift, and dirty-worktree blockers translate into concrete next steps.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.

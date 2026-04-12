@@ -990,11 +990,20 @@
  *   severity: "low" | "medium" | "high"
  * }} ReleaseBuildGateReason
  * @typedef {{
+ *   id: string,
+ *   label: string,
+ *   priority: "low" | "medium" | "high",
+ *   status: "open" | "ready",
+ *   description: string,
+ *   commandHint: string
+ * }} ReleaseBuildGateAction
+ * @typedef {{
  *   generatedAt: string,
  *   decision: "ready" | "review" | "hold",
  *   riskScore: number,
  *   recommendedAction: string,
  *   reasons: ReleaseBuildGateReason[],
+ *   actions: ReleaseBuildGateAction[],
  *   releaseSummary: ReleaseSummaryPayload,
  *   releaseCheckpointDrift: ReleaseCheckpointDriftPayload,
  *   markdown: string

@@ -3278,6 +3278,7 @@ export function createGovernanceDeck(governance) {
       : "var(--success)";
   const releaseBuildGate = governance.releaseBuildGate;
   const releaseBuildGateReasons = Array.isArray(releaseBuildGate?.reasons) ? releaseBuildGate.reasons : [];
+  const releaseBuildGateActions = Array.isArray(releaseBuildGate?.actions) ? releaseBuildGate.actions : [];
   const releaseBuildGateDecision = releaseBuildGate?.decision || "review";
   const releaseBuildGateColor = releaseBuildGateDecision === "hold"
     ? "var(--danger)"
@@ -3524,6 +3525,38 @@ export function createGovernanceDeck(governance) {
                     }),
                     ...releaseBuildGateReasons.slice(0, 6).map((reason) => createElement("div", {
                       text: `${reason.label || reason.code}: ${reason.message || "Review release gate evidence."} (${reason.severity || "review"})`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.84rem",
+                        lineHeight: "1.45"
+                      }
+                    }))
+                  ])
+                : null,
+              releaseBuildGateActions.length
+                ? createElement("div", {
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.35rem",
+                      padding: "0.7rem",
+                      border: "1px solid var(--border)",
+                      borderRadius: "0.85rem",
+                      background: "color-mix(in srgb, var(--surface) 75%, transparent 25%)"
+                    }
+                  }, [
+                    createElement("div", {
+                      text: "Gate actions",
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.78rem",
+                        fontWeight: "800",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase"
+                      }
+                    }),
+                    ...releaseBuildGateActions.slice(0, 6).map((action) => createElement("div", {
+                      text: `${action.label || action.id}: ${action.description || "Review release gate evidence."}${action.commandHint ? ` | ${action.commandHint}` : ""}`,
                       style: {
                         color: "var(--text-muted)",
                         fontSize: "0.84rem",

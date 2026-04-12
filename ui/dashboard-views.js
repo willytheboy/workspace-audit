@@ -504,7 +504,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.releaseBuildGate.decision || "",
         governance.releaseBuildGate.recommendedAction || "",
         String(governance.releaseBuildGate.riskScore || 0),
-        ...(governance.releaseBuildGate.reasons || []).map((reason) => `${reason.code || ""} ${reason.label || ""} ${reason.message || ""} ${reason.severity || ""}`)
+        ...(governance.releaseBuildGate.reasons || []).map((reason) => `${reason.code || ""} ${reason.label || ""} ${reason.message || ""} ${reason.severity || ""}`),
+        ...(governance.releaseBuildGate.actions || []).map((action) => `${action.id || ""} ${action.label || ""} ${action.priority || ""} ${action.status || ""} ${action.description || ""} ${action.commandHint || ""}`)
       ])
         ? governance.releaseBuildGate
         : null,
@@ -3278,7 +3279,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (releaseCheckpointDrift ? 1 : 0)
         + (releaseCheckpointDrift?.driftItems || []).length
         + (releaseBuildGate ? 1 : 0)
-        + (releaseBuildGate?.reasons || []).length;
+        + (releaseBuildGate?.reasons || []).length
+        + (releaseBuildGate?.actions || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {

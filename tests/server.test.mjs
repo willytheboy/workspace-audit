@@ -148,7 +148,9 @@ export async function serverTest() {
     const missingReleaseBuildGateJson = await missingReleaseBuildGateResponse.json();
     assert.equal(missingReleaseBuildGateJson.decision, "review");
     assert.ok(missingReleaseBuildGateJson.reasons.some((reason) => reason.code === "release-checkpoint-missing"));
+    assert.ok(missingReleaseBuildGateJson.actions.some((action) => action.id === "save-release-checkpoint"));
     assert.match(missingReleaseBuildGateJson.markdown, /# Release Build Gate/);
+    assert.match(missingReleaseBuildGateJson.markdown, /## Gate Actions/);
 
     const createReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
       method: "POST",
@@ -185,6 +187,7 @@ export async function serverTest() {
     assert.equal(releaseBuildGateJson.decision, "review");
     assert.equal(releaseBuildGateJson.releaseCheckpointDrift.driftSeverity, "none");
     assert.ok(releaseBuildGateJson.reasons.some((reason) => reason.code === "git-unavailable"));
+    assert.ok(releaseBuildGateJson.actions.some((action) => action.id === "verify-git-runtime-access"));
     assert.match(releaseBuildGateJson.markdown, /# Release Build Gate/);
 
     const sourcesAccessRequirementsResponse = await fetch(`${baseUrl}/api/sources/access-requirements`);

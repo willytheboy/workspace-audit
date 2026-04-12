@@ -2194,6 +2194,24 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.match(seedJson.createdTasks[0].description, /Do not store credentials/);
     assert.equal(seedJson.createdTasks[0].secretPolicy, "non-secret-release-control-evidence-only");
 
+    const releaseTaskLedgerResponse = await fetch(`${baseUrl}/api/releases/task-ledger`);
+    assert.equal(releaseTaskLedgerResponse.status, 200);
+    const releaseTaskLedgerJson = await releaseTaskLedgerResponse.json();
+    assert.equal(releaseTaskLedgerJson.status, "all");
+    assert.equal(releaseTaskLedgerJson.summary.total, 1);
+    assert.equal(releaseTaskLedgerJson.summary.open, 1);
+    assert.equal(releaseTaskLedgerJson.summary.closed, 0);
+    assert.equal(releaseTaskLedgerJson.items[0].releaseBuildGateActionId, openActions[0].id);
+    assert.equal(releaseTaskLedgerJson.items[0].releaseBuildGateDecision, "review");
+    assert.match(releaseTaskLedgerJson.markdown, /# Release Control Task Ledger/);
+    assert.match(releaseTaskLedgerJson.markdown, /Non-secret release-control task metadata/);
+
+    const openReleaseTaskLedgerResponse = await fetch(`${baseUrl}/api/releases/task-ledger?status=open&limit=5`);
+    assert.equal(openReleaseTaskLedgerResponse.status, 200);
+    const openReleaseTaskLedgerJson = await openReleaseTaskLedgerResponse.json();
+    assert.equal(openReleaseTaskLedgerJson.status, "open");
+    assert.equal(openReleaseTaskLedgerJson.items.length, 1);
+
     const repeatSeedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2209,6 +2227,18 @@ export async function releaseBuildGateTaskSeedingTest() {
     const governanceJson = await governanceResponse.json();
     assert.ok(governanceJson.recentActivity.some((item) => item.kind === "task" && item.projectId === "release-control"));
     assert.ok(governanceJson.operationLog.some((operation) => operation.type === "release-build-gate-action-tasks-created"));
+    assert.equal(governanceJson.summary.releaseControlTaskCount, 1);
+    assert.equal(governanceJson.summary.releaseControlOpenTaskCount, 1);
+    assert.equal(governanceJson.summary.releaseControlClosedTaskCount, 0);
+    assert.equal(governanceJson.releaseControlTasks[0].releaseBuildGateActionId, openActions[0].id);
+
+    const decisionResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision`);
+    assert.equal(decisionResponse.status, 200);
+    const decisionJson = await decisionResponse.json();
+    assert.equal(decisionJson.releaseControlTaskCount, 1);
+    assert.equal(decisionJson.releaseControlOpenTaskCount, 1);
+    assert.ok(decisionJson.reasons.some((reason) => reason.code === "release-control-open-tasks"));
+    assert.match(decisionJson.markdown, /## Release Control Tasks/);
   } finally {
     server.close();
     await once(server, "close");

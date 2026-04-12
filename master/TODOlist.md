@@ -912,3 +912,10 @@
 - [x] Add API support for converting open Release Build Gate actions into deduplicated Governance tasks.
 - [x] Add Governance deck and command-palette controls for seeding release-gate tasks.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Control Task Ledger
+
+- [x] Add `GET /api/releases/task-ledger` with `all`, `open`, and `closed` status filters.
+- [x] Surface Release Control tasks in Governance KPI cards, deck ledger, summaries, reports, and command-palette handoffs.
+- [x] Feed Release Control task counts into Agent Control Plane decisions, handoffs, snapshots, and baseline drift metrics.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -187,6 +187,9 @@ Architecture:
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Data Sources access validation evidence coverage counts and high-priority evidence gaps.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track the Release Build Gate so supervised agent work sees release readiness, risk score, and release-gate actions.
 - Governance can now seed deduplicated Release Build Gate tasks from the release-control deck or command palette, converting open gate actions into release-control work items.
+- `GET /api/releases/task-ledger` now exposes the non-secret Release Control task ledger with open/closed filters and markdown for external app-management consumers.
+- Governance now surfaces Release Control tasks as a KPI, deck ledger, report section, toolbar handoff, and command-palette handoff.
+- Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Release Control task totals/open/closed counts.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.
@@ -256,6 +259,13 @@ Core routes:
 - `POST /api/agent-control-plane-snapshots/baseline/clear`
 - `POST /api/agent-control-plane-snapshots/baseline/refresh`
 - `POST /api/agent-control-plane-snapshots`
+- `GET /api/releases/summary`
+- `GET /api/releases/checkpoints/diff?snapshotId=latest`
+- `POST /api/releases/checkpoints`
+- `GET /api/releases/build-gate`
+- `POST /api/releases/build-gate/bootstrap-local-evidence`
+- `POST /api/releases/build-gate/actions/tasks`
+- `GET /api/releases/task-ledger`
 - `GET /api/agent-work-orders`
 - `GET /api/agent-work-order-snapshots`
 - `POST /api/agent-work-order-snapshots`

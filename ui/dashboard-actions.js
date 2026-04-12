@@ -63,6 +63,7 @@
  *     copyReleaseControl: () => Promise<void>,
  *     copyReleaseCheckpointDrift: () => Promise<void>,
  *     copyReleaseBuildGate: () => Promise<void>,
+ *     copyGovernanceReleaseTaskLedger: () => Promise<void>,
  *     bootstrapReleaseBuildGateLocalEvidence: () => Promise<void>,
  *     seedReleaseBuildGateActionTasks: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
@@ -457,6 +458,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "build", "gate", "decision", "deployment", "git", "smoke", "copy"],
         run: () => handlers.copyReleaseBuildGate()
+      },
+      {
+        id: "copy-governance-release-task-ledger",
+        label: "Copy release task ledger",
+        description: "Copy the current filtered Release Control task ledger as a non-secret markdown handoff.",
+        category: "Actions",
+        keywords: ["governance", "release", "tasks", "ledger", "build", "gate", "handoff", "copy"],
+        run: () => handlers.copyGovernanceReleaseTaskLedger()
       },
       {
         id: "bootstrap-release-build-gate-local-evidence",

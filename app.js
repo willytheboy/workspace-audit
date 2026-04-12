@@ -278,6 +278,12 @@ async function copyReleaseBuildGate() {
   return views.copyReleaseBuildGate();
 }
 
+async function copyGovernanceReleaseTaskLedger() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyGovernanceReleaseTaskLedger();
+}
+
 async function bootstrapReleaseBuildGateLocalEvidence() {
   setView("governance");
   await views.renderGovernance();
@@ -539,6 +545,7 @@ const actionRegistry = createDashboardActionRegistry({
     copyReleaseControl,
     copyReleaseCheckpointDrift,
     copyReleaseBuildGate,
+    copyGovernanceReleaseTaskLedger,
     bootstrapReleaseBuildGateLocalEvidence,
     seedReleaseBuildGateActionTasks,
     saveReleaseCheckpoint,

@@ -1153,6 +1153,8 @@ export function createGovernanceSummaryGrid(governance) {
     : releaseBuildGateDecision === "ready"
       ? "var(--success)"
       : "var(--warning)";
+  const releaseControlTaskCount = summary.releaseControlTaskCount || 0;
+  const releaseControlOpenTaskCount = summary.releaseControlOpenTaskCount || 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1249,6 +1251,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: releaseBuildGate
         ? `${releaseBuildGate.reasons?.length || 0} reason(s) | risk ${releaseBuildGate.riskScore || 0}`
         : "Release build gate has not been evaluated."
+    }),
+    createKpiCard({
+      accentColor: releaseControlOpenTaskCount ? "var(--warning)" : "var(--success)",
+      label: "Release Tasks",
+      value: `${releaseControlOpenTaskCount}/${releaseControlTaskCount}`,
+      detail: "Open release-control tasks created from Release Build Gate actions"
     }),
     createKpiCard({
       accentColor: dataSourcesAccessGateAccent,
@@ -3291,6 +3299,7 @@ export function createGovernanceDeck(governance) {
   const releaseBuildGate = governance.releaseBuildGate;
   const releaseBuildGateReasons = Array.isArray(releaseBuildGate?.reasons) ? releaseBuildGate.reasons : [];
   const releaseBuildGateActions = Array.isArray(releaseBuildGate?.actions) ? releaseBuildGate.actions : [];
+  const releaseControlTasks = Array.isArray(governance.releaseControlTasks) ? governance.releaseControlTasks : [];
   const releaseBuildGateDecision = releaseBuildGate?.decision || "review";
   const releaseBuildGateColor = releaseBuildGateDecision === "hold"
     ? "var(--danger)"
@@ -3461,6 +3470,14 @@ export function createGovernanceDeck(governance) {
               attrs: { type: "button" },
               dataset: {
                 releaseBuildGateTasks: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-task-ledger-copy-btn",
+              text: "Copy Release Tasks",
+              attrs: { type: "button" },
+              dataset: {
+                releaseTaskLedgerCopy: "true"
               }
             }),
             createElement("button", {
@@ -3739,6 +3756,88 @@ export function createGovernanceDeck(governance) {
         ]))
       ]
     : [];
+  const releaseControlTaskEntries = releaseControlTasks.map((task) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: task.title || "Release Control task",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.releaseBuildGateActionId || "release-control"} | gate ${(task.releaseBuildGateDecision || "review").toUpperCase()} | risk ${task.releaseBuildGateRiskScore || 0}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "flex",
+          gap: "0.35rem",
+          flexWrap: "wrap",
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag((task.priority || "normal").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag((task.status || "open").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase()) ? "var(--success)" : "var(--warning)"
+        })
+      ])
+    ]),
+    createElement("div", {
+      text: task.description ? String(task.description).split("\n")[0] : "Track release evidence without storing credentials, keys, certificates, cookies, or browser sessions.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(task.releaseBuildGateCommandHint || "manual-release-evidence", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(task.secretPolicy || "non-secret-release-control-evidence-only", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      })
+    ])
+  ]));
   const agentControlPlaneDecisionSnapshotEntries = (governance.agentControlPlaneDecisionSnapshots || []).map((snapshot) => {
     const snapshotDecisionColor = snapshot.decision === "hold"
       ? "var(--danger)"
@@ -4584,6 +4683,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
+    createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),
     createListSection("Data Sources Access Review Queue", "Credential, certificate, SSH, and manual-access checks that can block supervised app-development ingestion.", dataSourcesAccessReviewQueueEntries),
     createListSection("Data Sources Access Validation Runbook", "Non-secret operator-side validation steps and command hints grouped by access method.", dataSourcesAccessValidationRunbookEntries),

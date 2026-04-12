@@ -449,6 +449,10 @@
  *   releaseBuildGateReasonCount: number,
  *   releaseBuildGateActionCount: number,
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
+ *   releaseControlTaskCount: number,
+ *   releaseControlOpenTaskCount: number,
+ *   releaseControlClosedTaskCount: number,
+ *   releaseControlTasks: PersistedTask[],
  *   dataSourcesGateDecision: "ready" | "review" | "hold" | "not-evaluated",
  *   dataSourcesReview: number,
  *   dataSourcesBlocked: number,
@@ -495,6 +499,10 @@
  *   releaseBuildGateReasonCount: number,
  *   releaseBuildGateActionCount: number,
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
+ *   releaseControlTaskCount: number,
+ *   releaseControlOpenTaskCount: number,
+ *   releaseControlClosedTaskCount: number,
+ *   releaseControlTasks: PersistedTask[],
  *   dataSourcesGateDecision: "ready" | "review" | "hold" | "not-evaluated",
  *   dataSourcesReview: number,
  *   dataSourcesBlocked: number,
@@ -613,6 +621,9 @@
  *     releaseBuildGateRiskScore: number,
  *     releaseBuildGateReasonCount: number,
  *     releaseBuildGateActionCount: number,
+ *     releaseControlTaskCount: number,
+ *     releaseControlOpenTaskCount: number,
+ *     releaseControlClosedTaskCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
  *   },
@@ -644,6 +655,7 @@
  *   releaseSummary?: ReleaseSummaryPayload | null,
  *   releaseCheckpointDrift?: ReleaseCheckpointDriftPayload | null,
  *   releaseBuildGate?: ReleaseBuildGatePayload | null,
+ *   releaseControlTasks: PersistedTask[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -679,6 +691,7 @@
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
  *   baselineStatus: GovernanceAgentControlPlaneBaselineStatus | null,
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
+ *   releaseControlTasks: PersistedTask[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -713,6 +726,10 @@
  *   releaseBuildGateReasonCount: number,
  *   releaseBuildGateActionCount: number,
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
+ *   releaseControlTaskCount: number,
+ *   releaseControlOpenTaskCount: number,
+ *   releaseControlClosedTaskCount: number,
+ *   releaseControlTasks: PersistedTask[],
  *   activeRuns: number,
  *   staleActiveRuns: number,
  *   slaBreachedRuns: number,
@@ -1036,6 +1053,43 @@
  *   releaseCheckpointDrift: ReleaseCheckpointDriftPayload,
  *   markdown: string
  * }} ReleaseBuildGatePayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   releaseBuildGateActionId: string,
+ *   releaseBuildGateActionStatus: string,
+ *   releaseBuildGateActionPriority: string,
+ *   releaseBuildGateDecision: string,
+ *   releaseBuildGateRiskScore: number,
+ *   releaseBuildGateReasonCount: number,
+ *   releaseBuildGateCommandHint: string,
+ *   description: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} ReleaseTaskLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number
+ *   },
+ *   items: ReleaseTaskLedgerItem[],
+ *   markdown: string
+ * }} ReleaseTaskLedgerPayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

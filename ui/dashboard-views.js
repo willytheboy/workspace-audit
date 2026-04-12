@@ -84,6 +84,7 @@ function createEmptyTableRow(message) {
  *     fetchReleaseSummary: () => Promise<import("./dashboard-types.js").ReleaseSummaryPayload>,
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
+ *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
@@ -511,6 +512,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.releaseBuildGate
         : null,
+      releaseControlTasks: filterAndSort(
+        governance.releaseControlTasks || [],
+        (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.releaseBuildGateActionId || "", task.releaseBuildGateDecision || "", task.description || ""],
+        (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
+      ),
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -666,6 +672,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseSummary = null;
       if (scope !== "release") filtered.releaseCheckpointDrift = null;
       if (scope !== "release") filtered.releaseBuildGate = null;
+      if (scope !== "release") filtered.releaseControlTasks = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1096,6 +1103,45 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return lines.join("\n");
   }
 
+  function buildGovernanceReleaseTaskLedgerMarkdown() {
+    const governance = getFilteredGovernance();
+    const tasks = governance?.releaseControlTasks || [];
+    const filters = getGovernanceFilterState();
+    const lines = [
+      "# Governance Release Control Task Ledger",
+      "",
+      `Generated: ${new Date().toLocaleString()}`,
+      `Visible tasks: ${tasks.length}`,
+      `Open tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0}`,
+      `Total tasks: ${governanceCache?.summary.releaseControlTaskCount ?? 0}`,
+      `Scope filter: ${filters.scope}`,
+      `Search filter: ${filters.search || "none"}`,
+      "",
+      "Secret policy: Resolve credentials, private keys, certificates, cookies, and browser sessions outside this app. This handoff stores only non-secret release-control task metadata.",
+      "",
+      "## Visible Tasks"
+    ];
+
+    if (!tasks.length) {
+      lines.push("- No visible Release Control tasks matched the current Governance filters.");
+      return lines.join("\n");
+    }
+
+    for (const task of tasks) {
+      lines.push(`- ${task.title || "Release Control task"} [${task.priority || "normal"} / ${task.status || "open"}]`);
+      lines.push(`  Release action: ${task.releaseBuildGateActionId || "release-control"}`);
+      lines.push(`  Gate decision: ${task.releaseBuildGateDecision || "review"} / risk ${task.releaseBuildGateRiskScore || 0}`);
+      if (task.releaseBuildGateCommandHint) {
+        lines.push(`  Command hint: ${task.releaseBuildGateCommandHint}`);
+      }
+      if (task.description) {
+        lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
+      }
+    }
+
+    return lines.join("\n");
+  }
+
   /**
    * @param {HTMLElement} container
    */
@@ -1250,6 +1296,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Copying";
           await copyReleaseControl();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyGovernanceReleaseTaskLedger();
           element.textContent = "Copied";
         } catch (error) {
           element.textContent = originalLabel;
@@ -1756,6 +1823,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Control plane baseline action: ${governanceCache?.summary.agentControlPlaneBaselineRecommendedAction || "Save or mark an Agent Control Plane snapshot as baseline."}`,
       `Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
+      `Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
       `Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -1793,6 +1861,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible agent sessions: ${governance.agentSessions.length}`,
       `Visible control plane baseline status: ${governance.agentControlPlaneBaselineStatus ? "yes" : "no"}`,
       `Visible control plane decision: ${governance.agentControlPlaneDecision ? "yes" : "no"}`,
+      `Visible Release Control tasks: ${governance.releaseControlTasks?.length || 0}`,
       `Visible Data Sources access gate: ${governance.dataSourcesAccessGate ? "yes" : "no"}`,
       `Visible Data Sources access review queue items: ${governance.dataSourcesAccessReviewQueue?.items?.length || 0}`,
       `Visible Data Sources access validation runbook methods: ${governance.dataSourcesAccessValidationRunbook?.methods?.length || 0}`,
@@ -1869,6 +1938,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Control plane baseline action: ${governanceCache?.summary.agentControlPlaneBaselineRecommendedAction || "Save or mark an Agent Control Plane snapshot as baseline."}`,
       `- Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `- Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
+      `- Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
       `- Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `- Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `- Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -1977,6 +2047,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Baseline drift severity: ${governance.agentControlPlaneDecision.baselineDriftSeverity || "missing-baseline"}`);
       lines.push(`- Agent-ready projects: ${governance.agentControlPlaneDecision.agentReadyProjects || 0}/${governance.agentControlPlaneDecision.agentReadinessItems || 0}`);
       lines.push(`- Release build gate: ${governance.agentControlPlaneDecision.releaseBuildGateDecision || governance.releaseBuildGate?.decision || "not-evaluated"} (risk ${governance.agentControlPlaneDecision.releaseBuildGateRiskScore ?? governance.releaseBuildGate?.riskScore ?? 0})`);
+      lines.push(`- Release Control tasks: ${governance.agentControlPlaneDecision.releaseControlOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.releaseControlTaskCount || 0} total`);
       lines.push(`- Active runs: ${governance.agentControlPlaneDecision.activeRuns || 0}, stale active: ${governance.agentControlPlaneDecision.staleActiveRuns || 0}, SLA breached: ${governance.agentControlPlaneDecision.slaBreachedRuns || 0}`);
       lines.push(`- Data Sources access tasks: ${governance.agentControlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.dataSourcesAccessTaskCount || 0} total`);
       const reasons = Array.isArray(governance.agentControlPlaneDecision.reasons) ? governance.agentControlPlaneDecision.reasons : [];
@@ -1987,6 +2058,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible control plane decision.");
+    }
+
+    lines.push("", "## Release Control Task Ledger");
+    if (governance.releaseControlTasks?.length) {
+      for (const task of governance.releaseControlTasks) {
+        lines.push(`- ${task.title || "Release Control task"}: ${task.status || "open"} / ${task.priority || "normal"}`);
+        lines.push(`  Release action: ${task.releaseBuildGateActionId || "release-control"}`);
+        lines.push(`  Gate decision: ${task.releaseBuildGateDecision || "review"} / risk ${task.releaseBuildGateRiskScore || 0}`);
+        if (task.releaseBuildGateCommandHint) {
+          lines.push(`  Command hint: ${task.releaseBuildGateCommandHint}`);
+        }
+        if (task.description) {
+          lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
+        }
+      }
+    } else {
+      lines.push("- No visible Release Control tasks.");
     }
 
     lines.push("", "## Data Sources Access Gate");
@@ -3306,6 +3394,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentSessions.length
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
         + (governance.agentControlPlaneDecision ? 1 : 0)
+        + (governance.releaseControlTasks || []).length
         + (governance.dataSourcesAccessGate ? 1 : 0)
         + (governance.dataSourcesAccessReviewQueue?.items || []).length
         + (governance.dataSourcesAccessValidationRunbook?.methods || []).length
@@ -3823,6 +3912,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.decision || "review"} release build gate`;
   }
 
+  async function copyGovernanceReleaseTaskLedger() {
+    const markdown = buildGovernanceReleaseTaskLedgerMarkdown();
+    await copyText(markdown);
+    return `Copied ${getFilteredGovernance()?.releaseControlTasks?.length || 0} Release Task${(getFilteredGovernance()?.releaseControlTasks?.length || 0) === 1 ? "" : "s"}`;
+  }
+
   async function bootstrapReleaseBuildGateLocalEvidence() {
     const payload = await api.bootstrapReleaseBuildGateLocalEvidence({
       label: "Local Workspace Audit app",
@@ -4013,6 +4108,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyReleaseControl,
     copyReleaseCheckpointDrift,
     copyReleaseBuildGate,
+    copyGovernanceReleaseTaskLedger,
     bootstrapReleaseBuildGateLocalEvidence,
     seedReleaseBuildGateActionTasks,
     saveReleaseCheckpoint,

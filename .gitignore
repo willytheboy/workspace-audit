@@ -1,0 +1,18 @@
+node_modules/
+
+# Local runtime logs
+*.log
+.tmp-*.log
+dev-server.*.log
+
+# Local audit/runtime state
+workspace-state.db
+workspace-state.db-*
+workspace-state.json
+history/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

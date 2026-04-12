@@ -1,0 +1,37 @@
+# Persistent App Memory
+
+## North Star
+
+`workspace-audit` is evolving into a local-first AI autonomous app-building control plane for managing, developing, and building software applications.
+
+The target product is not only an audit dashboard. It should become the operator console for a multi-agent, multi-skill app-development platform that can discover app repositories, validate safe access, generate governance-ready work orders, coordinate supervised build agents, track execution, capture evidence, and enforce release/readiness gates.
+
+## Strategic Direction
+
+- Keep the product scoped to app management, app development, app building, and software-project governance.
+- Treat Data Sources as the ingestion and access-trust foundation for local folders, Git repos, provider exports, AI workspace exports, and future authenticated app-development sources.
+- Treat Governance as the human-readable control center where readiness, gaps, action queues, evidence, snapshots, drift, and execution health are consolidated.
+- Treat Agent Control Plane as the machine-readable decision layer that turns Governance state into ready/review/hold decisions for supervised autonomous build passes.
+- Treat Work Orders and execution/SLA ledgers as the operational bridge between user intent, agent tasking, validation, and milestone completion.
+- Treat non-secret evidence ledgers and snapshots as safety rails. Credentials, tokens, certificates, SSH keys, browser sessions, cookies, and passwords stay outside the app.
+
+## Future Platform Shape
+
+- Multi-agent: planner, architect, implementation worker, reviewer, tester, release/governance checker, and data-source access analyst lanes.
+- Multi-skill: local skills/plugins for framework-specific builds, code review, OpenAI integration, test generation, source ingestion, deployment handoff, and documentation.
+- Multi-source: local filesystem, Git HTTPS/SSH, provider APIs, provider exports, browser-session/manual export sources, and future user-authorized connectors.
+- Multi-layer control: source access coverage, governance readiness, agent decision gates, work-order execution, validation evidence, drift snapshots, and milestone logs.
+
+## Build Guidance
+
+- Continue building in layered milestones: Data Sources first, Governance visibility second, Agent Control Plane decision logic third, execution/work-order automation fourth.
+- Prefer derived, non-secret trust signals over storing credentials or raw secrets.
+- Relaunch after each milestone so the operator can monitor progress.
+- When a clean checkpoint is reached, initialize Git and push to a GitHub remote so each milestone can become a commit-level rollback point.
+
+## Persistent Direction Update: 2026-04-12
+
+- Future intent is an AI autonomous app-building platform, not a passive workspace audit report.
+- The app should grow into a supervised multi-agent, multi-skill app-development operating system with Governance as the operator cockpit, Data Sources as the trusted ingestion/access layer, Agent Control Plane as the machine decision layer, and Work Orders as the execution bridge.
+- Near-term builds should keep tightening the non-secret Data Sources evidence loop, task seeding, governance visibility, and agent-gate readiness before introducing more autonomous execution.
+- Long-term growth should support pluggable agent lanes, skill routing, repository access methods, evidence-backed validation, release gates, rollback-safe milestone history, and eventually a Git-backed checkpoint model.

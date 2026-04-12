@@ -1,0 +1,89 @@
+{
+  "MAX_SCAN_DEPTH": 5,
+  "IGNORE_DIRS": [
+    ".claude", ".git", ".github", ".idea", ".next", ".nuxt", ".output",
+    ".pytest_cache", ".turbo", ".venv", ".vscode", "__pycache__", "bin",
+    "build", "coverage", "dist", "lib-cov", "node_modules", "out",
+    "target", "tmp", "vendor", "venv"
+  ],
+  "ROOT_INFRA_DIRS": [
+    ".claude", "PROCESS", "runtime", "shared", "templates", "workspace-audit"
+  ],
+  "SKIP_PATH_PREFIXES": [
+    "AI_team", "archive/deep-archive", "archive/legacy-migrations", "projects/archived"
+  ],
+  "GENERIC_COMPONENT_NAMES": [
+    "api", "app", "apps", "backend", "client", "clients", "common", "components",
+    "core", "docker", "docs", "frontend", "infra", "lib", "libs", "package", "packages",
+    "scripts", "server", "service", "services", "shared", "src", "test", "tests",
+    "types", "ui", "utils", "worker", "workers"
+  ],
+  "STANDALONE_CHILD_NAMES": [
+    "catering", "dashboard", "mobile", "portal", "studio", "website"
+  ],
+  "MANIFEST_FILES": [
+    "Cargo.toml", "go.mod", "package.json", "pom.xml", "pyproject.toml", "requirements.txt", "composer.json"
+  ],
+  "LOCK_FILES": [
+    "Cargo.lock", "package-lock.json", "pnpm-lock.yaml", "poetry.lock", "uv.lock", "yarn.lock"
+  ],
+  "CONFIG_NAMES": [
+    "docker-compose.yaml", "docker-compose.yml", "tsconfig.json", "vite.config.js",
+    "vite.config.mjs", "vite.config.ts", "next.config.js", "next.config.mjs",
+    "next.config.ts", "tailwind.config.js", "tailwind.config.ts", "tauri.conf.json"
+  ],
+  "DOC_EXTENSIONS": [".md", ".mdx", ".txt", ".rst"],
+  "CATEGORY_RULES": [
+    {
+      "category": "F&B / Hospitality",
+      "keywords": ["bar", "beach club", "cafe", "catering", "dish", "f&b", "feluka", "food", "hospitality", "kitchen", "menu", "order", "restaurant", "sporting club", "sportingclubos", "table", "waiter"]
+    },
+    {
+      "category": "AI / Agents",
+      "keywords": ["agent", "ai", "assistant", "automation", "chat", "composer", "consensus", "llm", "model", "music", "suno"]
+    },
+    {
+      "category": "Finance / Trading",
+      "keywords": ["bitcoin", "crypto", "ensemble", "portfolio", "price", "rl", "signal", "trade", "trading"]
+    },
+    {
+      "category": "CRM / Operations",
+      "keywords": ["crm", "customer", "lead", "member", "membership", "ops", "rolodex", "scheduler", "staff"]
+    },
+    {
+      "category": "Data / Integration",
+      "keywords": ["database", "etl", "import", "integration", "migration", "postgres", "supabase", "sync", "warehouse"]
+    },
+    {
+      "category": "Media / Creative",
+      "keywords": ["display", "editorial", "image", "media", "photo", "tv", "visual"]
+    },
+    {
+      "category": "Wellness / Nutrition",
+      "keywords": ["fitness", "food pyramid", "gym", "health", "metabolic", "nutrition", "wellness", "yoga"]
+    },
+    {
+      "category": "Heritage / Content",
+      "keywords": ["abu nassar", "archive", "dar", "family", "heritage", "nassar", "story"]
+    },
+    {
+      "category": "Platform / Tooling",
+      "keywords": ["command", "console", "control plane", "launchpad", "master", "monitor", "portable", "tooling"]
+    }
+  ],
+  "FRAMEWORK_PATTERNS": [
+    ["@tauri-apps/api", "Tauri"], ["@supabase/supabase-js", "Supabase"],
+    ["expo", "Expo"], ["express", "Express"], ["fastapi", "FastAPI"],
+    ["flask", "Flask"], ["next", "Next.js"], ["postgres", "PostgreSQL"],
+    ["react-dom", "React"], ["react-native", "React Native"], ["react", "React"],
+    ["stable-baselines3", "Stable Baselines3"], ["supabase", "Supabase"],
+    ["tauri", "Tauri"], ["vite", "Vite"], ["zustand", "Zustand"],
+    ["docker-compose", "Docker Compose"]
+  ],
+  "STOP_WORDS": [
+    "a", "agent", "and", "app", "apps", "bot", "build", "center", "control", "core",
+    "dashboard", "dev", "for", "in", "integration", "management", "of", "platform",
+    "project", "projects", "studio", "suite", "system", "test", "the", "tool", "tools",
+    "v2", "web", "website", "workspace"
+  ]
+}

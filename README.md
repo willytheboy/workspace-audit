@@ -1,0 +1,272 @@
+# Workspace Audit
+
+Rebuild the dashboard inventory with either of these commands:
+
+- From `D:\development`: `node workspace-audit/generate-audit.mjs`
+- From `D:\development\workspace-audit`: `node generate-audit.mjs`
+
+Start the live dashboard server with either of these commands:
+
+- From `D:\development`: `node workspace-audit/server.mjs`
+- From `D:\development\workspace-audit`: `node server.mjs`
+
+Or use the package scripts from `D:\development\workspace-audit`:
+
+- `npm run dev`
+- `npm run generate`
+- `npm run serve`
+- `npm test`
+
+Outputs:
+- `workspace-audit/index.html`
+- `workspace-audit/inventory.json`
+
+The scan skips vendor/build noise and large migration dumps such as `node_modules`, `dist`, `archive/legacy-migrations`, and nested reference folders so the inventory stays app-focused.
+
+Architecture:
+
+- `lib/audit-core.mjs` contains the reusable scan and report generation logic.
+- `lib/workspace-audit-server.mjs` contains the HTTP server factory and route handlers.
+- `generate-audit.mjs` and `server.mjs` are thin entry points.
+- `app.js` is the browser bootstrap. It owns client state, event wiring, and inventory refresh.
+- `ui/dashboard-actions.js`, `ui/dashboard-command-palette.js`, and `ui/dashboard-source-setup.js` add the first control-center action layer on top of the audit dashboard.
+- `ui/dashboard-settings.js` adds the first settings shell with live workspace diagnostics and source state.
+- `lib/workspace-audit-store.mjs` adds durable file-backed persistence in `workspace-state.json` for sources, findings, tasks, and workflows.
+- `lib/workspace-audit-store.mjs` now uses SQLite-backed persistence in `workspace-state.db` and writes `workspace-state.json` as a compatibility mirror for sources, findings, tasks, workflows, notes, milestones, and scan runs.
+- `ui/dashboard-modal.js` is now a project workbench / launchpad surface instead of a static detail popup, backed by persisted findings, tasks, workflows, and live script execution.
+- The project workbench now also carries a project-memory surface for notes, decisions, context records, and milestones.
+- `styles.css` now carries the dashboard shell styling, so the generated HTML is a thinner document shell instead of an inline style bundle.
+- The first-load shell markup now uses reusable CSS classes for header actions, view toggles, panel wrappers, and source controls instead of large static `style=""` attributes.
+- `ui/dashboard-api.js`, `ui/dashboard-modal.js`, `ui/dashboard-modal-components.js`, `ui/dashboard-views.js`, `ui/dashboard-components.js`, `ui/dashboard-graph.js`, `ui/dashboard-utils.js`, and `ui/dashboard-types.js` split the frontend into focused modules instead of a single large dashboard script.
+- The view and modal layers now build the main dashboard surfaces through DOM components instead of large `innerHTML` strings, which makes the UI safer to extend and easier to debug.
+- The generated `index.html` carries a bootstrapped inventory snapshot, and the dashboard refreshes from `/api/inventory` when the live server is available.
+- The header now exposes runtime status, including whether the page is using the live API, a local file fallback, or the embedded snapshot, plus the latest snapshot/load timestamps.
+- The Trends and Sources panels now expose their own loading, ready, empty, and error states with panel-level status strips and notices.
+- The Trends and Sources panels also have their own refresh controls, so you can reload those views without rerunning the full audit.
+- The graph view is now rendered with local SVG logic instead of a remote D3 CDN, so the dashboard can load cleanly offline and on restricted networks.
+- The dashboard now exposes a keyboard-first command palette (`Ctrl+K`) and a guided source-setup modal, which are the first adopted slices from the `Platform / control center` donor apps.
+- The dashboard also now exposes a settings shell with workspace, source, diagnostics, and about tabs backed by `GET /api/diagnostics`.
+- The Data Sources module now includes a health summary payload with local path reachability, remote URL validation, ready/review/blocked counts, markdown export text, and richer source cards.
+- Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
+- Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
+- Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.
+- Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
+- Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.
+- Data Sources now expose a non-secret access validation evidence ledger for recording operator-side access checks without storing credentials, tokens, certificates, private keys, or browser sessions.
+- Data Sources and Governance can now copy the non-secret access validation evidence ledger from the toolbar or command palette.
+- `GET /api/sources/access-validation-evidence-coverage` now reports which configured Data Sources have covered, review, blocked, or missing non-secret access-validation evidence.
+- `POST /api/sources/access-validation-evidence-coverage/tasks` now turns missing/review/blocked evidence coverage gaps into trackable non-secret Data Sources tasks.
+- `GET`/`POST /api/sources/access-validation-evidence-snapshots` now persists non-secret access validation evidence baselines, with `/diff` support for evidence drift checks.
+- Data Sources can now copy a non-secret access matrix grouped by access method, credential signal, certificate requirement, and source.
+- The Sources view now renders the access matrix inline, so review-heavy methods and token/certificate/SSH signals are visible without exporting markdown.
+- The Sources view now also exposes a non-secret Access Review Queue, turning non-ready source access into explicit validation work items.
+- Data Sources can now copy a ready/review/hold access gate before ingestion or automated agent work.
+- Data Sources can now save health summary snapshots and copy saved source-audit handoffs after reload.
+- Data Sources can now copy latest snapshot-vs-live drift as markdown so source registry changes are reviewable before downstream agent work.
+- Data Sources now support safe registry removal from the Sources view; the action only removes the tracked source record and does not delete local files or remote resources.
+- The dashboard now exposes a persisted Findings view backed by `GET /api/findings` and `POST /api/findings/refresh`, with generated portfolio risks such as missing docs, overlap candidates, archived-but-active projects, and high-complexity projects without tests.
+- Sources, findings, tasks, and workflows now persist to `workspace-state.json`, so the control-center layer can evolve without depending only on generated inventory snapshots.
+- The project workbench now lets you inspect project findings, create project-linked tasks and workflows, and launch available scripts from a dedicated launchpad tab.
+- The workbench launchpad can now copy an Agent Handoff Pack for supervised AI/agent app-development work.
+- Agent Handoff Packs now create persisted Agent Session records so supervised handoffs are visible after reload.
+- Launchpad script runs now persist bounded execution history, including script name, project, status, timestamps, and exit code.
+- The workbench memory tab now persists project notes and milestones, so operational context survives beyond the generated scan snapshot.
+- Scan runs are now persisted as first-class records in `workspace-state.json`, and the trends/history surface can read from those records instead of depending only on per-day summary files.
+- Scan runs are now persisted as first-class records in the SQLite store, and the trends/history surface can read from those records instead of depending only on per-day summary files.
+- Each persisted scan now carries a compact project snapshot, and the Trends view can diff the latest two runs to show added, removed, and materially changed projects instead of only summary totals.
+- The dashboard now exposes a dedicated Governance view backed by persisted notes, milestones, workflows, tasks, and findings so cross-project execution state is visible above the per-project workbench.
+- The project workbench overview now carries a persisted governance profile for each project, including owner, lifecycle, tier, target state, and a short governance note.
+- The Governance view now also acts as a project registry, showing persisted ownership and lifecycle metadata across the portfolio.
+- The Governance view now has cross-project search, scope, and sort controls so you can focus the registry and activity feeds without leaving the control layer.
+- The Governance view can now export the current filtered governance state as markdown and copy a concise review summary for external reporting.
+- The Governance view now highlights unprofiled projects directly from the live inventory and makes governance cards open the project workbench, so the portfolio layer can drive action instead of only reporting.
+- Governance gaps now support one-click profile creation and one-click task creation, so the portfolio layer can seed action directly from unprofiled projects.
+- The Governance view now also supports bulk bootstrapping for the currently visible gaps, so you can seed default profiles or full starter packs without leaving the portfolio surface.
+- The Governance view now also exposes an action queue derived from unprofiled projects and incomplete portfolio state, with one-click remediation for starter packs, tasks, workflows, decisions, and ownership gaps.
+- The Governance action queue now supports bulk execution for automatically resolvable items, persisted suppression for intentionally deferred queue entries, and restore actions for suppressed queue items.
+- Governance automation now writes a persisted operation log for bootstrap, queue execution, queue suppression, and queue restore actions so control-center changes stay auditable after reload.
+- The Governance view now includes a Workflow Runbook that translates active workflows into supervised build / agent-readiness checkpoints with blockers and next steps.
+- The Governance view now also surfaces Agent Sessions, making supervised handoff packs visible and reportable at the portfolio control-center layer.
+- The Governance view now includes an Agent Readiness Matrix that ranks projects by supervised-build readiness using profiles, workflows, tasks, findings, and handoff-session evidence.
+- Agent Readiness Matrix cards now expose blocker-aware quick actions so the control center can seed starter packs, create workflows/tasks, or open the workbench from the ranked readiness list.
+- Governance can now copy Agent Work Orders as markdown from the current filtered readiness matrix, giving supervised agents a scoped set of objectives, blockers, evidence, and next actions.
+- `GET /api/agent-work-orders` exposes the same readiness-derived work orders as JSON plus markdown for external supervised-agent consumers.
+- `GET /api/agent-control-plane` exposes the consolidated agent platform payload with readiness, work orders, execution runs, SLA ledger state, saved handoffs, metrics, policy, and markdown.
+- `GET /api/agent-control-plane/decision` exposes a compact ready/review/hold decision for external supervised-agent gates.
+- Governance now surfaces the Agent Control Plane decision gate as a searchable deck, KPI, toolbar action, and command-palette copy action for supervised app-development build passes.
+- The direct Agent Control Plane decision API now includes the Data Sources access gate, so supervised-agent decisions reflect blocked or review-required source access.
+- The direct Agent Control Plane decision API now includes the Data Sources Access Review Queue and persists the queue in decision snapshots.
+- Governance can now save Agent Control Plane decision snapshots, preserving ready/review/hold gate history as copyable audit handoffs.
+- Copied Agent Work Orders are now persisted as auditable snapshots and surfaced in Governance history with readiness split counts.
+- Governance now also has a direct Save Work Orders action for creating an auditable snapshot without relying on clipboard access.
+- Saved Work Order Snapshot cards can now copy their original markdown back out of Governance without regenerating a new snapshot.
+- Governance now includes an Agent Execution Queue so readiness work orders can be queued, started, blocked, passed, or failed from the control center.
+- Saved Work Order Snapshots can now queue all contained projects into the Agent Execution Queue in one batch with duplicate-run protection.
+- Agent Execution Queue runs now retain an event log for queued, running, blocked, passed, and failed status transitions.
+- Governance now exposes Agent Execution Metrics with queue status split, stale active run count, completion rate, failure rate, and the latest execution event.
+- Agent Execution Queue cards now show a compact execution timeline for each run, and Governance reports include recent event transitions.
+- Agent Execution Queue cards now surface validation checklists so supervised build runs keep their acceptance commands visible in Governance and reports.
+- Agent Execution Queue cards now include a Copy Brief action that exports a single-run agent handoff with objective, blockers, validation commands, event timeline, and notes.
+- Governance now includes a Copy Run Briefs toolbar and command-palette action that exports a filtered Agent Execution brief pack for all visible runs.
+- Agent Execution runs can now be archived without deleting event history, hidden from the default Governance queue, restored from the archived view, and bulk-archived after completion.
+- Governance now includes a Completed execution filter and a retention control that archives older visible completed Agent Execution runs after keeping the configured recent count.
+- Governance execution queue filters can now be saved as reusable views, capturing search, scope, sort, execution status, retention count, and archived-run visibility.
+- Agent Execution stale-run policy is now configurable and persisted, so stale metrics, reports, and Block Stale Runs use the saved SLA threshold instead of a hardcoded window.
+- Governance can now action visible Agent Execution SLA breaches, recording breach metadata, escalation count, and operation-log evidence without deleting run history.
+- The execution-status filter now includes an SLA Breached mode, so breach review queues can be focused and saved as reusable Governance execution views.
+- Governance can now resolve visible Agent Execution SLA breaches, preserving breach evidence while clearing unresolved-breach metrics and writing operation-log history.
+- The execution-status filter now includes an SLA Resolved mode, so closed breach evidence can be audited and saved as a reusable Governance execution view.
+- Governance now reports SLA resolution throughput, including resolved breach count and average resolution time in Agent Execution metrics and reports.
+- Governance now includes an SLA Breach Ledger deck that shows recent open and resolved breach lifecycle records with escalation and resolution evidence.
+- Governance search, scope filtering, and saved execution views now include the SLA Breach Ledger as a first-class review scope.
+- Governance can now copy the filtered SLA Breach Ledger as markdown from the toolbar or command palette for review handoffs.
+- `GET /api/agent-work-order-runs/sla-ledger` exposes filtered SLA Breach Ledger records as JSON plus markdown for external app-management and agent-control consumers.
+- Governance can now save SLA Breach Ledger snapshots, keeping external audit handoff markdown available after filters and active ledger state change.
+- Governance can now copy the consolidated Agent Control Plane handoff from the toolbar or command palette using the live API markdown payload.
+- The consolidated Agent Control Plane payload now includes saved Agent Handoff sessions directly, so control-plane baseline drift can catch handoff changes.
+- Governance can now save Agent Control Plane snapshots, preserving consolidated platform state handoffs as auditable markdown artifacts.
+- Saved Agent Control Plane snapshots now retain Data Sources access gate state, so source-access readiness is preserved in snapshot and baseline handoffs.
+- Governance can now compare saved Agent Control Plane snapshots against the live control plane and copy drift reports as markdown.
+- Agent Control Plane snapshot drift now compares Data Sources gate rank, review sources, blocked sources, and token-likely source counts.
+- Agent Control Plane snapshot drift now also compares Data Sources Access Review Queue count, blocked items, and priority split.
+- Agent Control Plane snapshot drift reports now include compact `driftItems` in JSON and a Drift Fields markdown section for external consumers.
+- Agent Control Plane snapshot drift reports now include drift severity and a recommended action so external consumers can choose whether to monitor, review, or rebaseline.
+- Governance snapshot cards and drift toolbar actions now reflect copied drift severity in button feedback after generating a Control Plane drift report.
+- Governance can now copy drift from the latest saved Agent Control Plane snapshot from the toolbar or command palette.
+- Governance can now mark an Agent Control Plane snapshot as the baseline and copy baseline-vs-live drift from the toolbar or command palette.
+- Governance can now save the live Agent Control Plane directly as the baseline snapshot in one action.
+- Governance summaries and reports now show whether an Agent Control Plane baseline is selected and identify the active baseline snapshot.
+- Governance can now copy a compact Agent Control Plane baseline status report with drift score from the toolbar or command palette.
+- The Agent Control Plane baseline status API now promotes drift severity and drift action to top-level JSON and markdown fields.
+- Governance now includes a visible Control Plane Baseline Status deck section that remains searchable under the agent scope.
+- Baseline drift now returns a copyable missing-baseline report instead of failing when no Control Plane baseline has been selected.
+- Governance can now clear the selected Agent Control Plane baseline without deleting saved snapshots.
+- Governance now reports Agent Control Plane baseline freshness and age, marking baselines stale after 24 hours.
+- Governance can now refresh the Agent Control Plane baseline from the live control-plane state through toolbar, command-palette, and deck actions.
+- Governance now surfaces a Control Plane baseline drift score in KPI cards, baseline deck status, summaries, and reports.
+- Governance now explains Control Plane baseline drift with compact field-level deltas in the baseline deck, summaries, and reports.
+- Governance now reports Control Plane baseline health and recommended action based on missing, stale, changed, drifted, or healthy baseline state.
+- The direct Agent Control Plane baseline status API now returns health, recommended action, and compact drift field deltas for external consumers.
+- Governance and the consolidated Agent Control Plane handoff now expose baseline drift severity and drift action alongside baseline health.
+- The consolidated Agent Control Plane API now includes baseline health, recommended action, and drift fields in JSON and markdown handoffs.
+- The consolidated Agent Control Plane now includes the Data Sources access gate so supervised agents can see source access readiness before ingestion.
+- The consolidated Agent Control Plane now includes the Data Sources Access Review Queue so supervised-agent handoffs carry source-access validation items.
+- Governance now surfaces the Data Sources access gate as a KPI, searchable deck section, report block, toolbar handoff, and command-palette handoff so source-access readiness is visible directly in the control center.
+- Governance now surfaces the Data Sources Access Review Queue as a KPI, searchable deck section, and report block so source-access blockers are visible from the control-center layer.
+- Governance and Agent Control Plane handoffs now include the Data Sources access validation runbook, including access-method counts, safe command hints, and non-secret evidence expectations.
+- Governance and Agent Control Plane handoffs now surface the Data Sources access validation evidence ledger, including validated/review/blocked counts and baseline drift metrics.
+- Governance can now copy the Data Sources access validation evidence ledger from the toolbar or command palette as a non-secret source-access handoff.
+- Governance now surfaces Data Sources access validation evidence snapshots in the control-center deck with toolbar and command-palette save actions plus latest-drift copy.
+- Governance now surfaces latest Data Sources access validation evidence snapshot drift in KPI cards, deck details, summaries, and reports.
+- Governance now surfaces Data Sources access validation evidence coverage in KPI cards, deck details, summaries, and reports so missing source evidence is visible in the control center.
+- Governance can now seed Data Sources evidence coverage tasks from the toolbar or command palette.
+- Governance coverage cards can now record non-secret Data Sources access validation evidence directly as validated, review, or blocked without storing credentials or raw secrets.
+- Recording validated/review/blocked source evidence now syncs related Data Sources evidence-coverage tasks, resolving validated coverage work and preserving an audit operation.
+- Data Sources access task ledgers and Governance task cards now show evidence-sync status and related coverage/evidence identifiers when evidence updates a coverage task.
+- `POST /api/sources/access-validation-evidence` now returns task-sync metadata so external clients can see which evidence-coverage tasks were updated.
+- Agent Control Plane handoffs and snapshot drift now track Data Sources access validation evidence snapshot counts.
+- Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Data Sources access validation evidence coverage counts and high-priority evidence gaps.
+- Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
+- Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
+- Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.
+- Data Sources access task ledger cards now include Resolve, Reopen, and Block lifecycle controls backed by the existing task update API.
+- Governance can now copy the filtered Data Sources Access Task Ledger as a focused non-secret markdown handoff.
+- Agent Control Plane snapshot drift now tracks Data Sources access task totals/open/closed counts, so source-access task changes show up in supervised-build baseline drift.
+- The direct Agent Control Plane decision now includes Data Sources access task counts, a bounded task section, and a review reason when source-access work remains open.
+- `GET /api/sources/access-task-ledger` now exposes the non-secret Data Sources access task ledger with open/closed filters and markdown for external app-management consumers.
+- `GET`/`POST /api/sources/access-task-ledger-snapshots` now persists non-secret Data Sources access task ledger handoffs after live task state changes.
+- Governance now surfaces Data Sources access task ledger snapshots in the control-center deck with toolbar and command-palette save actions plus copyable snapshot cards.
+- Agent Control Plane markdown and snapshot drift now track Data Sources access task ledger snapshot counts for baseline review.
+- `GET /api/sources/access-task-ledger-snapshots/diff` now compares saved Data Sources access task ledger snapshots with the live ledger and returns markdown drift evidence.
+- Governance can now copy the latest Data Sources access task ledger snapshot drift from the toolbar or command palette.
+- Active Agent Execution Queue runs now include a Cancel control, giving Governance an explicit way to stop queued, running, or blocked work without marking it failed.
+- Agent Execution Queue cards now include Resume for blocked runs and Retry for failed or cancelled runs, preserving event history through recovery transitions.
+- Governance now includes an execution-status filter so the Agent Execution Queue can be narrowed to active, queued, running, blocked, passed, failed, or cancelled runs.
+- Agent Execution run creation, snapshot batch queueing, and status transitions now write Governance operation-log entries for portfolio-level auditability.
+- Stale active Agent Execution runs now show a warning tag on run cards and a stale-active marker in Governance reports.
+- Governance now includes a Start Queued Runs toolbar and command-palette action to move visible queued Agent Execution runs into running state.
+- Governance now includes a Block Stale Runs toolbar and command-palette action to mark visible stale Agent Execution runs as blocked for review.
+- Governance now includes a Retry Terminal Runs toolbar and command-palette action to requeue visible failed or cancelled Agent Execution runs.
+- Governance profile saves now persist history snapshots, and the Governance view can track ownership, lifecycle, and status changes over time.
+- The project workbench overview now shows project-level governance history, so ownership and lifecycle changes are visible at both the portfolio and project layers.
+- The workflow tab now behaves like a simple workflow engine, with explicit phases, approval states, and progression actions instead of a generic workflow note list.
+
+Core routes:
+
+- `GET /api/inventory`
+- `POST /api/audit`
+- `GET /api/history`
+- `GET /api/scans`
+- `GET /api/scans/diff`
+- `GET /api/sources`
+- `DELETE /api/sources/:sourceId`
+- `GET /api/sources/summary`
+- `GET /api/sources/access-requirements`
+- `GET /api/sources/access-checklist`
+- `GET /api/sources/access-validation-runbook`
+- `GET /api/sources/access-validation-evidence`
+- `POST /api/sources/access-validation-evidence`
+- `GET /api/sources/access-validation-evidence-coverage`
+- `POST /api/sources/access-validation-evidence-coverage/tasks`
+- `GET /api/sources/access-matrix`
+- `GET /api/sources/access-review-queue`
+- `GET /api/sources/access-gate`
+- `GET /api/sources/summary-snapshots`
+- `POST /api/sources/summary-snapshots`
+- `GET /api/sources/summary-snapshots/diff?snapshotId=latest`
+- `GET /api/diagnostics`
+- `GET /api/governance`
+- `GET /api/governance/execution-views`
+- `POST /api/governance/execution-views`
+- `GET /api/governance/execution-policy`
+- `POST /api/governance/execution-policy`
+- `GET /api/agent-control-plane`
+- `GET /api/agent-control-plane/decision`
+- `GET /api/agent-control-plane/decision-snapshots`
+- `POST /api/agent-control-plane/decision-snapshots`
+- `GET /api/agent-control-plane/baseline-status`
+- `GET /api/agent-control-plane-snapshots`
+- `GET /api/agent-control-plane-snapshots/diff?snapshotId=...`
+- `GET /api/agent-control-plane-snapshots/diff?snapshotId=latest`
+- `GET /api/agent-control-plane-snapshots/diff?snapshotId=baseline`
+- `POST /api/agent-control-plane-snapshots/baseline`
+- `POST /api/agent-control-plane-snapshots/baseline/clear`
+- `POST /api/agent-control-plane-snapshots/baseline/refresh`
+- `POST /api/agent-control-plane-snapshots`
+- `GET /api/agent-work-orders`
+- `GET /api/agent-work-order-snapshots`
+- `POST /api/agent-work-order-snapshots`
+- `GET /api/agent-work-order-runs`
+- `POST /api/agent-work-order-runs`
+- `POST /api/agent-work-order-runs/batch`
+- `POST /api/agent-work-order-runs/retention`
+- `POST /api/agent-work-order-runs/sla-breaches`
+- `POST /api/agent-work-order-runs/sla-breaches/resolve`
+- `GET /api/agent-work-order-runs/sla-ledger`
+- `GET /api/agent-work-order-runs/sla-ledger-snapshots`
+- `POST /api/agent-work-order-runs/sla-ledger-snapshots`
+- `PATCH /api/agent-work-order-runs/:id`
+- `POST /api/governance/bootstrap`
+- `POST /api/governance/queue/execute`
+- `POST /api/governance/queue/suppress`
+- `POST /api/governance/queue/restore`
+- `GET /api/project-profiles`
+- `POST /api/project-profiles`
+- `GET /api/project-profile-history`
+- `GET /api/findings`
+- `POST /api/findings/refresh`
+- `GET /api/tasks`
+- `POST /api/tasks`
+- `PATCH /api/tasks/:id`
+- `GET /api/workflows`
+- `POST /api/workflows`
+- `PATCH /api/workflows/:id`
+- `GET /api/script-runs`
+- `GET /api/agent-sessions`
+- `POST /api/agent-sessions`
+- `GET /api/notes`
+- `POST /api/notes`
+- `PATCH /api/notes/:id`
+- `GET /api/milestones`
+- `POST /api/milestones`
+- `PATCH /api/milestones/:id`

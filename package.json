@@ -1,0 +1,11 @@
+{
+  "name": "workspace-audit",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "generate": "node generate-audit.mjs",
+    "serve": "node server.mjs",
+    "test": "node tests/run-tests.mjs"
+  }
+}

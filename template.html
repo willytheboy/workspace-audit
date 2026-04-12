@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <title>Workspace Audit Pro</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="dashboard">
+    <header class="header">
+      <div class="header-copy">
+        <h1>Workspace Audit Pro</h1>
+        <p class="meta-info" id="meta-info">Loading workspace insights...</p>
+        <div class="status-strip" id="runtime-status"></div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="refresh-audit-btn">
+          <svg class="btn-icon btn-icon-align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh Audit
+        </button>
+        <button class="btn btn-command" id="command-palette-btn" type="button">
+          Commands
+          <span class="btn-kbd">Ctrl+K</span>
+        </button>
+        <button class="btn" id="open-settings-btn" type="button">Settings</button>
+        <button class="btn" id="theme-btn">
+          <svg class="btn-icon btn-icon-align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          Theme
+        </button>
+        <button class="btn" id="export-csv">
+          <svg class="btn-icon btn-icon-align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          Export
+        </button>
+      </div>
+    </header>
+
+    <div class="kpi-grid" id="kpi-container"></div>
+
+    <div class="main-layout">
+      <aside class="sidebar">
+        <div class="filter-group">
+          <label>Search Directory</label>
+          <input type="text" id="search" placeholder="Type app name, tech, or path...">
+        </div>
+        <div class="filter-group">
+          <label>Filter by Zone</label>
+          <select id="zone-filter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Filter by Category</label>
+          <select id="cat-filter"></select>
+        </div>
+        <div class="filter-group">
+          <label>Sort Inventory</label>
+          <select id="sort-select">
+            <option value="qualityScore-desc">Highest Health First</option>
+            <option value="qualityScore-asc">Lowest Health First</option>
+            <option value="name-asc">Alphabetical (A-Z)</option>
+            <option value="freshnessScore-desc">Recently Updated</option>
+            <option value="sourceFiles-desc">Most Complex (File Count)</option>
+          </select>
+        </div>
+        <div class="filter-group toggle-card">
+          <input class="toggle-checkbox" type="checkbox" id="show-archived">
+          <label class="toggle-label" for="show-archived">Show Archived Projects</label>
+        </div>
+      </aside>
+
+      <main class="content-area">
+        <div class="view-toggles">
+          <button class="view-btn active" data-view="grid">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            Cards
+          </button>
+          <button class="view-btn" data-view="table">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            List
+          </button>
+          <button class="view-btn" data-view="graph">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            Graph
+          </button>
+          <button class="view-btn" data-view="findings">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Findings
+          </button>
+          <button class="view-btn" data-view="trends">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            Trends
+          </button>
+          <button class="view-btn" data-view="sources">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+            Sources
+          </button>
+          <button class="view-btn" data-view="governance">
+            <svg class="btn-icon btn-icon-align-text" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6m3 6V7m3 10v-4m3 4V5M5 19h14"></path></svg>
+            Governance
+          </button>
+        </div>
+        
+        <div class="app-grid" id="app-grid"></div>
+        
+        <div class="app-table-wrapper" id="app-table-wrapper">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>App Name</th>
+                <th>Zone</th>
+                <th>Category</th>
+                <th>Health Score</th>
+                <th>Tech Stack</th>
+                <th>Complexity</th>
+              </tr>
+            </thead>
+            <tbody id="app-table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="panel-shell panel-shell-graph" id="app-graph-wrapper">
+          <svg id="architecture-graph" width="100%" height="100%"></svg>
+        </div>
+
+        <div class="panel-shell panel-shell-scroll" id="app-findings-wrapper">
+          <div class="panel-header">
+            <h2>Persisted Findings</h2>
+            <div class="panel-controls">
+              <div class="status-strip panel-status" id="findings-status"></div>
+              <button class="btn panel-refresh-btn" id="refresh-findings-btn" type="button">Refresh Findings</button>
+            </div>
+          </div>
+          <div class="stack-list" id="findings-list"></div>
+        </div>
+
+        <div class="panel-shell panel-shell-scroll" id="app-trends-wrapper">
+          <div class="panel-header">
+            <h2>Historical Trends</h2>
+            <div class="panel-controls">
+              <div class="status-strip panel-status" id="trends-status"></div>
+              <button class="btn panel-refresh-btn" id="refresh-trends-btn" type="button">Refresh Trends</button>
+            </div>
+          </div>
+          <div class="stack-list" id="trends-charts"></div>
+        </div>
+
+        <div class="panel-shell panel-shell-scroll" id="app-sources-wrapper">
+          <div class="panel-header">
+            <h2 class="panel-title-reset">Manage Data Sources</h2>
+            <div class="panel-controls">
+              <div class="status-strip panel-status" id="sources-status"></div>
+              <button class="btn panel-refresh-btn" id="open-source-setup-btn" type="button">Setup Source</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-summary-btn" type="button">Copy Summary</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-requirements-btn" type="button">Copy Access</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-checklist-btn" type="button">Copy Checklist</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-validation-runbook-btn" type="button">Copy Runbook</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-validation-evidence-btn" type="button">Copy Evidence</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-matrix-btn" type="button">Copy Matrix</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-review-queue-btn" type="button">Copy Review Queue</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-access-gate-btn" type="button">Copy Gate</button>
+              <button class="btn panel-refresh-btn" id="save-sources-summary-snapshot-btn" type="button">Save Snapshot</button>
+              <button class="btn panel-refresh-btn" id="copy-sources-summary-drift-btn" type="button">Copy Drift</button>
+              <button class="btn panel-refresh-btn" id="refresh-sources-btn" type="button">Refresh Sources</button>
+            </div>
+          </div>
+          <p class="panel-copy">Add external folders, drives, or web sources (GitHub, Vercel, Supabase, Lovable, Claude, Gemini, ChatGPT) to track them in the workspace audit database.</p>
+          <form class="source-form" id="add-source-form">
+            <select class="source-control" id="source-type">
+              <option value="local">Local Folder / Drive</option>
+              <option value="github">GitHub Repository</option>
+              <option value="vercel">Vercel Project</option>
+              <option value="supabase">Supabase Instance</option>
+              <option value="lovable">Lovable Project</option>
+              <option value="claude">Claude Chat / Project</option>
+              <option value="gemini">Gemini / AI Studio</option>
+              <option value="chatgpt">ChatGPT Session</option>
+            </select>
+            <input class="source-control source-input" type="text" id="source-url" placeholder="Path or URL (e.g. C:\projects or https://github.com/...)" required>
+            <button type="submit" class="btn btn-primary">Add Source</button>
+          </form>
+          <div class="source-list" id="sources-list"></div>
+        </div>
+
+        <div class="panel-shell panel-shell-scroll" id="app-governance-wrapper">
+          <div class="panel-header">
+            <h2>Portfolio Governance</h2>
+            <div class="panel-controls">
+              <div class="status-strip panel-status" id="governance-status"></div>
+              <button class="btn panel-refresh-btn" id="seed-governance-profiles-btn" type="button">Seed Profiles</button>
+              <button class="btn panel-refresh-btn" id="seed-governance-starter-packs-btn" type="button">Seed Starter Packs</button>
+              <button class="btn panel-refresh-btn" id="execute-governance-queue-btn" type="button">Execute Queue</button>
+              <button class="btn panel-refresh-btn" id="suppress-governance-queue-btn" type="button">Suppress Queue</button>
+              <button class="btn panel-refresh-btn" id="start-queued-agent-work-order-runs-btn" type="button">Start Queued Runs</button>
+              <button class="btn panel-refresh-btn" id="block-stale-agent-work-order-runs-btn" type="button">Block Stale Runs</button>
+              <button class="btn panel-refresh-btn" id="action-sla-breach-agent-work-order-runs-btn" type="button">Action SLA Breaches</button>
+              <button class="btn panel-refresh-btn" id="resolve-sla-breach-agent-work-order-runs-btn" type="button">Resolve SLA Breaches</button>
+              <button class="btn panel-refresh-btn" id="retry-terminal-agent-work-order-runs-btn" type="button">Retry Terminal Runs</button>
+              <button class="btn panel-refresh-btn" id="archive-completed-agent-work-order-runs-btn" type="button">Archive Completed Runs</button>
+              <button class="btn panel-refresh-btn" id="apply-agent-execution-retention-btn" type="button">Apply Retention</button>
+              <button class="btn panel-refresh-btn" id="save-governance-execution-view-btn" type="button">Save Exec View</button>
+              <button class="btn panel-refresh-btn" id="save-agent-execution-policy-btn" type="button">Save SLA Policy</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-summary-btn" type="button">Copy Summary</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-source-access-gate-btn" type="button">Copy Source Access Gate</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-source-access-queue-btn" type="button">Copy Source Access Queue</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-source-access-validation-evidence-btn" type="button">Copy Source Evidence</button>
+              <button class="btn panel-refresh-btn" id="seed-governance-source-evidence-coverage-tasks-btn" type="button">Seed Evidence Tasks</button>
+              <button class="btn panel-refresh-btn" id="save-source-access-validation-evidence-snapshot-btn" type="button">Save Source Evidence</button>
+              <button class="btn panel-refresh-btn" id="copy-source-access-validation-evidence-drift-btn" type="button">Copy Source Evidence Drift</button>
+              <button class="btn panel-refresh-btn" id="seed-governance-source-access-tasks-btn" type="button">Seed Source Tasks</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-source-access-task-ledger-btn" type="button">Copy Source Task Ledger</button>
+              <button class="btn panel-refresh-btn" id="save-source-access-task-ledger-snapshot-btn" type="button">Save Source Task Ledger</button>
+              <button class="btn panel-refresh-btn" id="copy-source-access-task-ledger-drift-btn" type="button">Copy Source Task Drift</button>
+              <button class="btn panel-refresh-btn" id="save-agent-control-plane-snapshot-btn" type="button">Save Control Plane</button>
+              <button class="btn panel-refresh-btn" id="save-agent-control-plane-decision-snapshot-btn" type="button">Save Decision</button>
+              <button class="btn panel-refresh-btn" id="save-agent-control-plane-baseline-snapshot-btn" type="button">Save Baseline</button>
+              <button class="btn panel-refresh-btn" id="save-agent-work-order-snapshot-btn" type="button">Save Work Orders</button>
+              <button class="btn panel-refresh-btn" id="save-sla-ledger-snapshot-btn" type="button">Save SLA Ledger</button>
+              <button class="btn panel-refresh-btn" id="copy-agent-work-orders-btn" type="button">Copy Work Orders</button>
+              <button class="btn panel-refresh-btn" id="copy-agent-execution-briefs-btn" type="button">Copy Run Briefs</button>
+              <button class="btn panel-refresh-btn" id="copy-agent-control-plane-btn" type="button">Copy Control Plane</button>
+              <button class="btn panel-refresh-btn" id="copy-latest-agent-control-plane-drift-btn" type="button">Copy Latest Drift</button>
+              <button class="btn panel-refresh-btn" id="copy-baseline-agent-control-plane-drift-btn" type="button">Copy Baseline Drift</button>
+              <button class="btn panel-refresh-btn" id="copy-agent-control-plane-baseline-status-btn" type="button">Copy Baseline Status</button>
+              <button class="btn panel-refresh-btn" id="copy-agent-control-plane-decision-btn" type="button">Copy Decision</button>
+              <button class="btn panel-refresh-btn" id="clear-agent-control-plane-baseline-btn" type="button">Clear Baseline</button>
+              <button class="btn panel-refresh-btn" id="refresh-agent-control-plane-baseline-btn" type="button">Refresh Baseline</button>
+              <button class="btn panel-refresh-btn" id="copy-sla-breach-ledger-btn" type="button">Copy SLA Ledger</button>
+              <button class="btn panel-refresh-btn" id="export-governance-report-btn" type="button">Export Report</button>
+              <button class="btn panel-refresh-btn" id="refresh-governance-btn" type="button">Refresh Governance</button>
+            </div>
+          </div>
+          <p class="panel-copy">Review the persisted execution layer across decisions, milestones, workflows, tasks, and findings. This is the portfolio control surface above individual project workbenches.</p>
+          <div class="source-form governance-controls">
+            <input class="source-control source-input" id="governance-search" type="text" placeholder="Filter by project, owner, title, or status">
+            <select class="source-control" id="governance-scope">
+              <option value="all">All Sections</option>
+              <option value="registry">Project Registry</option>
+              <option value="queue">Action Queue</option>
+              <option value="operations">Operation Log</option>
+              <option value="runbook">Workflow Runbook</option>
+              <option value="agents">Agent Sessions</option>
+              <option value="data-sources">Data Sources Access</option>
+              <option value="readiness">Agent Readiness</option>
+              <option value="work-orders">Work Orders</option>
+              <option value="execution">Execution Queue</option>
+              <option value="sla-ledger">SLA Breach Ledger</option>
+              <option value="history">Profile History</option>
+              <option value="activity">Recent Activity</option>
+              <option value="decisions">Decision Log</option>
+              <option value="milestones">Milestone Focus</option>
+              <option value="workflows">Workflow Queue</option>
+            </select>
+            <select class="source-control" id="governance-sort">
+              <option value="recent">Sort: Recent</option>
+              <option value="project">Sort: Project</option>
+              <option value="owner">Sort: Owner / Steward</option>
+              <option value="status">Sort: Status</option>
+            </select>
+            <select class="source-control" id="governance-execution-status">
+              <option value="all">Execution: All</option>
+              <option value="active">Execution: Active</option>
+              <option value="completed">Execution: Completed</option>
+              <option value="sla-breached">Execution: SLA Breached</option>
+              <option value="sla-resolved">Execution: SLA Resolved</option>
+              <option value="queued">Execution: Queued</option>
+              <option value="running">Execution: Running</option>
+              <option value="blocked">Execution: Blocked</option>
+              <option value="passed">Execution: Passed</option>
+              <option value="failed">Execution: Failed</option>
+              <option value="cancelled">Execution: Cancelled</option>
+            </select>
+            <select class="source-control" id="governance-execution-retention">
+              <option value="10">Retention: Keep 10 Completed</option>
+              <option value="25" selected>Retention: Keep 25 Completed</option>
+              <option value="50">Retention: Keep 50 Completed</option>
+              <option value="100">Retention: Keep 100 Completed</option>
+            </select>
+            <select class="source-control" id="governance-execution-stale-threshold">
+              <option value="6">SLA: Stale After 6h</option>
+              <option value="12">SLA: Stale After 12h</option>
+              <option value="24" selected>SLA: Stale After 24h</option>
+              <option value="48">SLA: Stale After 48h</option>
+              <option value="72">SLA: Stale After 72h</option>
+            </select>
+            <select class="source-control" id="governance-execution-saved-view">
+              <option value="">Saved View: Current filters</option>
+            </select>
+            <label class="source-control governance-inline-toggle" for="governance-show-archived-execution">
+              <input class="toggle-checkbox" type="checkbox" id="governance-show-archived-execution">
+              Show Archived Runs
+            </label>
+          </div>
+          <div class="stack-list" id="governance-panels"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div class="command-palette-overlay" id="command-palette" aria-hidden="true">
+    <div class="command-palette-panel" role="dialog" aria-modal="true" aria-label="Command palette">
+      <div class="command-palette-input-row">
+        <input
+          class="command-palette-input"
+          id="command-palette-input"
+          type="text"
+          placeholder="Search commands, views, or projects..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <span class="btn-kbd">Ctrl+K</span>
+      </div>
+      <div class="command-palette-list" id="command-palette-list"></div>
+      <div class="command-palette-empty" id="command-palette-empty" hidden>No matching commands.</div>
+      <div class="command-palette-footer">
+        <span><span class="btn-kbd">↑</span><span class="btn-kbd">↓</span> navigate</span>
+        <span><span class="btn-kbd">↵</span> run</span>
+        <span><span class="btn-kbd">Esc</span> close</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="setup-modal-overlay" id="source-setup-modal" aria-hidden="true">
+    <div class="setup-modal-card" role="dialog" aria-modal="true" aria-label="Source setup">
+      <div class="setup-modal-header">
+        <div>
+          <h2 class="setup-modal-title" id="source-setup-title">Connect a Source</h2>
+          <p class="setup-modal-subtitle" id="source-setup-subtitle">Start with a local workspace, repo, deployment, or backend service.</p>
+        </div>
+        <button class="modal-close" id="source-setup-close" type="button">&times;</button>
+      </div>
+      <div class="setup-modal-body" id="source-setup-body"></div>
+    </div>
+  </div>
+
+  <div class="setup-modal-overlay" id="settings-modal" aria-hidden="true">
+    <div class="setup-modal-card settings-modal-card" role="dialog" aria-modal="true" aria-label="Settings">
+      <div class="setup-modal-header">
+        <div>
+          <h2 class="setup-modal-title">Settings</h2>
+          <p class="setup-modal-subtitle">Workspace diagnostics, source state, and operational controls.</p>
+        </div>
+        <button class="modal-close" id="settings-close" type="button">&times;</button>
+      </div>
+      <div class="settings-tabs">
+        <button type="button" class="settings-tab active" data-settings-tab="workspace">Workspace</button>
+        <button type="button" class="settings-tab" data-settings-tab="sources">Sources</button>
+        <button type="button" class="settings-tab" data-settings-tab="diagnostics">Diagnostics</button>
+        <button type="button" class="settings-tab" data-settings-tab="about">About</button>
+      </div>
+      <div id="settings-panel"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="app-modal">
+    <div class="modal-content workbench-modal">
+      <div class="workbench-header">
+        <div class="workbench-header-copy">
+          <div class="workbench-title-row">
+            <h2 id="modal-title" class="workbench-title">Project</h2>
+            <span id="modal-score-badge" class="tag workbench-score-badge">Health</span>
+          </div>
+          <p id="modal-path" class="workbench-path"></p>
+          <div id="modal-header-tags" class="tags"></div>
+        </div>
+        <div class="workbench-header-actions">
+          <button class="btn btn-inline" id="modal-vscode-btn" type="button">
+            <svg class="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            Open in Cursor
+          </button>
+          <button class="modal-close" id="modal-close" type="button">&times;</button>
+        </div>
+      </div>
+
+      <div class="workbench-tab-row">
+        <button class="workbench-tab active" type="button" data-workbench-tab="overview">Overview</button>
+        <button class="workbench-tab" type="button" data-workbench-tab="findings">Findings</button>
+        <button class="workbench-tab" type="button" data-workbench-tab="tasks">Tasks</button>
+        <button class="workbench-tab" type="button" data-workbench-tab="workflow">Workflow</button>
+        <button class="workbench-tab" type="button" data-workbench-tab="memory">Memory</button>
+        <button class="workbench-tab" type="button" data-workbench-tab="launchpad">Launchpad</button>
+      </div>
+
+      <div class="workbench-body">
+        <section class="workbench-panel active" data-workbench-panel="overview">
+          <div class="workbench-grid">
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>About</h3>
+                </div>
+                <p id="modal-desc" class="workbench-copy"></p>
+              </section>
+
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Stack & Languages</h3>
+                </div>
+                <div id="modal-stack" class="tags"></div>
+              </section>
+
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Project Diagnostics</h3>
+                </div>
+                <div class="metrics" id="modal-metrics"></div>
+              </section>
+
+              <section class="workbench-section" id="modal-warnings-section" hidden>
+                <div class="workbench-section-header">
+                  <h3>Insights & Warnings</h3>
+                </div>
+                <div id="modal-warnings" class="workbench-list"></div>
+              </section>
+            </div>
+
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <div>
+                    <h3>Governance Profile</h3>
+                    <p class="workbench-section-copy">Persist owner, lifecycle, priority tier, and target state for this project.</p>
+                  </div>
+                </div>
+                <form id="workbench-profile-form" class="workbench-form">
+                  <div class="workbench-form-grid workbench-form-grid-compact">
+                    <input class="workbench-input" id="workbench-profile-owner" type="text" placeholder="Owner or steward">
+                    <select class="workbench-select" id="workbench-profile-status">
+                      <option value="unassigned" selected>Unassigned</option>
+                      <option value="active">Active</option>
+                      <option value="watch">Watch</option>
+                      <option value="blocked">Blocked</option>
+                      <option value="hold">On Hold</option>
+                      <option value="retired">Retired</option>
+                    </select>
+                  </div>
+                  <div class="workbench-form-grid workbench-form-grid-compact">
+                    <select class="workbench-select" id="workbench-profile-lifecycle">
+                      <option value="incubating">Incubating</option>
+                      <option value="active" selected>Active</option>
+                      <option value="stabilizing">Stabilizing</option>
+                      <option value="sunset">Sunset</option>
+                    </select>
+                    <select class="workbench-select" id="workbench-profile-tier">
+                      <option value="core">Core</option>
+                      <option value="important">Important</option>
+                      <option value="supporting" selected>Supporting</option>
+                      <option value="experimental">Experimental</option>
+                    </select>
+                  </div>
+                  <div class="workbench-form-grid">
+                    <select class="workbench-select" id="workbench-profile-target">
+                      <option value="scale">Scale</option>
+                      <option value="stabilize" selected>Stabilize</option>
+                      <option value="merge">Merge</option>
+                      <option value="archive">Archive</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Save Profile</button>
+                  </div>
+                  <textarea class="workbench-textarea" id="workbench-profile-summary" placeholder="Short governance note: why this project matters, what should happen next, or what risk it carries."></textarea>
+                </form>
+                <div id="workbench-profile-summary-card" class="workbench-list"></div>
+                <div class="workbench-section-header">
+                  <div>
+                    <h3>Profile History</h3>
+                    <p class="workbench-section-copy">Recent governance changes captured for this project.</p>
+                  </div>
+                </div>
+                <div id="workbench-profile-history-list" class="workbench-list"></div>
+              </section>
+
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Convergence</h3>
+                  <p class="workbench-section-copy">Projects with strong overlap in domain, stack, or architecture.</p>
+                </div>
+                <div id="modal-similar" class="workbench-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="workbench-panel" data-workbench-panel="findings">
+          <section class="workbench-section">
+            <div class="workbench-section-header">
+              <div>
+                <h3>Project Findings</h3>
+                <p class="workbench-section-copy">Persisted portfolio findings filtered to this project.</p>
+              </div>
+              <button class="btn" id="workbench-refresh-findings" type="button">Refresh Findings</button>
+            </div>
+            <div id="workbench-findings-list" class="workbench-list"></div>
+          </section>
+        </section>
+
+        <section class="workbench-panel" data-workbench-panel="tasks">
+          <div class="workbench-grid">
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Create Task</h3>
+                  <p class="workbench-section-copy">Capture concrete follow-up work against this project.</p>
+                </div>
+                <form id="workbench-task-form" class="workbench-form">
+                  <input class="workbench-input" id="workbench-task-title" type="text" placeholder="Task title" required>
+                  <textarea class="workbench-textarea" id="workbench-task-description" placeholder="What needs to happen next?"></textarea>
+                  <div class="workbench-form-grid">
+                    <select class="workbench-select" id="workbench-task-priority">
+                      <option value="high">High priority</option>
+                      <option value="medium" selected>Medium priority</option>
+                      <option value="low">Low priority</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Save Task</button>
+                  </div>
+                </form>
+              </section>
+            </div>
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Tracked Tasks</h3>
+                  <p class="workbench-section-copy">Persisted tasks linked to this project.</p>
+                </div>
+                <div id="workbench-tasks-list" class="workbench-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="workbench-panel" data-workbench-panel="workflow">
+          <div class="workbench-grid">
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Create Workflow</h3>
+                  <p class="workbench-section-copy">Track a brief, integration stream, or implementation phase for this project.</p>
+                </div>
+                <form id="workbench-workflow-form" class="workbench-form">
+                  <input class="workbench-input" id="workbench-workflow-title" type="text" placeholder="Workflow title" required>
+                  <textarea class="workbench-textarea" id="workbench-workflow-brief" placeholder="Short brief or intended outcome"></textarea>
+                  <div class="workbench-form-grid workbench-form-grid-compact">
+                    <select class="workbench-select" id="workbench-workflow-phase">
+                      <option value="brief">Brief</option>
+                      <option value="planning">Planning</option>
+                      <option value="approval">Approval</option>
+                      <option value="implementation" selected>Implementation</option>
+                      <option value="review">Review</option>
+                      <option value="done">Done</option>
+                    </select>
+                    <select class="workbench-select" id="workbench-workflow-status">
+                      <option value="draft" selected>Draft</option>
+                      <option value="active">Active</option>
+                      <option value="awaiting-approval">Awaiting Approval</option>
+                      <option value="approved">Approved</option>
+                      <option value="in-review">In Review</option>
+                      <option value="done">Done</option>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Save Workflow</button>
+                </form>
+              </section>
+            </div>
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Workflow Stream</h3>
+                  <p class="workbench-section-copy">Persisted work streams associated with this project.</p>
+                </div>
+                <div id="workbench-workflows-list" class="workbench-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="workbench-panel" data-workbench-panel="memory">
+          <div class="workbench-grid">
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Create Note</h3>
+                  <p class="workbench-section-copy">Capture project notes, decisions, and context that should persist beyond a scan.</p>
+                </div>
+                <form id="workbench-note-form" class="workbench-form">
+                  <input class="workbench-input" id="workbench-note-title" type="text" placeholder="Note title" required>
+                  <textarea class="workbench-textarea" id="workbench-note-body" placeholder="Note, decision, or context"></textarea>
+                  <div class="workbench-form-grid">
+                    <select class="workbench-select" id="workbench-note-kind">
+                      <option value="note" selected>Note</option>
+                      <option value="decision">Decision</option>
+                      <option value="context">Context</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Save Note</button>
+                  </div>
+                </form>
+              </section>
+
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Project Memory</h3>
+                  <p class="workbench-section-copy">Durable notes and decisions for this project.</p>
+                </div>
+                <div id="workbench-notes-list" class="workbench-list"></div>
+              </section>
+            </div>
+
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Create Milestone</h3>
+                  <p class="workbench-section-copy">Track delivery targets and major integration checkpoints.</p>
+                </div>
+                <form id="workbench-milestone-form" class="workbench-form">
+                  <input class="workbench-input" id="workbench-milestone-title" type="text" placeholder="Milestone title" required>
+                  <textarea class="workbench-textarea" id="workbench-milestone-detail" placeholder="What does this milestone represent?"></textarea>
+                  <div class="workbench-form-grid workbench-form-grid-compact">
+                    <select class="workbench-select" id="workbench-milestone-status">
+                      <option value="planned" selected>Planned</option>
+                      <option value="active">Active</option>
+                      <option value="done">Done</option>
+                    </select>
+                    <input class="workbench-input" id="workbench-milestone-date" type="date">
+                  </div>
+                  <button class="btn btn-primary" type="submit">Save Milestone</button>
+                </form>
+              </section>
+
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Milestones</h3>
+                  <p class="workbench-section-copy">Persisted delivery targets and completion markers for this project.</p>
+                </div>
+                <div id="workbench-milestones-list" class="workbench-list"></div>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <section class="workbench-panel" data-workbench-panel="launchpad">
+          <div class="workbench-grid">
+            <div class="workbench-column">
+              <section class="workbench-section">
+                <div class="workbench-section-header">
+                  <h3>Launchpad</h3>
+                  <p class="workbench-section-copy">Immediate project actions and runtime entry points.</p>
+                </div>
+                <div class="workbench-launch-grid" id="workbench-launch-grid"></div>
+              </section>
+            </div>
+            <div class="workbench-column">
+              <section class="workbench-section" id="modal-scripts-section" hidden>
+                <div class="workbench-section-header">
+                  <h3>Live Commands</h3>
+                  <p class="workbench-section-copy">Run package scripts directly from the workbench.</p>
+                </div>
+                <div id="modal-scripts-list" class="workbench-script-list"></div>
+                <div class="workbench-terminal-shell">
+                  <div class="workbench-terminal-head">
+                    <span>Terminal Output</span>
+                    <button class="workbench-terminal-clear" id="clear-term-btn" type="button">Clear</button>
+                  </div>
+                  <pre id="modal-terminal" class="workbench-terminal"></pre>
+                </div>
+              </section>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- INJECT_DATA_HERE -->
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

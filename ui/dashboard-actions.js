@@ -63,6 +63,7 @@
  *     copyReleaseControl: () => Promise<void>,
  *     copyReleaseCheckpointDrift: () => Promise<void>,
  *     copyReleaseBuildGate: () => Promise<void>,
+ *     bootstrapReleaseBuildGateLocalEvidence: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
@@ -455,6 +456,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "build", "gate", "decision", "deployment", "git", "smoke", "copy"],
         run: () => handlers.copyReleaseBuildGate()
+      },
+      {
+        id: "bootstrap-release-build-gate-local-evidence",
+        label: "Bootstrap release gate evidence",
+        description: "Run a local app smoke check and save a non-secret release checkpoint without updating Vercel.",
+        category: "Actions",
+        keywords: ["governance", "release", "build", "gate", "local", "smoke", "checkpoint", "evidence"],
+        run: () => handlers.bootstrapReleaseBuildGateLocalEvidence()
       },
       {
         id: "save-release-checkpoint",

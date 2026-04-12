@@ -888,3 +888,9 @@
 - [x] Add machine-readable release gate action plan output.
 - [x] Surface release gate action plan in Governance and markdown handoff.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Local Evidence Bootstrap
+
+- [x] Add local release gate evidence bootstrap API for smoke check plus checkpoint capture.
+- [x] Add Governance and command-palette action support for local release evidence bootstrap.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -84,6 +84,7 @@ function createEmptyTableRow(message) {
  *     fetchReleaseSummary: () => Promise<import("./dashboard-types.js").ReleaseSummaryPayload>,
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
+ *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
@@ -1312,6 +1313,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Copying";
           await copyReleaseBuildGate();
           element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-build-gate-bootstrap]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Bootstrapping";
+          await bootstrapReleaseBuildGateLocalEvidence();
+          element.textContent = "Bootstrapped";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3776,6 +3798,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.decision || "review"} release build gate`;
   }
 
+  async function bootstrapReleaseBuildGateLocalEvidence() {
+    const payload = await api.bootstrapReleaseBuildGateLocalEvidence({
+      label: "Local Workspace Audit app",
+      title: "Local release gate checkpoint",
+      notes: "Bootstrap local non-secret release gate evidence from Governance.",
+      status: "review"
+    });
+    await renderGovernance();
+    const smokeStatus = payload.smokeCheck?.status || "not-run";
+    return `Bootstrapped release gate evidence: smoke ${smokeStatus}`;
+  }
+
   async function saveReleaseCheckpoint() {
     const payload = await api.fetchReleaseSummary();
     const created = await api.createReleaseCheckpoint({
@@ -3946,6 +3980,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyReleaseControl,
     copyReleaseCheckpointDrift,
     copyReleaseBuildGate,
+    bootstrapReleaseBuildGateLocalEvidence,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

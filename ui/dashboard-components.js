@@ -3436,6 +3436,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-build-gate-bootstrap-btn",
+              text: "Bootstrap Local Evidence",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateBootstrap: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-checkpoint-drift-copy-btn",
               text: "Copy Drift",
               attrs: { type: "button" },

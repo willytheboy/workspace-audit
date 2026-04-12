@@ -60,6 +60,8 @@
  *     copyAgentWorkOrders: () => Promise<void>,
  *     copyAgentExecutionBriefs: () => Promise<void>,
  *     copyAgentControlPlane: () => Promise<void>,
+ *     copyReleaseControl: () => Promise<void>,
+ *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyAgentControlPlaneBaselineStatus: () => Promise<void>,
@@ -427,6 +429,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "handoff", "copy"],
         run: () => handlers.copyAgentControlPlane()
+      },
+      {
+        id: "copy-release-control",
+        label: "Copy release control",
+        description: "Copy current Git, deployment smoke, and validation state as a release-control markdown handoff.",
+        category: "Actions",
+        keywords: ["governance", "release", "deployment", "git", "vercel", "smoke", "copy"],
+        run: () => handlers.copyReleaseControl()
+      },
+      {
+        id: "save-release-checkpoint",
+        label: "Save release checkpoint",
+        description: "Persist the current non-secret release state for later control-plane drift review.",
+        category: "Actions",
+        keywords: ["governance", "release", "checkpoint", "deployment", "git", "smoke", "save"],
+        run: () => handlers.saveReleaseCheckpoint()
       },
       {
         id: "copy-latest-agent-control-plane-drift",

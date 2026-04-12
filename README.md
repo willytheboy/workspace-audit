@@ -57,6 +57,7 @@ Architecture:
 - Deployment health now derives public deployment targets from Data Sources and exposes non-secret HTTP smoke checks that store only URL, status, latency, and error class in Governance history.
 - The Sources view now renders deployment-health targets inline with per-target smoke-check actions and a copyable non-secret deployment-health handoff.
 - Deployment smoke checks now persist as a non-secret ledger, flow into deployment health, diagnostics, Governance, Agent Control Plane summaries, and Agent Control Plane snapshot drift.
+- Governance now exposes a Release Control Ledger that combines non-secret Git state, deployment smoke evidence, latest validation context, and saved release checkpoints.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.

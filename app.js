@@ -260,6 +260,18 @@ async function copyAgentControlPlane() {
   await views.copyAgentControlPlane();
 }
 
+async function copyReleaseControl() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyReleaseControl();
+}
+
+async function saveReleaseCheckpoint() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.saveReleaseCheckpoint();
+}
+
 async function copyLatestAgentControlPlaneSnapshotDrift() {
   setView("governance");
   await views.renderGovernance();
@@ -500,6 +512,8 @@ const actionRegistry = createDashboardActionRegistry({
     copyAgentWorkOrders,
     copyAgentExecutionBriefs,
     copyAgentControlPlane,
+    copyReleaseControl,
+    saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,
     copyAgentControlPlaneBaselineStatus,
@@ -952,6 +966,18 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-agent-control-plane-btn")),
     "Copying...",
     () => copyAgentControlPlane()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-release-control-btn")),
+    "Copying...",
+    () => copyReleaseControl()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("save-release-checkpoint-btn")),
+    "Saving...",
+    () => saveReleaseCheckpoint()
   );
 
   bindAsyncButton(

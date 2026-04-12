@@ -858,3 +858,9 @@
 - [x] Persist deployment smoke-check results as a bounded non-secret ledger in the SQLite-backed store.
 - [x] Add `GET /api/deployments/smoke-checks`, enrich deployment health, and feed Governance plus Agent Control Plane summaries and snapshot drift.
 - [x] Add Sources toolbar and command-palette copy actions, parser checks, tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Control Ledger
+
+- [x] Add a non-secret release summary that combines Git state, deployment smoke evidence, latest validation context, and saved checkpoints.
+- [x] Add `GET /api/releases/summary`, `POST /api/releases/checkpoints`, Governance toolbar actions, and command-palette actions.
+- [x] Feed release checkpoints into diagnostics, Governance, Agent Control Plane summaries, and Agent Control Plane snapshot drift.

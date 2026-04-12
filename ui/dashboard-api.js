@@ -162,6 +162,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").ReleaseSummaryPayload>}
+   */
+  fetchReleaseSummary() {
+    return fetchJson("/api/releases/summary");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string }} [payload]
+   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>}
+   */
+  createReleaseCheckpoint(payload = {}) {
+    return fetchJson("/api/releases/checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>}
    */
   fetchSourcesAccessRequirements() {

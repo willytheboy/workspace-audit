@@ -890,6 +890,52 @@
  *   markdown: string
  * }} DeploymentSmokeChecksPayload
  * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   status: "ready" | "review" | "hold",
+ *   branch: string,
+ *   commit: string,
+ *   commitShort: string,
+ *   commitMessage: string,
+ *   dirty: boolean,
+ *   changedFileCount: number,
+ *   deploymentStatus: string,
+ *   deploymentSmokeCheckCount: number,
+ *   deploymentSmokeCheckPassCount: number,
+ *   deploymentSmokeCheckFailCount: number,
+ *   validationStatus: string,
+ *   latestScanAt: string,
+ *   notes: string,
+ *   markdown: string,
+ *   createdAt: string
+ * }} ReleaseCheckpointRecord
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     status: "ready" | "review" | "hold",
+ *     releaseCheckpointCount: number,
+ *     deploymentSmokeCheckCount: number,
+ *     deploymentSmokeCheckPassCount: number,
+ *     deploymentSmokeCheckFailCount: number,
+ *     latestScanAt: string,
+ *     validationStatus: string
+ *   },
+ *   git: {
+ *     available: boolean,
+ *     branch: string,
+ *     commit: string,
+ *     commitShort: string,
+ *     commitMessage: string,
+ *     dirty: boolean,
+ *     changedFileCount: number,
+ *     changedFiles?: string[],
+ *     error: string
+ *   },
+ *   latestSmokeCheck: DeploymentSmokeCheckRecord | null,
+ *   checkpoints: ReleaseCheckpointRecord[],
+ *   markdown: string
+ * }} ReleaseSummaryPayload
+ * @typedef {{
  *   generatedAt: string,
  *   summary: {
  *     total: number,

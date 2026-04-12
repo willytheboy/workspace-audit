@@ -81,6 +81,8 @@ function createEmptyTableRow(message) {
  *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
  *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
  *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
+ *     fetchReleaseSummary: () => Promise<import("./dashboard-types.js").ReleaseSummaryPayload>,
+ *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
@@ -3605,6 +3607,22 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await copyText(payload.markdown);
   }
 
+  async function copyReleaseControl() {
+    const payload = await api.fetchReleaseSummary();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.releaseCheckpointCount} release checkpoint${payload.summary.releaseCheckpointCount === 1 ? "" : "s"}`;
+  }
+
+  async function saveReleaseCheckpoint() {
+    const payload = await api.fetchReleaseSummary();
+    const created = await api.createReleaseCheckpoint({
+      title: `Release checkpoint ${payload.git.commitShort || new Date().toISOString()}`,
+      status: payload.summary.status
+    });
+    await renderGovernance();
+    return `Saved ${created.checkpoint.status.toUpperCase()} release`;
+  }
+
   async function copyLatestAgentControlPlaneSnapshotDrift() {
     const diff = await api.fetchAgentControlPlaneSnapshotDiff("latest");
     await copyText(diff.markdown);
@@ -3762,6 +3780,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     resolveVisibleSlaBreaches,
     applyVisibleAgentExecutionRetention,
     copyAgentControlPlane,
+    copyReleaseControl,
+    saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,
     copyAgentControlPlaneBaselineStatus,

@@ -894,3 +894,9 @@
 - [x] Add local release gate evidence bootstrap API for smoke check plus checkpoint capture.
 - [x] Add Governance and command-palette action support for local release evidence bootstrap.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Gate Bootstrap Status Alignment
+
+- [x] Let bootstrap checkpoints inherit computed release status instead of forcing review.
+- [x] Remove the UI-forced review status from local evidence bootstrap.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

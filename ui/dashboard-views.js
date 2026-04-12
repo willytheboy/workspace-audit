@@ -3802,8 +3802,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.bootstrapReleaseBuildGateLocalEvidence({
       label: "Local Workspace Audit app",
       title: "Local release gate checkpoint",
-      notes: "Bootstrap local non-secret release gate evidence from Governance.",
-      status: "review"
+      notes: "Bootstrap local non-secret release gate evidence from Governance."
     });
     await renderGovernance();
     const smokeStatus = payload.smokeCheck?.status || "not-run";

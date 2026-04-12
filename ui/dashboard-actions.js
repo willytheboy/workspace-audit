@@ -33,6 +33,7 @@
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
  *     copySourcesAccessValidationEvidence: () => Promise<void>,
  *     copySourcesAccessValidationEvidenceCoverage: () => Promise<void>,
+ *     copySourcesDeploymentHealth: () => Promise<void>,
  *     copySourcesAccessMatrix: () => Promise<void>,
  *     copySourcesAccessReviewQueue: () => Promise<void>,
  *     copySourcesAccessGate: () => Promise<void>,
@@ -231,6 +232,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "evidence", "coverage", "validation", "copy"],
         run: () => handlers.copySourcesAccessValidationEvidenceCoverage()
+      },
+      {
+        id: "copy-sources-deployment-health",
+        label: "Copy sources deployment health",
+        description: "Copy detected app deployment targets and smoke-check policy as markdown.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "deployments", "vercel", "smoke", "health", "copy"],
+        run: () => handlers.copySourcesDeploymentHealth()
       },
       {
         id: "copy-sources-access-matrix",

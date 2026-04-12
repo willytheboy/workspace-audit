@@ -78,6 +78,8 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
  *     fetchSourcesAccessValidationEvidenceCoverage: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload>,
+ *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
+ *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
@@ -2644,6 +2646,134 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").DeploymentHealthPayload} deploymentHealth
+   */
+  function createDeploymentHealthSection(deploymentHealth) {
+    const section = document.createElement("section");
+    section.className = "deployment-health-deck";
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Deployment Health";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const providerSummary = Object.entries(deploymentHealth.summary.providerCounts || {})
+      .map(([provider, count]) => `${provider}: ${count}`)
+      .join(" | ") || "no deployment providers";
+    const summary = document.createElement("div");
+    summary.textContent = `${deploymentHealth.summary.total} target(s) | ${deploymentHealth.summary.protectedLikely} protected/review likely | ${providerSummary}`;
+    summary.style.color = deploymentHealth.summary.protectedLikely ? "var(--warning)" : "var(--text-muted)";
+    summary.style.fontSize = "0.84rem";
+
+    heading.append(title, summary);
+    section.append(heading);
+
+    const policy = document.createElement("div");
+    policy.textContent = "Smoke checks capture URL, HTTP status, content type, latency, and error class only. Do not paste passwords, tokens, private keys, certificates, cookies, browser sessions, or response bodies.";
+    policy.style.padding = "0.85rem 1rem";
+    policy.style.border = "1px solid var(--border)";
+    policy.style.borderRadius = "0.65rem";
+    policy.style.background = "var(--surface)";
+    policy.style.color = "var(--text-muted)";
+    policy.style.fontSize = "0.82rem";
+    policy.style.lineHeight = "1.45";
+    section.append(policy);
+
+    if (!deploymentHealth.targets.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No deployment targets detected in Data Sources yet. Add public app deployment URLs to track smoke-checkable app endpoints.";
+      empty.style.padding = "1rem";
+      empty.style.border = "1px solid var(--border)";
+      empty.style.borderRadius = "0.65rem";
+      empty.style.background = "var(--surface)";
+      empty.style.color = "var(--text-muted)";
+      section.append(empty);
+      return section;
+    }
+
+    for (const target of deploymentHealth.targets.slice(0, 10)) {
+      const targetColor = target.sourceHealth === "blocked"
+        ? "var(--danger)"
+        : target.protectedLikely
+          ? "var(--warning)"
+          : "var(--success)";
+      const card = document.createElement("div");
+      card.className = "deployment-health-card";
+      card.style.display = "flex";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "1rem";
+      card.style.padding = "1rem";
+      card.style.border = "1px solid var(--border)";
+      card.style.borderRadius = "0.65rem";
+      card.style.background = "var(--surface)";
+      card.style.borderLeft = `4px solid ${targetColor}`;
+
+      const body = document.createElement("div");
+      body.style.display = "flex";
+      body.style.flexDirection = "column";
+      body.style.gap = "0.35rem";
+      body.style.minWidth = "0";
+
+      const cardTitle = document.createElement("div");
+      cardTitle.textContent = target.label || target.host || "Deployment target";
+      cardTitle.style.fontWeight = "800";
+      cardTitle.style.color = "var(--text)";
+
+      const link = document.createElement("a");
+      link.textContent = target.url;
+      link.href = target.url;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.style.color = "var(--primary)";
+      link.style.fontFamily = "var(--font-mono)";
+      link.style.fontSize = "0.82rem";
+      link.style.overflowWrap = "anywhere";
+
+      const meta = document.createElement("div");
+      meta.textContent = `${target.provider || "deployment"} | ${target.sourceHealth || "review"} / ${target.sourceStatus || "registered"} | ${target.accessMethod || "url-review"}${target.protectedLikely ? " | protected/review likely" : ""}`;
+      meta.style.color = "var(--text-muted)";
+      meta.style.fontSize = "0.82rem";
+
+      body.append(cardTitle, link, meta);
+
+      const action = document.createElement("div");
+      action.style.display = "flex";
+      action.style.flexDirection = "column";
+      action.style.alignItems = "flex-end";
+      action.style.gap = "0.4rem";
+
+      const provider = document.createElement("span");
+      provider.textContent = (target.provider || "deployment").toUpperCase();
+      provider.style.color = targetColor;
+      provider.style.fontWeight = "800";
+      provider.style.fontSize = "0.78rem";
+
+      const button = document.createElement("button");
+      button.className = "btn governance-action-btn deployment-smoke-check-btn";
+      button.type = "button";
+      button.textContent = "Smoke Check";
+      button.dataset.deploymentSmokeTargetId = target.id;
+      button.dataset.deploymentSmokeTargetLabel = target.label || target.host || target.url;
+
+      action.append(provider, button);
+      card.append(body, action);
+      section.append(card);
+    }
+
+    return section;
+  }
+
+  /**
    * @param {HTMLElement} container
    * @param {import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[]} snapshots
    */
@@ -2707,6 +2837,39 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     });
   }
 
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindDeploymentHealthActions(container) {
+    container.querySelectorAll("[data-deployment-smoke-target-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const targetId = element.dataset.deploymentSmokeTargetId || "";
+        if (!targetId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Checking";
+          const result = await api.runDeploymentSmokeCheck({ targetId });
+          element.textContent = result.smokeCheck.ok
+            ? `Pass ${result.smokeCheck.httpStatus}`
+            : result.smokeCheck.httpStatus
+              ? `Fail ${result.smokeCheck.httpStatus}`
+              : "Fail";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
   async function renderSources() {
     const container = document.getElementById("sources-list");
     updatePanelState("sources", {
@@ -2720,11 +2883,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
         api.fetchSourcesAccessValidationEvidenceCoverage(),
+        api.fetchDeploymentHealth(),
         api.fetchSourcesSummarySnapshots()
       ]);
       const sources = sourcesPayload.sources || [];
@@ -2736,11 +2900,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           message: "No sources configured."
         });
         renderPanelStatus("sources");
-        container.replaceChildren(createPanelNotice({
+        const emptyFragment = document.createDocumentFragment();
+        emptyFragment.append(createPanelNotice({
           title: "No sources configured",
           message: "Add a local folder or remote workspace source to start tracking it in the dashboard.",
           tone: "var(--warning)"
         }));
+        emptyFragment.append(createDeploymentHealthSection(deploymentHealth));
+        container.replaceChildren(emptyFragment);
+        bindDeploymentHealthActions(container);
         return;
       }
 
@@ -2757,6 +2925,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       for (const source of sources) {
         fragment.append(createSourceItem(source));
       }
+      fragment.append(createDeploymentHealthSection(deploymentHealth));
       fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
       fragment.append(createDataSourcesAccessReviewQueueSection(accessReviewQueue));
       fragment.append(createDataSourcesAccessMatrixSection(accessMatrix));
@@ -2766,6 +2935,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
       container.replaceChildren(fragment);
       bindSourceRegistryActions(container, sources);
+      bindDeploymentHealthActions(container);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {
       updatePanelState("sources", {
@@ -3301,6 +3471,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.covered}/${payload.summary.sourceCount} covered`;
   }
 
+  async function copySourcesDeploymentHealth() {
+    const payload = await api.fetchDeploymentHealth();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.total} deployment target${payload.summary.total === 1 ? "" : "s"}`;
+  }
+
   async function copySourcesAccessMatrix() {
     const payload = await api.fetchSourcesAccessMatrix();
     await copyText(payload.markdown);
@@ -3537,6 +3713,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,
     copySourcesAccessValidationEvidenceCoverage,
+    copySourcesDeploymentHealth,
     copySourcesAccessMatrix,
     copySourcesAccessReviewQueue,
     copySourcesAccessGate,

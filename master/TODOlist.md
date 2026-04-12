@@ -846,3 +846,9 @@
 - [x] Derive deployment-health targets from Data Sources without storing credentials or response bodies.
 - [x] Add `GET /api/deployments/health` and `POST /api/deployments/smoke-check` with local/private URL guardrails.
 - [x] Add API client/types, parser checks, tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Deployment Health Sources UI
+
+- [x] Render deployment-health targets in the Sources view with provider, source health, access method, and secret-handling policy.
+- [x] Add per-target smoke-check actions and a copyable deployment-health markdown handoff from toolbar and command palette.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

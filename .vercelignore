@@ -1,0 +1,11 @@
+.git/
+node_modules/
+
+# Local runtime logs/state should never be uploaded to Vercel.
+*.log
+.tmp-*.log
+dev-server.*.log
+workspace-state.db
+workspace-state.db-*
+workspace-state.json
+history/

@@ -17,6 +17,13 @@ Or use the package scripts from `D:\development\workspace-audit`:
 - `npm run serve`
 - `npm test`
 
+Vercel preview deployment:
+
+- This app can be deployed to Vercel as a static monitoring snapshot.
+- The Vercel deployment serves the generated dashboard shell, `inventory.json`, and browser UI modules.
+- The local `npm run dev` server remains required for live filesystem scans, SQLite-backed state, source validation actions, and local operator workflows.
+- Runtime state files such as `workspace-state.db`, `workspace-state.json`, logs, and history snapshots are excluded from Vercel uploads.
+
 Outputs:
 - `workspace-audit/index.html`
 - `workspace-audit/inventory.json`

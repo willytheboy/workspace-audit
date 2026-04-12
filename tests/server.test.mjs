@@ -2239,6 +2239,40 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(decisionJson.releaseControlOpenTaskCount, 1);
     assert.ok(decisionJson.reasons.some((reason) => reason.code === "release-control-open-tasks"));
     assert.match(decisionJson.markdown, /## Release Control Tasks/);
+
+    const controlPlaneReason = decisionJson.reasons.find((reason) => reason.code === "release-control-open-tasks") || decisionJson.reasons[0];
+    const seedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reasons: [controlPlaneReason] })
+    });
+    assert.equal(seedDecisionTaskResponse.status, 200);
+    const seedDecisionTaskJson = await seedDecisionTaskResponse.json();
+    assert.equal(seedDecisionTaskJson.success, true);
+    assert.equal(seedDecisionTaskJson.totals.requested, 1);
+    assert.equal(seedDecisionTaskJson.totals.created, 1);
+    assert.equal(seedDecisionTaskJson.totals.skipped, 0);
+    assert.equal(seedDecisionTaskJson.createdTasks[0].projectId, "agent-control-plane");
+    assert.equal(seedDecisionTaskJson.createdTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
+    assert.equal(seedDecisionTaskJson.createdTasks[0].secretPolicy, "non-secret-control-plane-remediation-evidence-only");
+
+    const repeatSeedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reasons: [controlPlaneReason] })
+    });
+    assert.equal(repeatSeedDecisionTaskResponse.status, 200);
+    const repeatSeedDecisionTaskJson = await repeatSeedDecisionTaskResponse.json();
+    assert.equal(repeatSeedDecisionTaskJson.totals.created, 0);
+    assert.equal(repeatSeedDecisionTaskJson.totals.skipped, 1);
+
+    const governanceAfterDecisionTaskResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterDecisionTaskResponse.status, 200);
+    const governanceAfterDecisionTaskJson = await governanceAfterDecisionTaskResponse.json();
+    assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskCount, 1);
+    assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionOpenTaskCount, 1);
+    assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
+    assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-tasks-created"));
   } finally {
     server.close();
     await once(server, "close");

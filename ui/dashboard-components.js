@@ -1155,6 +1155,8 @@ export function createGovernanceSummaryGrid(governance) {
       : "var(--warning)";
   const releaseControlTaskCount = summary.releaseControlTaskCount || 0;
   const releaseControlOpenTaskCount = summary.releaseControlOpenTaskCount || 0;
+  const decisionTaskCount = summary.agentControlPlaneDecisionTaskCount || 0;
+  const openDecisionTaskCount = summary.agentControlPlaneDecisionOpenTaskCount || 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1235,6 +1237,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Decision Gate",
       value: decision.toUpperCase(),
       detail: controlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."
+    }),
+    createKpiCard({
+      accentColor: openDecisionTaskCount ? "var(--warning)" : "var(--success)",
+      label: "Decision Tasks",
+      value: `${openDecisionTaskCount}/${decisionTaskCount}`,
+      detail: "Open tasks created from Agent Control Plane decision reasons"
     }),
     createKpiCard({
       accentColor: releaseAccent,
@@ -3281,11 +3289,95 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 controlPlaneDecisionCopy: "true"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn control-plane-decision-tasks-btn",
+              text: "Seed Decision Tasks",
+              attrs: { type: "button" },
+              dataset: {
+                controlPlaneDecisionTasks: "true"
+              }
             })
           ])
         ])
       ]
     : [];
+  const agentControlPlaneDecisionTaskEntries = (governance.agentControlPlaneDecisionTasks || []).map((task) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: task.title || "Control Plane decision task",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.agentControlPlaneDecisionReasonCode || "control-plane-decision"} | decision ${(task.agentControlPlaneDecision || "review").toUpperCase()}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "flex",
+          gap: "0.35rem",
+          flexWrap: "wrap",
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag((task.priority || "normal").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag((task.status || "open").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase()) ? "var(--success)" : "var(--warning)"
+        })
+      ])
+    ]),
+    createElement("div", {
+      text: task.description ? String(task.description).split("\n")[0] : "Track Control Plane remediation without storing credentials, keys, certificates, cookies, or browser sessions.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(task.agentControlPlaneCommandHint || "control-plane-remediation", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(task.secretPolicy || "non-secret-control-plane-remediation-evidence-only", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      })
+    ])
+  ]));
   const releaseSummary = governance.releaseSummary;
   const releaseCheckpoints = Array.isArray(releaseSummary?.checkpoints) ? releaseSummary.checkpoints : [];
   const releaseCheckpointDrift = governance.releaseCheckpointDrift;
@@ -4682,6 +4774,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),
+    createListSection("Control Plane Decision Task Ledger", "Trackable Governance tasks created from Agent Control Plane decision reasons.", agentControlPlaneDecisionTaskEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),

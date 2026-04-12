@@ -919,3 +919,10 @@
 - [x] Surface Release Control tasks in Governance KPI cards, deck ledger, summaries, reports, and command-palette handoffs.
 - [x] Feed Release Control task counts into Agent Control Plane decisions, handoffs, snapshots, and baseline drift metrics.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Seeding
+
+- [x] Add API support for converting Agent Control Plane decision reasons into deduplicated Governance tasks.
+- [x] Add Governance deck and command-palette controls for seeding decision tasks.
+- [x] Feed Control Plane decision task counts into Agent Control Plane decisions, handoffs, snapshots, and baseline drift metrics.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

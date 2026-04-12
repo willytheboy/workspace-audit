@@ -71,6 +71,7 @@
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyAgentControlPlaneBaselineStatus: () => Promise<void>,
  *     copyAgentControlPlaneDecision: () => Promise<void>,
+ *     seedAgentControlPlaneDecisionTasks: () => Promise<void>,
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     copySlaBreachLedger: () => Promise<void>,
@@ -522,6 +523,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "decision", "gate", "copy"],
         run: () => handlers.copyAgentControlPlaneDecision()
+      },
+      {
+        id: "seed-agent-control-plane-decision-tasks",
+        label: "Seed control plane decision tasks",
+        description: "Create deduplicated Governance tasks from current Agent Control Plane decision reasons.",
+        category: "Actions",
+        keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "seed"],
+        run: () => handlers.seedAgentControlPlaneDecisionTasks()
       },
       {
         id: "clear-agent-control-plane-baseline",

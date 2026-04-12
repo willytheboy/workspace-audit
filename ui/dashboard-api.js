@@ -491,6 +491,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }> }} [payload]
+   * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  createAgentControlPlaneDecisionTasks(payload = {}) {
+    return fetchJson("/api/agent-control-plane/decision/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentControlPlaneDecisionSnapshot[]>}
    */
   fetchAgentControlPlaneDecisionSnapshots() {

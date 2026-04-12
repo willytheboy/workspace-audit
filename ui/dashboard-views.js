@@ -517,6 +517,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.releaseBuildGateActionId || "", task.releaseBuildGateDecision || "", task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
+      agentControlPlaneDecisionTasks: filterAndSort(
+        governance.agentControlPlaneDecisionTasks || [],
+        (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.agentControlPlaneDecisionReasonCode || "", task.agentControlPlaneDecision || "", task.description || ""],
+        (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
+      ),
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -673,6 +678,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseCheckpointDrift = null;
       if (scope !== "release") filtered.releaseBuildGate = null;
       if (scope !== "release") filtered.releaseControlTasks = [];
+      if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1459,6 +1465,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-decision-tasks]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await seedAgentControlPlaneDecisionTasks();
+          element.textContent = "Created";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -1824,6 +1851,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
+      `Control Plane decision tasks: ${governanceCache?.summary.agentControlPlaneDecisionOpenTaskCount ?? 0} open / ${governanceCache?.summary.agentControlPlaneDecisionTaskCount ?? 0} total`,
       `Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -1861,6 +1889,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible agent sessions: ${governance.agentSessions.length}`,
       `Visible control plane baseline status: ${governance.agentControlPlaneBaselineStatus ? "yes" : "no"}`,
       `Visible control plane decision: ${governance.agentControlPlaneDecision ? "yes" : "no"}`,
+      `Visible Control Plane decision tasks: ${governance.agentControlPlaneDecisionTasks?.length || 0}`,
       `Visible Release Control tasks: ${governance.releaseControlTasks?.length || 0}`,
       `Visible Data Sources access gate: ${governance.dataSourcesAccessGate ? "yes" : "no"}`,
       `Visible Data Sources access review queue items: ${governance.dataSourcesAccessReviewQueue?.items?.length || 0}`,
@@ -1939,6 +1968,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `- Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `- Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
+      `- Control Plane decision tasks: ${governanceCache?.summary.agentControlPlaneDecisionOpenTaskCount ?? 0} open / ${governanceCache?.summary.agentControlPlaneDecisionTaskCount ?? 0} total`,
       `- Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `- Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `- Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -2048,6 +2078,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Agent-ready projects: ${governance.agentControlPlaneDecision.agentReadyProjects || 0}/${governance.agentControlPlaneDecision.agentReadinessItems || 0}`);
       lines.push(`- Release build gate: ${governance.agentControlPlaneDecision.releaseBuildGateDecision || governance.releaseBuildGate?.decision || "not-evaluated"} (risk ${governance.agentControlPlaneDecision.releaseBuildGateRiskScore ?? governance.releaseBuildGate?.riskScore ?? 0})`);
       lines.push(`- Release Control tasks: ${governance.agentControlPlaneDecision.releaseControlOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.releaseControlTaskCount || 0} total`);
+      lines.push(`- Control Plane decision tasks: ${governance.agentControlPlaneDecision.agentControlPlaneDecisionOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.agentControlPlaneDecisionTaskCount || 0} total`);
       lines.push(`- Active runs: ${governance.agentControlPlaneDecision.activeRuns || 0}, stale active: ${governance.agentControlPlaneDecision.staleActiveRuns || 0}, SLA breached: ${governance.agentControlPlaneDecision.slaBreachedRuns || 0}`);
       lines.push(`- Data Sources access tasks: ${governance.agentControlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.dataSourcesAccessTaskCount || 0} total`);
       const reasons = Array.isArray(governance.agentControlPlaneDecision.reasons) ? governance.agentControlPlaneDecision.reasons : [];
@@ -2058,6 +2089,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible control plane decision.");
+    }
+
+    lines.push("", "## Control Plane Decision Task Ledger");
+    if (governance.agentControlPlaneDecisionTasks?.length) {
+      for (const task of governance.agentControlPlaneDecisionTasks) {
+        lines.push(`- ${task.title || "Control Plane decision task"}: ${task.status || "open"} / ${task.priority || "normal"}`);
+        lines.push(`  Reason: ${task.agentControlPlaneDecisionReasonCode || "control-plane-decision"}`);
+        lines.push(`  Decision: ${task.agentControlPlaneDecision || "review"}`);
+        if (task.agentControlPlaneCommandHint) {
+          lines.push(`  Command hint: ${task.agentControlPlaneCommandHint}`);
+        }
+        if (task.description) {
+          lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
+        }
+      }
+    } else {
+      lines.push("- No visible Control Plane decision tasks.");
     }
 
     lines.push("", "## Release Control Task Ledger");
@@ -3394,6 +3442,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentSessions.length
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
         + (governance.agentControlPlaneDecision ? 1 : 0)
+        + (governance.agentControlPlaneDecisionTasks || []).length
         + (governance.releaseControlTasks || []).length
         + (governance.dataSourcesAccessGate ? 1 : 0)
         + (governance.dataSourcesAccessReviewQueue?.items || []).length
@@ -3971,6 +4020,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${(decision.decision || "review").toUpperCase()}`;
   }
 
+  async function seedAgentControlPlaneDecisionTasks() {
+    const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
+    if (!reasons.length) return "No Decision Tasks";
+    const result = await api.createAgentControlPlaneDecisionTasks({ reasons });
+    await renderGovernance();
+    return `Created ${result.totals.created} Decision Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
   async function clearAgentControlPlaneBaselineSnapshot() {
     await api.clearAgentControlPlaneBaselineSnapshot();
     await renderGovernance();
@@ -4116,6 +4173,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyBaselineAgentControlPlaneSnapshotDrift,
     copyAgentControlPlaneBaselineStatus,
     copyAgentControlPlaneDecision,
+    seedAgentControlPlaneDecisionTasks,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,
     copyAgentExecutionBriefs,

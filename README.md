@@ -190,6 +190,8 @@ Architecture:
 - `GET /api/releases/task-ledger` now exposes the non-secret Release Control task ledger with open/closed filters and markdown for external app-management consumers.
 - Governance now surfaces Release Control tasks as a KPI, deck ledger, report section, toolbar handoff, and command-palette handoff.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Release Control task totals/open/closed counts.
+- Governance can now seed deduplicated Agent Control Plane decision tasks from live decision reasons, turning hold/review causes into trackable control-plane remediation work.
+- Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.
@@ -248,6 +250,7 @@ Core routes:
 - `POST /api/governance/execution-policy`
 - `GET /api/agent-control-plane`
 - `GET /api/agent-control-plane/decision`
+- `POST /api/agent-control-plane/decision/tasks`
 - `GET /api/agent-control-plane/decision-snapshots`
 - `POST /api/agent-control-plane/decision-snapshots`
 - `GET /api/agent-control-plane/baseline-status`

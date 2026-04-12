@@ -1733,6 +1733,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Control plane baseline health: ${governanceCache?.summary.agentControlPlaneBaselineHealth || "missing"}`,
       `Control plane baseline action: ${governanceCache?.summary.agentControlPlaneBaselineRecommendedAction || "Save or mark an Agent Control Plane snapshot as baseline."}`,
       `Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
+      `Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -1845,6 +1846,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Control plane baseline health: ${governanceCache?.summary.agentControlPlaneBaselineHealth || "missing"}`,
       `- Control plane baseline action: ${governanceCache?.summary.agentControlPlaneBaselineRecommendedAction || "Save or mark an Agent Control Plane snapshot as baseline."}`,
       `- Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
+      `- Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `- Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `- Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
       `- Data Sources access gate: ${governanceCache?.dataSourcesAccessGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated"}`,
@@ -1952,6 +1954,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Baseline health: ${governance.agentControlPlaneDecision.baselineHealth || "missing"}`);
       lines.push(`- Baseline drift severity: ${governance.agentControlPlaneDecision.baselineDriftSeverity || "missing-baseline"}`);
       lines.push(`- Agent-ready projects: ${governance.agentControlPlaneDecision.agentReadyProjects || 0}/${governance.agentControlPlaneDecision.agentReadinessItems || 0}`);
+      lines.push(`- Release build gate: ${governance.agentControlPlaneDecision.releaseBuildGateDecision || governance.releaseBuildGate?.decision || "not-evaluated"} (risk ${governance.agentControlPlaneDecision.releaseBuildGateRiskScore ?? governance.releaseBuildGate?.riskScore ?? 0})`);
       lines.push(`- Active runs: ${governance.agentControlPlaneDecision.activeRuns || 0}, stale active: ${governance.agentControlPlaneDecision.staleActiveRuns || 0}, SLA breached: ${governance.agentControlPlaneDecision.slaBreachedRuns || 0}`);
       lines.push(`- Data Sources access tasks: ${governance.agentControlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.dataSourcesAccessTaskCount || 0} total`);
       const reasons = Array.isArray(governance.agentControlPlaneDecision.reasons) ? governance.agentControlPlaneDecision.reasons : [];

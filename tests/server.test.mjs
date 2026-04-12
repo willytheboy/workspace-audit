@@ -1372,6 +1372,10 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.summary.releaseCheckpointCount, 2);
     assert.equal(agentControlPlaneJson.releaseCheckpoints.length, 2);
     assert.equal(agentControlPlaneJson.releaseCheckpoints[0].title, "Fixture Release Gate Bootstrap");
+    assert.equal(agentControlPlaneJson.releaseBuildGate.decision, "review");
+    assert.ok(agentControlPlaneJson.releaseBuildGate.reasons.some((reason) => reason.code === "git-unavailable"));
+    assert.equal(agentControlPlaneJson.summary.releaseBuildGateDecision, "review");
+    assert.ok(agentControlPlaneJson.summary.releaseBuildGateReasonCount >= 1);
     assert.equal(agentControlPlaneJson.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessValidationEvidenceCoverage.items.length, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessValidationEvidenceCoverage.items[0].coverageStatus, "covered");
@@ -1401,6 +1405,8 @@ export async function serverTest() {
     assert.match(agentControlPlaneJson.markdown, /## Deployment Smoke Checks/);
     assert.match(agentControlPlaneJson.markdown, /Release checkpoints: 2/);
     assert.match(agentControlPlaneJson.markdown, /## Release Checkpoints/);
+    assert.match(agentControlPlaneJson.markdown, /Release build gate: review/);
+    assert.match(agentControlPlaneJson.markdown, /## Release Build Gate/);
     assert.match(agentControlPlaneJson.markdown, /## Saved Handoffs/);
     assert.match(agentControlPlaneJson.markdown, /Gamma App/);
 
@@ -1435,6 +1441,9 @@ export async function serverTest() {
     const initialAgentControlPlaneDecisionJson = await initialAgentControlPlaneDecisionResponse.json();
     assert.equal(initialAgentControlPlaneDecisionJson.decision, "hold");
     assert.equal(initialAgentControlPlaneDecisionJson.baselineDriftSeverity, "missing-baseline");
+    assert.equal(initialAgentControlPlaneDecisionJson.releaseBuildGateDecision, "review");
+    assert.ok(initialAgentControlPlaneDecisionJson.releaseBuildGateReasonCount >= 1);
+    assert.ok(initialAgentControlPlaneDecisionJson.releaseBuildGate.reasons.some((reason) => reason.code === "git-unavailable"));
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesGateDecision, "ready");
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesReview, 0);
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesAccessGate.decision, "ready");
@@ -1461,8 +1470,11 @@ export async function serverTest() {
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesAccessClosedTaskCount, 0);
     assert.deepEqual(initialAgentControlPlaneDecisionJson.dataSourcesAccessTasks, []);
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "baseline-missing"));
+    assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "release-build-gate-review"));
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /# Agent Control Plane Decision/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Decision: hold/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Release build gate: review/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Release Build Gate/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Data Sources access gate: ready/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Data Sources access validation methods: 1 across 1 source/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Data Sources access validation evidence: 1 validated \/ 1 total/);
@@ -1486,6 +1498,9 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.title, "Fixture Control Plane Decision");
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.decision, "hold");
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.baselineDriftSeverity, "missing-baseline");
+    assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.releaseBuildGateDecision, "review");
+    assert.ok(createAgentControlPlaneDecisionSnapshotJson.snapshot.releaseBuildGateReasonCount >= 1);
+    assert.ok(createAgentControlPlaneDecisionSnapshotJson.snapshot.releaseBuildGate.reasons.some((reason) => reason.code === "git-unavailable"));
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesGateDecision, "ready");
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessReviewQueueCount, 0);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessTaskCount, 0);
@@ -1499,6 +1514,7 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessValidationEvidenceCoveragePercent, 100);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourceAccessValidationEvidenceSnapshotCount, 1);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /# Agent Control Plane Decision/);
+    assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Release Build Gate/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Data Sources Access Review Queue/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Runbook/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Evidence Coverage/);
@@ -1544,6 +1560,9 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.deploymentSmokeChecks.length, 2);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.releaseCheckpointCount, 2);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.releaseCheckpoints.length, 2);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.releaseBuildGateDecision, "review");
+    assert.ok(createAgentControlPlaneSnapshotJson.snapshot.releaseBuildGateReasonCount >= 1);
+    assert.ok(createAgentControlPlaneSnapshotJson.snapshot.releaseBuildGate.reasons.some((reason) => reason.code === "git-unavailable"));
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesGateDecision, "ready");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesReview, 0);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesAccessReviewQueueCount, 0);
@@ -1561,11 +1580,13 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourcesAccessValidationRunbook.summary.methodCount, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.deploymentSmokeChecks[0].label, "Fixture release gate local app");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.releaseCheckpoints[0].title, "Fixture Release Gate Bootstrap");
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.releaseBuildGate.decision, "review");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidenceSnapshots.length, 1);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /# Agent Control Plane/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Deployment Smoke Checks/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Checkpoints/);
+    assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Build Gate/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /Data Sources access gate: ready/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Runbook/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Evidence Coverage/);
@@ -1593,6 +1614,8 @@ export async function serverTest() {
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Deployment smoke check passes" && item.before === 2 && item.current === 2));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Deployment smoke check failures" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Release checkpoints" && item.before === 2 && item.current === 2));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Release build gate rank" && item.before === 2 && item.current === 2));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Release build gate reasons" && item.before === item.current && item.current >= 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation methods" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation sources" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation evidence" && item.before === 1 && item.current === 1));

@@ -3108,6 +3108,13 @@ export function createGovernanceDeck(governance) {
 
   const controlPlaneDecision = governance.agentControlPlaneDecision;
   const controlPlaneDecisionReasons = Array.isArray(controlPlaneDecision?.reasons) ? controlPlaneDecision.reasons : [];
+  const controlPlaneReleaseBuildGate = controlPlaneDecision?.releaseBuildGate || governance.releaseBuildGate;
+  const controlPlaneReleaseBuildGateDecision = controlPlaneDecision?.releaseBuildGateDecision || controlPlaneReleaseBuildGate?.decision || "not-evaluated";
+  const controlPlaneReleaseBuildGateColor = controlPlaneReleaseBuildGateDecision === "hold"
+    ? "var(--danger)"
+    : controlPlaneReleaseBuildGateDecision === "ready"
+      ? "var(--success)"
+      : "var(--warning)";
   const controlPlaneDecisionColor = controlPlaneDecision?.decision === "hold"
     ? "var(--danger)"
     : controlPlaneDecision?.decision === "review"
@@ -3177,6 +3184,11 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: (controlPlaneDecision.agentReadyProjects || 0) > 0 ? "var(--success)" : "var(--warning)"
               }),
+              createTag(`RELEASE GATE ${controlPlaneReleaseBuildGateDecision.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneReleaseBuildGateColor
+              }),
               createTag(`SOURCE TASKS ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0}/${controlPlaneDecision.dataSourcesAccessTaskCount || 0}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
@@ -3203,7 +3215,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",

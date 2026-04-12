@@ -184,6 +184,7 @@ Architecture:
 - `POST /api/sources/access-validation-evidence` now returns task-sync metadata so external clients can see which evidence-coverage tasks were updated.
 - Agent Control Plane handoffs and snapshot drift now track Data Sources access validation evidence snapshot counts.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Data Sources access validation evidence coverage counts and high-priority evidence gaps.
+- Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track the Release Build Gate so supervised agent work sees release readiness, risk score, and release-gate actions.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.

@@ -22,4 +22,9 @@ Status: Complete.
 
 ## Live Check
 
-- Pending relaunch after commit.
+- Relaunched with `npm run dev` on `http://localhost:3042`.
+- Dev server shell PID: `99240`.
+- Home page returned HTTP 200.
+- Served shell includes `copy-sources-access-validation-evidence-coverage-btn`.
+- Served `ui/dashboard-views.js` includes `source-evidence-coverage-deck`.
+- GitHub checkpoint pushed: `e293b87 Add static Vercel preview build`.

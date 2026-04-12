@@ -136,6 +136,13 @@ export async function serverTest() {
     assert.equal(releaseSummaryJson.latestSmokeCheck.label, "Fixture local app");
     assert.match(releaseSummaryJson.markdown, /# Release Control Ledger/);
 
+    const missingReleaseCheckpointDriftResponse = await fetch(`${baseUrl}/api/releases/checkpoints/diff?snapshotId=latest`);
+    assert.equal(missingReleaseCheckpointDriftResponse.status, 200);
+    const missingReleaseCheckpointDriftJson = await missingReleaseCheckpointDriftResponse.json();
+    assert.equal(missingReleaseCheckpointDriftJson.hasSnapshot, false);
+    assert.equal(missingReleaseCheckpointDriftJson.driftSeverity, "missing-checkpoint");
+    assert.match(missingReleaseCheckpointDriftJson.markdown, /# Release Checkpoint Drift/);
+
     const createReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -154,6 +161,16 @@ export async function serverTest() {
     const releaseSummaryAfterCheckpointJson = await releaseSummaryAfterCheckpointResponse.json();
     assert.equal(releaseSummaryAfterCheckpointJson.summary.releaseCheckpointCount, 1);
     assert.equal(releaseSummaryAfterCheckpointJson.checkpoints[0].title, "Fixture Release Checkpoint");
+
+    const releaseCheckpointDriftResponse = await fetch(`${baseUrl}/api/releases/checkpoints/diff?snapshotId=latest`);
+    assert.equal(releaseCheckpointDriftResponse.status, 200);
+    const releaseCheckpointDriftJson = await releaseCheckpointDriftResponse.json();
+    assert.equal(releaseCheckpointDriftJson.hasSnapshot, true);
+    assert.equal(releaseCheckpointDriftJson.snapshotTitle, "Fixture Release Checkpoint");
+    assert.equal(releaseCheckpointDriftJson.hasDrift, false);
+    assert.equal(releaseCheckpointDriftJson.driftSeverity, "none");
+    assert.deepEqual(releaseCheckpointDriftJson.driftItems, []);
+    assert.match(releaseCheckpointDriftJson.markdown, /# Release Checkpoint Drift/);
 
     const sourcesAccessRequirementsResponse = await fetch(`${baseUrl}/api/sources/access-requirements`);
     assert.equal(sourcesAccessRequirementsResponse.status, 200);

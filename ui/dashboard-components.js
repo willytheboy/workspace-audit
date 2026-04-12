@@ -1144,6 +1144,8 @@ export function createGovernanceSummaryGrid(governance) {
   const releaseCheckpointCount = releaseSummary?.summary?.releaseCheckpointCount ?? summary.releaseCheckpointCount ?? 0;
   const releaseSmokeFailCount = releaseSummary?.summary?.deploymentSmokeCheckFailCount ?? summary.deploymentSmokeCheckFailCount ?? 0;
   const releaseSmokePassCount = releaseSummary?.summary?.deploymentSmokeCheckPassCount ?? summary.deploymentSmokeCheckPassCount ?? 0;
+  const releaseCheckpointDrift = governance.releaseCheckpointDrift;
+  const releaseDriftSeverity = releaseCheckpointDrift?.driftSeverity || "missing-checkpoint";
   return createElement("div", {
     style: {
       display: "grid",
@@ -1230,7 +1232,7 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Release Control",
       value: releaseStatus.toUpperCase(),
       detail: releaseSummary
-        ? `${releaseCheckpointCount} checkpoint(s) | smoke ${releaseSmokePassCount} pass / ${releaseSmokeFailCount} fail | ${releaseSummary.git?.dirty ? "dirty worktree" : "clean worktree"}`
+        ? `${releaseCheckpointCount} checkpoint(s) | smoke ${releaseSmokePassCount} pass / ${releaseSmokeFailCount} fail | drift ${releaseDriftSeverity}`
         : `${releaseCheckpointCount} saved checkpoint(s), live release summary not loaded`
     }),
     createKpiCard({
@@ -3251,6 +3253,14 @@ export function createGovernanceDeck(governance) {
     : [];
   const releaseSummary = governance.releaseSummary;
   const releaseCheckpoints = Array.isArray(releaseSummary?.checkpoints) ? releaseSummary.checkpoints : [];
+  const releaseCheckpointDrift = governance.releaseCheckpointDrift;
+  const releaseDriftItems = Array.isArray(releaseCheckpointDrift?.driftItems) ? releaseCheckpointDrift.driftItems : [];
+  const releaseDriftSeverity = releaseCheckpointDrift?.driftSeverity || "missing-checkpoint";
+  const releaseDriftColor = releaseDriftSeverity === "high" || releaseDriftSeverity === "missing-checkpoint"
+    ? "var(--danger)"
+    : releaseDriftSeverity === "medium" || releaseDriftSeverity === "low"
+      ? "var(--warning)"
+      : "var(--success)";
   const releaseLatestSmoke = releaseSummary?.latestSmokeCheck || null;
   const releaseStatus = releaseSummary?.summary?.status || "review";
   const releaseStatusColor = releaseStatus === "hold"
@@ -3337,6 +3347,11 @@ export function createGovernanceDeck(governance) {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
                 color: "var(--text-muted)"
+              }),
+              createTag(`DRIFT ${releaseDriftSeverity.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: releaseDriftColor
               })
             ])
           ]),
@@ -3384,6 +3399,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-checkpoint-drift-copy-btn",
+              text: "Copy Drift",
+              attrs: { type: "button" },
+              dataset: {
+                releaseCheckpointDriftCopy: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-checkpoint-save-btn",
               text: "Save Checkpoint",
               attrs: { type: "button" },
@@ -3393,6 +3416,90 @@ export function createGovernanceDeck(governance) {
             })
           ])
         ]),
+        releaseCheckpointDrift
+          ? createElement("div", {
+              className: "governance-gap-card",
+              style: {
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.6rem"
+              }
+            }, [
+              createElement("div", {
+                style: {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "0.8rem",
+                  alignItems: "flex-start"
+                }
+              }, [
+                createElement("div", {}, [
+                  createElement("div", {
+                    text: "Release Checkpoint Drift",
+                    style: {
+                      fontWeight: "800",
+                      color: "var(--text)"
+                    }
+                  }),
+                  createElement("div", {
+                    text: releaseCheckpointDrift.hasSnapshot
+                      ? `${releaseCheckpointDrift.snapshotTitle || "Release checkpoint"} | ${releaseCheckpointDrift.snapshotCreatedAt ? new Date(releaseCheckpointDrift.snapshotCreatedAt).toLocaleString() : "saved checkpoint"}`
+                      : "No release checkpoint saved yet.",
+                    style: {
+                      color: "var(--text-muted)",
+                      fontSize: "0.84rem",
+                      marginTop: "0.3rem"
+                    }
+                  })
+                ]),
+                createTag(releaseDriftSeverity.toUpperCase(), {
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                  color: releaseDriftColor
+                })
+              ]),
+              createElement("div", {
+                text: releaseCheckpointDrift.recommendedAction || "Save a release checkpoint before comparing drift.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.88rem",
+                  lineHeight: "1.5"
+                }
+              }),
+              releaseDriftItems.length
+                ? createElement("div", {
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.35rem",
+                      padding: "0.7rem",
+                      border: "1px solid var(--border)",
+                      borderRadius: "0.85rem",
+                      background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+                    }
+                  }, [
+                    createElement("div", {
+                      text: "Drift fields",
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.78rem",
+                        fontWeight: "800",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase"
+                      }
+                    }),
+                    ...releaseDriftItems.slice(0, 6).map((item) => createElement("div", {
+                      text: `${item.label || item.field}: ${item.before || "none"} -> ${item.current || "none"} (${item.severity || "review"})`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.84rem",
+                        lineHeight: "1.45"
+                      }
+                    }))
+                  ])
+                : null
+            ])
+          : null,
         ...releaseCheckpoints.slice(0, 5).map((checkpoint) => createElement("div", {
           className: "governance-gap-card",
           style: {

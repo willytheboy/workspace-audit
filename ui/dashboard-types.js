@@ -620,6 +620,7 @@
  *   deploymentSmokeChecks?: DeploymentSmokeCheckRecord[],
  *   releaseCheckpoints?: ReleaseCheckpointRecord[],
  *   releaseSummary?: ReleaseSummaryPayload | null,
+ *   releaseCheckpointDrift?: ReleaseCheckpointDriftPayload | null,
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -945,6 +946,42 @@
  *   checkpoints: ReleaseCheckpointRecord[],
  *   markdown: string
  * }} ReleaseSummaryPayload
+ * @typedef {{
+ *   field: string,
+ *   label: string,
+ *   before: string,
+ *   current: string,
+ *   severity: "low" | "medium" | "high"
+ * }} ReleaseCheckpointDriftItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-checkpoint",
+ *   recommendedAction: string,
+ *   driftItems: ReleaseCheckpointDriftItem[],
+ *   checkpoint: ReleaseCheckpointRecord | null,
+ *   live: {
+ *     status: "ready" | "review" | "hold",
+ *     branch: string,
+ *     commit: string,
+ *     commitShort: string,
+ *     commitMessage: string,
+ *     dirty: boolean,
+ *     changedFileCount: number,
+ *     deploymentStatus: string,
+ *     deploymentSmokeCheckCount: number,
+ *     deploymentSmokeCheckPassCount: number,
+ *     deploymentSmokeCheckFailCount: number,
+ *     validationStatus: string,
+ *     latestScanAt: string
+ *   } | null,
+ *   markdown: string
+ * }} ReleaseCheckpointDriftPayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

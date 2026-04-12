@@ -870,3 +870,9 @@
 - [x] Add live release summary loading to the Governance cache and filters.
 - [x] Add Release Control KPI, deck section, scope filter, and inline checkpoint actions.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Checkpoint Drift
+
+- [x] Add latest release checkpoint drift API and markdown handoff.
+- [x] Add Governance release drift KPI/deck visibility and command-palette copy action.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

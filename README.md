@@ -59,6 +59,7 @@ Architecture:
 - Deployment smoke checks now persist as a non-secret ledger, flow into deployment health, diagnostics, Governance, Agent Control Plane summaries, and Agent Control Plane snapshot drift.
 - Governance now exposes a Release Control Ledger that combines non-secret Git state, deployment smoke evidence, latest validation context, and saved release checkpoints.
 - Governance now renders a Release Control deck and KPI so release status, Git state, smoke-check status, validation state, and saved checkpoints are visible inline before the next build pass.
+- Release Control now exposes latest-checkpoint drift so Governance can compare the saved release state against live Git, deployment smoke, and validation evidence before another build pass.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.

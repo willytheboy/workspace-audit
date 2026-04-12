@@ -82,6 +82,7 @@ function createEmptyTableRow(message) {
  *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
  *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
  *     fetchReleaseSummary: () => Promise<import("./dashboard-types.js").ReleaseSummaryPayload>,
+ *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
@@ -487,6 +488,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             )
           }
         : null,
+      releaseCheckpointDrift: governance.releaseCheckpointDrift && matchesSearch([
+        "release checkpoint drift",
+        governance.releaseCheckpointDrift.snapshotTitle || "",
+        governance.releaseCheckpointDrift.driftSeverity || "",
+        governance.releaseCheckpointDrift.recommendedAction || "",
+        governance.releaseCheckpointDrift.hasDrift ? "drift" : "no drift",
+        ...(governance.releaseCheckpointDrift.driftItems || []).map((item) => `${item.label || ""} ${item.before || ""} ${item.current || ""} ${item.severity || ""}`)
+      ])
+        ? governance.releaseCheckpointDrift
+        : null,
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -640,6 +651,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "agents") filtered.agentControlPlaneDecisionSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneSnapshots = [];
       if (scope !== "release") filtered.releaseSummary = null;
+      if (scope !== "release") filtered.releaseCheckpointDrift = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1246,6 +1258,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Saving";
           await saveReleaseCheckpoint();
           element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-checkpoint-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyReleaseCheckpointDrift();
+          element.textContent = "Copied";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3163,15 +3196,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, releaseSummary] = await Promise.all([
+      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
-        api.fetchReleaseSummary()
+        api.fetchReleaseSummary(),
+        api.fetchReleaseCheckpointDrift("latest")
       ]);
       governanceCache = {
         ...governance,
-        releaseSummary
+        releaseSummary,
+        releaseCheckpointDrift
       };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
@@ -3205,7 +3240,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentWorkOrderRuns.length
         + governance.unprofiledProjects.length
         + (releaseSummary ? 1 : 0)
-        + (releaseSummary?.checkpoints || []).length;
+        + (releaseSummary?.checkpoints || []).length
+        + (releaseCheckpointDrift ? 1 : 0)
+        + (releaseCheckpointDrift?.driftItems || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {
@@ -3689,6 +3726,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.releaseCheckpointCount} release checkpoint${payload.summary.releaseCheckpointCount === 1 ? "" : "s"}`;
   }
 
+  async function copyReleaseCheckpointDrift() {
+    const payload = await api.fetchReleaseCheckpointDrift("latest");
+    await copyText(payload.markdown);
+    return payload.hasSnapshot ? `Copied ${formatDriftSeverityLabel(payload.driftSeverity)}` : "No Release Checkpoint";
+  }
+
   async function saveReleaseCheckpoint() {
     const payload = await api.fetchReleaseSummary();
     const created = await api.createReleaseCheckpoint({
@@ -3857,6 +3900,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     applyVisibleAgentExecutionRetention,
     copyAgentControlPlane,
     copyReleaseControl,
+    copyReleaseCheckpointDrift,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

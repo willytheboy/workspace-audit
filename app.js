@@ -266,6 +266,12 @@ async function copyReleaseControl() {
   return views.copyReleaseControl();
 }
 
+async function copyReleaseCheckpointDrift() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyReleaseCheckpointDrift();
+}
+
 async function saveReleaseCheckpoint() {
   setView("governance");
   await views.renderGovernance();
@@ -513,6 +519,7 @@ const actionRegistry = createDashboardActionRegistry({
     copyAgentExecutionBriefs,
     copyAgentControlPlane,
     copyReleaseControl,
+    copyReleaseCheckpointDrift,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

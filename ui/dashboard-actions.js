@@ -61,6 +61,7 @@
  *     copyAgentExecutionBriefs: () => Promise<void>,
  *     copyAgentControlPlane: () => Promise<void>,
  *     copyReleaseControl: () => Promise<void>,
+ *     copyReleaseCheckpointDrift: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
@@ -437,6 +438,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "deployment", "git", "vercel", "smoke", "copy"],
         run: () => handlers.copyReleaseControl()
+      },
+      {
+        id: "copy-release-checkpoint-drift",
+        label: "Copy release checkpoint drift",
+        description: "Copy a markdown drift report comparing the latest saved release checkpoint to live release state.",
+        category: "Actions",
+        keywords: ["governance", "release", "checkpoint", "deployment", "git", "smoke", "drift", "copy"],
+        run: () => handlers.copyReleaseCheckpointDrift()
       },
       {
         id: "save-release-checkpoint",

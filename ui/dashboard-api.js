@@ -169,6 +169,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} checkpointId
+   * @returns {Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>}
+   */
+  fetchReleaseCheckpointDrift(checkpointId = "latest") {
+    return fetchJson(withQuery("/api/releases/checkpoints/diff", { checkpointId }));
+  },
+
+  /**
    * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string }} [payload]
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>}
    */

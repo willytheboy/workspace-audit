@@ -34,6 +34,7 @@
  *     copySourcesAccessValidationEvidence: () => Promise<void>,
  *     copySourcesAccessValidationEvidenceCoverage: () => Promise<void>,
  *     copySourcesDeploymentHealth: () => Promise<void>,
+ *     copySourcesDeploymentSmokeChecks: () => Promise<void>,
  *     copySourcesAccessMatrix: () => Promise<void>,
  *     copySourcesAccessReviewQueue: () => Promise<void>,
  *     copySourcesAccessGate: () => Promise<void>,
@@ -240,6 +241,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "deployments", "vercel", "smoke", "health", "copy"],
         run: () => handlers.copySourcesDeploymentHealth()
+      },
+      {
+        id: "copy-sources-deployment-smoke-checks",
+        label: "Copy deployment smoke ledger",
+        description: "Copy recent deployment smoke-check results as a non-secret markdown ledger.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "deployments", "vercel", "smoke", "ledger", "copy"],
+        run: () => handlers.copySourcesDeploymentSmokeChecks()
       },
       {
         id: "copy-sources-access-matrix",

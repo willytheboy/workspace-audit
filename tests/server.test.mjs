@@ -43,6 +43,7 @@ export async function serverTest() {
     const diagnosticsJson = await diagnosticsResponse.json();
     assert.equal(diagnosticsJson.totalProjects, 1);
     assert.equal(diagnosticsJson.sourceCount, 1);
+    assert.equal(diagnosticsJson.deploymentSmokeCheckCount, 0);
     assert.equal(diagnosticsJson.dataSourceHealthSnapshotCount, 0);
     assert.equal(diagnosticsJson.dataSourceAccessValidationEvidenceSnapshotCount, 0);
     assert.equal(diagnosticsJson.findingsCount, 0);
@@ -99,8 +100,29 @@ export async function serverTest() {
     assert.equal(deploymentSmokeCheckJson.smokeCheck.httpStatus, 200);
     assert.equal(deploymentSmokeCheckJson.smokeCheck.label, "Fixture local app");
     assert.equal(deploymentSmokeCheckJson.smokeCheck.error, "");
+    assert.equal(deploymentSmokeCheckJson.deploymentSmokeCheckCount, 1);
     assert.match(deploymentSmokeCheckJson.smokeCheck.secretPolicy, /No response body/);
     assert.match(deploymentSmokeCheckJson.smokeCheck.markdown, /# Deployment Smoke Check/);
+
+    const deploymentSmokeChecksResponse = await fetch(`${baseUrl}/api/deployments/smoke-checks`);
+    assert.equal(deploymentSmokeChecksResponse.status, 200);
+    const deploymentSmokeChecksJson = await deploymentSmokeChecksResponse.json();
+    assert.equal(deploymentSmokeChecksJson.summary.total, 1);
+    assert.equal(deploymentSmokeChecksJson.summary.pass, 1);
+    assert.equal(deploymentSmokeChecksJson.summary.fail, 0);
+    assert.equal(deploymentSmokeChecksJson.smokeChecks[0].label, "Fixture local app");
+    assert.match(deploymentSmokeChecksJson.markdown, /# Deployment Smoke Check Ledger/);
+    assert.match(deploymentSmokeChecksJson.markdown, /Fixture local app/);
+
+    const deploymentHealthAfterSmokeResponse = await fetch(`${baseUrl}/api/deployments/health`);
+    assert.equal(deploymentHealthAfterSmokeResponse.status, 200);
+    const deploymentHealthAfterSmokeJson = await deploymentHealthAfterSmokeResponse.json();
+    assert.equal(deploymentHealthAfterSmokeJson.summary.checked, 1);
+    assert.equal(deploymentHealthAfterSmokeJson.summary.pass, 1);
+    assert.equal(deploymentHealthAfterSmokeJson.summary.fail, 0);
+    assert.equal(deploymentHealthAfterSmokeJson.recentSmokeChecks.length, 1);
+    assert.equal(deploymentHealthAfterSmokeJson.recentSmokeChecks[0].label, "Fixture local app");
+    assert.match(deploymentHealthAfterSmokeJson.markdown, /Recent Smoke Checks/);
 
     const sourcesAccessRequirementsResponse = await fetch(`${baseUrl}/api/sources/access-requirements`);
     assert.equal(sourcesAccessRequirementsResponse.status, 200);
@@ -670,6 +692,11 @@ export async function serverTest() {
     assert.equal(governanceJson.summary.agentSessionCount, 1);
     assert.equal(governanceJson.summary.agentReadinessItems, 1);
     assert.equal(governanceJson.summary.agentReadyProjects, 0);
+    assert.equal(governanceJson.summary.deploymentSmokeCheckCount, 1);
+    assert.equal(governanceJson.summary.deploymentSmokeCheckPassCount, 1);
+    assert.equal(governanceJson.summary.deploymentSmokeCheckFailCount, 0);
+    assert.equal(governanceJson.deploymentSmokeChecks.length, 1);
+    assert.equal(governanceJson.deploymentSmokeChecks[0].label, "Fixture local app");
     assert.ok(Array.isArray(governanceJson.recentActivity));
     assert.ok(Array.isArray(governanceJson.decisions));
     assert.equal(governanceJson.profiles.length, 1);
@@ -1248,6 +1275,11 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.summary.dataSourcesAccessValidationEvidenceCoverageMissingCount, 0);
     assert.equal(agentControlPlaneJson.summary.dataSourcesAccessValidationEvidenceCoveragePercent, 100);
     assert.equal(agentControlPlaneJson.summary.dataSourceAccessValidationEvidenceSnapshotCount, 1);
+    assert.equal(agentControlPlaneJson.summary.deploymentSmokeCheckCount, 1);
+    assert.equal(agentControlPlaneJson.summary.deploymentSmokeCheckPassCount, 1);
+    assert.equal(agentControlPlaneJson.summary.deploymentSmokeCheckFailCount, 0);
+    assert.equal(agentControlPlaneJson.deploymentSmokeChecks.length, 1);
+    assert.equal(agentControlPlaneJson.deploymentSmokeChecks[0].label, "Fixture local app");
     assert.equal(agentControlPlaneJson.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessValidationEvidenceCoverage.items.length, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessValidationEvidenceCoverage.items[0].coverageStatus, "covered");
@@ -1273,6 +1305,8 @@ export async function serverTest() {
     assert.match(agentControlPlaneJson.markdown, /## Data Sources Access Validation Runbook/);
     assert.match(agentControlPlaneJson.markdown, /## Data Sources Access Validation Evidence/);
     assert.match(agentControlPlaneJson.markdown, /## Data Sources Access Validation Evidence Snapshots/);
+    assert.match(agentControlPlaneJson.markdown, /Deployment smoke checks: 1 pass \/ 0 fail \/ 1 total/);
+    assert.match(agentControlPlaneJson.markdown, /## Deployment Smoke Checks/);
     assert.match(agentControlPlaneJson.markdown, /## Saved Handoffs/);
     assert.match(agentControlPlaneJson.markdown, /Gamma App/);
 
@@ -1410,6 +1444,10 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.title, "Fixture Agent Control Plane");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.totalWorkOrders, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.totalSlaLedgerRecords, 1);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.deploymentSmokeCheckCount, 1);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.deploymentSmokeCheckPassCount, 1);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.deploymentSmokeCheckFailCount, 0);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.deploymentSmokeChecks.length, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesGateDecision, "ready");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesReview, 0);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.dataSourcesAccessReviewQueueCount, 0);
@@ -1425,9 +1463,11 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourcesAccessReviewQueue.summary.total, 0);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourcesAccessValidationEvidenceCoverage.items[0].coverageStatus, "covered");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourcesAccessValidationRunbook.summary.methodCount, 1);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.deploymentSmokeChecks[0].label, "Fixture local app");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidenceSnapshots.length, 1);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /# Agent Control Plane/);
+    assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Deployment Smoke Checks/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /Data Sources access gate: ready/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Runbook/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Evidence Coverage/);
@@ -1451,6 +1491,9 @@ export async function serverTest() {
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources review sources" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access review queue" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access review medium priority" && item.before === 0 && item.current === 0));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Deployment smoke checks" && item.before === 1 && item.current === 1));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Deployment smoke check passes" && item.before === 1 && item.current === 1));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Deployment smoke check failures" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation methods" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation sources" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation evidence" && item.before === 1 && item.current === 1));

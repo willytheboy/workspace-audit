@@ -56,6 +56,7 @@ Architecture:
 - The Data Sources module now includes a health summary payload with local path reachability, remote URL validation, ready/review/blocked counts, markdown export text, and richer source cards.
 - Deployment health now derives public deployment targets from Data Sources and exposes non-secret HTTP smoke checks that store only URL, status, latency, and error class in Governance history.
 - The Sources view now renders deployment-health targets inline with per-target smoke-check actions and a copyable non-secret deployment-health handoff.
+- Deployment smoke checks now persist as a non-secret ledger, flow into deployment health, diagnostics, Governance, Agent Control Plane summaries, and Agent Control Plane snapshot drift.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.

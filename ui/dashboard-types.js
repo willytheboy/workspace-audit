@@ -835,16 +835,25 @@
  *   sourceStatus: string,
  *   accessMethod: string,
  *   protectedLikely: boolean,
- *   secretPolicy: string
+ *   secretPolicy: string,
+ *   latestSmokeCheck: DeploymentSmokeCheckRecord | null
  * }} DeploymentHealthTarget
  * @typedef {{
  *   generatedAt: string,
  *   summary: {
  *     total: number,
  *     protectedLikely: number,
+ *     targetChecked: number,
+ *     checked: number,
+ *     pass: number,
+ *     fail: number,
+ *     unknown: number,
+ *     latestCheckedAt: string,
+ *     latestStatus: string,
  *     providerCounts: Record<string, number>
  *   },
  *   targets: DeploymentHealthTarget[],
+ *   recentSmokeChecks: DeploymentSmokeCheckRecord[],
  *   markdown: string
  * }} DeploymentHealthPayload
  * @typedef {{
@@ -867,6 +876,19 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} DeploymentSmokeCheckRecord
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     total: number,
+ *     pass: number,
+ *     fail: number,
+ *     latestStatus: string,
+ *     latestCheckedAt: string,
+ *     latestTarget: string
+ *   },
+ *   smokeChecks: DeploymentSmokeCheckRecord[],
+ *   markdown: string
+ * }} DeploymentSmokeChecksPayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

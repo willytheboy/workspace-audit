@@ -143,8 +143,15 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>}
+   */
+  fetchDeploymentSmokeChecks() {
+    return fetchJson("/api/deployments/smoke-checks");
+  },
+
+  /**
    * @param {{ url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }} payload
-   * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, governanceOperationCount: number }>}
+   * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>}
    */
   runDeploymentSmokeCheck(payload) {
     return fetchJson("/api/deployments/smoke-check", {

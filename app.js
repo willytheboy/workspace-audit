@@ -161,6 +161,12 @@ async function copySourcesDeploymentHealth() {
   return views.copySourcesDeploymentHealth();
 }
 
+async function copySourcesDeploymentSmokeChecks() {
+  setView("sources");
+  await views.renderSources();
+  return views.copySourcesDeploymentSmokeChecks();
+}
+
 async function copyGovernanceDataSourcesAccessValidationEvidence() {
   setView("governance");
   await views.renderGovernance();
@@ -468,6 +474,7 @@ const actionRegistry = createDashboardActionRegistry({
     copySourcesAccessValidationEvidence,
     copySourcesAccessValidationEvidenceCoverage,
     copySourcesDeploymentHealth,
+    copySourcesDeploymentSmokeChecks,
     copySourcesAccessMatrix,
     copySourcesAccessReviewQueue,
     copySourcesAccessGate,
@@ -711,6 +718,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-deployment-health-btn")),
     "Copying...",
     () => copySourcesDeploymentHealth()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-deployment-smoke-checks-btn")),
+    "Copying...",
+    () => copySourcesDeploymentSmokeChecks()
   );
 
   bindAsyncButton(

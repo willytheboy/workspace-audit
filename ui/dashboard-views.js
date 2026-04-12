@@ -79,7 +79,8 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
  *     fetchSourcesAccessValidationEvidenceCoverage: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload>,
  *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
- *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, governanceOperationCount: number }>,
+ *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
+ *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
@@ -2670,9 +2671,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const providerSummary = Object.entries(deploymentHealth.summary.providerCounts || {})
       .map(([provider, count]) => `${provider}: ${count}`)
       .join(" | ") || "no deployment providers";
+    const smokeSummary = `${deploymentHealth.summary.pass || 0} pass / ${deploymentHealth.summary.fail || 0} fail / ${deploymentHealth.summary.checked || 0} checked`;
     const summary = document.createElement("div");
-    summary.textContent = `${deploymentHealth.summary.total} target(s) | ${deploymentHealth.summary.protectedLikely} protected/review likely | ${providerSummary}`;
-    summary.style.color = deploymentHealth.summary.protectedLikely ? "var(--warning)" : "var(--text-muted)";
+    summary.textContent = `${deploymentHealth.summary.total} target(s) | ${deploymentHealth.summary.protectedLikely} protected/review likely | ${smokeSummary} | ${providerSummary}`;
+    summary.style.color = deploymentHealth.summary.fail ? "var(--danger)" : deploymentHealth.summary.protectedLikely ? "var(--warning)" : "var(--text-muted)";
     summary.style.fontSize = "0.84rem";
 
     heading.append(title, summary);
@@ -2698,7 +2700,6 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       empty.style.background = "var(--surface)";
       empty.style.color = "var(--text-muted)";
       section.append(empty);
-      return section;
     }
 
     for (const target of deploymentHealth.targets.slice(0, 10)) {
@@ -2744,7 +2745,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       meta.style.color = "var(--text-muted)";
       meta.style.fontSize = "0.82rem";
 
-      body.append(cardTitle, link, meta);
+      const latestSmokeCheck = target.latestSmokeCheck || null;
+      const latest = document.createElement("div");
+      latest.textContent = latestSmokeCheck
+        ? `Latest smoke: ${(latestSmokeCheck.status || "fail").toUpperCase()} HTTP ${latestSmokeCheck.httpStatus || "unreachable"} | ${latestSmokeCheck.latencyMs || 0}ms | ${latestSmokeCheck.checkedAt || "not recorded"}`
+        : "Latest smoke: not checked";
+      latest.style.color = latestSmokeCheck?.status === "pass" ? "var(--success)" : latestSmokeCheck ? "var(--danger)" : "var(--text-muted)";
+      latest.style.fontSize = "0.82rem";
+
+      body.append(cardTitle, link, meta, latest);
 
       const action = document.createElement("div");
       action.style.display = "flex";
@@ -2769,6 +2778,53 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       card.append(body, action);
       section.append(card);
     }
+
+    const recentSmokeChecks = deploymentHealth.recentSmokeChecks || [];
+    const recent = document.createElement("div");
+    recent.className = "deployment-smoke-check-ledger";
+    recent.style.display = "flex";
+    recent.style.flexDirection = "column";
+    recent.style.gap = "0.5rem";
+    recent.style.padding = "1rem";
+    recent.style.border = "1px solid var(--border)";
+    recent.style.borderRadius = "0.65rem";
+    recent.style.background = "var(--surface)";
+
+    const recentTitle = document.createElement("div");
+    recentTitle.textContent = "Recent Smoke Checks";
+    recentTitle.style.fontWeight = "800";
+    recentTitle.style.color = "var(--text)";
+    recent.append(recentTitle);
+
+    if (!recentSmokeChecks.length) {
+      const emptyRecent = document.createElement("div");
+      emptyRecent.textContent = "No deployment smoke checks recorded yet.";
+      emptyRecent.style.color = "var(--text-muted)";
+      emptyRecent.style.fontSize = "0.82rem";
+      recent.append(emptyRecent);
+    } else {
+      for (const smokeCheck of recentSmokeChecks.slice(0, 6)) {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "1rem";
+        row.style.fontSize = "0.82rem";
+
+        const label = document.createElement("span");
+        label.textContent = `${smokeCheck.label || smokeCheck.host || "Deployment"} | HTTP ${smokeCheck.httpStatus || "unreachable"} | ${smokeCheck.latencyMs || 0}ms`;
+        label.style.color = "var(--text-muted)";
+        label.style.overflowWrap = "anywhere";
+
+        const status = document.createElement("span");
+        status.textContent = (smokeCheck.status || "fail").toUpperCase();
+        status.style.color = smokeCheck.status === "pass" ? "var(--success)" : "var(--danger)";
+        status.style.fontWeight = "800";
+
+        row.append(label, status);
+        recent.append(row);
+      }
+    }
+    section.append(recent);
 
     return section;
   }
@@ -2860,6 +2916,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             : result.smokeCheck.httpStatus
               ? `Fail ${result.smokeCheck.httpStatus}`
               : "Fail";
+          await renderSources();
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3477,6 +3534,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.total} deployment target${payload.summary.total === 1 ? "" : "s"}`;
   }
 
+  async function copySourcesDeploymentSmokeChecks() {
+    const payload = await api.fetchDeploymentSmokeChecks();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.total} smoke check${payload.summary.total === 1 ? "" : "s"}`;
+  }
+
   async function copySourcesAccessMatrix() {
     const payload = await api.fetchSourcesAccessMatrix();
     await copyText(payload.markdown);
@@ -3714,6 +3777,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessValidationEvidence,
     copySourcesAccessValidationEvidenceCoverage,
     copySourcesDeploymentHealth,
+    copySourcesDeploymentSmokeChecks,
     copySourcesAccessMatrix,
     copySourcesAccessReviewQueue,
     copySourcesAccessGate,

@@ -852,3 +852,9 @@
 - [x] Render deployment-health targets in the Sources view with provider, source health, access method, and secret-handling policy.
 - [x] Add per-target smoke-check actions and a copyable deployment-health markdown handoff from toolbar and command palette.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Deployment Smoke Check Ledger
+
+- [x] Persist deployment smoke-check results as a bounded non-secret ledger in the SQLite-backed store.
+- [x] Add `GET /api/deployments/smoke-checks`, enrich deployment health, and feed Governance plus Agent Control Plane summaries and snapshot drift.
+- [x] Add Sources toolbar and command-palette copy actions, parser checks, tests, docs, milestone tracking, validation, relaunch, commit, and push.

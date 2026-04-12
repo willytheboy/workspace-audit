@@ -491,6 +491,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerPayload>}
+   */
+  fetchAgentControlPlaneDecisionTaskLedger(status = "all") {
+    return fetchJson(withQuery("/api/agent-control-plane/decision/task-ledger", { status }));
+  },
+
+  /**
    * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }> }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */

@@ -71,6 +71,7 @@
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyAgentControlPlaneBaselineStatus: () => Promise<void>,
  *     copyAgentControlPlaneDecision: () => Promise<void>,
+ *     copyAgentControlPlaneDecisionTaskLedger: () => Promise<void>,
  *     seedAgentControlPlaneDecisionTasks: () => Promise<void>,
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
@@ -523,6 +524,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "decision", "gate", "copy"],
         run: () => handlers.copyAgentControlPlaneDecision()
+      },
+      {
+        id: "copy-agent-control-plane-decision-task-ledger",
+        label: "Copy control plane decision task ledger",
+        description: "Copy the non-secret ledger of Governance tasks created from Agent Control Plane decision reasons.",
+        category: "Actions",
+        keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "ledger", "copy"],
+        run: () => handlers.copyAgentControlPlaneDecisionTaskLedger()
       },
       {
         id: "seed-agent-control-plane-decision-tasks",

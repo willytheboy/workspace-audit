@@ -3297,6 +3297,14 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 controlPlaneDecisionTasks: "true"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn control-plane-decision-task-ledger-copy-btn",
+              text: "Copy Decision Tasks",
+              attrs: { type: "button" },
+              dataset: {
+                controlPlaneDecisionTaskLedgerCopy: "true"
+              }
             })
           ])
         ])

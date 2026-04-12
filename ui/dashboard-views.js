@@ -1486,6 +1486,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-decision-task-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyAgentControlPlaneDecisionTaskLedger();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -4020,6 +4041,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${(decision.decision || "review").toUpperCase()}`;
   }
 
+  async function copyAgentControlPlaneDecisionTaskLedger() {
+    const payload = await api.fetchAgentControlPlaneDecisionTaskLedger("all");
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.visible} Decision Task${payload.summary.visible === 1 ? "" : "s"}`;
+  }
+
   async function seedAgentControlPlaneDecisionTasks() {
     const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
     if (!reasons.length) return "No Decision Tasks";
@@ -4173,6 +4200,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyBaselineAgentControlPlaneSnapshotDrift,
     copyAgentControlPlaneBaselineStatus,
     copyAgentControlPlaneDecision,
+    copyAgentControlPlaneDecisionTaskLedger,
     seedAgentControlPlaneDecisionTasks,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,

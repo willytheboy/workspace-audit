@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-12T21:29:26.988Z",
+  "generatedAt": "2026-04-12T21:45:48.118Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-12T21:28:56.800Z",
+      "lastModifiedIso": "2026-04-12T21:45:11.510Z",
       "lastModifiedLabel": "2026-04-12",
       "daysOld": 0,
       "qualityScore": 28,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 181,
+      "docsFiles": 183,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 181,
-      "totalBytes": 243320,
+      "totalFiles": 183,
+      "totalBytes": 246071,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -1073,7 +1073,7 @@
       ],
       "lastModifiedIso": "2026-04-10T09:35:54.676Z",
       "lastModifiedLabel": "2026-04-10",
-      "daysOld": 2,
+      "daysOld": 3,
       "qualityScore": 70,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -3382,7 +3382,7 @@
       ],
       "lastModifiedIso": "2025-12-15T09:29:37.697Z",
       "lastModifiedLabel": "2025-12-15",
-      "daysOld": 118,
+      "daysOld": 119,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -4294,7 +4294,7 @@
       ],
       "lastModifiedIso": "2026-02-01T09:31:41.053Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 70,
+      "daysOld": 71,
       "qualityScore": 57,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -4578,7 +4578,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-12T21:28:56.800Z",
+      "lastModifiedIso": "2026-04-12T21:45:11.510Z",
       "lastModifiedLabel": "2026-04-12",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4589,14 +4589,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 181,
+      "docsFiles": 183,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 181,
-      "totalBytes": 243320,
+      "totalFiles": 183,
+      "totalBytes": 246071,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -7345,7 +7345,7 @@
       ],
       "lastModifiedIso": "2026-02-01T09:31:41.566Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 70,
+      "daysOld": 71,
       "qualityScore": 50,
       "freshnessScore": 65,
       "testingScore": 35,
@@ -8196,7 +8196,7 @@
       ],
       "lastModifiedIso": "2024-12-30T09:34:00.251Z",
       "lastModifiedLabel": "2024-12-30",
-      "daysOld": 468,
+      "daysOld": 469,
       "qualityScore": 38,
       "freshnessScore": 18,
       "testingScore": 15,
@@ -8227,7 +8227,7 @@
         },
         {
           "type": "info",
-          "message": "Project hasn't been updated in over a year (468 days)."
+          "message": "Project hasn't been updated in over a year (469 days)."
         }
       ],
       "scripts": [

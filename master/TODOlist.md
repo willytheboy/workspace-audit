@@ -926,3 +926,9 @@
 - [x] Add Governance deck and command-palette controls for seeding decision tasks.
 - [x] Feed Control Plane decision task counts into Agent Control Plane decisions, handoffs, snapshots, and baseline drift metrics.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Ledger
+
+- [x] Add `GET /api/agent-control-plane/decision/task-ledger` with `all`, `open`, and `closed` status filters.
+- [x] Add Governance and command-palette handoffs for copying Control Plane decision tasks.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

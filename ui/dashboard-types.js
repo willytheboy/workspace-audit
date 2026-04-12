@@ -729,6 +729,43 @@
  *   message: string
  * }} AgentControlPlaneDecisionReason
  * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   agentControlPlaneDecisionReasonCode: string,
+ *   agentControlPlaneDecisionReasonSeverity: string,
+ *   agentControlPlaneDecision: string,
+ *   agentControlPlaneRecommendedAction: string,
+ *   agentControlPlaneCommandHint: string,
+ *   description: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} AgentControlPlaneDecisionTaskLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number,
+ *     reasonCount: number,
+ *     decisionCounts: Record<string, number>
+ *   },
+ *   items: AgentControlPlaneDecisionTaskLedgerItem[],
+ *   markdown: string
+ * }} AgentControlPlaneDecisionTaskLedgerPayload
+ * @typedef {{
  *   generatedAt: string,
  *   decision: "ready" | "review" | "hold",
  *   recommendedAction: string,

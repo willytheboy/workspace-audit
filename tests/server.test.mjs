@@ -2256,6 +2256,25 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(seedDecisionTaskJson.createdTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
     assert.equal(seedDecisionTaskJson.createdTasks[0].secretPolicy, "non-secret-control-plane-remediation-evidence-only");
 
+    const decisionTaskLedgerResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger`);
+    assert.equal(decisionTaskLedgerResponse.status, 200);
+    const decisionTaskLedgerJson = await decisionTaskLedgerResponse.json();
+    assert.equal(decisionTaskLedgerJson.status, "all");
+    assert.equal(decisionTaskLedgerJson.summary.total, 1);
+    assert.equal(decisionTaskLedgerJson.summary.open, 1);
+    assert.equal(decisionTaskLedgerJson.summary.closed, 0);
+    assert.equal(decisionTaskLedgerJson.summary.reasonCount, 1);
+    assert.equal(decisionTaskLedgerJson.items[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
+    assert.equal(decisionTaskLedgerJson.items[0].agentControlPlaneDecision, seedDecisionTaskJson.createdTasks[0].agentControlPlaneDecision);
+    assert.match(decisionTaskLedgerJson.markdown, /# Agent Control Plane Decision Task Ledger/);
+    assert.match(decisionTaskLedgerJson.markdown, /Non-secret Agent Control Plane decision task metadata/);
+
+    const openDecisionTaskLedgerResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger?status=open&limit=5`);
+    assert.equal(openDecisionTaskLedgerResponse.status, 200);
+    const openDecisionTaskLedgerJson = await openDecisionTaskLedgerResponse.json();
+    assert.equal(openDecisionTaskLedgerJson.status, "open");
+    assert.equal(openDecisionTaskLedgerJson.items.length, 1);
+
     const repeatSeedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

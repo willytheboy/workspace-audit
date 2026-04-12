@@ -825,6 +825,49 @@
  *   markdown: string
  * }} DataSourcesSummaryPayload
  * @typedef {{
+ *   id: string,
+ *   sourceId: string,
+ *   label: string,
+ *   provider: string,
+ *   url: string,
+ *   host: string,
+ *   sourceHealth: string,
+ *   sourceStatus: string,
+ *   accessMethod: string,
+ *   protectedLikely: boolean,
+ *   secretPolicy: string
+ * }} DeploymentHealthTarget
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     total: number,
+ *     protectedLikely: number,
+ *     providerCounts: Record<string, number>
+ *   },
+ *   targets: DeploymentHealthTarget[],
+ *   markdown: string
+ * }} DeploymentHealthPayload
+ * @typedef {{
+ *   id: string,
+ *   targetId: string,
+ *   sourceId: string,
+ *   label: string,
+ *   provider: string,
+ *   url: string,
+ *   host: string,
+ *   status: "pass" | "fail",
+ *   ok: boolean,
+ *   httpStatus: number,
+ *   statusText: string,
+ *   contentType: string,
+ *   latencyMs: number,
+ *   timeoutMs: number,
+ *   error: string,
+ *   checkedAt: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} DeploymentSmokeCheckRecord
+ * @typedef {{
  *   generatedAt: string,
  *   summary: {
  *     total: number,

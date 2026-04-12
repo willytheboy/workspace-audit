@@ -70,6 +70,38 @@ export async function serverTest() {
     assert.equal(sourcesSummaryJson.sources[0].access.requiresReview, false);
     assert.match(sourcesSummaryJson.markdown, /# Data Sources Summary/);
 
+    const deploymentHealthResponse = await fetch(`${baseUrl}/api/deployments/health`);
+    assert.equal(deploymentHealthResponse.status, 200);
+    const deploymentHealthJson = await deploymentHealthResponse.json();
+    assert.equal(deploymentHealthJson.summary.total, 0);
+    assert.deepEqual(deploymentHealthJson.targets, []);
+    assert.match(deploymentHealthJson.markdown, /# Deployment Health Targets/);
+    assert.match(deploymentHealthJson.markdown, /No deployment targets detected/);
+
+    const rejectedDeploymentSmokeCheckResponse = await fetch(`${baseUrl}/api/deployments/smoke-check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: `${baseUrl}/` })
+    });
+    assert.equal(rejectedDeploymentSmokeCheckResponse.status, 400);
+    const rejectedDeploymentSmokeCheckJson = await rejectedDeploymentSmokeCheckResponse.json();
+    assert.match(rejectedDeploymentSmokeCheckJson.error, /allowLocal=true/);
+
+    const deploymentSmokeCheckResponse = await fetch(`${baseUrl}/api/deployments/smoke-check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: `${baseUrl}/`, label: "Fixture local app", allowLocal: true, timeoutMs: 3000 })
+    });
+    assert.equal(deploymentSmokeCheckResponse.status, 200);
+    const deploymentSmokeCheckJson = await deploymentSmokeCheckResponse.json();
+    assert.equal(deploymentSmokeCheckJson.success, true);
+    assert.equal(deploymentSmokeCheckJson.smokeCheck.status, "pass");
+    assert.equal(deploymentSmokeCheckJson.smokeCheck.httpStatus, 200);
+    assert.equal(deploymentSmokeCheckJson.smokeCheck.label, "Fixture local app");
+    assert.equal(deploymentSmokeCheckJson.smokeCheck.error, "");
+    assert.match(deploymentSmokeCheckJson.smokeCheck.secretPolicy, /No response body/);
+    assert.match(deploymentSmokeCheckJson.smokeCheck.markdown, /# Deployment Smoke Check/);
+
     const sourcesAccessRequirementsResponse = await fetch(`${baseUrl}/api/sources/access-requirements`);
     assert.equal(sourcesAccessRequirementsResponse.status, 200);
     const sourcesAccessRequirementsJson = await sourcesAccessRequirementsResponse.json();
@@ -681,6 +713,7 @@ export async function serverTest() {
     assert.equal(governanceJson.dataSourceAccessValidationEvidenceSnapshotDiff.hasSnapshot, true);
     assert.equal(governanceJson.dataSourceAccessValidationEvidenceSnapshotDiff.hasDrift, false);
     assert.equal(governanceJson.dataSourceAccessValidationEvidenceSnapshotDiff.driftSeverity, "none");
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "deployment-smoke-check-recorded"));
     assert.ok(governanceJson.operationLog.some((operation) => operation.type === "data-source-access-validation-evidence-recorded"));
     assert.ok(governanceJson.operationLog.some((operation) => operation.type === "data-source-access-validation-evidence-snapshot-created"));
     assert.equal(governanceJson.agentControlPlaneDecision.decision, "hold");

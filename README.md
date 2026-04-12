@@ -54,6 +54,7 @@ Architecture:
 - The dashboard now exposes a keyboard-first command palette (`Ctrl+K`) and a guided source-setup modal, which are the first adopted slices from the `Platform / control center` donor apps.
 - The dashboard also now exposes a settings shell with workspace, source, diagnostics, and about tabs backed by `GET /api/diagnostics`.
 - The Data Sources module now includes a health summary payload with local path reachability, remote URL validation, ready/review/blocked counts, markdown export text, and richer source cards.
+- Deployment health now derives public deployment targets from Data Sources and exposes non-secret HTTP smoke checks that store only URL, status, latency, and error class in Governance history.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.
@@ -209,6 +210,8 @@ Core routes:
 - `GET /api/sources`
 - `DELETE /api/sources/:sourceId`
 - `GET /api/sources/summary`
+- `GET /api/deployments/health`
+- `POST /api/deployments/smoke-check`
 - `GET /api/sources/access-requirements`
 - `GET /api/sources/access-checklist`
 - `GET /api/sources/access-validation-runbook`

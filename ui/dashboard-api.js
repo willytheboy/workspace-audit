@@ -136,6 +136,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").DeploymentHealthPayload>}
+   */
+  fetchDeploymentHealth() {
+    return fetchJson("/api/deployments/health");
+  },
+
+  /**
+   * @param {{ url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }} payload
+   * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, governanceOperationCount: number }>}
+   */
+  runDeploymentSmokeCheck(payload) {
+    return fetchJson("/api/deployments/smoke-check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>}
    */
   fetchSourcesAccessRequirements() {

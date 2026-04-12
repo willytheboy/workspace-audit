@@ -840,3 +840,9 @@
 - [x] Diagnose Vercel `FUNCTION_INVOCATION_FAILED` caused by the project deploying as a Node serverless function.
 - [x] Force the Vercel framework preset to `Other` with `framework: null` in `vercel.json`.
 - [x] Rebuild, push, confirm latest production deployment, and verify production aliases return HTTP 200.
+
+## Next Deployment Health Smoke Check API
+
+- [x] Derive deployment-health targets from Data Sources without storing credentials or response bodies.
+- [x] Add `GET /api/deployments/health` and `POST /api/deployments/smoke-check` with local/private URL guardrails.
+- [x] Add API client/types, parser checks, tests, docs, milestone tracking, validation, relaunch, commit, and push.

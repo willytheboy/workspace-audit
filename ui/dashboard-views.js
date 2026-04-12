@@ -77,6 +77,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
+ *     fetchSourcesAccessValidationEvidenceCoverage: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
@@ -2535,6 +2536,114 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload} coverage
+   */
+  function createDataSourcesAccessValidationEvidenceCoverageSection(coverage) {
+    const section = document.createElement("section");
+    section.className = "source-evidence-coverage-deck";
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Data Sources Evidence Coverage";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const summary = document.createElement("div");
+    summary.textContent = `${coverage.summary.covered}/${coverage.summary.sourceCount} covered | ${coverage.summary.missing} missing | ${coverage.summary.highPriority} high priority`;
+    summary.style.color = coverage.summary.blocked || coverage.summary.highPriority
+      ? "var(--danger)"
+      : coverage.summary.missing || coverage.summary.review
+        ? "var(--warning)"
+        : "var(--success)";
+    summary.style.fontSize = "0.84rem";
+
+    heading.append(title, summary);
+    section.append(heading);
+
+    if (!coverage.items.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No source evidence coverage items found.";
+      empty.style.padding = "1rem";
+      empty.style.border = "1px solid var(--border)";
+      empty.style.borderRadius = "0.65rem";
+      empty.style.background = "var(--surface)";
+      empty.style.color = "var(--text-muted)";
+      section.append(empty);
+      return section;
+    }
+
+    for (const item of coverage.items.slice(0, 10)) {
+      const card = document.createElement("div");
+      card.className = "source-evidence-coverage-card";
+      card.style.display = "flex";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "1rem";
+      card.style.padding = "1rem";
+      card.style.border = "1px solid var(--border)";
+      card.style.borderRadius = "0.65rem";
+      card.style.background = "var(--surface)";
+      card.style.borderLeft = `4px solid ${item.coverageStatus === "blocked" || item.priority === "high" ? "var(--danger)" : item.coverageStatus === "covered" ? "var(--success)" : "var(--warning)"}`;
+
+      const body = document.createElement("div");
+      body.style.display = "flex";
+      body.style.flexDirection = "column";
+      body.style.gap = "0.35rem";
+
+      const cardTitle = document.createElement("div");
+      cardTitle.textContent = item.label || item.sourceId || "Source evidence coverage";
+      cardTitle.style.fontWeight = "800";
+      cardTitle.style.color = "var(--text)";
+
+      const action = document.createElement("div");
+      action.textContent = item.action || "Record non-secret validation evidence after confirming access outside this app.";
+      action.style.color = "var(--text-muted)";
+      action.style.fontSize = "0.84rem";
+      action.style.lineHeight = "1.45";
+
+      const evidence = document.createElement("div");
+      evidence.textContent = item.latestEvidenceSummary
+        ? `Latest evidence: ${item.latestEvidenceSummary}`
+        : `Latest evidence: ${item.latestEvidenceStatus || "missing"}`;
+      evidence.style.color = "var(--text-muted)";
+      evidence.style.fontSize = "0.78rem";
+      evidence.style.lineHeight = "1.4";
+
+      body.append(cardTitle, action, evidence);
+
+      const meta = document.createElement("div");
+      meta.style.display = "flex";
+      meta.style.flexDirection = "column";
+      meta.style.alignItems = "flex-end";
+      meta.style.gap = "0.25rem";
+      meta.style.color = "var(--text-muted)";
+      meta.style.fontSize = "0.82rem";
+      for (const line of [
+        (item.coverageStatus || "missing").toUpperCase(),
+        (item.priority || "medium").toUpperCase(),
+        item.accessMethod || "review-required"
+      ]) {
+        const metaLine = document.createElement("span");
+        metaLine.textContent = line;
+        meta.append(metaLine);
+      }
+
+      card.append(body, meta);
+      section.append(card);
+    }
+
+    return section;
+  }
+
+  /**
    * @param {HTMLElement} container
    * @param {import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[]} snapshots
    */
@@ -2611,10 +2720,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMatrix, accessReviewQueue, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
+        api.fetchSourcesAccessValidationEvidenceCoverage(),
         api.fetchSourcesSummarySnapshots()
       ]);
       const sources = sourcesPayload.sources || [];
@@ -2647,6 +2757,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       for (const source of sources) {
         fragment.append(createSourceItem(source));
       }
+      fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
       fragment.append(createDataSourcesAccessReviewQueueSection(accessReviewQueue));
       fragment.append(createDataSourcesAccessMatrixSection(accessMatrix));
       const snapshotSection = createDataSourcesSummarySnapshotSection(snapshots || []);
@@ -3184,6 +3295,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.total} evidence record${payload.summary.total === 1 ? "" : "s"}`;
   }
 
+  async function copySourcesAccessValidationEvidenceCoverage() {
+    const payload = await api.fetchSourcesAccessValidationEvidenceCoverage();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.covered}/${payload.summary.sourceCount} covered`;
+  }
+
   async function copySourcesAccessMatrix() {
     const payload = await api.fetchSourcesAccessMatrix();
     await copyText(payload.markdown);
@@ -3419,6 +3536,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,
+    copySourcesAccessValidationEvidenceCoverage,
     copySourcesAccessMatrix,
     copySourcesAccessReviewQueue,
     copySourcesAccessGate,

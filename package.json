@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build:vercel": "node scripts/build-static-preview.mjs",
     "dev": "node server.mjs",
     "generate": "node generate-audit.mjs",
     "serve": "node server.mjs",

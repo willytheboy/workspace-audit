@@ -828,3 +828,9 @@
 - [x] Return task-sync metadata from the evidence ledger POST response.
 - [x] Surface sync-count feedback in the Governance evidence capture action.
 - [x] Add parser checks, docs, milestone tracking, validation, and relaunch.
+
+## Next Data Sources Access Validation Evidence Coverage Deck
+
+- [x] Render evidence coverage directly in the Sources view.
+- [x] Add Sources toolbar and command-palette support for copying evidence coverage markdown.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

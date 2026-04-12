@@ -62,6 +62,7 @@ Architecture:
 - Data Sources now expose a non-secret access validation evidence ledger for recording operator-side access checks without storing credentials, tokens, certificates, private keys, or browser sessions.
 - Data Sources and Governance can now copy the non-secret access validation evidence ledger from the toolbar or command palette.
 - `GET /api/sources/access-validation-evidence-coverage` now reports which configured Data Sources have covered, review, blocked, or missing non-secret access-validation evidence.
+- The Sources view now renders Data Sources access validation evidence coverage inline and can copy the coverage markdown from the toolbar or command palette.
 - `POST /api/sources/access-validation-evidence-coverage/tasks` now turns missing/review/blocked evidence coverage gaps into trackable non-secret Data Sources tasks.
 - `GET`/`POST /api/sources/access-validation-evidence-snapshots` now persists non-secret access validation evidence baselines, with `/diff` support for evidence drift checks.
 - Data Sources can now copy a non-secret access matrix grouped by access method, credential signal, certificate requirement, and source.

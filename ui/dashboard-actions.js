@@ -32,6 +32,7 @@
  *     copySourcesAccessChecklist: () => Promise<void>,
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
  *     copySourcesAccessValidationEvidence: () => Promise<void>,
+ *     copySourcesAccessValidationEvidenceCoverage: () => Promise<void>,
  *     copySourcesAccessMatrix: () => Promise<void>,
  *     copySourcesAccessReviewQueue: () => Promise<void>,
  *     copySourcesAccessGate: () => Promise<void>,
@@ -222,6 +223,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "evidence", "validation", "credentials", "copy"],
         run: () => handlers.copySourcesAccessValidationEvidence()
+      },
+      {
+        id: "copy-sources-access-validation-evidence-coverage",
+        label: "Copy sources evidence coverage",
+        description: "Copy which tracked sources still need non-secret source access validation evidence.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "evidence", "coverage", "validation", "copy"],
+        run: () => handlers.copySourcesAccessValidationEvidenceCoverage()
       },
       {
         id: "copy-sources-access-matrix",

@@ -466,6 +466,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.agentControlPlaneDecision
         : null,
+      releaseSummary: governance.releaseSummary && matchesSearch([
+        "release control",
+        governance.releaseSummary.summary?.status || "",
+        governance.releaseSummary.git?.branch || "",
+        governance.releaseSummary.git?.commitShort || "",
+        governance.releaseSummary.git?.commitMessage || "",
+        governance.releaseSummary.git?.dirty ? "dirty" : "clean",
+        governance.releaseSummary.latestSmokeCheck?.status || "",
+        governance.releaseSummary.latestSmokeCheck?.url || "",
+        governance.releaseSummary.summary?.validationStatus || "",
+        ...(governance.releaseSummary.checkpoints || []).map((checkpoint) => `${checkpoint.title || ""} ${checkpoint.status || ""} ${checkpoint.commitShort || ""} ${checkpoint.notes || ""}`)
+      ])
+        ? {
+            ...governance.releaseSummary,
+            checkpoints: filterAndSort(
+              governance.releaseSummary.checkpoints || [],
+              (checkpoint) => [checkpoint.title || "", checkpoint.status || "", checkpoint.branch || "", checkpoint.commitShort || "", checkpoint.commitMessage || "", checkpoint.validationStatus || "", checkpoint.notes || ""],
+              (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+            )
+          }
+        : null,
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -618,6 +639,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "agents") filtered.agentControlPlaneDecision = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneSnapshots = [];
+      if (scope !== "release") filtered.releaseSummary = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1190,6 +1212,53 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindReleaseControlActions(container) {
+    container.querySelectorAll("[data-release-control-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyReleaseControl();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-checkpoint-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await saveReleaseCheckpoint();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindControlPlaneSnapshotActions(container) {
     container.querySelectorAll("[data-control-plane-decision-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -1522,6 +1591,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindSlaLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
+    bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentWorkOrderRunActions(container);
   }
@@ -3093,12 +3163,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy] = await Promise.all([
+      const [governance, executionViews, executionPolicy, releaseSummary] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
-        api.fetchGovernanceExecutionPolicy()
+        api.fetchGovernanceExecutionPolicy(),
+        api.fetchReleaseSummary()
       ]);
-      governanceCache = governance;
+      governanceCache = {
+        ...governance,
+        releaseSummary
+      };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
       applyGovernanceExecutionPolicyToControls(executionPolicy || governance.agentExecutionPolicy || governanceExecutionPolicy);
@@ -3129,7 +3203,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentWorkOrderSnapshots.length
         + (governance.agentExecutionSlaLedgerSnapshots || []).length
         + governance.agentWorkOrderRuns.length
-        + governance.unprofiledProjects.length;
+        + governance.unprofiledProjects.length
+        + (releaseSummary ? 1 : 0)
+        + (releaseSummary?.checkpoints || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {

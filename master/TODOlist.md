@@ -864,3 +864,9 @@
 - [x] Add a non-secret release summary that combines Git state, deployment smoke evidence, latest validation context, and saved checkpoints.
 - [x] Add `GET /api/releases/summary`, `POST /api/releases/checkpoints`, Governance toolbar actions, and command-palette actions.
 - [x] Feed release checkpoints into diagnostics, Governance, Agent Control Plane summaries, and Agent Control Plane snapshot drift.
+
+## Next Governance Release Control Deck
+
+- [x] Add live release summary loading to the Governance cache and filters.
+- [x] Add Release Control KPI, deck section, scope filter, and inline checkpoint actions.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

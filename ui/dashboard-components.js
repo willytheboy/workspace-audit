@@ -1134,6 +1134,16 @@ export function createGovernanceSummaryGrid(governance) {
       : dataSourcesAccessGateDecision === "ready"
         ? "var(--success)"
         : "var(--text-muted)";
+  const releaseSummary = governance.releaseSummary;
+  const releaseStatus = releaseSummary?.summary?.status || summary.releaseLatestCheckpointStatus || "review";
+  const releaseAccent = releaseStatus === "hold"
+    ? "var(--danger)"
+    : releaseStatus === "ready"
+      ? "var(--success)"
+      : "var(--warning)";
+  const releaseCheckpointCount = releaseSummary?.summary?.releaseCheckpointCount ?? summary.releaseCheckpointCount ?? 0;
+  const releaseSmokeFailCount = releaseSummary?.summary?.deploymentSmokeCheckFailCount ?? summary.deploymentSmokeCheckFailCount ?? 0;
+  const releaseSmokePassCount = releaseSummary?.summary?.deploymentSmokeCheckPassCount ?? summary.deploymentSmokeCheckPassCount ?? 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1214,6 +1224,14 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Decision Gate",
       value: decision.toUpperCase(),
       detail: controlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."
+    }),
+    createKpiCard({
+      accentColor: releaseAccent,
+      label: "Release Control",
+      value: releaseStatus.toUpperCase(),
+      detail: releaseSummary
+        ? `${releaseCheckpointCount} checkpoint(s) | smoke ${releaseSmokePassCount} pass / ${releaseSmokeFailCount} fail | ${releaseSummary.git?.dirty ? "dirty worktree" : "clean worktree"}`
+        : `${releaseCheckpointCount} saved checkpoint(s), live release summary not loaded`
     }),
     createKpiCard({
       accentColor: dataSourcesAccessGateAccent,
@@ -3231,6 +3249,210 @@ export function createGovernanceDeck(governance) {
         ])
       ]
     : [];
+  const releaseSummary = governance.releaseSummary;
+  const releaseCheckpoints = Array.isArray(releaseSummary?.checkpoints) ? releaseSummary.checkpoints : [];
+  const releaseLatestSmoke = releaseSummary?.latestSmokeCheck || null;
+  const releaseStatus = releaseSummary?.summary?.status || "review";
+  const releaseStatusColor = releaseStatus === "hold"
+    ? "var(--danger)"
+    : releaseStatus === "ready"
+      ? "var(--success)"
+      : "var(--warning)";
+  const releaseSmokeStatus = releaseLatestSmoke?.status || "not-run";
+  const releaseSmokeColor = releaseSmokeStatus === "pass"
+    ? "var(--success)"
+    : releaseSmokeStatus === "fail"
+      ? "var(--danger)"
+      : "var(--text-muted)";
+  const releaseRecommendedAction = releaseStatus === "hold"
+    ? "Hold release until failing deployment smoke checks or release blockers are resolved."
+    : releaseStatus === "ready"
+      ? "Release evidence is ready for the next supervised build checkpoint."
+      : "Review release evidence before relying on this deployment checkpoint.";
+  const releaseControlEntries = releaseSummary
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {
+              style: {
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.3rem"
+              }
+            }, [
+              createElement("div", {
+                text: `Release Status: ${releaseStatus.toUpperCase()}`,
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: releaseSummary.generatedAt ? new Date(releaseSummary.generatedAt).toLocaleString() : "Live release control summary",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  lineHeight: "1.45"
+                }
+              })
+            ]),
+            createElement("div", {
+              style: {
+                display: "flex",
+                gap: "0.35rem",
+                flexWrap: "wrap",
+                justifyContent: "flex-end"
+              }
+            }, [
+              createTag(releaseStatus.toUpperCase(), {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: releaseStatusColor
+              }),
+              createTag(releaseSummary.git?.dirty ? "DIRTY" : "CLEAN", {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: releaseSummary.git?.dirty ? "var(--warning)" : "var(--success)"
+              }),
+              createTag(`SMOKE ${releaseSmokeStatus.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: releaseSmokeColor
+              }),
+              createTag(`${releaseSummary.summary?.releaseCheckpointCount || 0} CHECKPOINTS`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: "var(--text-muted)"
+              })
+            ])
+          ]),
+          createElement("div", {
+            text: releaseRecommendedAction,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Git: ${releaseSummary.git?.available ? `${releaseSummary.git.branch || "unknown"} @ ${releaseSummary.git.commitShort || "unknown"} - ${releaseSummary.git.commitMessage || "no message"}` : `unavailable - ${releaseSummary.git?.error || "not reported"}`}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Deployment smoke: ${releaseSummary.summary?.deploymentSmokeCheckPassCount || 0} pass / ${releaseSummary.summary?.deploymentSmokeCheckFailCount || 0} fail / ${releaseSummary.summary?.deploymentSmokeCheckCount || 0} total${releaseLatestSmoke?.checkedAt ? ` - latest ${new Date(releaseLatestSmoke.checkedAt).toLocaleString()}` : ""}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Validation: ${releaseSummary.summary?.validationStatus || "scan-missing"}${releaseSummary.summary?.latestScanAt ? ` - latest scan ${new Date(releaseSummary.summary.latestScanAt).toLocaleString()}` : ""} - secret policy: non-secret release metadata only`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn release-control-copy-btn",
+              text: "Copy Release",
+              attrs: { type: "button" },
+              dataset: {
+                releaseControlCopy: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-checkpoint-save-btn",
+              text: "Save Checkpoint",
+              attrs: { type: "button" },
+              dataset: {
+                releaseCheckpointSave: "true"
+              }
+            })
+          ])
+        ]),
+        ...releaseCheckpoints.slice(0, 5).map((checkpoint) => createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: checkpoint.title || "Release Checkpoint",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: `${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"} | ${checkpoint.branch || "unknown"} @ ${checkpoint.commitShort || "unknown"}`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((checkpoint.status || "review").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: checkpoint.status === "hold" ? "var(--danger)" : checkpoint.status === "ready" ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: `${checkpoint.commitMessage || "No commit message"} | smoke ${checkpoint.deploymentSmokeCheckPassCount || 0} pass / ${checkpoint.deploymentSmokeCheckFailCount || 0} fail | validation ${checkpoint.validationStatus || "scan-missing"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          checkpoint.notes
+            ? createElement("div", {
+                text: checkpoint.notes,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.88rem",
+                  lineHeight: "1.5"
+                }
+              })
+            : null
+        ]))
+      ]
+    : [];
   const agentControlPlaneDecisionSnapshotEntries = (governance.agentControlPlaneDecisionSnapshots || []).map((snapshot) => {
     const snapshotDecisionColor = snapshot.decision === "hold"
       ? "var(--danger)"
@@ -4075,6 +4297,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),
+    createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),
     createListSection("Data Sources Access Review Queue", "Credential, certificate, SSH, and manual-access checks that can block supervised app-development ingestion.", dataSourcesAccessReviewQueueEntries),
     createListSection("Data Sources Access Validation Runbook", "Non-secret operator-side validation steps and command hints grouped by access method.", dataSourcesAccessValidationRunbookEntries),

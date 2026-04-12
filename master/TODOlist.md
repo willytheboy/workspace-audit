@@ -834,3 +834,9 @@
 - [x] Render evidence coverage directly in the Sources view.
 - [x] Add Sources toolbar and command-palette support for copying evidence coverage markdown.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Vercel Static Deployment Recovery
+
+- [x] Diagnose Vercel `FUNCTION_INVOCATION_FAILED` caused by the project deploying as a Node serverless function.
+- [x] Force the Vercel framework preset to `Other` with `framework: null` in `vercel.json`.
+- [x] Rebuild, push, confirm latest production deployment, and verify production aliases return HTTP 200.

@@ -876,3 +876,9 @@
 - [x] Add latest release checkpoint drift API and markdown handoff.
 - [x] Add Governance release drift KPI/deck visibility and command-palette copy action.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Build Gate
+
+- [x] Add local release build gate API and markdown handoff.
+- [x] Add Governance release gate KPI/deck visibility and command-palette copy action.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

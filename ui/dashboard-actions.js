@@ -62,6 +62,7 @@
  *     copyAgentControlPlane: () => Promise<void>,
  *     copyReleaseControl: () => Promise<void>,
  *     copyReleaseCheckpointDrift: () => Promise<void>,
+ *     copyReleaseBuildGate: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
@@ -446,6 +447,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "checkpoint", "deployment", "git", "smoke", "drift", "copy"],
         run: () => handlers.copyReleaseCheckpointDrift()
+      },
+      {
+        id: "copy-release-build-gate",
+        label: "Copy release build gate",
+        description: "Copy the release build gate decision for the next local unattended build pass.",
+        category: "Actions",
+        keywords: ["governance", "release", "build", "gate", "decision", "deployment", "git", "smoke", "copy"],
+        run: () => handlers.copyReleaseBuildGate()
       },
       {
         id: "save-release-checkpoint",

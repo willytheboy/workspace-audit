@@ -1146,6 +1146,13 @@ export function createGovernanceSummaryGrid(governance) {
   const releaseSmokePassCount = releaseSummary?.summary?.deploymentSmokeCheckPassCount ?? summary.deploymentSmokeCheckPassCount ?? 0;
   const releaseCheckpointDrift = governance.releaseCheckpointDrift;
   const releaseDriftSeverity = releaseCheckpointDrift?.driftSeverity || "missing-checkpoint";
+  const releaseBuildGate = governance.releaseBuildGate;
+  const releaseBuildGateDecision = releaseBuildGate?.decision || "review";
+  const releaseBuildGateAccent = releaseBuildGateDecision === "hold"
+    ? "var(--danger)"
+    : releaseBuildGateDecision === "ready"
+      ? "var(--success)"
+      : "var(--warning)";
   return createElement("div", {
     style: {
       display: "grid",
@@ -1234,6 +1241,14 @@ export function createGovernanceSummaryGrid(governance) {
       detail: releaseSummary
         ? `${releaseCheckpointCount} checkpoint(s) | smoke ${releaseSmokePassCount} pass / ${releaseSmokeFailCount} fail | drift ${releaseDriftSeverity}`
         : `${releaseCheckpointCount} saved checkpoint(s), live release summary not loaded`
+    }),
+    createKpiCard({
+      accentColor: releaseBuildGateAccent,
+      label: "Release Build Gate",
+      value: releaseBuildGateDecision.toUpperCase(),
+      detail: releaseBuildGate
+        ? `${releaseBuildGate.reasons?.length || 0} reason(s) | risk ${releaseBuildGate.riskScore || 0}`
+        : "Release build gate has not been evaluated."
     }),
     createKpiCard({
       accentColor: dataSourcesAccessGateAccent,
@@ -3261,6 +3276,14 @@ export function createGovernanceDeck(governance) {
     : releaseDriftSeverity === "medium" || releaseDriftSeverity === "low"
       ? "var(--warning)"
       : "var(--success)";
+  const releaseBuildGate = governance.releaseBuildGate;
+  const releaseBuildGateReasons = Array.isArray(releaseBuildGate?.reasons) ? releaseBuildGate.reasons : [];
+  const releaseBuildGateDecision = releaseBuildGate?.decision || "review";
+  const releaseBuildGateColor = releaseBuildGateDecision === "hold"
+    ? "var(--danger)"
+    : releaseBuildGateDecision === "ready"
+      ? "var(--success)"
+      : "var(--warning)";
   const releaseLatestSmoke = releaseSummary?.latestSmokeCheck || null;
   const releaseStatus = releaseSummary?.summary?.status || "review";
   const releaseStatusColor = releaseStatus === "hold"
@@ -3352,6 +3375,11 @@ export function createGovernanceDeck(governance) {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
                 color: releaseDriftColor
+              }),
+              createTag(`GATE ${releaseBuildGateDecision.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: releaseBuildGateColor
               })
             ])
           ]),
@@ -3399,6 +3427,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-build-gate-copy-btn",
+              text: "Copy Gate",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateCopy: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-checkpoint-drift-copy-btn",
               text: "Copy Drift",
               attrs: { type: "button" },
@@ -3416,6 +3452,88 @@ export function createGovernanceDeck(governance) {
             })
           ])
         ]),
+        releaseBuildGate
+          ? createElement("div", {
+              className: "governance-gap-card",
+              style: {
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.6rem"
+              }
+            }, [
+              createElement("div", {
+                style: {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: "0.8rem",
+                  alignItems: "flex-start"
+                }
+              }, [
+                createElement("div", {}, [
+                  createElement("div", {
+                    text: "Release Build Gate",
+                    style: {
+                      fontWeight: "800",
+                      color: "var(--text)"
+                    }
+                  }),
+                  createElement("div", {
+                    text: `${releaseBuildGateReasons.length} reason(s) | risk ${releaseBuildGate.riskScore || 0}`,
+                    style: {
+                      color: "var(--text-muted)",
+                      fontSize: "0.84rem",
+                      marginTop: "0.3rem"
+                    }
+                  })
+                ]),
+                createTag(releaseBuildGateDecision.toUpperCase(), {
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                  color: releaseBuildGateColor
+                })
+              ]),
+              createElement("div", {
+                text: releaseBuildGate.recommendedAction || "Review release build gate evidence before continuing.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.88rem",
+                  lineHeight: "1.5"
+                }
+              }),
+              releaseBuildGateReasons.length
+                ? createElement("div", {
+                    style: {
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "0.35rem",
+                      padding: "0.7rem",
+                      border: "1px solid var(--border)",
+                      borderRadius: "0.85rem",
+                      background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+                    }
+                  }, [
+                    createElement("div", {
+                      text: "Gate reasons",
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.78rem",
+                        fontWeight: "800",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase"
+                      }
+                    }),
+                    ...releaseBuildGateReasons.slice(0, 6).map((reason) => createElement("div", {
+                      text: `${reason.label || reason.code}: ${reason.message || "Review release gate evidence."} (${reason.severity || "review"})`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.84rem",
+                        lineHeight: "1.45"
+                      }
+                    }))
+                  ])
+                : null
+            ])
+          : null,
         releaseCheckpointDrift
           ? createElement("div", {
               className: "governance-gap-card",

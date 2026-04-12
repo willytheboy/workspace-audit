@@ -621,6 +621,7 @@
  *   releaseCheckpoints?: ReleaseCheckpointRecord[],
  *   releaseSummary?: ReleaseSummaryPayload | null,
  *   releaseCheckpointDrift?: ReleaseCheckpointDriftPayload | null,
+ *   releaseBuildGate?: ReleaseBuildGatePayload | null,
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -982,6 +983,22 @@
  *   } | null,
  *   markdown: string
  * }} ReleaseCheckpointDriftPayload
+ * @typedef {{
+ *   code: string,
+ *   label: string,
+ *   message: string,
+ *   severity: "low" | "medium" | "high"
+ * }} ReleaseBuildGateReason
+ * @typedef {{
+ *   generatedAt: string,
+ *   decision: "ready" | "review" | "hold",
+ *   riskScore: number,
+ *   recommendedAction: string,
+ *   reasons: ReleaseBuildGateReason[],
+ *   releaseSummary: ReleaseSummaryPayload,
+ *   releaseCheckpointDrift: ReleaseCheckpointDriftPayload,
+ *   markdown: string
+ * }} ReleaseBuildGatePayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

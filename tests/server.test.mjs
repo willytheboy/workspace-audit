@@ -143,6 +143,13 @@ export async function serverTest() {
     assert.equal(missingReleaseCheckpointDriftJson.driftSeverity, "missing-checkpoint");
     assert.match(missingReleaseCheckpointDriftJson.markdown, /# Release Checkpoint Drift/);
 
+    const missingReleaseBuildGateResponse = await fetch(`${baseUrl}/api/releases/build-gate`);
+    assert.equal(missingReleaseBuildGateResponse.status, 200);
+    const missingReleaseBuildGateJson = await missingReleaseBuildGateResponse.json();
+    assert.equal(missingReleaseBuildGateJson.decision, "review");
+    assert.ok(missingReleaseBuildGateJson.reasons.some((reason) => reason.code === "release-checkpoint-missing"));
+    assert.match(missingReleaseBuildGateJson.markdown, /# Release Build Gate/);
+
     const createReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -171,6 +178,14 @@ export async function serverTest() {
     assert.equal(releaseCheckpointDriftJson.driftSeverity, "none");
     assert.deepEqual(releaseCheckpointDriftJson.driftItems, []);
     assert.match(releaseCheckpointDriftJson.markdown, /# Release Checkpoint Drift/);
+
+    const releaseBuildGateResponse = await fetch(`${baseUrl}/api/releases/build-gate`);
+    assert.equal(releaseBuildGateResponse.status, 200);
+    const releaseBuildGateJson = await releaseBuildGateResponse.json();
+    assert.equal(releaseBuildGateJson.decision, "review");
+    assert.equal(releaseBuildGateJson.releaseCheckpointDrift.driftSeverity, "none");
+    assert.ok(releaseBuildGateJson.reasons.some((reason) => reason.code === "git-unavailable"));
+    assert.match(releaseBuildGateJson.markdown, /# Release Build Gate/);
 
     const sourcesAccessRequirementsResponse = await fetch(`${baseUrl}/api/sources/access-requirements`);
     assert.equal(sourcesAccessRequirementsResponse.status, 200);

@@ -177,6 +177,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>}
+   */
+  fetchReleaseBuildGate() {
+    return fetchJson("/api/releases/build-gate");
+  },
+
+  /**
    * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string }} [payload]
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>}
    */

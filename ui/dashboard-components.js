@@ -3456,6 +3456,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-build-gate-tasks-btn",
+              text: "Seed Gate Tasks",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateTasks: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-checkpoint-drift-copy-btn",
               text: "Copy Drift",
               attrs: { type: "button" },

@@ -85,6 +85,7 @@ function createEmptyTableRow(message) {
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
+ *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
@@ -1334,6 +1335,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Bootstrapping";
           await bootstrapReleaseBuildGateLocalEvidence();
           element.textContent = "Bootstrapped";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-build-gate-tasks]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await seedReleaseBuildGateActionTasks();
+          element.textContent = "Created";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3812,6 +3834,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Bootstrapped release gate evidence: smoke ${smokeStatus}`;
   }
 
+  async function seedReleaseBuildGateActionTasks() {
+    const actions = (getFilteredGovernance()?.releaseBuildGate?.actions || [])
+      .filter((action) => action.status !== "ready");
+    if (!actions.length) return "No Gate Tasks";
+    const payload = await api.createReleaseBuildGateActionTasks({ actions });
+    await renderGovernance();
+    return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+  }
+
   async function saveReleaseCheckpoint() {
     const payload = await api.fetchReleaseSummary();
     const created = await api.createReleaseCheckpoint({
@@ -3983,6 +4014,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyReleaseCheckpointDrift,
     copyReleaseBuildGate,
     bootstrapReleaseBuildGateLocalEvidence,
+    seedReleaseBuildGateActionTasks,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

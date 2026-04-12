@@ -1,12 +1,13 @@
 import { auditCoreTest } from "./audit-core.test.mjs";
 import { governanceBootstrapTest } from "./governance-bootstrap.test.mjs";
 import { pathUtilsTest } from "./path-utils.test.mjs";
-import { serverTest, sourceEvidenceCoverageTaskSyncTest } from "./server.test.mjs";
+import { releaseBuildGateTaskSeedingTest, serverTest, sourceEvidenceCoverageTaskSyncTest } from "./server.test.mjs";
 
 const tests = [
   ["auditCoreTest", auditCoreTest],
   ["governanceBootstrapTest", governanceBootstrapTest],
   ["pathUtilsTest", pathUtilsTest],
+  ["releaseBuildGateTaskSeedingTest", releaseBuildGateTaskSeedingTest],
   ["sourceEvidenceCoverageTaskSyncTest", sourceEvidenceCoverageTaskSyncTest],
   ["serverTest", serverTest]
 ];

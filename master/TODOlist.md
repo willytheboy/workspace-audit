@@ -906,3 +906,9 @@
 - [x] Feed Release Build Gate readiness, risk, reasons, and actions into Governance and Agent Control Plane payloads.
 - [x] Add release-gate context to Agent Control Plane decisions, decision snapshots, handoff markdown, snapshot records, and snapshot drift metrics.
 - [x] Add dashboard visibility, parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Task Seeding
+
+- [x] Add API support for converting open Release Build Gate actions into deduplicated Governance tasks.
+- [x] Add Governance deck and command-palette controls for seeding release-gate tasks.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

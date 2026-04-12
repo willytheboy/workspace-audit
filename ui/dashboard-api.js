@@ -196,6 +196,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ actions?: import("./dashboard-types.js").ReleaseBuildGateAction[] }} [payload]
+   * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  createReleaseBuildGateActionTasks(payload = {}) {
+    return fetchJson("/api/releases/build-gate/actions/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string }} [payload]
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>}
    */

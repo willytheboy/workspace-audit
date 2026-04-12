@@ -64,6 +64,7 @@ Architecture:
 - Release Build Gate now emits an action plan so missing smoke checks, checkpoints, Git access, drift, and dirty-worktree blockers translate into concrete next steps.
 - Release Build Gate now includes a local evidence bootstrap action that runs a local app smoke check and saves a non-secret checkpoint without deploying to Vercel.
 - Release gate bootstrap checkpoints now inherit the computed release status, preventing false drift when local smoke evidence moves the release from review to ready.
+- Release Build Gate actions can now seed deduplicated Governance tasks so open release blockers become trackable work without storing secrets or deployment credentials.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.
@@ -185,6 +186,7 @@ Architecture:
 - Agent Control Plane handoffs and snapshot drift now track Data Sources access validation evidence snapshot counts.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Data Sources access validation evidence coverage counts and high-priority evidence gaps.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track the Release Build Gate so supervised agent work sees release readiness, risk score, and release-gate actions.
+- Governance can now seed deduplicated Release Build Gate tasks from the release-control deck or command palette, converting open gate actions into release-control work items.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.

@@ -64,6 +64,7 @@
  *     copyReleaseCheckpointDrift: () => Promise<void>,
  *     copyReleaseBuildGate: () => Promise<void>,
  *     bootstrapReleaseBuildGateLocalEvidence: () => Promise<void>,
+ *     seedReleaseBuildGateActionTasks: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
@@ -464,6 +465,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "build", "gate", "local", "smoke", "checkpoint", "evidence"],
         run: () => handlers.bootstrapReleaseBuildGateLocalEvidence()
+      },
+      {
+        id: "seed-release-build-gate-action-tasks",
+        label: "Seed release gate tasks",
+        description: "Create deduplicated Governance tasks from open Release Build Gate actions.",
+        category: "Actions",
+        keywords: ["governance", "release", "build", "gate", "tasks", "seed"],
+        run: () => handlers.seedReleaseBuildGateActionTasks()
       },
       {
         id: "save-release-checkpoint",

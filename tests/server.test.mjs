@@ -2156,6 +2156,65 @@ export async function serverTest() {
   }
 }
 
+export async function releaseBuildGateTaskSeedingTest() {
+  const { appDir, workspaceRoot } = await createFixtureWorkspace();
+  const server = createWorkspaceAuditServer({
+    rootDir: workspaceRoot,
+    publicDir: appDir
+  });
+
+  server.listen(0);
+  await once(server, "listening");
+
+  const address = server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    const releaseBuildGateResponse = await fetch(`${baseUrl}/api/releases/build-gate`);
+    assert.equal(releaseBuildGateResponse.status, 200);
+    const releaseBuildGateJson = await releaseBuildGateResponse.json();
+    assert.equal(releaseBuildGateJson.decision, "review");
+    const openActions = releaseBuildGateJson.actions.filter((action) => action.status !== "ready");
+    assert.ok(openActions.length >= 1);
+
+    const seedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actions: [openActions[0]] })
+    });
+    assert.equal(seedResponse.status, 200);
+    const seedJson = await seedResponse.json();
+    assert.equal(seedJson.success, true);
+    assert.equal(seedJson.totals.requested, 1);
+    assert.equal(seedJson.totals.created, 1);
+    assert.equal(seedJson.totals.skipped, 0);
+    assert.equal(seedJson.createdTasks[0].projectId, "release-control");
+    assert.equal(seedJson.createdTasks[0].releaseBuildGateActionId, openActions[0].id);
+    assert.equal(seedJson.createdTasks[0].releaseBuildGateDecision, "review");
+    assert.match(seedJson.createdTasks[0].description, /Do not store credentials/);
+    assert.equal(seedJson.createdTasks[0].secretPolicy, "non-secret-release-control-evidence-only");
+
+    const repeatSeedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actions: [openActions[0]] })
+    });
+    assert.equal(repeatSeedResponse.status, 200);
+    const repeatSeedJson = await repeatSeedResponse.json();
+    assert.equal(repeatSeedJson.totals.created, 0);
+    assert.equal(repeatSeedJson.totals.skipped, 1);
+
+    const governanceResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceResponse.status, 200);
+    const governanceJson = await governanceResponse.json();
+    assert.ok(governanceJson.recentActivity.some((item) => item.kind === "task" && item.projectId === "release-control"));
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "release-build-gate-action-tasks-created"));
+  } finally {
+    server.close();
+    await once(server, "close");
+  }
+}
+
 export async function sourceEvidenceCoverageTaskSyncTest() {
   const { appDir, workspaceRoot } = await createFixtureWorkspace();
   const server = createWorkspaceAuditServer({

@@ -75,6 +75,13 @@
  *   lastSourceAccessValidationEvidenceId?: string,
  *   lastSourceAccessValidationEvidenceStatus?: string,
  *   lastSourceAccessValidationEvidenceAt?: string,
+ *   releaseBuildGateActionId?: string,
+ *   releaseBuildGateActionStatus?: string,
+ *   releaseBuildGateActionPriority?: string,
+ *   releaseBuildGateDecision?: string,
+ *   releaseBuildGateRiskScore?: number,
+ *   releaseBuildGateReasonCount?: number,
+ *   releaseBuildGateCommandHint?: string,
  *   secretPolicy?: string,
  *   createdAt: string,
  *   updatedAt: string

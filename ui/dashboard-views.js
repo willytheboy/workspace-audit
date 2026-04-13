@@ -1861,6 +1861,54 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.controlPlaneSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createAgentControlPlaneDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-control-plane-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.controlPlaneSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptAgentControlPlaneSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-snapshot-baseline-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -4800,6 +4848,76 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchAgentControlPlaneSnapshotDiff("baseline");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+  }
+
+  function findAgentControlPlaneSnapshot(snapshotId) {
+    return (governanceCache?.agentControlPlaneSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getAgentControlPlaneDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildAgentControlPlaneDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const metricDeltas = Array.isArray(diff.metricDeltas) ? diff.metricDeltas : [];
+    const lines = [
+      `Review Agent Control Plane drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review the drift before the next supervised build."}`,
+      "Secret policy: non-secret control-plane metadata only; do not store passwords, tokens, certificates, private keys, cookies, or browser sessions."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 8).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Drift field"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    const changedMetrics = metricDeltas.filter((item) => Number(item.delta || 0) !== 0);
+    if (changedMetrics.length) {
+      lines.push("Metric deltas:");
+      changedMetrics.slice(0, 8).forEach((item) => {
+        lines.push(`- ${item.label || "Metric"}: ${item.before ?? 0} -> ${item.current ?? 0} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createAgentControlPlaneDriftReviewTask(snapshotId) {
+    const snapshot = findAgentControlPlaneSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Agent Control Plane snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentControlPlaneSnapshotDiff(snapshotId);
+    const title = `Review Agent Control Plane drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      title,
+      description: buildAgentControlPlaneDriftTaskDescription(snapshot, diff),
+      priority: getAgentControlPlaneDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created Agent Control Plane drift review task";
+  }
+
+  async function acceptAgentControlPlaneSnapshotDrift(snapshotId) {
+    const snapshot = findAgentControlPlaneSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Agent Control Plane snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentControlPlaneSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.refreshAgentControlPlaneBaselineSnapshot({
+      title: `Accepted Agent Control Plane drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      limit: snapshot.limit || 24
+    });
+    await renderGovernance();
+    return "Accepted Agent Control Plane drift as current baseline";
   }
 
   async function copyAgentControlPlaneBaselineStatus() {

@@ -170,6 +170,7 @@ Architecture:
 - Agent Control Plane snapshot drift reports now include drift severity and a recommended action so external consumers can choose whether to monitor, review, or rebaseline.
 - Governance snapshot cards and drift toolbar actions now reflect copied drift severity in button feedback after generating a Control Plane drift report.
 - Governance can now copy drift from the latest saved Agent Control Plane snapshot from the toolbar or command palette.
+- Agent Control Plane snapshot cards now expose `Track Drift` and `Accept Drift` checkpoints so generated drift can become an explicit Governance task or be approved by refreshing the current control plane as the baseline.
 - Governance can now mark an Agent Control Plane snapshot as the baseline and copy baseline-vs-live drift from the toolbar or command palette.
 - Governance can now save the live Agent Control Plane directly as the baseline snapshot in one action.
 - Governance summaries and reports now show whether an Agent Control Plane baseline is selected and identify the active baseline snapshot.

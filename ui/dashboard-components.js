@@ -4865,6 +4865,22 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("button", {
+        className: "btn governance-action-btn control-plane-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn control-plane-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneSnapshotDriftAcceptId: snapshot.id
+        }
+      }),
+      createElement("button", {
         className: "btn governance-action-btn control-plane-snapshot-baseline-btn",
         text: snapshot.isBaseline ? "Baseline" : "Mark Baseline",
         attrs: { type: "button" },

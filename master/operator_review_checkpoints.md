@@ -11,10 +11,10 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources access methods: Sources registry cards now allow the operator to confirm the inferred method, flag it for review, or mark it blocked through the non-secret access validation evidence ledger.
 - Governance action queue: generated remediation items now expose a per-item `Not Actionable` checkpoint that persists to the suppression ledger and can be restored later.
 - Release Build Gate actions: each generated gate action now exposes `Track Task` and `Accept Risk` controls so a blocker can become a deduplicated task or a non-secret release checkpoint that records operator acceptance without hiding the original gate evidence.
+- Agent Control Plane snapshot drift: each saved snapshot now exposes `Track Drift` and `Accept Drift` controls so drift can become a non-secret Governance task or be approved by refreshing the live control plane as the current baseline.
 
 ## Next Checkpoint Candidates
 
-- Agent Control Plane drift: confirm whether snapshot drift is expected, harmful, or approved before converting drift into agent work orders.
 - Task auto-seeding: confirm whether generated task batches should be created, deferred, or dismissed when they derive from inferred state.
 
 ## Implementation Standard

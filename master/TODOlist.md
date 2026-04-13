@@ -1082,3 +1082,10 @@
 - [x] Add per-action `Accept Risk` controls that save non-secret release checkpoints for operator-reviewed generated blockers.
 - [x] Keep the generated Release Build Gate evidence visible while adding explicit operator review state.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Snapshot Drift Checkpoints
+
+- [x] Add per-snapshot `Track Drift` controls to create non-secret Governance review tasks from Agent Control Plane drift reports.
+- [x] Add per-snapshot `Accept Drift` controls that refresh the live Agent Control Plane as the approved baseline.
+- [x] Keep the generated drift report copy/export path visible while adding explicit operator review choices.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

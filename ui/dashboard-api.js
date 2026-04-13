@@ -526,8 +526,8 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }> }} [payload]
-   * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }>, saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
+   * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, snapshotCaptured: boolean, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot | null, totals: { requested: number, created: number, skipped: number }, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[], tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createAgentControlPlaneDecisionTasks(payload = {}) {
     return fetchJson("/api/agent-control-plane/decision/tasks", {

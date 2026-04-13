@@ -3299,6 +3299,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn control-plane-decision-tasks-snapshot-btn",
+              text: "Seed + Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                controlPlaneDecisionTasksSnapshot: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn control-plane-decision-task-ledger-copy-btn",
               text: "Copy Decision Tasks",
               attrs: { type: "button" },

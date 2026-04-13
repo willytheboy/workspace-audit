@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T04:41:06.145Z",
+  "generatedAt": "2026-04-13T04:50:53.481Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T04:40:47.443Z",
+      "lastModifiedIso": "2026-04-13T04:50:14.787Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -79,7 +79,7 @@
       "ciFiles": 0,
       "dockerFiles": 0,
       "totalFiles": 185,
-      "totalBytes": 249658,
+      "totalBytes": 250389,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -4578,7 +4578,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T04:40:47.443Z",
+      "lastModifiedIso": "2026-04-13T04:50:14.787Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4596,7 +4596,7 @@
       "ciFiles": 0,
       "dockerFiles": 0,
       "totalFiles": 185,
-      "totalBytes": 249658,
+      "totalBytes": 250389,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -5248,7 +5248,7 @@
       ],
       "lastModifiedIso": "2025-12-07T16:47:39.440Z",
       "lastModifiedLabel": "2025-12-07",
-      "daysOld": 126,
+      "daysOld": 127,
       "qualityScore": 49,
       "freshnessScore": 40,
       "testingScore": 29,
@@ -5365,7 +5365,7 @@
       ],
       "lastModifiedIso": "2025-12-07T16:47:39.440Z",
       "lastModifiedLabel": "2025-12-07",
-      "daysOld": 126,
+      "daysOld": 127,
       "qualityScore": 49,
       "freshnessScore": 40,
       "testingScore": 29,
@@ -6279,7 +6279,7 @@
       ],
       "lastModifiedIso": "2026-01-04T16:50:04.052Z",
       "lastModifiedLabel": "2026-01-04",
-      "daysOld": 98,
+      "daysOld": 99,
       "qualityScore": 57,
       "freshnessScore": 40,
       "testingScore": 2,
@@ -6563,7 +6563,7 @@
       ],
       "lastModifiedIso": "2025-12-13T16:45:10.525Z",
       "lastModifiedLabel": "2025-12-13",
-      "daysOld": 120,
+      "daysOld": 121,
       "qualityScore": 27,
       "freshnessScore": 40,
       "testingScore": 0,

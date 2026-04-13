@@ -946,3 +946,10 @@
 - [x] Persist decision task ledger snapshot counts/lists in Agent Control Plane snapshot records.
 - [x] Add decision task ledger snapshot counts to Agent Control Plane baseline drift metric deltas.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Auto Capture
+
+- [x] Add optional `saveSnapshot` support to `POST /api/agent-control-plane/decision/tasks`.
+- [x] Auto-capture a non-secret Control Plane decision task ledger snapshot after seeding.
+- [x] Add Governance deck and command-palette controls for seed-and-snapshot.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

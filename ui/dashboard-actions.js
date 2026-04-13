@@ -75,6 +75,7 @@
  *     saveAgentControlPlaneDecisionTaskLedgerSnapshot: () => Promise<void>,
  *     copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift: () => Promise<void>,
  *     seedAgentControlPlaneDecisionTasks: () => Promise<void>,
+ *     seedAgentControlPlaneDecisionTasksWithSnapshot: () => Promise<void>,
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     copySlaBreachLedger: () => Promise<void>,
@@ -558,6 +559,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "seed"],
         run: () => handlers.seedAgentControlPlaneDecisionTasks()
+      },
+      {
+        id: "seed-agent-control-plane-decision-tasks-with-snapshot",
+        label: "Seed control plane decision tasks with snapshot",
+        description: "Create deduplicated decision tasks and immediately persist the resulting non-secret task ledger snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "seed", "snapshot", "capture"],
+        run: () => handlers.seedAgentControlPlaneDecisionTasksWithSnapshot()
       },
       {
         id: "clear-agent-control-plane-baseline",

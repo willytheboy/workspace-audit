@@ -196,6 +196,7 @@ Architecture:
 - `GET`/`POST /api/agent-control-plane/decision/task-ledger-snapshots` now persists non-secret Control Plane decision task ledger handoffs after live task state changes.
 - `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff` now compares saved Control Plane decision task ledger snapshots with the live ledger and returns markdown drift evidence.
 - Agent Control Plane handoffs, snapshot records, and baseline drift now track Control Plane decision task ledger snapshot counts.
+- Agent Control Plane decision task seeding can now auto-capture a non-secret task ledger snapshot in the same operation from the decision deck, command palette, or `POST /api/agent-control-plane/decision/tasks` with `saveSnapshot`.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
@@ -259,7 +260,7 @@ Core routes:
 - `GET /api/agent-control-plane/decision/task-ledger-snapshots`
 - `POST /api/agent-control-plane/decision/task-ledger-snapshots`
 - `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff?snapshotId=latest`
-- `POST /api/agent-control-plane/decision/tasks`
+- `POST /api/agent-control-plane/decision/tasks` (`saveSnapshot: true` can auto-capture the resulting task ledger)
 - `GET /api/agent-control-plane/decision-snapshots`
 - `POST /api/agent-control-plane/decision-snapshots`
 - `GET /api/agent-control-plane/baseline-status`

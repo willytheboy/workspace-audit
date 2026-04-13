@@ -350,6 +350,12 @@ async function seedAgentControlPlaneDecisionTasks() {
   return views.seedAgentControlPlaneDecisionTasks();
 }
 
+async function seedAgentControlPlaneDecisionTasksWithSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.seedAgentControlPlaneDecisionTasksWithSnapshot();
+}
+
 async function clearAgentControlPlaneBaselineSnapshot() {
   setView("governance");
   await views.renderGovernance();
@@ -581,6 +587,7 @@ const actionRegistry = createDashboardActionRegistry({
     saveAgentControlPlaneDecisionTaskLedgerSnapshot,
     copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift,
     seedAgentControlPlaneDecisionTasks,
+    seedAgentControlPlaneDecisionTasksWithSnapshot,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,
     copySlaBreachLedger,

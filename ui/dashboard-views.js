@@ -1492,6 +1492,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-decision-tasks-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await seedAgentControlPlaneDecisionTasksWithSnapshot();
+          element.textContent = "Captured";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-task-ledger-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -4136,12 +4157,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
   }
 
-  async function seedAgentControlPlaneDecisionTasks() {
+  async function seedAgentControlPlaneDecisionTasks(options = {}) {
     const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
     if (!reasons.length) return "No Decision Tasks";
-    const result = await api.createAgentControlPlaneDecisionTasks({ reasons });
+    const payload = { reasons };
+    if (options.saveSnapshot) {
+      payload.saveSnapshot = true;
+      payload.snapshotTitle = options.snapshotTitle || "Agent Control Plane Decision Task Ledger Auto Capture";
+      payload.snapshotStatus = options.snapshotStatus || "all";
+      payload.snapshotLimit = options.snapshotLimit || 100;
+    }
+    const result = await api.createAgentControlPlaneDecisionTasks(payload);
     await renderGovernance();
-    return `Created ${result.totals.created} Decision Task${result.totals.created === 1 ? "" : "s"}`;
+    const taskLabel = `Created ${result.totals.created} Decision Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  async function seedAgentControlPlaneDecisionTasksWithSnapshot() {
+    return seedAgentControlPlaneDecisionTasks({
+      saveSnapshot: true,
+      snapshotTitle: "Agent Control Plane Decision Task Ledger Auto Capture",
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
   }
 
   async function clearAgentControlPlaneBaselineSnapshot() {
@@ -4293,6 +4331,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveAgentControlPlaneDecisionTaskLedgerSnapshot,
     copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift,
     seedAgentControlPlaneDecisionTasks,
+    seedAgentControlPlaneDecisionTasksWithSnapshot,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,
     copyAgentExecutionBriefs,

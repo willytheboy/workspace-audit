@@ -2319,23 +2319,37 @@ export async function releaseBuildGateTaskSeedingTest() {
     const repeatSeedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reasons: [controlPlaneReason] })
+      body: JSON.stringify({
+        reasons: [controlPlaneReason],
+        saveSnapshot: true,
+        snapshotTitle: "Fixture Control Plane Decision Task Ledger Auto Capture",
+        snapshotStatus: "open",
+        snapshotLimit: 5
+      })
     });
     assert.equal(repeatSeedDecisionTaskResponse.status, 200);
     const repeatSeedDecisionTaskJson = await repeatSeedDecisionTaskResponse.json();
     assert.equal(repeatSeedDecisionTaskJson.totals.created, 0);
     assert.equal(repeatSeedDecisionTaskJson.totals.skipped, 1);
+    assert.equal(repeatSeedDecisionTaskJson.snapshotCaptured, true);
+    assert.equal(repeatSeedDecisionTaskJson.snapshot.title, "Fixture Control Plane Decision Task Ledger Auto Capture");
+    assert.equal(repeatSeedDecisionTaskJson.snapshot.statusFilter, "open");
+    assert.equal(repeatSeedDecisionTaskJson.snapshot.total, 1);
+    assert.equal(repeatSeedDecisionTaskJson.snapshot.openCount, 1);
+    assert.equal(repeatSeedDecisionTaskJson.agentControlPlaneDecisionTaskLedgerSnapshots.length, 2);
 
     const governanceAfterDecisionTaskResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterDecisionTaskResponse.status, 200);
     const governanceAfterDecisionTaskJson = await governanceAfterDecisionTaskResponse.json();
     assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskCount, 1);
     assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionOpenTaskCount, 1);
-    assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskLedgerSnapshotCount, 2);
     assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
-    assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTaskLedgerSnapshots[0].title, "Fixture Control Plane Decision Task Ledger");
+    assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTaskLedgerSnapshots[0].title, "Fixture Control Plane Decision Task Ledger Auto Capture");
+    assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTaskLedgerSnapshots[1].title, "Fixture Control Plane Decision Task Ledger");
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-tasks-created"));
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-task-ledger-snapshot-created"));
+    assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-task-ledger-snapshot-auto-captured"));
   } finally {
     server.close();
     await once(server, "close");

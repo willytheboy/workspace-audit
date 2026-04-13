@@ -10,6 +10,7 @@ const dashboardViewsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboa
 const dashboardApiSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-api.js"), "utf8");
 const dashboardActionsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-actions.js"), "utf8");
 const dashboardModalSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-modal.js"), "utf8");
+const dashboardModalComponentsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-modal-components.js"), "utf8");
 const dashboardTypesSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-types.js"), "utf8");
 const serverSource = fs.readFileSync(path.join(__dirname, "lib", "workspace-audit-server.mjs"), "utf8");
 const appSource = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
@@ -56,6 +57,7 @@ try {
   console.log("Panel status strips:", html.includes('id="trends-status"') && html.includes('id="sources-status"') ? "Present" : "Missing");
   console.log("Findings view shell:", html.includes('id="app-findings-wrapper"') && html.includes('id="refresh-findings-btn"') ? "Present" : "Missing");
   console.log("Convergence review persistence API:", dashboardApiSource.includes("/api/convergence/candidates") && dashboardApiSource.includes("/api/convergence/reviews") && dashboardTypesSource.includes("ConvergenceCandidatesPayload") && serverSource.includes("convergenceReviews") && serverSource.includes("createConvergenceCandidatesPayload") && serverSource.includes("convergence-review-upserted") && serverSource.includes("convergenceReviewStatus") && testsSource.includes("Same stack but different product intent") ? "Present" : "Missing");
+  console.log("Convergence review workbench controls:", dashboardModalComponentsSource.includes("convergenceAction") && dashboardModalComponentsSource.includes("confirmed-overlap") && dashboardModalComponentsSource.includes("merge-candidate") && dashboardModalSource.includes("bindConvergenceReviewControls") && dashboardModalSource.includes("saveConvergenceReview") && dashboardModalSource.includes("fetchConvergenceCandidates({ projectId: project.id })") && dashboardModalSource.includes("Marked not related by operator from the project workbench") ? "Present" : "Missing");
   console.log("Command palette:", html.includes('id="command-palette-btn"') && html.includes('id="command-palette-input"') ? "Present" : "Missing");
   console.log("Source setup modal:", html.includes('id="open-source-setup-btn"') && html.includes('id="source-setup-modal"') ? "Present" : "Missing");
   console.log("Data sources health summary:", dashboardApiSource.includes("/api/sources/summary") && dashboardViewsSource.includes("fetchSourcesSummary") && dashboardComponentsSource.includes("DataSourceHealthRecord") && dashboardComponentsSource.includes("Status: ${status}") && dashboardTypesSource.includes("DataSourcesSummaryPayload") && serverSource.includes("Data Sources Summary") ? "Present" : "Missing");

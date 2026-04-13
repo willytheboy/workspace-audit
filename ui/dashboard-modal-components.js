@@ -22,6 +22,7 @@ function appendChildren(parent, children) {
  * @param {{
  *   className?: string,
  *   text?: string,
+ *   attrs?: Record<string, string>,
  *   dataset?: Record<string, string>,
  *   style?: Partial<CSSStyleDeclaration>,
  *   title?: string
@@ -33,6 +34,11 @@ function createElement(tagName, options = {}, children = []) {
   if (options.className) element.className = options.className;
   if (options.text != null) element.textContent = options.text;
   if (options.title) element.title = options.title;
+  if (options.attrs) {
+    for (const [name, value] of Object.entries(options.attrs)) {
+      element.setAttribute(name, value);
+    }
+  }
   if (options.dataset) {
     for (const [name, value] of Object.entries(options.dataset)) {
       element.dataset[name] = value;
@@ -198,8 +204,15 @@ export function createScriptButton(script) {
 
 /**
  * @param {{ name: string, id: string, score: number, reasons: string[] }} similar
+ * @param {{ reviewStatus?: string, reviewNote?: string }} [options]
  */
-export function createSimilarCard(similar) {
+export function createSimilarCard(similar, options = {}) {
+  const reviewStatus = options.reviewStatus || "unreviewed";
+  const reviewColor = reviewStatus === "not-related"
+    ? "var(--danger)"
+    : reviewStatus === "confirmed-overlap" || reviewStatus === "merge-candidate"
+      ? "var(--success)"
+      : "var(--warning)";
   return createElement("div", {
     className: "similar-app-card",
     dataset: { openAppId: encodeAppId(similar.id) }
@@ -220,6 +233,11 @@ export function createSimilarCard(similar) {
         background: "var(--surface)",
         color: "var(--primary)",
         borderColor: "var(--primary)"
+      }),
+      createTag(reviewStatus.replaceAll("-", " ").toUpperCase(), {
+        background: "var(--surface)",
+        color: reviewColor,
+        borderColor: reviewColor
       })
     ]),
     createElement("div", {
@@ -229,7 +247,61 @@ export function createSimilarCard(similar) {
         color: "var(--text-muted)",
         lineHeight: "1.4"
       }
-    })
+    }),
+    options.reviewNote
+      ? createElement("div", {
+          text: options.reviewNote,
+          style: {
+            marginTop: "0.5rem",
+            fontSize: "0.84rem",
+            color: "var(--text-muted)",
+            lineHeight: "1.4"
+          }
+        })
+      : null,
+    createElement("div", {
+      className: "governance-actions",
+      style: {
+        marginTop: "0.75rem"
+      }
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAction: "confirmed-overlap",
+          convergenceTargetId: similar.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Not Related",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAction: "not-related",
+          convergenceTargetId: similar.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Needs Review",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAction: "needs-review",
+          convergenceTargetId: similar.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Merge",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAction: "merge-candidate",
+          convergenceTargetId: similar.id
+        }
+      })
+    ])
   ]);
 }
 

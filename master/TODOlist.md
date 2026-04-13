@@ -1055,3 +1055,10 @@
 - [x] Add candidate and review API endpoints for overlap review decisions.
 - [x] Suppress generated overlap findings when a pair is marked not related.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Convergence Review Workbench Controls
+
+- [x] Add project workbench controls for confirming overlap, marking pairs not related, flagging needs-review, and identifying merge candidates.
+- [x] Refresh Convergence candidate status after each operator review and refresh findings when a pair is marked not related.
+- [x] Record the reusable operator checkpoint plan for other AI-generated classifications that may need human confirmation.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

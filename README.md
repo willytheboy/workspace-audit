@@ -50,6 +50,8 @@ Architecture:
 - The header now exposes runtime status, including whether the page is using the live API, a local file fallback, or the embedded snapshot, plus the latest snapshot/load timestamps.
 - Convergence now has a persistent review API so generated overlap candidates can be marked `confirmed-overlap`, `not-related`, `needs-review`, or `merge-candidate` before becoming actionable.
 - `GET /api/convergence/candidates`, `GET /api/convergence/reviews`, and `POST /api/convergence/reviews` expose non-secret human review state for overlap candidates; `not-related` reviews suppress future generated convergence findings for that pair.
+- Project workbench Convergence cards now expose operator checkpoint actions for confirming overlap, marking pairs as not related, flagging needs-review, or identifying merge candidates.
+- `master/operator_review_checkpoints.md` records where the same human-confirmation pattern should be reused for AI-generated classifications that can be inaccurate.
 - The Trends and Sources panels now expose their own loading, ready, empty, and error states with panel-level status strips and notices.
 - The Trends and Sources panels also have their own refresh controls, so you can reload those views without rerunning the full audit.
 - The graph view is now rendered with local SVG logic instead of a remote D3 CDN, so the dashboard can load cleanly offline and on restricted networks.

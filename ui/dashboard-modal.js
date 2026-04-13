@@ -27,6 +27,7 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  * @typedef {import("./dashboard-types.js").PersistedMilestone} PersistedMilestone
  * @typedef {import("./dashboard-types.js").PersistedProjectProfile} PersistedProjectProfile
  * @typedef {import("./dashboard-types.js").PersistedProjectProfileHistory} PersistedProjectProfileHistory
+ * @typedef {import("./dashboard-types.js").ConvergenceCandidate} ConvergenceCandidate
  */
 
 /**
@@ -53,7 +54,9 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     updateMilestone: (milestoneId: string, payload: Partial<PersistedMilestone>) => Promise<unknown>,
  *     fetchProjectProfiles: (projectId?: string) => Promise<PersistedProjectProfile[]>,
  *     fetchProjectProfileHistory: (projectId?: string) => Promise<PersistedProjectProfileHistory[]>,
- *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>
+ *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
+ *     fetchConvergenceCandidates: (filters?: { projectId?: string, status?: string }) => Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>,
+ *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>
  *   }
  * }} options
  */
@@ -84,6 +87,8 @@ export function createDashboardModal({ getData, api }) {
   let projectProfile = null;
   /** @type {PersistedProjectProfileHistory[]} */
   let profileHistory = [];
+  /** @type {ConvergenceCandidate[]} */
+  let convergenceCandidates = [];
 
   const overlay = /** @type {HTMLElement} */ (document.getElementById("app-modal"));
   const tabButtons = /** @type {NodeListOf<HTMLButtonElement>} */ (overlay.querySelectorAll("[data-workbench-tab]"));
@@ -366,16 +371,77 @@ export function createDashboardModal({ getData, api }) {
     if (project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
       for (const similar of project.similarApps) {
-        similarFragment.append(createSimilarCard(similar));
+        const candidate = convergenceCandidates.find((item) =>
+          (item.leftId === project.id && item.rightId === similar.id)
+          || (item.rightId === project.id && item.leftId === similar.id)
+        );
+        similarFragment.append(createSimilarCard(similar, {
+          reviewStatus: candidate?.reviewStatus || "unreviewed",
+          reviewNote: candidate?.reviewNote || ""
+        }));
       }
       similarContainer.replaceChildren(similarFragment);
       bindAppLaunchers(similarContainer, openModal);
+      bindConvergenceReviewControls(similarContainer, project);
     } else {
       similarContainer.replaceChildren(createWorkbenchEmptyState(
         "No strong convergence detected",
         "This project does not currently have a high-confidence overlap cluster in the portfolio."
       ));
     }
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {AuditProject} project
+   */
+  function bindConvergenceReviewControls(container, project) {
+    container.querySelectorAll("[data-convergence-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const targetId = element.dataset.convergenceTargetId || "";
+        const status = element.dataset.convergenceAction || "needs-review";
+        const similar = project.similarApps?.find((item) => item.id === targetId);
+        if (!similar) return;
+        element.disabled = true;
+        element.textContent = "Saving...";
+        void handleConvergenceReview(project, similar, status).catch((error) => {
+          alert(error instanceof Error ? error.message : "Convergence review failed.");
+          element.disabled = false;
+          element.textContent = status.replaceAll("-", " ");
+        });
+      });
+    });
+  }
+
+  /**
+   * @param {AuditProject} project
+   * @param {{ id: string, name: string, score: number, reasons: string[] }} similar
+   * @param {string} status
+   */
+  async function handleConvergenceReview(project, similar, status) {
+    await api.saveConvergenceReview({
+      leftId: project.id,
+      rightId: similar.id,
+      leftName: project.name,
+      rightName: similar.name,
+      score: similar.score,
+      reasons: similar.reasons,
+      status,
+      note: status === "not-related"
+        ? "Marked not related by operator from the project workbench."
+        : "Reviewed from the project workbench."
+    });
+    if (!currentProject || currentProject.id !== project.id) return;
+    if (status === "not-related") {
+      await api.refreshFindings();
+      findings = await api.fetchFindings(project.id);
+    }
+    const convergence = await api.fetchConvergenceCandidates({ projectId: project.id });
+    if (!currentProject || currentProject.id !== project.id) return;
+    convergenceCandidates = convergence.candidates || [];
+    renderWorkbench();
   }
 
   /**
@@ -995,7 +1061,7 @@ export function createDashboardModal({ getData, api }) {
     renderWorkbench();
 
     try {
-      const [nextFindings, nextTasks, nextWorkflows, nextScriptRuns, nextAgentSessions, nextNotes, nextMilestones, nextProfiles, nextProfileHistory] = await Promise.all([
+      const [nextFindings, nextTasks, nextWorkflows, nextScriptRuns, nextAgentSessions, nextNotes, nextMilestones, nextProfiles, nextProfileHistory, nextConvergence] = await Promise.all([
         api.fetchFindings(project.id),
         api.fetchTasks(project.id),
         api.fetchWorkflows(project.id),
@@ -1004,7 +1070,8 @@ export function createDashboardModal({ getData, api }) {
         api.fetchNotes(project.id),
         api.fetchMilestones(project.id),
         api.fetchProjectProfiles(project.id),
-        api.fetchProjectProfileHistory(project.id)
+        api.fetchProjectProfileHistory(project.id),
+        api.fetchConvergenceCandidates({ projectId: project.id })
       ]);
 
       if (!currentProject || currentProject.id !== project.id) {
@@ -1020,6 +1087,7 @@ export function createDashboardModal({ getData, api }) {
       milestones = nextMilestones;
       projectProfile = nextProfiles[0] || null;
       profileHistory = nextProfileHistory;
+      convergenceCandidates = nextConvergence.candidates || [];
       workbenchLoading = false;
       workbenchError = "";
       renderWorkbench();

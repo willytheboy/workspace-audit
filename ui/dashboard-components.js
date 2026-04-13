@@ -1202,6 +1202,12 @@ export function createGovernanceSummaryGrid(governance) {
     : evidenceSnapshotDriftSeverity === "medium" || evidenceSnapshotDriftSeverity === "low"
       ? "var(--warning)"
       : "var(--success)";
+  const workflowSnapshotDriftSeverity = summary.dataSourceAccessValidationWorkflowSnapshotDriftSeverity || "missing-snapshot";
+  const workflowSnapshotDriftAccent = workflowSnapshotDriftSeverity === "high" || workflowSnapshotDriftSeverity === "missing-snapshot"
+    ? "var(--danger)"
+    : workflowSnapshotDriftSeverity === "medium" || workflowSnapshotDriftSeverity === "low"
+      ? "var(--warning)"
+      : "var(--success)";
   const dataSourcesAccessGate = governance.dataSourcesAccessGate;
   const dataSourcesAccessGateDecision = dataSourcesAccessGate?.decision || summary.dataSourcesAccessGateDecision || "not-evaluated";
   const dataSourcesAccessGateAccent = dataSourcesAccessGateDecision === "hold"
@@ -1396,6 +1402,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Evidence Drift",
       value: evidenceSnapshotDriftSeverity.toUpperCase(),
       detail: `${summary.dataSourceAccessValidationEvidenceSnapshotCount || 0} snapshot(s) • drift score ${summary.dataSourceAccessValidationEvidenceSnapshotDriftScore || 0}`
+    }),
+    createKpiCard({
+      accentColor: workflowSnapshotDriftAccent,
+      label: "Workflow Drift",
+      value: workflowSnapshotDriftSeverity.toUpperCase(),
+      detail: `${summary.dataSourceAccessValidationWorkflowSnapshotCount || 0} snapshot(s) • ${summary.dataSourcesAccessValidationWorkflowReadyCount || 0}/${summary.dataSourcesAccessValidationWorkflowTotalCount || 0} ready • drift score ${summary.dataSourceAccessValidationWorkflowSnapshotDriftScore || 0}`
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3056,6 +3068,119 @@ export function createGovernanceDeck(governance) {
           }),
           createElement("div", {
             text: `${dataSourceAccessValidationEvidenceSnapshotDiff.driftScore || 0} drift score • ${(dataSourceAccessValidationEvidenceSnapshotDiff.driftItems || []).length} drift item(s)`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ])
+      ]
+    : [];
+  const dataSourceAccessValidationWorkflowSnapshotEntries = (governance.dataSourceAccessValidationWorkflowSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Data Sources Access Validation Workflow",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} • ${snapshot.total || 0} workflow item(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.blockedCount || 0} BLOCKED`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.blockedCount || 0) > 0 ? "var(--danger)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.readyCount || 0} ready • ${snapshot.pendingCount || 0} pending • ${snapshot.missingEvidenceCount || 0} missing evidence • ${snapshot.externalAccessRequiredCount || 0} external access required`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    })
+  ]));
+  const dataSourceAccessValidationWorkflowSnapshotDiff = governance.dataSourceAccessValidationWorkflowSnapshotDiff;
+  const dataSourceAccessValidationWorkflowSnapshotDiffEntries = dataSourceAccessValidationWorkflowSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: dataSourceAccessValidationWorkflowSnapshotDiff.snapshotTitle || "No workflow snapshot",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: dataSourceAccessValidationWorkflowSnapshotDiff.snapshotCreatedAt ? new Date(dataSourceAccessValidationWorkflowSnapshotDiff.snapshotCreatedAt).toLocaleString() : "No snapshot saved yet",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((dataSourceAccessValidationWorkflowSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: dataSourceAccessValidationWorkflowSnapshotDiff.driftSeverity === "high" || dataSourceAccessValidationWorkflowSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : dataSourceAccessValidationWorkflowSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: dataSourceAccessValidationWorkflowSnapshotDiff.recommendedAction || "Save a source-access validation workflow snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `${dataSourceAccessValidationWorkflowSnapshotDiff.driftScore || 0} drift score • ${(dataSourceAccessValidationWorkflowSnapshotDiff.driftItems || []).length} drift item(s)`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.84rem",
@@ -5049,6 +5174,8 @@ export function createGovernanceDeck(governance) {
     createListSection("Data Sources Access Validation Evidence", "Recorded non-secret proof that source-access checks were completed outside this app.", dataSourceAccessValidationEvidenceEntries),
     createListSection("Data Sources Access Validation Evidence Snapshots", "Persisted non-secret source-access validation evidence handoffs.", dataSourceAccessValidationEvidenceSnapshotEntries),
     createListSection("Data Sources Access Validation Evidence Snapshot Drift", "Latest saved evidence snapshot compared with the current non-secret evidence ledger.", dataSourceAccessValidationEvidenceSnapshotDiffEntries),
+    createListSection("Data Sources Access Validation Workflow Snapshots", "Persisted non-secret source-access validation workflow handoffs.", dataSourceAccessValidationWorkflowSnapshotEntries),
+    createListSection("Data Sources Access Validation Workflow Snapshot Drift", "Latest saved workflow snapshot compared with the current source-access validation workflow.", dataSourceAccessValidationWorkflowSnapshotDiffEntries),
     createListSection("Data Sources Access Task Ledger", "Trackable Governance tasks created from source-access review queue items.", dataSourcesAccessTaskEntries),
     createListSection("Data Sources Access Task Ledger Snapshots", "Persisted non-secret source-access task ledger handoffs.", dataSourcesAccessTaskLedgerSnapshotEntries),
     createListSection("Control Plane Decision Snapshots", "Persisted ready/review/hold decision gates for audit and supervised-build handoff history.", agentControlPlaneDecisionSnapshotEntries),

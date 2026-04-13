@@ -1020,3 +1020,10 @@
 - [x] Add workflow snapshot drift comparison against the live validation workflow.
 - [x] Surface Sources toolbar and command-palette actions for saving workflow snapshots and copying drift.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Data Sources Access Validation Workflow Snapshots
+
+- [x] Feed Data Sources access validation workflow snapshot counts and drift into Governance summaries and reports.
+- [x] Add workflow snapshot counts, lists, and latest drift to Agent Control Plane handoffs, decisions, decision snapshots, and saved snapshots.
+- [x] Add workflow snapshot count and drift-score fields to Agent Control Plane baseline drift metrics.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

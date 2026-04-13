@@ -613,6 +613,37 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.dataSourceAccessValidationEvidenceSnapshotDiff
         : null,
+      dataSourcesAccessValidationWorkflow: governance.dataSourcesAccessValidationWorkflow
+        ? {
+            ...governance.dataSourcesAccessValidationWorkflow,
+            items: filterAndSort(
+              governance.dataSourcesAccessValidationWorkflow.items || [],
+              (item) => [item.label || "", item.sourceId || "", item.status || "", item.stage || "", item.priority || "", item.accessMethod || "", item.coverageStatus || "", item.latestEvidenceStatus || "", item.action || ""],
+              (left, right) => {
+                const statusRank = { blocked: 0, pending: 1, ready: 2 };
+                const priorityRank = { high: 0, medium: 1, low: 2 };
+                return (statusRank[left.status] ?? 99) - (statusRank[right.status] ?? 99)
+                  || (priorityRank[left.priority] ?? 99) - (priorityRank[right.priority] ?? 99)
+                  || left.label.localeCompare(right.label);
+              }
+            )
+          }
+        : null,
+      dataSourceAccessValidationWorkflowSnapshots: filterAndSort(
+        governance.dataSourceAccessValidationWorkflowSnapshots || [],
+        (snapshot) => [snapshot.title || "", String(snapshot.total), String(snapshot.readyCount), String(snapshot.pendingCount), String(snapshot.blockedCount), String(snapshot.missingEvidenceCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
+      dataSourceAccessValidationWorkflowSnapshotDiff: governance.dataSourceAccessValidationWorkflowSnapshotDiff && matchesSearch([
+        "data sources access validation workflow snapshot drift",
+        governance.dataSourceAccessValidationWorkflowSnapshotDiff.snapshotTitle || "",
+        governance.dataSourceAccessValidationWorkflowSnapshotDiff.driftSeverity || "",
+        governance.dataSourceAccessValidationWorkflowSnapshotDiff.recommendedAction || "",
+        governance.dataSourceAccessValidationWorkflowSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.dataSourceAccessValidationWorkflowSnapshotDiff.driftItems || []).map((item) => `${item.label} ${item.before} ${item.current} ${item.delta}`)
+      ])
+        ? governance.dataSourceAccessValidationWorkflowSnapshotDiff
+        : null,
       dataSourcesAccessTasks: filterAndSort(
         governance.dataSourcesAccessTasks || [],
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.sourceLabel || "", task.sourceType || "", task.accessMethod || "", task.description || ""],
@@ -702,6 +733,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "data-sources") filtered.dataSourceAccessValidationEvidence = [];
       if (scope !== "data-sources") filtered.dataSourceAccessValidationEvidenceSnapshots = [];
       if (scope !== "data-sources") filtered.dataSourceAccessValidationEvidenceSnapshotDiff = null;
+      if (scope !== "data-sources") filtered.dataSourcesAccessValidationWorkflow = null;
+      if (scope !== "data-sources") filtered.dataSourceAccessValidationWorkflowSnapshots = [];
+      if (scope !== "data-sources") filtered.dataSourceAccessValidationWorkflowSnapshotDiff = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessTasks = [];
       if (scope !== "data-sources") filtered.dataSourceAccessTaskLedgerSnapshots = [];
       if (scope !== "readiness") filtered.agentReadinessMatrix = [];
@@ -2048,6 +2082,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Data Sources access review priority: ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.high ?? 0} high | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.medium ?? 0} medium | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.blocked ?? 0} blocked`,
       `Data Sources access validation runbook: ${governanceCache?.summary.dataSourcesAccessValidationMethodCount ?? 0} method(s) across ${governanceCache?.summary.dataSourcesAccessValidationSourceCount ?? 0} source(s)`,
       `Data Sources access validation review/blocked: ${governanceCache?.summary.dataSourcesAccessValidationReviewCount ?? 0}/${governanceCache?.summary.dataSourcesAccessValidationBlockedCount ?? 0}`,
+      `Data Sources access validation workflow: ${governanceCache?.summary.dataSourcesAccessValidationWorkflowReadyCount ?? 0} ready / ${governanceCache?.summary.dataSourcesAccessValidationWorkflowPendingCount ?? 0} pending / ${governanceCache?.summary.dataSourcesAccessValidationWorkflowBlockedCount ?? 0} blocked`,
+      `Data Sources access validation workflow snapshots: ${governanceCache?.summary.dataSourceAccessValidationWorkflowSnapshotCount ?? 0}`,
+      `Data Sources access validation workflow snapshot drift: ${governanceCache?.summary.dataSourceAccessValidationWorkflowSnapshotDriftSeverity || "missing-snapshot"} / score ${governanceCache?.summary.dataSourceAccessValidationWorkflowSnapshotDriftScore ?? 0}`,
       `Data Sources access validation evidence: ${governanceCache?.summary.dataSourcesAccessValidationEvidenceValidatedCount ?? 0} validated / ${governanceCache?.summary.dataSourcesAccessValidationEvidenceCount ?? 0} total`,
       `Data Sources access validation evidence review/blocked: ${governanceCache?.summary.dataSourcesAccessValidationEvidenceReviewCount ?? 0}/${governanceCache?.summary.dataSourcesAccessValidationEvidenceBlockedCount ?? 0}`,
       `Data Sources access validation evidence coverage: ${governanceCache?.summary.dataSourcesAccessValidationEvidenceCoverageCoveredCount ?? 0}/${governanceCache?.summary.dataSourcesAccessValidationEvidenceCoverageCount ?? 0} covered (${governanceCache?.summary.dataSourcesAccessValidationEvidenceCoveragePercent ?? 0}%)`,
@@ -2081,6 +2118,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible Data Sources access gate: ${governance.dataSourcesAccessGate ? "yes" : "no"}`,
       `Visible Data Sources access review queue items: ${governance.dataSourcesAccessReviewQueue?.items?.length || 0}`,
       `Visible Data Sources access validation runbook methods: ${governance.dataSourcesAccessValidationRunbook?.methods?.length || 0}`,
+      `Visible Data Sources access validation workflow items: ${governance.dataSourcesAccessValidationWorkflow?.items?.length || 0}`,
+      `Visible Data Sources access validation workflow snapshots: ${(governance.dataSourceAccessValidationWorkflowSnapshots || []).length}`,
+      `Visible Data Sources access validation workflow snapshot drift: ${governance.dataSourceAccessValidationWorkflowSnapshotDiff ? "yes" : "no"}`,
       `Visible Data Sources access validation evidence coverage items: ${governance.dataSourcesAccessValidationEvidenceCoverage?.items?.length || 0}`,
       `Visible Data Sources access validation evidence records: ${governance.dataSourceAccessValidationEvidence?.length || 0}`,
       `Visible Data Sources access validation evidence snapshots: ${(governance.dataSourceAccessValidationEvidenceSnapshots || []).length}`,
@@ -2356,6 +2396,39 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible Data Sources access validation runbook methods.");
+    }
+
+    lines.push("", "## Data Sources Access Validation Workflow");
+    if (governance.dataSourcesAccessValidationWorkflow?.items?.length) {
+      for (const item of governance.dataSourcesAccessValidationWorkflow.items) {
+        lines.push(`- ${item.label || item.sourceId || "Source"}: ${item.status || "pending"} / ${item.stage || "external-access-review"} [${item.priority || "medium"}]`);
+        lines.push(`  Access method: ${item.accessMethod || "review-required"}`);
+        lines.push(`  Evidence: ${item.latestEvidenceStatus || "missing"} / ${item.coverageStatus || "missing"}`);
+        lines.push(`  Action: ${item.action || "Review source access outside this app."}`);
+      }
+    } else {
+      lines.push("- No visible Data Sources access validation workflow items.");
+    }
+
+    lines.push("", "## Data Sources Access Validation Workflow Snapshots");
+    if ((governance.dataSourceAccessValidationWorkflowSnapshots || []).length) {
+      for (const snapshot of governance.dataSourceAccessValidationWorkflowSnapshots) {
+        lines.push(`- ${snapshot.title}: ${snapshot.readyCount || 0} ready / ${snapshot.pendingCount || 0} pending / ${snapshot.blockedCount || 0} blocked`);
+        lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
+      }
+    } else {
+      lines.push("- No visible Data Sources access validation workflow snapshots.");
+    }
+
+    lines.push("", "## Data Sources Access Validation Workflow Snapshot Drift");
+    if (governance.dataSourceAccessValidationWorkflowSnapshotDiff) {
+      const diff = governance.dataSourceAccessValidationWorkflowSnapshotDiff;
+      lines.push(`- Snapshot: ${diff.snapshotTitle || "missing"}`);
+      lines.push(`- Drift severity: ${diff.driftSeverity || "missing-snapshot"}`);
+      lines.push(`- Drift score: ${diff.driftScore || 0}`);
+      lines.push(`- Recommended action: ${diff.recommendedAction || "Save a source-access validation workflow snapshot before comparing drift."}`);
+    } else {
+      lines.push("- No visible Data Sources access validation workflow snapshot drift.");
     }
 
     lines.push("", "## Data Sources Access Validation Evidence Coverage");
@@ -3915,6 +3988,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.dataSourcesAccessGate ? 1 : 0)
         + (governance.dataSourcesAccessReviewQueue?.items || []).length
         + (governance.dataSourcesAccessValidationRunbook?.methods || []).length
+        + (governance.dataSourcesAccessValidationWorkflow?.items || []).length
+        + (governance.dataSourceAccessValidationWorkflowSnapshots || []).length
+        + (governance.dataSourceAccessValidationWorkflowSnapshotDiff ? 1 : 0)
         + (governance.dataSourceAccessValidationEvidence || []).length
         + (governance.dataSourceAccessValidationEvidenceSnapshots || []).length
         + (governance.dataSourceAccessValidationEvidenceSnapshotDiff ? 1 : 0)

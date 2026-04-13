@@ -74,6 +74,7 @@ Architecture:
 - The Sources view now renders and copies the validation workflow so missing evidence and external access requirements are visible before ingestion.
 - `GET`/`POST /api/sources/access-validation-workflow-snapshots` now persists non-secret validation workflow baselines, with `/diff` support for workflow drift checks.
 - `POST /api/sources/access-validation-workflow/tasks` now seeds deduplicated non-secret Data Sources tasks from pending or blocked workflow items.
+- Governance and Agent Control Plane handoffs now surface validation workflow snapshot counts, latest drift severity, and workflow snapshot drift markdown.
 - Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.
@@ -193,6 +194,7 @@ Architecture:
 - Agent Control Plane handoffs and snapshot drift now track Data Sources access validation evidence snapshot counts.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Data Sources access validation evidence coverage counts and high-priority evidence gaps.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track the Release Build Gate so supervised agent work sees release readiness, risk score, and release-gate actions.
+- Agent Control Plane handoffs, decisions, decision snapshots, snapshot records, and baseline drift now track Data Sources access validation workflow snapshots.
 - Governance can now seed deduplicated Release Build Gate tasks from the release-control deck or command palette, converting open gate actions into release-control work items.
 - `GET /api/releases/task-ledger` now exposes the non-secret Release Control task ledger with open/closed filters and markdown for external app-management consumers.
 - Governance now surfaces Release Control tasks as a KPI, deck ledger, report section, toolbar handoff, and command-palette handoff.

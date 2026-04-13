@@ -368,24 +368,39 @@ export function createDashboardModal({ getData, api }) {
     }
 
     const similarContainer = document.getElementById("modal-similar");
-    if (project.similarApps?.length) {
+    if (workbenchLoading) {
+      similarContainer.replaceChildren(createWorkbenchEmptyState(
+        "Loading convergence review",
+        "Active overlap candidates are being refreshed from the persisted review ledger."
+      ));
+    } else if (project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
-      let visibleSimilarCount = 0;
-      for (const similar of project.similarApps) {
-        const candidate = convergenceCandidates.find((item) =>
-          (item.leftId === project.id && item.rightId === similar.id)
-          || (item.rightId === project.id && item.leftId === similar.id)
-        );
-        if (candidate?.reviewStatus === "not-related") {
-          continue;
-        }
-        visibleSimilarCount += 1;
+      const activeSimilarCandidates = convergenceCandidates
+        .filter((candidate) => candidate.reviewStatus !== "not-related")
+        .map((candidate) => {
+          const isLeftProject = candidate.leftId === project.id;
+          const similar = {
+            id: isLeftProject ? candidate.rightId : candidate.leftId,
+            name: isLeftProject ? candidate.rightName : candidate.leftName,
+            score: candidate.score,
+            reasons: candidate.reasons
+          };
+          return {
+            similar,
+            reviewStatus: candidate.reviewStatus || "unreviewed",
+            reviewNote: candidate.reviewNote || ""
+          };
+        })
+        .filter((item) => item.similar.id && item.similar.id !== project.id);
+
+      for (const item of activeSimilarCandidates) {
+        const { similar, reviewStatus, reviewNote } = item;
         similarFragment.append(createSimilarCard(similar, {
-          reviewStatus: candidate?.reviewStatus || "unreviewed",
-          reviewNote: candidate?.reviewNote || ""
+          reviewStatus,
+          reviewNote
         }));
       }
-      if (visibleSimilarCount) {
+      if (activeSimilarCandidates.length) {
         similarContainer.replaceChildren(similarFragment);
         bindAppLaunchers(similarContainer, openModal);
         bindConvergenceReviewControls(similarContainer, project);
@@ -415,7 +430,22 @@ export function createDashboardModal({ getData, api }) {
         event.stopPropagation();
         const targetId = element.dataset.convergenceTargetId || "";
         const status = element.dataset.convergenceAction || "needs-review";
-        const similar = project.similarApps?.find((item) => item.id === targetId);
+        let similar = project.similarApps?.find((item) => item.id === targetId);
+        if (!similar) {
+          const candidate = convergenceCandidates.find((item) =>
+            (item.leftId === project.id && item.rightId === targetId)
+            || (item.rightId === project.id && item.leftId === targetId)
+          );
+          if (candidate) {
+            const isLeftProject = candidate.leftId === project.id;
+            similar = {
+              id: isLeftProject ? candidate.rightId : candidate.leftId,
+              name: isLeftProject ? candidate.rightName : candidate.leftName,
+              score: candidate.score,
+              reasons: candidate.reasons
+            };
+          }
+        }
         if (!similar) return;
         const originalLabel = element.textContent || "";
         element.disabled = true;

@@ -499,6 +499,33 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[]>}
+   */
+  fetchAgentControlPlaneDecisionTaskLedgerSnapshots() {
+    return fetchJson("/api/agent-control-plane/decision/task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>}
+   */
+  createAgentControlPlaneDecisionTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-control-plane/decision/task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/agent-control-plane/decision/task-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }> }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */

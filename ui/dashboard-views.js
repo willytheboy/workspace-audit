@@ -618,6 +618,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.decision || "", snapshot.recommendedAction || "", snapshot.baselineHealth || "", snapshot.baselineDriftSeverity || "", (snapshot.reasonCodes || []).join(" "), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      agentControlPlaneDecisionTaskLedgerSnapshots: filterAndSort(
+        governance.agentControlPlaneDecisionTaskLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), String(snapshot.reasonCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       agentControlPlaneSnapshots: filterAndSort(
         governance.agentControlPlaneSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.isBaseline ? "baseline" : "", String(snapshot.totalWorkOrders), String(snapshot.totalExecutionRuns), String(snapshot.totalSlaLedgerRecords), snapshot.markdown || ""],
@@ -673,6 +678,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "agents") filtered.agentControlPlaneBaselineStatus = null;
       if (scope !== "agents") filtered.agentControlPlaneDecision = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionSnapshots = [];
+      if (scope !== "agents") filtered.agentControlPlaneDecisionTaskLedgerSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneSnapshots = [];
       if (scope !== "release") filtered.releaseSummary = null;
       if (scope !== "release") filtered.releaseCheckpointDrift = null;
@@ -1498,6 +1504,72 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Copying";
           await copyAgentControlPlaneDecisionTaskLedger();
           element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-control-plane-decision-task-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await saveAgentControlPlaneDecisionTaskLedgerSnapshot();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-control-plane-decision-task-ledger-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-control-plane-decision-task-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.controlPlaneDecisionTaskLedgerSnapshotId || "";
+        const snapshot = governanceCache?.agentControlPlaneDecisionTaskLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3464,6 +3536,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
         + (governance.agentControlPlaneDecision ? 1 : 0)
         + (governance.agentControlPlaneDecisionTasks || []).length
+        + (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).length
         + (governance.releaseControlTasks || []).length
         + (governance.dataSourcesAccessGate ? 1 : 0)
         + (governance.dataSourcesAccessReviewQueue?.items || []).length
@@ -4047,6 +4120,22 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.visible} Decision Task${payload.summary.visible === 1 ? "" : "s"}`;
   }
 
+  async function saveAgentControlPlaneDecisionTaskLedgerSnapshot() {
+    await api.createAgentControlPlaneDecisionTaskLedgerSnapshot({
+      title: "Agent Control Plane Decision Task Ledger",
+      status: "all",
+      limit: 100
+    });
+    await renderGovernance();
+    return "Saved Decision Task Snapshot";
+  }
+
+  async function copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift() {
+    const diff = await api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest");
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
   async function seedAgentControlPlaneDecisionTasks() {
     const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
     if (!reasons.length) return "No Decision Tasks";
@@ -4201,6 +4290,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentControlPlaneBaselineStatus,
     copyAgentControlPlaneDecision,
     copyAgentControlPlaneDecisionTaskLedger,
+    saveAgentControlPlaneDecisionTaskLedgerSnapshot,
+    copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift,
     seedAgentControlPlaneDecisionTasks,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,

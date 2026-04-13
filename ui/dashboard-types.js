@@ -622,6 +622,7 @@
  *     dataSourcesAccessOpenTaskCount: number,
  *     dataSourcesAccessClosedTaskCount: number,
  *     dataSourceAccessTaskLedgerSnapshotCount: number,
+ *     agentControlPlaneDecisionTaskLedgerSnapshotCount: number,
  *     deploymentSmokeCheckCount: number,
  *     deploymentSmokeCheckPassCount: number,
  *     deploymentSmokeCheckFailCount: number,
@@ -656,6 +657,7 @@
  *   agentControlPlaneSnapshots: PersistedAgentControlPlaneSnapshot[],
  *   agentControlPlaneBaselineSnapshotId: string,
  *   agentControlPlaneDecisionSnapshots: PersistedAgentControlPlaneDecisionSnapshot[],
+ *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
@@ -765,6 +767,36 @@
  *   items: AgentControlPlaneDecisionTaskLedgerItem[],
  *   markdown: string
  * }} AgentControlPlaneDecisionTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   reasonCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: AgentControlPlaneDecisionTaskLedgerItem[],
+ *   createdAt: string
+ * }} PersistedAgentControlPlaneDecisionTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: AgentControlPlaneDecisionTaskLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, open: number, closed: number, visible: number, reasonCount: number } | null,
+ *   markdown: string
+ * }} AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   generatedAt: string,
  *   decision: "ready" | "review" | "hold",

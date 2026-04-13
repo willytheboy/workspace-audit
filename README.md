@@ -193,6 +193,8 @@ Architecture:
 - Governance can now seed deduplicated Agent Control Plane decision tasks from live decision reasons, turning hold/review causes into trackable control-plane remediation work.
 - `GET /api/agent-control-plane/decision/task-ledger` now exposes the non-secret Agent Control Plane decision task ledger with open/closed filters and markdown for external app-management consumers.
 - Governance can now copy Agent Control Plane decision tasks from the control-plane decision gate or command palette as a non-secret remediation handoff.
+- `GET`/`POST /api/agent-control-plane/decision/task-ledger-snapshots` now persists non-secret Control Plane decision task ledger handoffs after live task state changes.
+- `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff` now compares saved Control Plane decision task ledger snapshots with the live ledger and returns markdown drift evidence.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
@@ -253,6 +255,9 @@ Core routes:
 - `GET /api/agent-control-plane`
 - `GET /api/agent-control-plane/decision`
 - `GET /api/agent-control-plane/decision/task-ledger`
+- `GET /api/agent-control-plane/decision/task-ledger-snapshots`
+- `POST /api/agent-control-plane/decision/task-ledger-snapshots`
+- `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff?snapshotId=latest`
 - `POST /api/agent-control-plane/decision/tasks`
 - `GET /api/agent-control-plane/decision-snapshots`
 - `POST /api/agent-control-plane/decision-snapshots`

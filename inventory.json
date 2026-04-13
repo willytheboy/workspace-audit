@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-12T21:45:48.118Z",
+  "generatedAt": "2026-04-12T21:55:50.873Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-12T21:45:11.510Z",
+      "lastModifiedIso": "2026-04-12T21:55:21.226Z",
       "lastModifiedLabel": "2026-04-12",
       "daysOld": 0,
       "qualityScore": 28,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 183,
+      "docsFiles": 184,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 183,
-      "totalBytes": 246071,
+      "totalFiles": 184,
+      "totalBytes": 247879,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -4578,7 +4578,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-12T21:45:11.510Z",
+      "lastModifiedIso": "2026-04-12T21:55:21.226Z",
       "lastModifiedLabel": "2026-04-12",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4589,14 +4589,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 183,
+      "docsFiles": 184,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 183,
-      "totalBytes": 246071,
+      "totalFiles": 184,
+      "totalBytes": 247879,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -5977,7 +5977,7 @@
       ],
       "lastModifiedIso": "2026-04-10T09:53:29.816Z",
       "lastModifiedLabel": "2026-04-10",
-      "daysOld": 2,
+      "daysOld": 3,
       "qualityScore": 42,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -7102,7 +7102,7 @@
       ],
       "lastModifiedIso": "2026-02-06T09:53:40.751Z",
       "lastModifiedLabel": "2026-02-06",
-      "daysOld": 65,
+      "daysOld": 66,
       "qualityScore": 49,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -9022,7 +9022,7 @@
       ],
       "lastModifiedIso": "2025-12-29T09:46:54.177Z",
       "lastModifiedLabel": "2025-12-29",
-      "daysOld": 104,
+      "daysOld": 105,
       "qualityScore": 54,
       "freshnessScore": 40,
       "testingScore": 18,

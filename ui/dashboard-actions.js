@@ -72,6 +72,8 @@
  *     copyAgentControlPlaneBaselineStatus: () => Promise<void>,
  *     copyAgentControlPlaneDecision: () => Promise<void>,
  *     copyAgentControlPlaneDecisionTaskLedger: () => Promise<void>,
+ *     saveAgentControlPlaneDecisionTaskLedgerSnapshot: () => Promise<void>,
+ *     copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift: () => Promise<void>,
  *     seedAgentControlPlaneDecisionTasks: () => Promise<void>,
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
@@ -532,6 +534,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "ledger", "copy"],
         run: () => handlers.copyAgentControlPlaneDecisionTaskLedger()
+      },
+      {
+        id: "save-agent-control-plane-decision-task-ledger-snapshot",
+        label: "Save control plane decision task ledger snapshot",
+        description: "Persist the current Control Plane decision task ledger as a non-secret handoff snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "ledger", "snapshot", "save"],
+        run: () => handlers.saveAgentControlPlaneDecisionTaskLedgerSnapshot()
+      },
+      {
+        id: "copy-latest-agent-control-plane-decision-task-ledger-drift",
+        label: "Copy control plane decision task ledger drift",
+        description: "Copy the drift report comparing the latest Control Plane decision task ledger snapshot to live tasks.",
+        category: "Actions",
+        keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift()
       },
       {
         id: "seed-agent-control-plane-decision-tasks",

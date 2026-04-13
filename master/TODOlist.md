@@ -932,3 +932,10 @@
 - [x] Add `GET /api/agent-control-plane/decision/task-ledger` with `all`, `open`, and `closed` status filters.
 - [x] Add Governance and command-palette handoffs for copying Control Plane decision tasks.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Ledger Snapshots
+
+- [x] Add `GET` and `POST /api/agent-control-plane/decision/task-ledger-snapshots` with non-secret markdown handoffs.
+- [x] Add `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff` with latest/specific snapshot support.
+- [x] Add Governance deck and command-palette controls for saving snapshots and copying latest drift.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

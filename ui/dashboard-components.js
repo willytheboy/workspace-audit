@@ -3305,6 +3305,22 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 controlPlaneDecisionTaskLedgerCopy: "true"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn control-plane-decision-task-ledger-snapshot-save-btn",
+              text: "Save Task Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                controlPlaneDecisionTaskLedgerSnapshotSave: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn control-plane-decision-task-ledger-drift-copy-btn",
+              text: "Copy Task Drift",
+              attrs: { type: "button" },
+              dataset: {
+                controlPlaneDecisionTaskLedgerDriftCopy: "true"
+              }
             })
           ])
         ])
@@ -3383,6 +3399,66 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
+      })
+    ])
+  ]));
+  const agentControlPlaneDecisionTaskLedgerSnapshotEntries = (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Agent Control Plane Decision Task Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} - ${snapshot.statusFilter || "all"} - ${snapshot.visibleCount || 0} visible - ${snapshot.reasonCount || 0} reason(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.openCount || 0} OPEN`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.openCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.total || 0} total Control Plane decision task(s) - ${snapshot.closedCount || 0} closed - ${snapshot.secretPolicy || "non-secret Control Plane task metadata only"}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn control-plane-decision-task-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneDecisionTaskLedgerSnapshotId: snapshot.id
+        }
       })
     ])
   ]));
@@ -4783,6 +4859,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),
     createListSection("Control Plane Decision Task Ledger", "Trackable Governance tasks created from Agent Control Plane decision reasons.", agentControlPlaneDecisionTaskEntries),
+    createListSection("Control Plane Decision Task Ledger Snapshots", "Persisted non-secret Control Plane decision task ledger handoffs.", agentControlPlaneDecisionTaskLedgerSnapshotEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),

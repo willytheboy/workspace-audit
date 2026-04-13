@@ -2275,6 +2275,43 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(openDecisionTaskLedgerJson.status, "open");
     assert.equal(openDecisionTaskLedgerJson.items.length, 1);
 
+    const missingDecisionTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingDecisionTaskLedgerSnapshotDiffResponse.status, 200);
+    const missingDecisionTaskLedgerSnapshotDiffJson = await missingDecisionTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(missingDecisionTaskLedgerSnapshotDiffJson.hasSnapshot, false);
+    assert.equal(missingDecisionTaskLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
+    assert.match(missingDecisionTaskLedgerSnapshotDiffJson.markdown, /# Agent Control Plane Decision Task Ledger Snapshot Drift/);
+
+    const createDecisionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Control Plane Decision Task Ledger", status: "open", limit: 5 })
+    });
+    assert.equal(createDecisionTaskLedgerSnapshotResponse.status, 200);
+    const createDecisionTaskLedgerSnapshotJson = await createDecisionTaskLedgerSnapshotResponse.json();
+    assert.equal(createDecisionTaskLedgerSnapshotJson.success, true);
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.title, "Fixture Control Plane Decision Task Ledger");
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.statusFilter, "open");
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.openCount, 1);
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.reasonCount, 1);
+    assert.equal(createDecisionTaskLedgerSnapshotJson.snapshot.items.length, 1);
+    assert.match(createDecisionTaskLedgerSnapshotJson.snapshot.markdown, /# Agent Control Plane Decision Task Ledger/);
+
+    const decisionTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots`);
+    assert.equal(decisionTaskLedgerSnapshotsResponse.status, 200);
+    const decisionTaskLedgerSnapshotsJson = await decisionTaskLedgerSnapshotsResponse.json();
+    assert.equal(decisionTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(decisionTaskLedgerSnapshotsJson[0].title, "Fixture Control Plane Decision Task Ledger");
+
+    const decisionTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(decisionTaskLedgerSnapshotDiffResponse.status, 200);
+    const decisionTaskLedgerSnapshotDiffJson = await decisionTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(decisionTaskLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(decisionTaskLedgerSnapshotDiffJson.hasDrift, false);
+    assert.equal(decisionTaskLedgerSnapshotDiffJson.snapshotTitle, "Fixture Control Plane Decision Task Ledger");
+    assert.match(decisionTaskLedgerSnapshotDiffJson.markdown, /# Agent Control Plane Decision Task Ledger Snapshot Drift/);
+
     const repeatSeedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2290,8 +2327,11 @@ export async function releaseBuildGateTaskSeedingTest() {
     const governanceAfterDecisionTaskJson = await governanceAfterDecisionTaskResponse.json();
     assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskCount, 1);
     assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionOpenTaskCount, 1);
+    assert.equal(governanceAfterDecisionTaskJson.summary.agentControlPlaneDecisionTaskLedgerSnapshotCount, 1);
     assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
+    assert.equal(governanceAfterDecisionTaskJson.agentControlPlaneDecisionTaskLedgerSnapshots[0].title, "Fixture Control Plane Decision Task Ledger");
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-tasks-created"));
+    assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-task-ledger-snapshot-created"));
   } finally {
     server.close();
     await once(server, "close");

@@ -2031,6 +2031,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-decision-reason-task-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const reasonCode = element.dataset.controlPlaneDecisionReasonTaskSnapshot || "";
+        if (!reasonCode) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await createAgentControlPlaneDecisionReasonTaskWithSnapshot(reasonCode);
+          element.textContent = "Captured";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-task-ledger-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -6024,6 +6048,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     });
   }
 
+  function findAgentControlPlaneDecisionReason(reasonCode) {
+    return (getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [])
+      .find((reason) => reason.code === reasonCode) || null;
+  }
+
+  async function createAgentControlPlaneDecisionReasonTaskWithSnapshot(reasonCode) {
+    const reason = findAgentControlPlaneDecisionReason(reasonCode);
+    if (!reason) throw new Error(`Agent Control Plane decision reason not found: ${reasonCode}`);
+
+    const payload = await api.createAgentControlPlaneDecisionTasks({
+      reasons: [reason],
+      saveSnapshot: true,
+      snapshotTitle: `Agent Control Plane Decision Task Ledger Auto Capture: ${reason.code || reasonCode}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const taskLabel = `Created ${payload.totals.created} Decision Task${payload.totals.created === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
   async function clearAgentControlPlaneBaselineSnapshot() {
     await api.clearAgentControlPlaneBaselineSnapshot();
     await renderGovernance();
@@ -6212,6 +6257,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     acceptAgentExecutionResultTaskLedgerSnapshotDrift,
     seedAgentControlPlaneDecisionTasks,
     seedAgentControlPlaneDecisionTasksWithSnapshot,
+    createAgentControlPlaneDecisionReasonTaskWithSnapshot,
     clearAgentControlPlaneBaselineSnapshot,
     refreshAgentControlPlaneBaselineSnapshot,
     copyAgentExecutionBriefs,

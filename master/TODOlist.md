@@ -1208,3 +1208,9 @@
 - [x] Add per-action `Track + Snapshot` controls to Release Build Gate action cards.
 - [x] Reuse the Release Control task ledger auto-capture API for individual generated gate actions.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Per-Reason Task Snapshot
+
+- [x] Add per-reason `Track + Snapshot` controls to Agent Control Plane decision reason cards.
+- [x] Reuse the Control Plane decision task ledger auto-capture API for individual decision reasons.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

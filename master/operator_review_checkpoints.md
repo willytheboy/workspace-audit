@@ -30,10 +30,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Release Control task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so deployment-gate task drift can become a non-secret Governance task or be approved by saving a refreshed Release Control task ledger snapshot.
 - Release Build Gate task auto-capture: batch task seeding can now persist a Release Control task ledger snapshot in the same non-secret operation so newly generated deployment-gate tasks have a durable baseline immediately.
 - Release Build Gate per-action task snapshots: individual generated gate actions now expose `Track + Snapshot` so one blocker can become a task and ledger baseline without seeding the whole batch.
+- Agent Control Plane decision per-reason task snapshots: individual control-plane decision reasons now expose `Track + Snapshot` so one blocker can become a decision task and decision task-ledger baseline without seeding the whole batch.
 
 ## Next Checkpoint Candidates
 
-- Add per-reason Agent Control Plane decision `Track Task + Snapshot` controls so individual control-plane blockers can be converted to tasks with an immediate decision task-ledger baseline.
+- Add per-item Data Sources access review `Track Task + Snapshot` controls so individual source-access blockers can be converted to tasks with an immediate source-access task-ledger baseline.
 
 ## Implementation Standard
 

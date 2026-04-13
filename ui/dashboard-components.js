@@ -4311,13 +4311,34 @@ export function createGovernanceDeck(governance) {
                   }
                 }),
                 ...controlPlaneDecisionReasons.slice(0, 6).map((reason) => createElement("div", {
-                  text: `${(reason.severity || "review").toUpperCase()}: ${reason.message || reason.code || "Review required."}`,
                   style: {
-                    color: "var(--text-muted)",
-                    fontSize: "0.84rem",
-                    lineHeight: "1.45"
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    gap: "0.75rem",
+                    padding: "0.55rem",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.7rem",
+                    background: "color-mix(in srgb, var(--bg) 70%, transparent 30%)"
                   }
-                })),
+                }, [
+                  createElement("div", {
+                    text: `${(reason.severity || "review").toUpperCase()}: ${reason.message || reason.code || "Review required."}`,
+                    style: {
+                      color: "var(--text-muted)",
+                      fontSize: "0.84rem",
+                      lineHeight: "1.45"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn control-plane-decision-reason-task-snapshot-btn",
+                    text: "Track + Snapshot",
+                    attrs: { type: "button" },
+                    dataset: {
+                      controlPlaneDecisionReasonTaskSnapshot: reason.code || ""
+                    }
+                  })
+                ])),
                 controlPlaneDecisionReasons.length > 6
                   ? createElement("div", {
                       text: `${controlPlaneDecisionReasons.length - 6} additional decision reason(s).`,

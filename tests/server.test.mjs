@@ -2350,6 +2350,47 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-tasks-created"));
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-task-ledger-snapshot-created"));
     assert.ok(governanceAfterDecisionTaskJson.operationLog.some((operation) => operation.type === "agent-control-plane-decision-task-ledger-snapshot-auto-captured"));
+
+    const resolveDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "resolved" })
+    });
+    assert.equal(resolveDecisionTaskResponse.status, 200);
+    const resolveDecisionTaskJson = await resolveDecisionTaskResponse.json();
+    assert.equal(resolveDecisionTaskJson.task.status, "resolved");
+
+    const decisionTaskLedgerClosedResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger?status=closed`);
+    assert.equal(decisionTaskLedgerClosedResponse.status, 200);
+    const decisionTaskLedgerClosedJson = await decisionTaskLedgerClosedResponse.json();
+    assert.equal(decisionTaskLedgerClosedJson.summary.total, 1);
+    assert.equal(decisionTaskLedgerClosedJson.summary.open, 0);
+    assert.equal(decisionTaskLedgerClosedJson.summary.closed, 1);
+    assert.equal(decisionTaskLedgerClosedJson.items[0].status, "resolved");
+
+    const reopenDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "open" })
+    });
+    assert.equal(reopenDecisionTaskResponse.status, 200);
+    const reopenDecisionTaskJson = await reopenDecisionTaskResponse.json();
+    assert.equal(reopenDecisionTaskJson.task.status, "open");
+
+    const blockDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked" })
+    });
+    assert.equal(blockDecisionTaskResponse.status, 200);
+    const blockDecisionTaskJson = await blockDecisionTaskResponse.json();
+    assert.equal(blockDecisionTaskJson.task.status, "blocked");
+
+    const decisionTaskLedgerBlockedResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger?status=open`);
+    assert.equal(decisionTaskLedgerBlockedResponse.status, 200);
+    const decisionTaskLedgerBlockedJson = await decisionTaskLedgerBlockedResponse.json();
+    assert.equal(decisionTaskLedgerBlockedJson.summary.open, 1);
+    assert.equal(decisionTaskLedgerBlockedJson.items[0].status, "blocked");
   } finally {
     server.close();
     await once(server, "close");

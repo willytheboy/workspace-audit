@@ -3408,6 +3408,40 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      task.status !== "resolved"
+        ? createElement("button", {
+            className: "btn governance-action-btn control-plane-decision-task-resolve-btn",
+            text: "Resolve",
+            attrs: { type: "button" },
+            dataset: {
+              controlPlaneDecisionTaskAction: "resolve",
+              taskId: task.id
+            }
+          })
+        : createElement("button", {
+            className: "btn governance-action-btn control-plane-decision-task-reopen-btn",
+            text: "Reopen",
+            attrs: { type: "button" },
+            dataset: {
+              controlPlaneDecisionTaskAction: "reopen",
+              taskId: task.id
+            }
+          }),
+      task.status !== "blocked"
+        ? createElement("button", {
+            className: "btn governance-action-btn control-plane-decision-task-block-btn",
+            text: "Block",
+            attrs: { type: "button" },
+            dataset: {
+              controlPlaneDecisionTaskAction: "block",
+              taskId: task.id
+            }
+          })
+        : null
     ])
   ]));
   const agentControlPlaneDecisionTaskLedgerSnapshotEntries = (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {

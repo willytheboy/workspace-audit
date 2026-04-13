@@ -953,3 +953,10 @@
 - [x] Auto-capture a non-secret Control Plane decision task ledger snapshot after seeding.
 - [x] Add Governance deck and command-palette controls for seed-and-snapshot.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Lifecycle
+
+- [x] Add Resolve, Reopen, and Block controls to Control Plane decision task cards.
+- [x] Reuse the shared task update API for decision task status changes.
+- [x] Verify Control Plane decision task open/closed ledger counts update after lifecycle changes.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

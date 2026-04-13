@@ -22,10 +22,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Managed agent and skill policies: generated role, runtime, isolation, skill-bundle, and hook recommendations now require a persisted non-secret policy checkpoint before they become executable agent work orders.
 - Convergence active list behavior: pairs marked `not-related` are hidden from the default active Convergence candidates API and active project workbench Convergence list while remaining available through the persisted review ledger and explicit audit filters.
 - Agent execution results: failed, cancelled, terminal, stale, and SLA-breached Agent Work Order runs now expose non-secret result checkpoints for retry, archive, retention, SLA resolution, and Control Plane baseline-refresh actions before those actions are finalized.
+- Deferred execution-result gates: deferred Agent Execution result checkpoints now create a deduplicated non-secret Governance follow-up task per run/action pair so unresolved retry, archive, SLA, retention, or baseline-refresh decisions remain actionable.
 
 ## Next Checkpoint Candidates
 
-- Add checkpoint-driven auto-task creation for deferred execution-result gates so unresolved retry/archive/SLA/baseline decisions can become deduplicated Governance tasks.
+- Add execution-result task ledger snapshots and drift checks so deferred run-gate follow-up tasks can be exported and compared like other control-plane ledgers.
 
 ## Implementation Standard
 

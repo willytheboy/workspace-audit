@@ -1157,3 +1157,10 @@
 - [x] Require approved result checkpoints before terminal retries, archives, retention archival, SLA breach resolution, and baseline refresh finalization.
 - [x] Surface result checkpoint controls and summary gates in Governance Agent Execution Queue and Control Plane decision state.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Execution Result Follow-up Tasks
+
+- [x] Create a deduplicated non-secret Governance task when an execution-result gate checkpoint is deferred.
+- [x] Surface execution-result follow-up task counts, task cards, and lifecycle controls in Governance.
+- [x] Feed execution-result follow-up tasks into Agent Control Plane decision and handoff markdown.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

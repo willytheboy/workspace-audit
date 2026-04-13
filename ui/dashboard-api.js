@@ -771,7 +771,7 @@ export const dashboardApi = {
 
   /**
    * @param {{ runId: string, targetAction: "retry" | "archive" | "retention" | "resolve-sla" | "baseline-refresh", status?: "approved" | "deferred" | "dismissed" | "needs-review", reason?: string, note?: string, reviewer?: string, source?: string }} payload
-   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").AgentExecutionResultCheckpoint, summary: import("./dashboard-types.js").AgentExecutionResultCheckpointSummary, agentExecutionResultCheckpointCount: number, governanceOperationCount: number }>}
+   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").AgentExecutionResultCheckpoint, createdTask?: import("./dashboard-types.js").PersistedTask | null, skippedTask?: { id: string, title: string, reason: string } | null, summary: import("./dashboard-types.js").AgentExecutionResultCheckpointSummary, agentExecutionResultCheckpointCount: number, agentExecutionResultTaskCount: number, governanceOperationCount: number }>}
    */
   createAgentExecutionResultCheckpoint(payload) {
     return fetchJson("/api/agent-execution-result-checkpoints", {

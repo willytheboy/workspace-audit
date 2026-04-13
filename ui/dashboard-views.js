@@ -989,6 +989,39 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-agent-execution-result-task-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.agentExecutionResultTaskAction || "";
+        if (!taskId || !action) return;
+
+        const statusByAction = {
+          resolve: "resolved",
+          reopen: "open",
+          block: "blocked"
+        };
+        const nextStatus = statusByAction[action];
+        if (!nextStatus) return;
+
+        const originalLabel = element.textContent || "";
+
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          await api.updateTask(taskId, { status: nextStatus });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
     bindSourceAccessEvidenceActions(container, renderGovernance);
   }
 

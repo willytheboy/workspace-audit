@@ -1414,6 +1414,8 @@ export function createGovernanceSummaryGrid(governance) {
   const releaseControlOpenTaskCount = summary.releaseControlOpenTaskCount || 0;
   const decisionTaskCount = summary.agentControlPlaneDecisionTaskCount || 0;
   const openDecisionTaskCount = summary.agentControlPlaneDecisionOpenTaskCount || 0;
+  const executionResultTaskCount = summary.agentExecutionResultTaskCount || 0;
+  const openExecutionResultTaskCount = summary.agentExecutionResultOpenTaskCount || 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1616,6 +1618,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Execution Gates",
       value: `${summary.agentExecutionResultCheckpointRequiredCount || 0}`,
       detail: `${summary.agentExecutionResultBaselineBlockedCount || 0} baseline blocker(s) • ${summary.agentExecutionResultCheckpointUnresolvedCount || 0}/${summary.agentExecutionResultCheckpointCount || 0} unresolved checkpoints`
+    }),
+    createKpiCard({
+      accentColor: openExecutionResultTaskCount ? "var(--warning)" : executionResultTaskCount ? "var(--success)" : "var(--primary)",
+      label: "Execution Tasks",
+      value: `${openExecutionResultTaskCount}/${executionResultTaskCount}`,
+      detail: "Follow-up tasks created from deferred execution-result gate checkpoints"
     }),
     createKpiCard({
       accentColor: "var(--success)",
@@ -4508,6 +4516,116 @@ export function createGovernanceDeck(governance) {
               controlPlaneDecisionTaskAction: "block",
               taskId: task.id
             }
+      })
+        : null
+    ])
+  ]));
+  const agentExecutionResultTaskEntries = (governance.agentExecutionResultTasks || []).map((task) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: task.title || "Execution result follow-up task",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.agentExecutionResultTargetAction || "execution-result"} | ${task.agentExecutionResultRunStatus || "status unset"} | ${task.agentExecutionResultRunTitle || task.agentExecutionResultRunId || "run"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "flex",
+          gap: "0.35rem",
+          flexWrap: "wrap",
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag((task.priority || "normal").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag((task.status || "open").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase()) ? "var(--success)" : "var(--warning)"
+        })
+      ])
+    ]),
+    createElement("div", {
+      text: task.description ? String(task.description).split("\n")[0] : "Track deferred execution-result gate handling without storing credentials, keys, certificates, cookies, browser sessions, or command output.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(task.agentExecutionResultCheckpointStatus || "deferred", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: getExecutionCheckpointStatusColor(task.agentExecutionResultCheckpointStatus || "deferred")
+      }),
+      createTag(task.secretPolicy || "non-secret-execution-result-follow-up-evidence-only", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      task.status !== "resolved"
+        ? createElement("button", {
+            className: "btn governance-action-btn agent-execution-result-task-resolve-btn",
+            text: "Resolve",
+            attrs: { type: "button" },
+            dataset: {
+              agentExecutionResultTaskAction: "resolve",
+              taskId: task.id
+            }
+          })
+        : createElement("button", {
+            className: "btn governance-action-btn agent-execution-result-task-reopen-btn",
+            text: "Reopen",
+            attrs: { type: "button" },
+            dataset: {
+              agentExecutionResultTaskAction: "reopen",
+              taskId: task.id
+            }
+          }),
+      task.status !== "blocked"
+        ? createElement("button", {
+            className: "btn governance-action-btn agent-execution-result-task-block-btn",
+            text: "Block",
+            attrs: { type: "button" },
+            dataset: {
+              agentExecutionResultTaskAction: "block",
+              taskId: task.id
+            }
           })
         : null
     ])
@@ -6088,6 +6206,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),
     createListSection("Control Plane Decision Task Ledger", "Trackable Governance tasks created from Agent Control Plane decision reasons.", agentControlPlaneDecisionTaskEntries),
+    createListSection("Execution Result Follow-up Tasks", "Trackable Governance tasks created when execution-result gate checkpoints are deferred.", agentExecutionResultTaskEntries),
     createListSection("Control Plane Decision Task Ledger Snapshots", "Persisted non-secret Control Plane decision task ledger handoffs.", agentControlPlaneDecisionTaskLedgerSnapshotEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),

@@ -1296,6 +1296,27 @@ export async function serverTest() {
     assert.equal(blockedRetryAgentWorkOrderRunJson.checkpointBlocked, 1);
     assert.equal(blockedRetryAgentWorkOrderRunJson.targetAction, "retry");
 
+    const deferredRetryCheckpointJson = await createExecutionResultCheckpoint(createAgentWorkOrderRunJson.run.id, "retry", "deferred");
+    assert.equal(deferredRetryCheckpointJson.checkpoint.runStatus, "cancelled");
+    assert.ok(deferredRetryCheckpointJson.createdTask);
+    assert.equal(deferredRetryCheckpointJson.createdTask.agentExecutionResultRunId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(deferredRetryCheckpointJson.createdTask.agentExecutionResultTargetAction, "retry");
+    assert.equal(deferredRetryCheckpointJson.agentExecutionResultTaskCount, 1);
+
+    const duplicateDeferredRetryCheckpointJson = await createExecutionResultCheckpoint(createAgentWorkOrderRunJson.run.id, "retry", "deferred");
+    assert.equal(duplicateDeferredRetryCheckpointJson.createdTask, null);
+    assert.equal(duplicateDeferredRetryCheckpointJson.skippedTask.reason, "Open execution-result follow-up task already exists");
+    assert.equal(duplicateDeferredRetryCheckpointJson.agentExecutionResultTaskCount, 1);
+
+    const resolveDeferredRetryTaskResponse = await fetch(`${baseUrl}/api/tasks/${deferredRetryCheckpointJson.createdTask.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "resolved" })
+    });
+    assert.equal(resolveDeferredRetryTaskResponse.status, 200);
+    const resolveDeferredRetryTaskJson = await resolveDeferredRetryTaskResponse.json();
+    assert.equal(resolveDeferredRetryTaskJson.task.status, "resolved");
+
     const retryCheckpointJson = await createExecutionResultCheckpoint(createAgentWorkOrderRunJson.run.id, "retry");
     assert.equal(retryCheckpointJson.checkpoint.runStatus, "cancelled");
 
@@ -1412,11 +1433,18 @@ export async function serverTest() {
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.archived, 1);
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.statusCounts.passed, 0);
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.statusCounts.queued, 1);
-    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointCount, 2);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointCount, 4);
     assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointApprovedCount, 2);
-    assert.equal(governanceAfterArchiveJson.agentExecutionResultCheckpoints.length, 2);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointDeferredCount, 2);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultTaskCount, 1);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultOpenTaskCount, 0);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultClosedTaskCount, 1);
+    assert.equal(governanceAfterArchiveJson.agentExecutionResultTasks.length, 1);
+    assert.equal(governanceAfterArchiveJson.agentExecutionResultTasks[0].status, "resolved");
+    assert.equal(governanceAfterArchiveJson.agentExecutionResultCheckpoints.length, 4);
     assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-work-order-run-archived"));
     assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-execution-result-checkpoint-recorded"));
+    assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-execution-result-checkpoint-task-created"));
 
     const retentionRunIds = [];
     for (const status of ["passed", "failed", "cancelled"]) {
@@ -1491,8 +1519,11 @@ export async function serverTest() {
     const governanceAfterRetentionJson = await governanceAfterRetentionResponse.json();
     assert.equal(governanceAfterRetentionJson.summary.agentWorkOrderRunCount, 5);
     assert.equal(governanceAfterRetentionJson.summary.archivedAgentWorkOrderRunCount, 3);
-    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointCount, 5);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointCount, 7);
     assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointApprovedCount, 5);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointDeferredCount, 2);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultTaskCount, 1);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultOpenTaskCount, 0);
     assert.equal(governanceAfterRetentionJson.agentExecutionMetrics.archived, 3);
     assert.ok(governanceAfterRetentionJson.operationLog.map((operation) => operation.type).includes("agent-work-order-runs-retention-applied"));
 
@@ -1657,8 +1688,11 @@ export async function serverTest() {
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaBreached, 0);
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaResolved, 1);
     assert.ok(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaAverageResolutionHours >= 0);
-    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointCount, 6);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointCount, 8);
     assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointApprovedCount, 6);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointDeferredCount, 2);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultTaskCount, 1);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultOpenTaskCount, 0);
     assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionSlaLedgerCount, 1);
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionSlaLedger[0].breachState, "resolved");
     assert.ok(governanceAfterSlaResolutionJson.operationLog.map((operation) => operation.type).includes("agent-work-order-runs-sla-breach-resolved"));
@@ -2296,7 +2330,7 @@ export async function serverTest() {
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneSnapshotCount, 3);
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneBaselineSnapshotId, refreshAgentControlPlaneBaselineJson.snapshot.id);
     assert.equal(diagnosticsAfterProfileJson.agentPolicyCheckpointCount, 1);
-    assert.equal(diagnosticsAfterProfileJson.agentExecutionResultCheckpointCount, 6 + baselineRefreshRunIds.length);
+    assert.equal(diagnosticsAfterProfileJson.agentExecutionResultCheckpointCount, 8 + baselineRefreshRunIds.length);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentExecutionSlaLedgerSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderRunCount, 6);

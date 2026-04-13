@@ -58,6 +58,9 @@
  *     copyGovernanceDataSourcesAccessGate: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessReviewQueue: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessValidationEvidence: () => Promise<void>,
+ *     copyGovernanceDataSourcesAccessValidationWorkflow: () => Promise<void>,
+ *     saveGovernanceDataSourcesAccessValidationWorkflowSnapshot: () => Promise<void>,
+ *     copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift: () => Promise<void>,
  *     seedGovernanceDataSourcesAccessReviewTasks: () => Promise<void>,
  *     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessTaskLedger: () => Promise<void>,
@@ -463,6 +466,30 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "sources", "data sources", "access", "evidence", "validation", "handoff", "copy"],
         run: () => handlers.copyGovernanceDataSourcesAccessValidationEvidence()
+      },
+      {
+        id: "copy-governance-data-sources-access-validation-workflow",
+        label: "Copy source validation workflow",
+        description: "Copy the non-secret Data Sources access validation workflow from Governance.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "handoff", "copy"],
+        run: () => handlers.copyGovernanceDataSourcesAccessValidationWorkflow()
+      },
+      {
+        id: "save-governance-data-sources-access-validation-workflow-snapshot",
+        label: "Save source validation workflow snapshot",
+        description: "Persist the current non-secret Data Sources access validation workflow as a Governance baseline.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "snapshot", "baseline", "save"],
+        run: () => handlers.saveGovernanceDataSourcesAccessValidationWorkflowSnapshot()
+      },
+      {
+        id: "copy-governance-data-sources-access-validation-workflow-drift",
+        label: "Copy source validation workflow drift",
+        description: "Copy markdown drift between the latest saved validation workflow snapshot and the live workflow from Governance.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "snapshot", "drift", "copy"],
+        run: () => handlers.copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift()
       },
       {
         id: "seed-governance-data-sources-access-review-tasks",

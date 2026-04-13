@@ -200,6 +200,24 @@ async function copyGovernanceDataSourcesAccessValidationEvidence() {
   return views.copySourcesAccessValidationEvidence();
 }
 
+async function copyGovernanceDataSourcesAccessValidationWorkflow() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copySourcesAccessValidationWorkflow();
+}
+
+async function saveGovernanceDataSourcesAccessValidationWorkflowSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.saveSourcesAccessValidationWorkflowSnapshot({ renderTarget: "governance" });
+}
+
+async function copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyLatestSourcesAccessValidationWorkflowSnapshotDrift();
+}
+
 async function copySourcesAccessMatrix() {
   setView("sources");
   await views.renderSources();
@@ -615,6 +633,9 @@ const actionRegistry = createDashboardActionRegistry({
     copyGovernanceDataSourcesAccessGate,
     copyGovernanceDataSourcesAccessReviewQueue,
     copyGovernanceDataSourcesAccessValidationEvidence,
+    copyGovernanceDataSourcesAccessValidationWorkflow,
+    saveGovernanceDataSourcesAccessValidationWorkflowSnapshot,
+    copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift,
     seedGovernanceDataSourcesAccessReviewTasks,
     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     copyGovernanceDataSourcesAccessTaskLedger,
@@ -1047,6 +1068,24 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-source-access-validation-evidence-btn")),
     "Copying...",
     () => copyGovernanceDataSourcesAccessValidationEvidence()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-source-access-validation-workflow-btn")),
+    "Copying...",
+    () => copyGovernanceDataSourcesAccessValidationWorkflow()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("save-governance-source-access-validation-workflow-snapshot-btn")),
+    "Saving...",
+    () => saveGovernanceDataSourcesAccessValidationWorkflowSnapshot()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-source-access-validation-workflow-drift-btn")),
+    "Copying...",
+    () => copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift()
   );
 
   bindAsyncButton(

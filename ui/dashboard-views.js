@@ -4419,11 +4419,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.pending} pending`;
   }
 
-  async function saveSourcesAccessValidationWorkflowSnapshot() {
+  async function saveSourcesAccessValidationWorkflowSnapshot(options = {}) {
     const created = await api.createSourcesAccessValidationWorkflowSnapshot({
       title: "Data Sources Access Validation Workflow"
     });
-    await renderSources();
+    if (options.renderTarget === "governance") {
+      await renderGovernance();
+    } else {
+      await renderSources();
+    }
     return `Saved ${created.snapshot.total} workflow item${created.snapshot.total === 1 ? "" : "s"}`;
   }
 

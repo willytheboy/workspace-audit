@@ -1027,3 +1027,10 @@
 - [x] Add workflow snapshot counts, lists, and latest drift to Agent Control Plane handoffs, decisions, decision snapshots, and saved snapshots.
 - [x] Add workflow snapshot count and drift-score fields to Agent Control Plane baseline drift metrics.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Data Sources Access Validation Workflow Snapshot Actions
+
+- [x] Add Governance toolbar controls for copying the source validation workflow, saving workflow snapshots, and copying workflow drift.
+- [x] Add command-palette actions for the same Governance workflow snapshot baseline operations.
+- [x] Preserve Sources behavior while letting Governance snapshot saves refresh the Governance deck.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

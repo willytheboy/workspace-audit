@@ -75,6 +75,7 @@ Architecture:
 - `GET`/`POST /api/sources/access-validation-workflow-snapshots` now persists non-secret validation workflow baselines, with `/diff` support for workflow drift checks.
 - `POST /api/sources/access-validation-workflow/tasks` now seeds deduplicated non-secret Data Sources tasks from pending or blocked workflow items.
 - Governance and Agent Control Plane handoffs now surface validation workflow snapshot counts, latest drift severity, and workflow snapshot drift markdown.
+- Governance can now copy the source validation workflow, save a workflow snapshot, and copy workflow drift directly from the control-center toolbar or command palette.
 - Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.

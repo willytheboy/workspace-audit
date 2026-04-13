@@ -74,6 +74,7 @@ function createEmptyTableRow(message) {
  *     fetchSources: () => Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>,
  *     fetchSourcesSummary: () => Promise<import("./dashboard-types.js").DataSourcesSummaryPayload>,
  *     fetchSourcesAccessRequirements: () => Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>,
+ *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
@@ -2942,6 +2943,108 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload} registry
+   */
+  function createDataSourcesAccessMethodRegistrySection(registry) {
+    const section = document.createElement("section");
+    section.className = "source-access-method-registry";
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Data Sources Access Method Registry";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const summary = document.createElement("div");
+    summary.textContent = `${registry.summary.totalMethods} method(s) | ${registry.summary.gitRemoteSources} git | ${registry.summary.manualAccessLikely} manual | ${registry.summary.privateRepoLikely} private likely`;
+    summary.style.color = registry.summary.blockedSources
+      ? "var(--danger)"
+      : registry.summary.reviewRequired
+        ? "var(--warning)"
+        : "var(--success)";
+    summary.style.fontSize = "0.84rem";
+
+    heading.append(title, summary);
+    section.append(heading);
+
+    if (!registry.methods.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No access methods registered.";
+      empty.style.padding = "1rem";
+      empty.style.border = "1px solid var(--border)";
+      empty.style.borderRadius = "0.65rem";
+      empty.style.background = "var(--surface)";
+      empty.style.color = "var(--text-muted)";
+      section.append(empty);
+      return section;
+    }
+
+    for (const method of registry.methods.slice(0, 8)) {
+      const card = document.createElement("div");
+      card.className = "source-access-method-registry-card";
+      card.style.display = "flex";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "1rem";
+      card.style.padding = "1rem";
+      card.style.border = "1px solid var(--border)";
+      card.style.borderRadius = "0.65rem";
+      card.style.background = "var(--surface)";
+
+      const body = document.createElement("div");
+      const methodTitle = document.createElement("div");
+      methodTitle.textContent = method.title || method.accessMethod;
+      methodTitle.style.fontWeight = "800";
+      methodTitle.style.color = "var(--text)";
+      methodTitle.style.marginBottom = "0.25rem";
+
+      const setup = document.createElement("div");
+      setup.textContent = method.externalSetup || "Resolve required access outside this app.";
+      setup.style.color = "var(--text-muted)";
+      setup.style.fontSize = "0.84rem";
+
+      const sources = document.createElement("div");
+      sources.textContent = method.sources.slice(0, 4).map((source) => source.label).join(" | ") || "No sources";
+      sources.style.color = "var(--text-muted)";
+      sources.style.fontSize = "0.78rem";
+      sources.style.marginTop = "0.25rem";
+
+      body.append(methodTitle, setup, sources);
+
+      const stats = document.createElement("div");
+      stats.style.display = "flex";
+      stats.style.flexDirection = "column";
+      stats.style.alignItems = "flex-end";
+      stats.style.gap = "0.25rem";
+      stats.style.color = "var(--text-muted)";
+      stats.style.fontSize = "0.82rem";
+      for (const line of [
+        method.category,
+        `${method.sourceCount} source(s), ${method.reviewRequired} review`,
+        `${method.tokenLikely} token | ${method.certificateLikely} cert | ${method.sshKeyLikely} SSH`,
+        `${method.privateRepoLikely} private | ${method.manualAccessLikely} manual`
+      ]) {
+        const statLine = document.createElement("span");
+        statLine.textContent = line;
+        stats.append(statLine);
+      }
+
+      card.append(body, stats);
+      section.append(card);
+    }
+
+    return section;
+  }
+
+  /**
    * @param {import("./dashboard-types.js").DataSourcesAccessReviewQueuePayload} queue
    */
   function createDataSourcesAccessReviewQueueSection(queue) {
@@ -3441,8 +3544,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMethodRegistry, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
+        api.fetchSourcesAccessMethodRegistry(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
         api.fetchSourcesAccessValidationEvidenceCoverage(),
@@ -3486,6 +3590,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       fragment.append(createDeploymentHealthSection(deploymentHealth));
       fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
       fragment.append(createDataSourcesAccessReviewQueueSection(accessReviewQueue));
+      fragment.append(createDataSourcesAccessMethodRegistrySection(accessMethodRegistry));
       fragment.append(createDataSourcesAccessMatrixSection(accessMatrix));
       const snapshotSection = createDataSourcesSummarySnapshotSection(snapshots || []);
       if (snapshotSection) {
@@ -4044,6 +4149,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.reviewRequired} review`;
   }
 
+  async function copySourcesAccessMethodRegistry() {
+    const payload = await api.fetchSourcesAccessMethodRegistry();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.totalMethods} access method${payload.summary.totalMethods === 1 ? "" : "s"}`;
+  }
+
   async function copySourcesAccessChecklist() {
     const payload = await api.fetchSourcesAccessChecklist();
     await copyText(payload.markdown);
@@ -4425,6 +4536,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentWorkOrders,
     copySourcesSummary,
     copySourcesAccessRequirements,
+    copySourcesAccessMethodRegistry,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,

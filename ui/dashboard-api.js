@@ -235,6 +235,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>}
+   */
+  fetchSourcesAccessMethodRegistry() {
+    return fetchJson("/api/sources/access-method-registry");
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>}
    */
   fetchSourcesAccessChecklist() {

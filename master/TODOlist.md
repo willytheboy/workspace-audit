@@ -987,3 +987,9 @@
 - [x] Persist Governance task update audit ledger snapshot counts/lists in Agent Control Plane snapshot records.
 - [x] Add Governance task update audit ledger snapshot count and list drift to Agent Control Plane baseline drift.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Method Registry
+
+- [x] Add a non-secret Data Sources access method registry covering local paths, Git remotes, GitHub/private repo signals, token/password/certificate/SSH/manual access flags, and setup guidance.
+- [x] Expose the registry through `/api/sources/access-method-registry`, the dashboard API client, command palette, Sources toolbar, and Sources deck.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

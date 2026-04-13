@@ -29,6 +29,7 @@
  *     refreshSources: () => Promise<void>,
  *     copySourcesSummary: () => Promise<void>,
  *     copySourcesAccessRequirements: () => Promise<void>,
+ *     copySourcesAccessMethodRegistry: () => Promise<void>,
  *     copySourcesAccessChecklist: () => Promise<void>,
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
  *     copySourcesAccessValidationEvidence: () => Promise<void>,
@@ -216,6 +217,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "credentials", "certificates", "ssh", "tokens", "copy"],
         run: () => handlers.copySourcesAccessRequirements()
+      },
+      {
+        id: "copy-sources-access-method-registry",
+        label: "Copy sources access registry",
+        description: "Copy the non-secret access method registry for local paths, Git remotes, private repositories, certificates, SSH keys, provider tokens, and manual source access.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "registry", "git", "github", "private repositories", "certificates", "ssh", "manual", "copy"],
+        run: () => handlers.copySourcesAccessMethodRegistry()
       },
       {
         id: "copy-sources-access-checklist",

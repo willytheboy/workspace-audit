@@ -68,6 +68,8 @@ Architecture:
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.
+- `GET /api/sources/access-method-registry` now exposes a non-secret access method registry for local paths, Git remotes, GitHub/private repository signals, certificates, SSH keys, provider tokens, password/session requirements, and manual-export workflows.
+- The Sources view now renders and copies the access method registry so source-access blockers are visible before app-development ingestion or multi-agent build work.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.
 - Data Sources now expose a non-secret access validation evidence ledger for recording operator-side access checks without storing credentials, tokens, certificates, private keys, or browser sessions.

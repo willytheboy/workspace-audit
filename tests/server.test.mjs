@@ -216,6 +216,19 @@ export async function serverTest() {
     assert.match(sourcesAccessRequirementsJson.sources[0].access.secretPolicy, /Do not store passwords/);
     assert.match(sourcesAccessRequirementsJson.markdown, /# Data Sources Access Requirements/);
 
+    const sourcesAccessMethodRegistryResponse = await fetch(`${baseUrl}/api/sources/access-method-registry`);
+    assert.equal(sourcesAccessMethodRegistryResponse.status, 200);
+    const sourcesAccessMethodRegistryJson = await sourcesAccessMethodRegistryResponse.json();
+    assert.equal(sourcesAccessMethodRegistryJson.summary.totalSources, 1);
+    assert.equal(sourcesAccessMethodRegistryJson.summary.totalMethods, 1);
+    assert.equal(sourcesAccessMethodRegistryJson.summary.localPathSources, 1);
+    assert.equal(sourcesAccessMethodRegistryJson.summary.gitRemoteSources, 0);
+    assert.equal(sourcesAccessMethodRegistryJson.methods[0].accessMethod, "local-filesystem");
+    assert.equal(sourcesAccessMethodRegistryJson.methods[0].category, "filesystem");
+    assert.equal(sourcesAccessMethodRegistryJson.sources[0].localPathLikely, true);
+    assert.match(sourcesAccessMethodRegistryJson.secretPolicy, /Non-secret access method registry/);
+    assert.match(sourcesAccessMethodRegistryJson.markdown, /# Data Sources Access Method Registry/);
+
     const sourcesAccessChecklistResponse = await fetch(`${baseUrl}/api/sources/access-checklist`);
     assert.equal(sourcesAccessChecklistResponse.status, 200);
     const sourcesAccessChecklistJson = await sourcesAccessChecklistResponse.json();
@@ -441,6 +454,17 @@ export async function serverTest() {
     assert.equal(sourcesAccessRequirementsAfterAddJson.summary.reviewRequired, 1);
     assert.equal(sourcesAccessRequirementsAfterAddJson.summary.tokenLikely, 1);
     assert.ok(sourcesAccessRequirementsAfterAddJson.sources.some((source) => source.type === "github" && source.access.accessMethod === "git-https"));
+
+    const sourcesAccessMethodRegistryAfterAddResponse = await fetch(`${baseUrl}/api/sources/access-method-registry`);
+    assert.equal(sourcesAccessMethodRegistryAfterAddResponse.status, 200);
+    const sourcesAccessMethodRegistryAfterAddJson = await sourcesAccessMethodRegistryAfterAddResponse.json();
+    assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.totalSources, 2);
+    assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.gitRemoteSources, 1);
+    assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.githubRemoteSources, 1);
+    assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.privateRepoLikely, 1);
+    assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.tokenLikely, 1);
+    assert.ok(sourcesAccessMethodRegistryAfterAddJson.methods.some((method) => method.accessMethod === "git-https" && method.category === "git" && method.privateRepoLikely === 1));
+    assert.match(sourcesAccessMethodRegistryAfterAddJson.markdown, /git-https/);
 
     const sourcesAccessChecklistAfterAddResponse = await fetch(`${baseUrl}/api/sources/access-checklist`);
     assert.equal(sourcesAccessChecklistAfterAddResponse.status, 200);

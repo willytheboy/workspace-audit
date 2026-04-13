@@ -131,6 +131,12 @@ async function copySourcesAccessRequirements() {
   return views.copySourcesAccessRequirements();
 }
 
+async function copySourcesAccessMethodRegistry() {
+  setView("sources");
+  await views.renderSources();
+  return views.copySourcesAccessMethodRegistry();
+}
+
 async function copySourcesAccessChecklist() {
   setView("sources");
   await views.renderSources();
@@ -559,6 +565,7 @@ const actionRegistry = createDashboardActionRegistry({
     refreshSources: refreshSourcesView,
     copySourcesSummary,
     copySourcesAccessRequirements,
+    copySourcesAccessMethodRegistry,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,
@@ -793,6 +800,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-requirements-btn")),
     "Copying...",
     () => copySourcesAccessRequirements()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-method-registry-btn")),
+    "Copying...",
+    () => copySourcesAccessMethodRegistry()
   );
 
   bindAsyncButton(

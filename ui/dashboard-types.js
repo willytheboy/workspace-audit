@@ -1019,6 +1019,11 @@
  *   tokenLikely: boolean,
  *   certificateLikely: boolean,
  *   sshKeyLikely: boolean,
+ *   privateRepoLikely: boolean,
+ *   manualAccessLikely: boolean,
+ *   localPathLikely: boolean,
+ *   gitRemoteLikely: boolean,
+ *   githubRemoteLikely: boolean,
  *   credentialHints: string[],
  *   notes: string[],
  *   secretPolicy: string
@@ -1267,6 +1272,79 @@
  *   }>,
  *   markdown: string
  * }} DataSourcesAccessRequirementsPayload
+ * @typedef {{
+ *   id: string,
+ *   label: string,
+ *   type: string,
+ *   locator: string,
+ *   health: string,
+ *   status: string,
+ *   accessMethod: string,
+ *   accessLevel: string,
+ *   requiresReview: boolean,
+ *   localPathLikely: boolean,
+ *   gitRemoteLikely: boolean,
+ *   githubRemoteLikely: boolean,
+ *   privateRepoLikely: boolean,
+ *   tokenLikely: boolean,
+ *   passwordLikely: boolean,
+ *   certificateLikely: boolean,
+ *   sshKeyLikely: boolean,
+ *   manualAccessLikely: boolean,
+ *   credentialHints: string[],
+ *   notes: string[],
+ *   secretPolicy: string
+ * }} DataSourcesAccessMethodRegistrySource
+ * @typedef {{
+ *   accessMethod: string,
+ *   title: string,
+ *   category: string,
+ *   sourceCount: number,
+ *   ready: number,
+ *   review: number,
+ *   blocked: number,
+ *   reviewRequired: number,
+ *   localPathSources: number,
+ *   gitRemoteSources: number,
+ *   githubRemoteSources: number,
+ *   privateRepoLikely: number,
+ *   tokenLikely: number,
+ *   passwordLikely: number,
+ *   certificateLikely: number,
+ *   sshKeyLikely: number,
+ *   manualAccessLikely: number,
+ *   commandHints: string[],
+ *   externalSetup: string,
+ *   secretHandling: string,
+ *   sources: DataSourcesAccessMethodRegistrySource[]
+ * }} DataSourcesAccessMethodRegistryMethod
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     totalSources: number,
+ *     totalMethods: number,
+ *     readySources: number,
+ *     reviewSources: number,
+ *     blockedSources: number,
+ *     reviewRequired: number,
+ *     localPathSources: number,
+ *     gitRemoteSources: number,
+ *     githubRemoteSources: number,
+ *     privateRepoLikely: number,
+ *     tokenLikely: number,
+ *     passwordLikely: number,
+ *     certificateLikely: number,
+ *     sshKeyLikely: number,
+ *     manualAccessLikely: number
+ *   },
+ *   secretPolicy: string,
+ *   methods: DataSourcesAccessMethodRegistryMethod[],
+ *   sources: DataSourcesAccessMethodRegistrySource[],
+ *   requirements: DataSourcesAccessRequirementsPayload,
+ *   matrix: DataSourcesAccessMatrixPayload,
+ *   runbook: DataSourcesAccessValidationRunbookPayload,
+ *   markdown: string
+ * }} DataSourcesAccessMethodRegistryPayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

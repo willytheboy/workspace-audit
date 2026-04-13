@@ -3549,6 +3549,69 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return section;
   }
 
+  function getSourceCheckpointDrilldownCounts(item) {
+    const checkpoints = item?.sourceAccessCheckpoints || {};
+    return {
+      total: Number(checkpoints.total || 0),
+      unresolved: Number(checkpoints.unresolved || 0)
+    };
+  }
+
+  function createSourceCheckpointFilterController({ label, totalCount, unresolvedCount, applyFilter }) {
+    const bar = document.createElement("div");
+    bar.className = "source-checkpoint-filter";
+    bar.style.display = "flex";
+    bar.style.flexWrap = "wrap";
+    bar.style.alignItems = "center";
+    bar.style.justifyContent = "space-between";
+    bar.style.gap = "0.6rem";
+    bar.style.padding = "0.75rem";
+    bar.style.border = "1px solid var(--border)";
+    bar.style.borderRadius = "0.65rem";
+    bar.style.background = "var(--bg)";
+
+    const summary = document.createElement("div");
+    summary.style.color = unresolvedCount ? "var(--warning)" : "var(--text-muted)";
+    summary.style.fontSize = "0.84rem";
+
+    const controls = document.createElement("div");
+    controls.style.display = "flex";
+    controls.style.flexWrap = "wrap";
+    controls.style.gap = "0.45rem";
+
+    const allButton = document.createElement("button");
+    allButton.type = "button";
+    allButton.className = "btn governance-action-btn source-checkpoint-filter-all-btn";
+    allButton.textContent = "Show All";
+
+    const unresolvedButton = document.createElement("button");
+    unresolvedButton.type = "button";
+    unresolvedButton.className = "btn governance-action-btn source-checkpoint-filter-unresolved-btn";
+    unresolvedButton.textContent = "Unresolved checkpoints";
+    unresolvedButton.disabled = unresolvedCount === 0;
+
+    controls.append(allButton, unresolvedButton);
+    bar.append(summary, controls);
+
+    function setMode(mode) {
+      const unresolvedMode = mode === "unresolved";
+      allButton.classList.toggle("active", !unresolvedMode);
+      unresolvedButton.classList.toggle("active", unresolvedMode);
+      summary.textContent = unresolvedMode
+        ? `Showing ${unresolvedCount} ${label}${unresolvedCount === 1 ? "" : "s"} with unresolved source checkpoints.`
+        : `Showing ${totalCount} ${label}${totalCount === 1 ? "" : "s"}; ${unresolvedCount} have unresolved source checkpoints.`;
+      applyFilter(mode);
+    }
+
+    allButton.addEventListener("click", () => setMode("all"));
+    unresolvedButton.addEventListener("click", () => setMode("unresolved"));
+
+    return {
+      node: bar,
+      setMode
+    };
+  }
+
   /**
    * @param {import("./dashboard-types.js").DataSourcesAccessReviewQueuePayload} queue
    */
@@ -3591,9 +3654,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       return section;
     }
 
-    for (const item of queue.items.slice(0, 8)) {
+    const visibleReviewItems = queue.items.slice(0, 8);
+    const reviewCardEntries = [];
+    const unresolvedReviewCount = visibleReviewItems.filter((item) => getSourceCheckpointDrilldownCounts(item).unresolved > 0).length;
+    const filterController = createSourceCheckpointFilterController({
+      label: "review item",
+      totalCount: visibleReviewItems.length,
+      unresolvedCount: unresolvedReviewCount,
+      applyFilter: (mode) => {
+        for (const entry of reviewCardEntries) {
+          entry.card.style.display = mode === "unresolved" && !entry.hasUnresolvedCheckpoint ? "none" : "";
+        }
+      }
+    });
+    section.append(filterController.node);
+
+    for (const item of visibleReviewItems) {
+      const checkpointCounts = getSourceCheckpointDrilldownCounts(item);
       const card = document.createElement("div");
       card.className = "source-access-review-card";
+      card.dataset.sourceAccessCheckpointUnresolved = String(checkpointCounts.unresolved);
       card.style.display = "flex";
       card.style.justifyContent = "space-between";
       card.style.gap = "1rem";
@@ -3621,6 +3701,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       validation.style.fontSize = "0.78rem";
       validation.style.marginTop = "0.25rem";
 
+      const sourceCheckpoints = document.createElement("div");
+      sourceCheckpoints.textContent = `Source checkpoints: ${checkpointCounts.unresolved} unresolved / ${checkpointCounts.total} total`;
+      sourceCheckpoints.style.color = checkpointCounts.unresolved ? "var(--warning)" : checkpointCounts.total ? "var(--success)" : "var(--text-muted)";
+      sourceCheckpoints.style.fontSize = "0.78rem";
+      sourceCheckpoints.style.marginTop = "0.25rem";
+
       const checkpointActions = document.createElement("div");
       checkpointActions.className = "governance-actions source-access-review-item-checkpoints";
       checkpointActions.style.marginTop = "0.65rem";
@@ -3642,7 +3728,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         checkpointActions.append(button);
       }
 
-      body.append(itemTitle, action, validation, checkpointActions);
+      body.append(itemTitle, action, validation, sourceCheckpoints, checkpointActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -3663,7 +3749,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
       card.append(body, meta);
       section.append(card);
+      reviewCardEntries.push({
+        card,
+        hasUnresolvedCheckpoint: checkpointCounts.unresolved > 0
+      });
     }
+    filterController.setMode("all");
 
     return section;
   }
@@ -3714,9 +3805,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       return section;
     }
 
-    for (const item of coverage.items.slice(0, 10)) {
+    const visibleCoverageItems = coverage.items.slice(0, 10);
+    const coverageCardEntries = [];
+    const unresolvedCoverageCount = visibleCoverageItems.filter((item) => getSourceCheckpointDrilldownCounts(item).unresolved > 0).length;
+    const filterController = createSourceCheckpointFilterController({
+      label: "coverage item",
+      totalCount: visibleCoverageItems.length,
+      unresolvedCount: unresolvedCoverageCount,
+      applyFilter: (mode) => {
+        for (const entry of coverageCardEntries) {
+          entry.card.style.display = mode === "unresolved" && !entry.hasUnresolvedCheckpoint ? "none" : "";
+        }
+      }
+    });
+    section.append(filterController.node);
+
+    for (const item of visibleCoverageItems) {
+      const checkpointCounts = getSourceCheckpointDrilldownCounts(item);
       const card = document.createElement("div");
       card.className = "source-evidence-coverage-card";
+      card.dataset.sourceAccessCheckpointUnresolved = String(checkpointCounts.unresolved);
       card.style.display = "flex";
       card.style.justifyContent = "space-between";
       card.style.gap = "1rem";
@@ -3750,6 +3858,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       evidence.style.fontSize = "0.78rem";
       evidence.style.lineHeight = "1.4";
 
+      const sourceCheckpoints = document.createElement("div");
+      sourceCheckpoints.textContent = `Source checkpoints: ${checkpointCounts.unresolved} unresolved / ${checkpointCounts.total} total`;
+      sourceCheckpoints.style.color = checkpointCounts.unresolved ? "var(--warning)" : checkpointCounts.total ? "var(--success)" : "var(--text-muted)";
+      sourceCheckpoints.style.fontSize = "0.78rem";
+      sourceCheckpoints.style.lineHeight = "1.4";
+
       const checkpointActions = document.createElement("div");
       checkpointActions.className = "governance-actions source-evidence-coverage-item-checkpoints";
       checkpointActions.style.marginTop = "0.65rem";
@@ -3771,7 +3885,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         checkpointActions.append(button);
       }
 
-      body.append(cardTitle, action, evidence, checkpointActions);
+      body.append(cardTitle, action, evidence, sourceCheckpoints, checkpointActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -3792,7 +3906,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
       card.append(body, meta);
       section.append(card);
+      coverageCardEntries.push({
+        card,
+        hasUnresolvedCheckpoint: checkpointCounts.unresolved > 0
+      });
     }
+    filterController.setMode("all");
 
     return section;
   }

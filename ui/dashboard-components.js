@@ -2868,6 +2868,13 @@ export function createGovernanceDeck(governance) {
             border: "1px solid var(--border)",
             color: "var(--text-muted)"
           })
+        : null,
+      item.sourceAccessCheckpoints?.total
+        ? createTag(`checkpoints ${item.sourceAccessCheckpoints.unresolved || 0}/${item.sourceAccessCheckpoints.total}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: item.sourceAccessCheckpoints.unresolved ? "var(--warning)" : "var(--success)"
+          })
         : null
     ]),
     createElement("div", {
@@ -3020,7 +3027,14 @@ export function createGovernanceDeck(governance) {
           border: "1px solid var(--border)",
           background: "var(--bg)",
           color: item.priority === "high" ? "var(--danger)" : item.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
-        })
+        }),
+        item.sourceAccessCheckpoints?.total
+          ? createTag(`checkpoints ${item.sourceAccessCheckpoints.unresolved || 0}/${item.sourceAccessCheckpoints.total}`, {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: item.sourceAccessCheckpoints.unresolved ? "var(--warning)" : "var(--success)"
+            })
+          : null
       ])
     ]),
     createElement("div", {

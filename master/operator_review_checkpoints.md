@@ -18,10 +18,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Task-seeding checkpoint ledger: Governance now filters and groups task-batch decisions by lifecycle status so approved, deferred, dismissed, and needs-review checkpoints can be audited independently.
 - Source-access checkpoint summaries: Data Sources and Agent Control Plane now surface source-access checkpoint totals, unresolved counts, and source grouping so deferred or needs-review source-access decisions remain visible before ingestion or automated task seeding.
 - Source-specific checkpoint drilldowns: individual Data Source cards now show matched checkpoint counts and recent items when source-specific task-seeding checkpoints reference the source ID, path, URL, or label.
+- Source-specific checkpoint filters: Data Sources access review and evidence coverage decks now expose unresolved-checkpoint filters using each item's matched source checkpoint drilldown so operators can isolate risky inferred blockers in the currently visible source deck.
 
 ## Next Checkpoint Candidates
 
-- Add source-specific checkpoint filters for access review and evidence coverage decks so operators can isolate unresolved checkpoints for the currently visible source subset.
+- Add managed agent and skill policy checkpoints before generated role, skill, hook, or runtime recommendations become executable agent work orders.
 
 ## Implementation Standard
 

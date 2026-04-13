@@ -35,3 +35,11 @@ The target product is not only an audit dashboard. It should become the operator
 - The app should grow into a supervised multi-agent, multi-skill app-development operating system with Governance as the operator cockpit, Data Sources as the trusted ingestion/access layer, Agent Control Plane as the machine decision layer, and Work Orders as the execution bridge.
 - Near-term builds should keep tightening the non-secret Data Sources evidence loop, task seeding, governance visibility, and agent-gate readiness before introducing more autonomous execution.
 - Long-term growth should support pluggable agent lanes, skill routing, repository access methods, evidence-backed validation, release gates, rollback-safe milestone history, and eventually a Git-backed checkpoint model.
+
+## Agent / Skills Direction Update: 2026-04-13
+
+- Claude-style skills, subagents, managed agent definitions, and agent teams validate the product direction: this app should become the provider-neutral control center above concrete agent runtimes.
+- Model skills as governed reusable capability packages with instructions, scripts, resources, allowed tools, trust level, owner, evaluation evidence, and activation policy.
+- Model subagents as constrained specialist workers with role, tool scope, model/runtime adapter metadata, memory policy, isolation mode, and acceptance criteria.
+- Model agent teams as lead-plus-worker execution plans with task dependencies, mailbox events, quality gates, cleanup lifecycle, and non-secret evidence capture.
+- Keep managed policies as a future precedence layer across organization, project, user, and runtime scopes so unsafe automation is controlled centrally.

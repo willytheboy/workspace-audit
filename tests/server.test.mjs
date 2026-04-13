@@ -2793,6 +2793,18 @@ export async function releaseBuildGateTaskSeedingTest() {
     const sourcesAccessReviewQueueCheckpointJson = await sourcesAccessReviewQueueCheckpointResponse.json();
     assert.equal(sourcesAccessReviewQueueCheckpointJson.summary.checkpointCount, 4);
     assert.equal(sourcesAccessReviewQueueCheckpointJson.summary.checkpointUnresolved, 2);
+    if (sourcesAccessReviewQueueCheckpointJson.items.length) {
+      assert.ok(sourcesAccessReviewQueueCheckpointJson.items[0].sourceAccessCheckpoints);
+    }
+
+    const sourcesEvidenceCoverageCheckpointResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage`);
+    assert.equal(sourcesEvidenceCoverageCheckpointResponse.status, 200);
+    const sourcesEvidenceCoverageCheckpointJson = await sourcesEvidenceCoverageCheckpointResponse.json();
+    assert.equal(sourcesEvidenceCoverageCheckpointJson.summary.checkpointCount, 4);
+    assert.equal(sourcesEvidenceCoverageCheckpointJson.summary.checkpointUnresolved, 2);
+    if (sourcesEvidenceCoverageCheckpointJson.items.length) {
+      assert.ok(sourcesEvidenceCoverageCheckpointJson.items[0].sourceAccessCheckpoints);
+    }
   } finally {
     server.close();
     await once(server, "close");

@@ -1668,6 +1668,17 @@
  *   markdown: string
  * }} DataSourcesAccessValidationEvidencePayload
  * @typedef {{
+ *   total: number,
+ *   approved: number,
+ *   deferred: number,
+ *   dismissed: number,
+ *   needsReview: number,
+ *   unresolved: number,
+ *   sources: number,
+ *   bySource: Array<{ source: string, total: number, approved: number, deferred: number, dismissed: number, needsReview: number, unresolved: number, latestAt: string }>,
+ *   items: Array<{ id: string, batchId: string, title: string, source: string, status: string, itemCount: number, createdAt: string }>
+ * }} SourceAccessCheckpointDrilldown
+ * @typedef {{
  *   id: string,
  *   sourceId: string,
  *   label: string,
@@ -1683,6 +1694,7 @@
  *   latestEvidenceStatus: string,
  *   latestEvidenceAt: string,
  *   latestEvidenceSummary: string,
+ *   sourceAccessCheckpoints: SourceAccessCheckpointDrilldown,
  *   secretPolicy: string
  * }} DataSourcesAccessValidationEvidenceCoverageItem
  * @typedef {{
@@ -1794,6 +1806,7 @@
  *   action: string,
  *   validation: string,
  *   credentialHint: string,
+ *   sourceAccessCheckpoints: SourceAccessCheckpointDrilldown,
  *   secretPolicy: string
  * }} DataSourcesAccessReviewQueueItem
  * @typedef {{

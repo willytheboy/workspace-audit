@@ -1129,3 +1129,10 @@
 - [x] Add source-specific checkpoint matching for Data Source records using non-secret checkpoint metadata.
 - [x] Surface per-source checkpoint totals and unresolved counts inside individual Source cards.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Source Checkpoint Deck Filters
+
+- [x] Add source-specific checkpoint drilldowns to Data Sources access review and evidence coverage queue items.
+- [x] Add unresolved-checkpoint filters to the Data Sources access review and evidence coverage decks.
+- [x] Record the Claude-style agents/skills strategy and update persistent app direction memory.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

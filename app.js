@@ -143,6 +143,11 @@ async function copySourcesAccessValidationWorkflow() {
   return views.copySourcesAccessValidationWorkflow();
 }
 
+async function seedSourcesAccessValidationWorkflowTasks() {
+  setView("sources");
+  return views.seedSourcesAccessValidationWorkflowTasks();
+}
+
 async function copySourcesAccessChecklist() {
   setView("sources");
   await views.renderSources();
@@ -573,6 +578,7 @@ const actionRegistry = createDashboardActionRegistry({
     copySourcesAccessRequirements,
     copySourcesAccessMethodRegistry,
     copySourcesAccessValidationWorkflow,
+    seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,
@@ -819,6 +825,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-validation-workflow-btn")),
     "Copying...",
     () => copySourcesAccessValidationWorkflow()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("seed-sources-access-validation-workflow-tasks-btn")),
+    "Creating...",
+    () => seedSourcesAccessValidationWorkflowTasks()
   );
 
   bindAsyncButton(

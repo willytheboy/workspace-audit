@@ -31,6 +31,7 @@
  *     copySourcesAccessRequirements: () => Promise<void>,
  *     copySourcesAccessMethodRegistry: () => Promise<void>,
  *     copySourcesAccessValidationWorkflow: () => Promise<void>,
+ *     seedSourcesAccessValidationWorkflowTasks: () => Promise<void>,
  *     copySourcesAccessChecklist: () => Promise<void>,
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
  *     copySourcesAccessValidationEvidence: () => Promise<void>,
@@ -234,6 +235,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "validation", "workflow", "blockers", "credentials", "copy"],
         run: () => handlers.copySourcesAccessValidationWorkflow()
+      },
+      {
+        id: "seed-sources-access-validation-workflow-tasks",
+        label: "Seed sources validation workflow tasks",
+        description: "Create deduplicated non-secret Data Sources tasks from pending or blocked validation workflow items.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "validation", "workflow", "tasks", "seed", "blockers"],
+        run: () => handlers.seedSourcesAccessValidationWorkflowTasks()
       },
       {
         id: "copy-sources-access-checklist",

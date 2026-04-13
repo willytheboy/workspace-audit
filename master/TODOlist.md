@@ -999,3 +999,10 @@
 - [x] Add a derived non-secret Data Sources access validation workflow from registry and evidence coverage.
 - [x] Surface workflow stages, blocker types, and next actions through API, Sources deck, toolbar, and command palette.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Validation Workflow Task Seeding
+
+- [x] Add API support for converting pending or blocked validation workflow items into deduplicated non-secret Data Sources tasks.
+- [x] Surface Sources toolbar and command-palette actions for seeding validation workflow tasks.
+- [x] Feed workflow task references into the Data Sources access task ledger for tracking and evidence sync.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

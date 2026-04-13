@@ -2592,3 +2592,93 @@ export async function sourceEvidenceCoverageTaskSyncTest() {
     await once(server, "close");
   }
 }
+
+export async function sourceAccessValidationWorkflowTaskSeedingTest() {
+  const { appDir, workspaceRoot } = await createFixtureWorkspace();
+  const server = createWorkspaceAuditServer({
+    rootDir: workspaceRoot,
+    publicDir: appDir
+  });
+
+  server.listen(0);
+  await once(server, "listening");
+
+  const address = server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    const workflowResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow`);
+    assert.equal(workflowResponse.status, 200);
+    const workflowJson = await workflowResponse.json();
+    assert.equal(workflowJson.summary.total, 1);
+    assert.equal(workflowJson.summary.pending, 1);
+    assert.equal(workflowJson.items[0].stage, "record-validation-evidence");
+
+    const seedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [workflowJson.items[0]] })
+    });
+    assert.equal(seedResponse.status, 200);
+    const seedJson = await seedResponse.json();
+    assert.equal(seedJson.success, true);
+    assert.equal(seedJson.totals.created, 1);
+    assert.equal(seedJson.createdTasks[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
+    assert.equal(seedJson.createdTasks[0].sourceAccessValidationEvidenceCoverageId, `source-access-validation-evidence-coverage:${workflowJson.items[0].sourceId}`);
+    assert.equal(seedJson.createdTasks[0].workflowStage, "record-validation-evidence");
+    assert.ok(seedJson.createdTasks[0].blockerTypes.includes("missing-validation-evidence"));
+    assert.match(seedJson.createdTasks[0].description, /Do not store secrets/);
+
+    const repeatSeedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [workflowJson.items[0]] })
+    });
+    assert.equal(repeatSeedResponse.status, 200);
+    const repeatSeedJson = await repeatSeedResponse.json();
+    assert.equal(repeatSeedJson.totals.created, 0);
+    assert.equal(repeatSeedJson.totals.skipped, 1);
+
+    const governanceResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceResponse.status, 200);
+    const governanceJson = await governanceResponse.json();
+    assert.equal(governanceJson.summary.dataSourcesAccessTaskCount, 1);
+    assert.equal(governanceJson.summary.dataSourcesAccessOpenTaskCount, 1);
+    assert.equal(governanceJson.dataSourcesAccessTasks[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "data-source-access-validation-workflow-tasks-created"));
+
+    const taskLedgerResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger?status=open`);
+    assert.equal(taskLedgerResponse.status, 200);
+    const taskLedgerJson = await taskLedgerResponse.json();
+    assert.equal(taskLedgerJson.summary.total, 1);
+    assert.equal(taskLedgerJson.items[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
+    assert.equal(taskLedgerJson.items[0].workflowStage, "record-validation-evidence");
+    assert.match(taskLedgerJson.markdown, /Workflow: record-validation-evidence/);
+
+    const createEvidenceResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceId: workflowJson.items[0].sourceId,
+        accessMethod: workflowJson.items[0].accessMethod,
+        status: "validated",
+        evidence: "Operator confirmed read-only local folder access before syncing the workflow task."
+      })
+    });
+    assert.equal(createEvidenceResponse.status, 200);
+    const createEvidenceJson = await createEvidenceResponse.json();
+    assert.equal(createEvidenceJson.taskSync.updated, 1);
+    assert.equal(createEvidenceJson.taskSync.taskIds.length, 1);
+
+    const closedTaskLedgerResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger?status=closed`);
+    assert.equal(closedTaskLedgerResponse.status, 200);
+    const closedTaskLedgerJson = await closedTaskLedgerResponse.json();
+    assert.equal(closedTaskLedgerJson.summary.closed, 1);
+    assert.equal(closedTaskLedgerJson.items[0].status, "resolved");
+    assert.equal(closedTaskLedgerJson.items[0].lastSourceAccessValidationEvidenceStatus, "validated");
+    assert.equal(closedTaskLedgerJson.items[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
+  } finally {
+    server.close();
+    await once(server, "close");
+  }
+}

@@ -249,6 +249,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[] }} [payload]
+   * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  createSourcesAccessValidationWorkflowTasks(payload = {}) {
+    return fetchJson("/api/sources/access-validation-workflow/tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>}
    */
   fetchSourcesAccessChecklist() {

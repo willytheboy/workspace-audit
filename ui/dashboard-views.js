@@ -76,6 +76,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessRequirements: () => Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>,
  *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
  *     fetchSourcesAccessValidationWorkflow: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>,
+ *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
@@ -4267,6 +4268,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.pending} pending`;
   }
 
+  async function seedSourcesAccessValidationWorkflowTasks() {
+    const workflow = await api.fetchSourcesAccessValidationWorkflow();
+    const items = workflow.items.filter((item) => item.status !== "ready");
+    if (!items.length) return "No Workflow Tasks";
+    const result = await api.createSourcesAccessValidationWorkflowTasks({ items });
+    await renderSources();
+    return `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
   async function copySourcesAccessChecklist() {
     const payload = await api.fetchSourcesAccessChecklist();
     await copyText(payload.markdown);
@@ -4650,6 +4660,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessRequirements,
     copySourcesAccessMethodRegistry,
     copySourcesAccessValidationWorkflow,
+    seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,

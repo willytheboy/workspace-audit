@@ -960,3 +960,10 @@
 - [x] Reuse the shared task update API for decision task status changes.
 - [x] Verify Control Plane decision task open/closed ledger counts update after lifecycle changes.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Task Update Audit Log
+
+- [x] Add non-secret Governance operation logging to shared task updates.
+- [x] Capture task id, title, project, previous status, next status, and changed field names without storing full payloads.
+- [x] Verify Control Plane decision task lifecycle updates create task update audit entries.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -2391,6 +2391,15 @@ export async function releaseBuildGateTaskSeedingTest() {
     const decisionTaskLedgerBlockedJson = await decisionTaskLedgerBlockedResponse.json();
     assert.equal(decisionTaskLedgerBlockedJson.summary.open, 1);
     assert.equal(decisionTaskLedgerBlockedJson.items[0].status, "blocked");
+
+    const governanceAfterDecisionTaskLifecycleResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterDecisionTaskLifecycleResponse.status, 200);
+    const governanceAfterDecisionTaskLifecycleJson = await governanceAfterDecisionTaskLifecycleResponse.json();
+    assert.ok(governanceAfterDecisionTaskLifecycleJson.operationLog.some((operation) => (
+      operation.type === "governance-task-updated"
+      && operation.details.taskId === seedDecisionTaskJson.createdTasks[0].id
+      && operation.details.nextStatus === "blocked"
+    )));
   } finally {
     server.close();
     await once(server, "close");

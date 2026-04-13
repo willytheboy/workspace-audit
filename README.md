@@ -203,6 +203,7 @@ Architecture:
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.
 - Data Sources access task ledger cards now include Resolve, Reopen, and Block lifecycle controls backed by the existing task update API.
+- Task status updates now add a non-secret Governance operation log entry with previous and next status for auditability.
 - Governance can now copy the filtered Data Sources Access Task Ledger as a focused non-secret markdown handoff.
 - Agent Control Plane snapshot drift now tracks Data Sources access task totals/open/closed counts, so source-access task changes show up in supervised-build baseline drift.
 - The direct Agent Control Plane decision now includes Data Sources access task counts, a bounded task section, and a review reason when source-access work remains open.

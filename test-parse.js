@@ -119,6 +119,7 @@ try {
   console.log("Governance gap actions:", dashboardComponentsSource.includes('governanceAction: "create-profile"') && dashboardComponentsSource.includes('governanceAction: "create-task"') ? "Present" : "Missing");
   console.log("Governance queue scope:", /<option value="queue">Action Queue<\/option>/.test(html) ? "Present" : "Missing");
   console.log("Governance queue actions:", dashboardViewsSource.includes('create-starter-pack') && dashboardViewsSource.includes('create-workflow') && dashboardViewsSource.includes('create-decision-note') ? "Present" : "Missing");
+  console.log("Governance queue item checkpoint:", dashboardComponentsSource.includes("Not Actionable") && dashboardComponentsSource.includes("suppress-queue-item") && dashboardViewsSource.includes("Marked not actionable from the Governance queue checkpoint") ? "Present" : "Missing");
   console.log("Governance action queue deck:", dashboardComponentsSource.includes('"Action Queue"') ? "Present" : "Missing");
   console.log("Governance suppressed queue deck:", dashboardComponentsSource.includes('"Suppressed Queue"') && dashboardComponentsSource.includes('governanceAction: "restore-suppressed"') ? "Present" : "Missing");
   console.log("Governance operation log deck:", dashboardComponentsSource.includes('"Operation Log"') && dashboardViewsSource.includes("governanceOperationCount") ? "Present" : "Missing");

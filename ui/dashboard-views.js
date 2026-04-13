@@ -777,6 +777,25 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             return;
           }
 
+          if (element.dataset.governanceAction === "suppress-queue-item") {
+            const queueItemId = element.dataset.queueItemId ?? "";
+            const queueKind = element.dataset.queueKind ?? "governance";
+            const queueTitle = element.dataset.queueTitle ?? "Governance queue item";
+            if (!queueItemId) return;
+            await api.suppressGovernanceQueue({
+              items: [{
+                id: queueItemId,
+                projectId,
+                projectName,
+                kind: queueKind,
+                title: queueTitle
+              }],
+              reason: "Marked not actionable from the Governance queue checkpoint."
+            });
+            await renderGovernance();
+            return;
+          }
+
           if (element.dataset.governanceAction === "create-profile") {
             await api.saveProjectProfile({
               projectId,

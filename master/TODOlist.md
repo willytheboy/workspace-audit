@@ -1069,3 +1069,9 @@
 - [x] Reuse the non-secret access validation evidence ledger for confirmed, review, and blocked access-method decisions.
 - [x] Reuse the same evidence handler across Sources and Governance so both views refresh their own surface after a decision.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Queue Item Checkpoints
+
+- [x] Add a per-item `Not Actionable` checkpoint to Governance action queue cards.
+- [x] Persist the decision through the existing Governance queue suppression ledger with restore support.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -1846,6 +1846,19 @@ export function createGovernanceDeck(governance) {
           projectId: encodeAppId(item.projectId),
           projectName: item.projectName
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Not Actionable",
+        attrs: { type: "button" },
+        dataset: {
+          governanceAction: "suppress-queue-item",
+          queueItemId: item.id,
+          queueKind: item.kind,
+          queueTitle: item.title,
+          projectId: encodeAppId(item.projectId),
+          projectName: item.projectName
+        }
       })
     ])
   ]));

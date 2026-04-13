@@ -2617,12 +2617,23 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
     const seedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: [workflowJson.items[0]] })
+      body: JSON.stringify({
+        items: [workflowJson.items[0]],
+        saveSnapshot: true,
+        snapshotTitle: "Fixture Workflow Task Ledger Auto Capture",
+        snapshotStatus: "open",
+        snapshotLimit: 5
+      })
     });
     assert.equal(seedResponse.status, 200);
     const seedJson = await seedResponse.json();
     assert.equal(seedJson.success, true);
     assert.equal(seedJson.totals.created, 1);
+    assert.equal(seedJson.snapshotCaptured, true);
+    assert.equal(seedJson.snapshot.title, "Fixture Workflow Task Ledger Auto Capture");
+    assert.equal(seedJson.snapshot.statusFilter, "open");
+    assert.equal(seedJson.snapshot.openCount, 1);
+    assert.equal(seedJson.dataSourceAccessTaskLedgerSnapshots.length, 1);
     assert.equal(seedJson.createdTasks[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
     assert.equal(seedJson.createdTasks[0].sourceAccessValidationEvidenceCoverageId, `source-access-validation-evidence-coverage:${workflowJson.items[0].sourceId}`);
     assert.equal(seedJson.createdTasks[0].workflowStage, "record-validation-evidence");
@@ -2644,8 +2655,10 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
     const governanceJson = await governanceResponse.json();
     assert.equal(governanceJson.summary.dataSourcesAccessTaskCount, 1);
     assert.equal(governanceJson.summary.dataSourcesAccessOpenTaskCount, 1);
+    assert.equal(governanceJson.summary.dataSourceAccessTaskLedgerSnapshotCount, 1);
     assert.equal(governanceJson.dataSourcesAccessTasks[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
     assert.ok(governanceJson.operationLog.some((operation) => operation.type === "data-source-access-validation-workflow-tasks-created"));
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "data-source-access-validation-workflow-task-ledger-snapshot-auto-captured"));
 
     const taskLedgerResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger?status=open`);
     assert.equal(taskLedgerResponse.status, 200);

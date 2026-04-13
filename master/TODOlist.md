@@ -1006,3 +1006,10 @@
 - [x] Surface Sources toolbar and command-palette actions for seeding validation workflow tasks.
 - [x] Feed workflow task references into the Data Sources access task ledger for tracking and evidence sync.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Validation Workflow Task Auto Capture
+
+- [x] Add optional snapshot auto-capture to validation workflow task seeding.
+- [x] Reuse Data Sources access task-ledger snapshot records so workflow task creation has a review baseline.
+- [x] Update Sources seeding to request snapshot capture by default.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

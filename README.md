@@ -73,6 +73,7 @@ Architecture:
 - `GET /api/sources/access-validation-workflow` now converts registry signals and evidence coverage into non-secret validation stages, blocker types, and operator-side next actions.
 - The Sources view now renders and copies the validation workflow so missing evidence and external access requirements are visible before ingestion.
 - `POST /api/sources/access-validation-workflow/tasks` now seeds deduplicated non-secret Data Sources tasks from pending or blocked workflow items.
+- Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.
 - Data Sources now expose a non-secret access validation evidence ledger for recording operator-side access checks without storing credentials, tokens, certificates, private keys, or browser sessions.

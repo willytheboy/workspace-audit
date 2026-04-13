@@ -76,7 +76,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessRequirements: () => Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>,
  *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
  *     fetchSourcesAccessValidationWorkflow: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>,
- *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
@@ -4272,9 +4272,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const workflow = await api.fetchSourcesAccessValidationWorkflow();
     const items = workflow.items.filter((item) => item.status !== "ready");
     if (!items.length) return "No Workflow Tasks";
-    const result = await api.createSourcesAccessValidationWorkflowTasks({ items });
+    const result = await api.createSourcesAccessValidationWorkflowTasks({
+      items,
+      saveSnapshot: true,
+      snapshotTitle: "Data Sources Access Validation Workflow Task Ledger Auto Capture",
+      snapshotStatus: "open",
+      snapshotLimit: 100
+    });
     await renderSources();
-    return `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured
+      ? `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"} + Snapshot`
+      : `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
   }
 
   async function copySourcesAccessChecklist() {

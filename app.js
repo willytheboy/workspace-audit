@@ -218,6 +218,18 @@ async function copyGovernanceTaskUpdateLedger() {
   return views.copyGovernanceTaskUpdateLedger();
 }
 
+async function saveGovernanceTaskUpdateLedgerSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.saveGovernanceTaskUpdateLedgerSnapshot();
+}
+
+async function copyLatestGovernanceTaskUpdateLedgerSnapshotDrift() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyLatestGovernanceTaskUpdateLedgerSnapshotDrift();
+}
+
 async function copyGovernanceDataSourcesAccessReviewQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -566,6 +578,8 @@ const actionRegistry = createDashboardActionRegistry({
     exportGovernanceReport,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
+    saveGovernanceTaskUpdateLedgerSnapshot,
+    copyLatestGovernanceTaskUpdateLedgerSnapshotDrift,
     copyGovernanceDataSourcesAccessGate,
     copyGovernanceDataSourcesAccessReviewQueue,
     copyGovernanceDataSourcesAccessValidationEvidence,
@@ -941,6 +955,18 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-task-update-ledger-btn")),
     "Copying...",
     () => copyGovernanceTaskUpdateLedger()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("save-governance-task-update-ledger-snapshot-btn")),
+    "Saving...",
+    () => saveGovernanceTaskUpdateLedgerSnapshot()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-task-update-ledger-drift-btn")),
+    "Copying...",
+    () => copyLatestGovernanceTaskUpdateLedgerSnapshotDrift()
   );
 
   bindAsyncButton(

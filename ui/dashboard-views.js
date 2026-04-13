@@ -102,6 +102,8 @@ function createEmptyTableRow(message) {
  *     deleteSource: (sourceId: string) => Promise<unknown>,
  *     fetchGovernance: () => Promise<import("./dashboard-types.js").GovernancePayload>,
  *     fetchGovernanceTaskUpdateLedger: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerPayload>,
+ *     createGovernanceTaskUpdateLedgerSnapshot: (payload?: { title?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>,
+ *     fetchGovernanceTaskUpdateLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerSnapshotDiffPayload>,
  *     fetchGovernanceExecutionViews: () => Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>,
  *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
@@ -1301,6 +1303,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindGovernanceTaskUpdateLedgerSnapshotActions(container) {
+    container.querySelectorAll("[data-governance-task-update-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.governanceTaskUpdateLedgerSnapshotId || "";
+        const snapshot = governanceCache?.governanceTaskUpdateLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindDataSourcesAccessValidationEvidenceSnapshotActions(container) {
     container.querySelectorAll("[data-source-access-validation-evidence-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -1941,6 +1972,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindGovernanceQuickActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
+    bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
     bindReleaseControlActions(container);
@@ -3985,6 +4017,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.visible} task update${payload.summary.visible === 1 ? "" : "s"}`;
   }
 
+  async function saveGovernanceTaskUpdateLedgerSnapshot() {
+    await api.createGovernanceTaskUpdateLedgerSnapshot({
+      title: "Governance Task Update Ledger",
+      limit: 100
+    });
+    await renderGovernance();
+    return "Saved Task Audit Snapshot";
+  }
+
+  async function copyLatestGovernanceTaskUpdateLedgerSnapshotDrift() {
+    const diff = await api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest");
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
   async function copySourcesSummary() {
     const payload = await api.fetchSourcesSummary();
     await copyText(payload.markdown);
@@ -4401,6 +4448,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySlaBreachLedger,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
+    saveGovernanceTaskUpdateLedgerSnapshot,
+    copyLatestGovernanceTaskUpdateLedgerSnapshotDrift,
     exportCsv,
     bootstrapGovernance,
     executeVisibleGovernanceQueue,

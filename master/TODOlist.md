@@ -973,3 +973,10 @@
 - [x] Add `GET /api/governance/task-update-ledger` with bounded non-secret task update operation output.
 - [x] Add toolbar and command-palette copy actions for the task update audit ledger.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Task Update Audit Ledger Snapshots
+
+- [x] Restore the generated Governance toolbar button for copying the task update audit ledger.
+- [x] Add `GET` and `POST /api/governance/task-update-ledger-snapshots` plus latest/specific snapshot drift.
+- [x] Add Governance deck, toolbar, and command-palette actions for saving task audit snapshots and copying drift.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -1895,6 +1895,66 @@ export function createGovernanceDeck(governance) {
       : null
     ]);
   });
+  const governanceTaskUpdateLedgerSnapshotEntries = (governance.governanceTaskUpdateLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Governance Task Update Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} - ${snapshot.visibleCount || 0} visible - ${snapshot.statusChangeCount || 0} status change(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.total || 0} TOTAL`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.statusChangeCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.taskCount || 0} tracked task(s) - ${snapshot.projectCount || 0} tracked project(s) - ${snapshot.metadataUpdateCount || 0} metadata-only update(s) - ${snapshot.secretPolicy || "non-secret task lifecycle metadata only"}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn governance-task-update-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          governanceTaskUpdateLedgerSnapshotId: snapshot.id
+        }
+      })
+    ])
+  ]));
   const workflowRunbookEntries = governance.workflowRunbook.map((item) => createElement("div", {
     className: "governance-gap-card",
     dataset: { openAppId: encodeAppId(item.projectId) },
@@ -4897,6 +4957,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", governanceTaskUpdateLedgerSnapshotEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

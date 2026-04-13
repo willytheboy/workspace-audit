@@ -579,6 +579,50 @@ export async function serverTest() {
     assert.equal(taskUpdateLedgerJson.items[0].nextStatus, "done");
     assert.match(taskUpdateLedgerJson.markdown, /# Governance Task Update Ledger/);
 
+    const missingTaskUpdateLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingTaskUpdateLedgerSnapshotDiffResponse.status, 200);
+    const missingTaskUpdateLedgerSnapshotDiffJson = await missingTaskUpdateLedgerSnapshotDiffResponse.json();
+    assert.equal(missingTaskUpdateLedgerSnapshotDiffJson.hasSnapshot, false);
+    assert.equal(missingTaskUpdateLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
+    assert.match(missingTaskUpdateLedgerSnapshotDiffJson.markdown, /# Governance Task Update Ledger Snapshot Drift/);
+
+    const createTaskUpdateLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Governance Task Update Ledger", limit: 5 })
+    });
+    assert.equal(createTaskUpdateLedgerSnapshotResponse.status, 200);
+    const createTaskUpdateLedgerSnapshotJson = await createTaskUpdateLedgerSnapshotResponse.json();
+    assert.equal(createTaskUpdateLedgerSnapshotJson.success, true);
+    assert.equal(createTaskUpdateLedgerSnapshotJson.snapshot.title, "Fixture Governance Task Update Ledger");
+    assert.equal(createTaskUpdateLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(createTaskUpdateLedgerSnapshotJson.snapshot.statusChangeCount, 1);
+    assert.equal(createTaskUpdateLedgerSnapshotJson.snapshot.taskCount, 1);
+    assert.equal(createTaskUpdateLedgerSnapshotJson.snapshot.items.length, 1);
+    assert.match(createTaskUpdateLedgerSnapshotJson.snapshot.markdown, /# Governance Task Update Ledger/);
+
+    const taskUpdateLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots`);
+    assert.equal(taskUpdateLedgerSnapshotsResponse.status, 200);
+    const taskUpdateLedgerSnapshotsJson = await taskUpdateLedgerSnapshotsResponse.json();
+    assert.equal(taskUpdateLedgerSnapshotsJson.length, 1);
+    assert.equal(taskUpdateLedgerSnapshotsJson[0].title, "Fixture Governance Task Update Ledger");
+
+    const metadataTaskUpdateResponse = await fetch(`${baseUrl}/api/tasks/${createTaskJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ priority: "medium" })
+    });
+    assert.equal(metadataTaskUpdateResponse.status, 200);
+
+    const taskUpdateLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(taskUpdateLedgerSnapshotDiffResponse.status, 200);
+    const taskUpdateLedgerSnapshotDiffJson = await taskUpdateLedgerSnapshotDiffResponse.json();
+    assert.equal(taskUpdateLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(taskUpdateLedgerSnapshotDiffJson.hasDrift, true);
+    assert.equal(taskUpdateLedgerSnapshotDiffJson.snapshotTitle, "Fixture Governance Task Update Ledger");
+    assert.ok(taskUpdateLedgerSnapshotDiffJson.driftItems.some((item) => item.label === "Total task update audit operations" && item.before === 1 && item.current === 2));
+    assert.match(taskUpdateLedgerSnapshotDiffJson.markdown, /# Governance Task Update Ledger Snapshot Drift/);
+
     const createWorkflowResponse = await fetch(`${baseUrl}/api/workflows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

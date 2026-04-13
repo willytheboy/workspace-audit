@@ -401,6 +401,36 @@
  * @typedef {{
  *   id: string,
  *   title: string,
+ *   limit: number,
+ *   total: number,
+ *   visibleCount: number,
+ *   statusChangeCount: number,
+ *   metadataUpdateCount: number,
+ *   taskCount: number,
+ *   projectCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: GovernanceTaskUpdateLedgerItem[],
+ *   createdAt: string
+ * }} PersistedGovernanceTaskUpdateLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: GovernanceTaskUpdateLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, visible: number, statusChanges: number, metadataUpdates: number, taskCount: number, projectCount: number } | null,
+ *   markdown: string
+ * }} GovernanceTaskUpdateLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
  *   search: string,
  *   scope: string,
  *   sort: string,
@@ -653,6 +683,7 @@
  *     dataSourcesAccessOpenTaskCount: number,
  *     dataSourcesAccessClosedTaskCount: number,
  *     dataSourceAccessTaskLedgerSnapshotCount: number,
+ *     governanceTaskUpdateLedgerSnapshotCount: number,
  *     agentControlPlaneDecisionTaskLedgerSnapshotCount: number,
  *     deploymentSmokeCheckCount: number,
  *     deploymentSmokeCheckPassCount: number,
@@ -688,6 +719,7 @@
  *   agentControlPlaneSnapshots: PersistedAgentControlPlaneSnapshot[],
  *   agentControlPlaneBaselineSnapshotId: string,
  *   agentControlPlaneDecisionSnapshots: PersistedAgentControlPlaneDecisionSnapshot[],
+ *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],

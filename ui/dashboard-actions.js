@@ -48,6 +48,8 @@
  *     exportGovernanceReport: () => Promise<void>,
  *     copyGovernanceSummary: () => Promise<void>,
  *     copyGovernanceTaskUpdateLedger: () => Promise<void>,
+ *     saveGovernanceTaskUpdateLedgerSnapshot: () => Promise<void>,
+ *     copyLatestGovernanceTaskUpdateLedgerSnapshotDrift: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessGate: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessReviewQueue: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessValidationEvidence: () => Promise<void>,
@@ -376,6 +378,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "tasks", "update", "audit", "ledger", "lifecycle", "copy"],
         run: () => handlers.copyGovernanceTaskUpdateLedger()
+      },
+      {
+        id: "save-governance-task-update-ledger-snapshot",
+        label: "Save task update audit snapshot",
+        description: "Persist the current Governance task update audit ledger as a non-secret snapshot.",
+        category: "Actions",
+        keywords: ["governance", "tasks", "update", "audit", "ledger", "snapshot", "save"],
+        run: () => handlers.saveGovernanceTaskUpdateLedgerSnapshot()
+      },
+      {
+        id: "copy-latest-governance-task-update-ledger-drift",
+        label: "Copy task update audit drift",
+        description: "Copy the drift report comparing the latest Governance task update audit ledger snapshot to live task updates.",
+        category: "Actions",
+        keywords: ["governance", "tasks", "update", "audit", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestGovernanceTaskUpdateLedgerSnapshotDrift()
       },
       {
         id: "copy-governance-data-sources-access-gate",

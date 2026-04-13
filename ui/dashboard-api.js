@@ -431,6 +431,33 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[]>}
+   */
+  fetchGovernanceTaskUpdateLedgerSnapshots() {
+    return fetchJson("/api/governance/task-update-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>}
+   */
+  createGovernanceTaskUpdateLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/governance/task-update-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerSnapshotDiffPayload>}
+   */
+  fetchGovernanceTaskUpdateLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/governance/task-update-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>}
    */
   fetchGovernanceExecutionViews() {

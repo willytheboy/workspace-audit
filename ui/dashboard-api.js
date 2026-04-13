@@ -649,6 +649,41 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionResultTaskLedgerPayload>}
+   */
+  fetchAgentExecutionResultTaskLedger(status = "all") {
+    return fetchJson(withQuery("/api/agent-execution-result/task-ledger", { status }));
+  },
+
+  /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionResultTaskLedgerSnapshot[]>}
+   */
+  fetchAgentExecutionResultTaskLedgerSnapshots() {
+    return fetchJson("/api/agent-execution-result/task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentExecutionResultTaskLedgerSnapshot, agentExecutionResultTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionResultTaskLedgerSnapshot[] }>}
+   */
+  createAgentExecutionResultTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-execution-result/task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionResultTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchAgentExecutionResultTaskLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/agent-execution-result/task-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }>, saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, snapshotCaptured: boolean, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot | null, totals: { requested: number, created: number, skipped: number }, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[], tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */

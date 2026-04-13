@@ -720,6 +720,8 @@
  *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshotCount: number,
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
+ *   agentExecutionResultTaskLedgerSnapshotCount: number,
+ *   agentExecutionResultTaskLedgerSnapshots: PersistedAgentExecutionResultTaskLedgerSnapshot[],
  *   dataSourcesGateDecision: "ready" | "review" | "hold" | "not-evaluated",
  *   dataSourcesReview: number,
  *   dataSourcesBlocked: number,
@@ -982,6 +984,7 @@
  *     dataSourceAccessTaskLedgerSnapshotCount: number,
  *     governanceTaskUpdateLedgerSnapshotCount: number,
  *     agentControlPlaneDecisionTaskLedgerSnapshotCount: number,
+ *     agentExecutionResultTaskLedgerSnapshotCount: number,
  *     deploymentSmokeCheckCount: number,
  *     deploymentSmokeCheckPassCount: number,
  *     deploymentSmokeCheckFailCount: number,
@@ -1023,6 +1026,7 @@
  *   agentControlPlaneDecisionSnapshots: PersistedAgentControlPlaneDecisionSnapshot[],
  *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
+ *   agentExecutionResultTaskLedgerSnapshots: PersistedAgentExecutionResultTaskLedgerSnapshot[],
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
@@ -1079,6 +1083,7 @@
  *   agentControlPlaneDecisionTasks: PersistedTask[],
  *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
+ *   agentExecutionResultTaskLedgerSnapshots: PersistedAgentExecutionResultTaskLedgerSnapshot[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -1172,6 +1177,75 @@
  *   snapshotSummary: { total: number, open: number, closed: number, visible: number, reasonCount: number } | null,
  *   markdown: string
  * }} AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   agentExecutionResultCheckpointId: string,
+ *   agentExecutionResultRunId: string,
+ *   agentExecutionResultRunTitle: string,
+ *   agentExecutionResultRunStatus: string,
+ *   agentExecutionResultTargetAction: string,
+ *   agentExecutionResultCheckpointStatus: string,
+ *   agentExecutionResultResultType: string,
+ *   description: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} AgentExecutionResultTaskLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number,
+ *     actionCount: number,
+ *     actionCounts: Record<string, number>
+ *   },
+ *   items: AgentExecutionResultTaskLedgerItem[],
+ *   markdown: string
+ * }} AgentExecutionResultTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   actionCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: AgentExecutionResultTaskLedgerItem[],
+ *   createdAt: string
+ * }} PersistedAgentExecutionResultTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: AgentExecutionResultTaskLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, open: number, closed: number, visible: number, actionCount: number } | null,
+ *   markdown: string
+ * }} AgentExecutionResultTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   generatedAt: string,
  *   decision: "ready" | "review" | "hold",

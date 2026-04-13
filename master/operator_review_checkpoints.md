@@ -24,10 +24,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Convergence workbench removal guard: after a successful `Not Related` review save, the active workbench removes the matching pair from local state before the API reload returns and filters the reloaded payload by pair to prevent stale UI re-adds.
 - Agent execution results: failed, cancelled, terminal, stale, and SLA-breached Agent Work Order runs now expose non-secret result checkpoints for retry, archive, retention, SLA resolution, and Control Plane baseline-refresh actions before those actions are finalized.
 - Deferred execution-result gates: deferred Agent Execution result checkpoints now create a deduplicated non-secret Governance follow-up task per run/action pair so unresolved retry, archive, SLA, retention, or baseline-refresh decisions remain actionable.
+- Execution-result task ledger snapshots: deferred execution-result follow-up tasks can now be exported, snapshotted, and compared for drift without storing credentials, tokens, private keys, certificates, browser sessions, cookies, or command output.
 
 ## Next Checkpoint Candidates
 
-- Add execution-result task ledger snapshots and drift checks so deferred run-gate follow-up tasks can be exported and compared like other control-plane ledgers.
+- Add execution-result task ledger drift checkpoint controls so operators can convert material drift into follow-up tasks or accept a refreshed ledger baseline.
 
 ## Implementation Standard
 

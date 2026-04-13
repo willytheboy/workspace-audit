@@ -1446,6 +1446,64 @@ export async function serverTest() {
     assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-execution-result-checkpoint-recorded"));
     assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-execution-result-checkpoint-task-created"));
 
+    const executionResultTaskLedgerResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger`);
+    assert.equal(executionResultTaskLedgerResponse.status, 200);
+    const executionResultTaskLedgerJson = await executionResultTaskLedgerResponse.json();
+    assert.equal(executionResultTaskLedgerJson.summary.total, 1);
+    assert.equal(executionResultTaskLedgerJson.summary.open, 0);
+    assert.equal(executionResultTaskLedgerJson.summary.closed, 1);
+    assert.equal(executionResultTaskLedgerJson.summary.actionCount, 1);
+    assert.equal(executionResultTaskLedgerJson.items.length, 1);
+    assert.equal(executionResultTaskLedgerJson.items[0].agentExecutionResultTargetAction, "retry");
+    assert.match(executionResultTaskLedgerJson.markdown, /# Agent Execution Result Task Ledger/);
+
+    const openExecutionResultTaskLedgerResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger?status=open&limit=5`);
+    assert.equal(openExecutionResultTaskLedgerResponse.status, 200);
+    const openExecutionResultTaskLedgerJson = await openExecutionResultTaskLedgerResponse.json();
+    assert.equal(openExecutionResultTaskLedgerJson.status, "open");
+    assert.equal(openExecutionResultTaskLedgerJson.items.length, 0);
+
+    const missingExecutionResultTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingExecutionResultTaskLedgerSnapshotDiffResponse.status, 200);
+    const missingExecutionResultTaskLedgerSnapshotDiffJson = await missingExecutionResultTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(missingExecutionResultTaskLedgerSnapshotDiffJson.hasSnapshot, false);
+    assert.equal(missingExecutionResultTaskLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
+    assert.match(missingExecutionResultTaskLedgerSnapshotDiffJson.markdown, /# Agent Execution Result Task Ledger Snapshot Drift/);
+
+    const createExecutionResultTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Execution Result Task Ledger", status: "all", limit: 5 })
+    });
+    assert.equal(createExecutionResultTaskLedgerSnapshotResponse.status, 200);
+    const createExecutionResultTaskLedgerSnapshotJson = await createExecutionResultTaskLedgerSnapshotResponse.json();
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.success, true);
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.title, "Fixture Execution Result Task Ledger");
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.openCount, 0);
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.closedCount, 1);
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.actionCount, 1);
+    assert.equal(createExecutionResultTaskLedgerSnapshotJson.snapshot.items.length, 1);
+
+    const executionResultTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger-snapshots`);
+    assert.equal(executionResultTaskLedgerSnapshotsResponse.status, 200);
+    const executionResultTaskLedgerSnapshotsJson = await executionResultTaskLedgerSnapshotsResponse.json();
+    assert.equal(executionResultTaskLedgerSnapshotsJson.length, 1);
+
+    const executionResultTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/agent-execution-result/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(executionResultTaskLedgerSnapshotDiffResponse.status, 200);
+    const executionResultTaskLedgerSnapshotDiffJson = await executionResultTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(executionResultTaskLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(executionResultTaskLedgerSnapshotDiffJson.hasDrift, false);
+    assert.equal(executionResultTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+
+    const governanceAfterExecutionResultTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterExecutionResultTaskLedgerSnapshotResponse.status, 200);
+    const governanceAfterExecutionResultTaskLedgerSnapshotJson = await governanceAfterExecutionResultTaskLedgerSnapshotResponse.json();
+    assert.equal(governanceAfterExecutionResultTaskLedgerSnapshotJson.summary.agentExecutionResultTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterExecutionResultTaskLedgerSnapshotJson.agentExecutionResultTaskLedgerSnapshots[0].title, "Fixture Execution Result Task Ledger");
+    assert.ok(governanceAfterExecutionResultTaskLedgerSnapshotJson.operationLog.some((operation) => operation.type === "agent-execution-result-task-ledger-snapshot-created"));
+
     const retentionRunIds = [];
     for (const status of ["passed", "failed", "cancelled"]) {
       const retentionRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs`, {

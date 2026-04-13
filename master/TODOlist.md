@@ -1171,3 +1171,11 @@
 - [x] Defensively filter the reloaded Convergence payload by the reviewed pair before rendering so stale payloads cannot re-add the card.
 - [x] Add a parser guard for the optimistic removal path.
 - [x] Add parser checks, server tests, build validation, docs, milestone tracking, relaunch, commit, and push.
+
+## Next Agent Execution Result Task Ledger Snapshots
+
+- [x] Add a persisted non-secret execution-result follow-up task ledger snapshot store.
+- [x] Add execution-result task ledger, snapshot, and drift API endpoints.
+- [x] Surface Governance controls to copy the task ledger, save a snapshot, copy drift, and copy saved snapshots.
+- [x] Feed execution-result task ledger snapshot counts into Agent Control Plane summaries and snapshots.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

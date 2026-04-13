@@ -1914,6 +1914,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-release-build-gate-action-task-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const actionId = element.dataset.releaseBuildGateActionTaskSnapshot || "";
+        if (!actionId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await createReleaseBuildGateActionTaskWithSnapshot(actionId);
+          element.textContent = "Captured";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-release-build-gate-action-checkpoint]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -5724,6 +5748,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
   }
 
+  async function createReleaseBuildGateActionTaskWithSnapshot(actionId) {
+    const action = findReleaseBuildGateAction(actionId);
+    if (!action) throw new Error(`Release Build Gate action not found: ${actionId}`);
+
+    const label = action.label || action.id || "release gate action";
+    const payload = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: `Release Control Task Ledger Auto Capture: ${label}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const taskLabel = `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
   async function createReleaseBuildGateActionCheckpoint(actionId) {
     const releaseBuildGate = getFilteredGovernance()?.releaseBuildGate;
     const action = findReleaseBuildGateAction(actionId);
@@ -6155,6 +6196,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bootstrapReleaseBuildGateLocalEvidence,
     seedReleaseBuildGateActionTasks,
     seedReleaseBuildGateActionTasksWithSnapshot,
+    createReleaseBuildGateActionTaskWithSnapshot,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

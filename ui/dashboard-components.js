@@ -5265,6 +5265,14 @@ export function createGovernanceDeck(governance) {
                           }
                         }),
                         createElement("button", {
+                          className: "btn governance-action-btn release-build-gate-action-task-snapshot-btn",
+                          text: "Track + Snapshot",
+                          attrs: { type: "button" },
+                          dataset: {
+                            releaseBuildGateActionTaskSnapshot: action.id || ""
+                          }
+                        }),
+                        createElement("button", {
                           className: "btn governance-action-btn release-build-gate-action-accept-btn",
                           text: "Accept Risk",
                           attrs: { type: "button" },

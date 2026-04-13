@@ -1202,3 +1202,9 @@
 - [x] Auto-capture a non-secret Release Control task ledger snapshot after Release Build Gate task seeding.
 - [x] Add Governance and command-palette controls for seed-and-snapshot release-gate task workflows.
 - [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Per-Action Task Snapshot
+
+- [x] Add per-action `Track + Snapshot` controls to Release Build Gate action cards.
+- [x] Reuse the Release Control task ledger auto-capture API for individual generated gate actions.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

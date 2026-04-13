@@ -218,6 +218,12 @@ async function copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift() 
   return views.copyLatestSourcesAccessValidationWorkflowSnapshotDrift();
 }
 
+async function seedGovernanceDataSourcesAccessValidationWorkflowTasks() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.seedSourcesAccessValidationWorkflowTasks({ renderTarget: "governance" });
+}
+
 async function copySourcesAccessMatrix() {
   setView("sources");
   await views.renderSources();
@@ -636,6 +642,7 @@ const actionRegistry = createDashboardActionRegistry({
     copyGovernanceDataSourcesAccessValidationWorkflow,
     saveGovernanceDataSourcesAccessValidationWorkflowSnapshot,
     copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift,
+    seedGovernanceDataSourcesAccessValidationWorkflowTasks,
     seedGovernanceDataSourcesAccessReviewTasks,
     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     copyGovernanceDataSourcesAccessTaskLedger,
@@ -1086,6 +1093,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-source-access-validation-workflow-drift-btn")),
     "Copying...",
     () => copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-source-access-validation-workflow-tasks-btn")),
+    "Creating...",
+    () => seedGovernanceDataSourcesAccessValidationWorkflowTasks()
   );
 
   bindAsyncButton(

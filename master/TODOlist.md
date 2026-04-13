@@ -1034,3 +1034,10 @@
 - [x] Add command-palette actions for the same Governance workflow snapshot baseline operations.
 - [x] Preserve Sources behavior while letting Governance snapshot saves refresh the Governance deck.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Data Sources Access Validation Workflow Task Seeding
+
+- [x] Add a Governance toolbar control for seeding Data Sources access validation workflow tasks.
+- [x] Add command-palette parity for Governance workflow task seeding.
+- [x] Preserve Sources behavior while letting Governance workflow seeding refresh the Governance deck and keep automatic task-ledger snapshot capture.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

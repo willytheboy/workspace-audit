@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T11:07:34.442Z",
+  "generatedAt": "2026-04-13T11:43:01.321Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -22,11 +22,11 @@
     ]
   },
   "summary": {
-    "totalApps": 75,
+    "totalApps": 76,
     "zoneCounts": {
       "workspace": 13,
       "archived": 45,
-      "active": 16,
+      "active": 17,
       "sandbox": 1
     },
     "categoryCounts": {
@@ -39,10 +39,10 @@
       "Finance / Trading": 2,
       "CRM / Operations": 3,
       "Wellness / Nutrition": 3,
-      "General Workspace": 2
+      "General Workspace": 3
     },
     "avgQuality": 50,
-    "totalSource": 11867,
+    "totalSource": 11962,
     "totalTests": 326,
     "testCoverageSignal": 3,
     "newest": {
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T11:07:10.231Z",
+      "lastModifiedIso": "2026-04-13T11:42:44.510Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 198,
+      "docsFiles": 199,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 198,
-      "totalBytes": 271767,
+      "totalFiles": 199,
+      "totalBytes": 273417,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -4578,7 +4578,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T11:07:10.231Z",
+      "lastModifiedIso": "2026-04-13T11:42:44.510Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4589,14 +4589,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 198,
+      "docsFiles": 199,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 198,
-      "totalBytes": 271767,
+      "totalFiles": 199,
+      "totalBytes": 273417,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -6013,6 +6013,15 @@
       "deps": [],
       "similarApps": [
         {
+          "name": "Sportingclub FNB",
+          "id": "active__16_sportingclub-fnb",
+          "score": 57,
+          "reasons": [
+            "General Workspace",
+            "React, Vite, React TSX, JSON"
+          ]
+        },
+        {
           "name": "Rest Express",
           "id": "sporting-club-fnb",
           "score": 54,
@@ -6032,14 +6041,6 @@
         {
           "name": "My Story App",
           "id": "archive__experiments__my-story-app",
-          "score": 32,
-          "reasons": [
-            "React, JSON, CSS, HTML"
-          ]
-        },
-        {
-          "name": "My Story App",
-          "id": "archive__experiments__Web_Development__my-story-app",
           "score": 32,
           "reasons": [
             "React, JSON, CSS, HTML"
@@ -6504,6 +6505,15 @@
       ],
       "similarApps": [
         {
+          "name": "Sportingclub FNB",
+          "id": "active__16_sportingclub-fnb",
+          "score": 75,
+          "reasons": [
+            "General Workspace",
+            "Express, React, Vite, React TSX"
+          ]
+        },
+        {
           "name": "Projects",
           "id": "projects",
           "score": 54,
@@ -6526,14 +6536,6 @@
           "score": 36,
           "reasons": [
             "React, Vite, TypeScript, React TSX"
-          ]
-        },
-        {
-          "name": "Food Pyramid",
-          "id": "active__13_food-pyramid",
-          "score": 34,
-          "reasons": [
-            "React, Vite, React TSX, TypeScript"
           ]
         }
       ]
@@ -7174,6 +7176,104 @@
           "reasons": [
             "Data / Integration",
             "Supabase, JSON"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "active__16_sportingclub-fnb",
+      "name": "Sportingclub FNB",
+      "dirName": "16_sportingclub-fnb",
+      "relPath": "active\\16_sportingclub-fnb",
+      "absPath": "D:\\Development\\active\\16_sportingclub-fnb",
+      "zone": "active",
+      "category": "General Workspace",
+      "description": "Project rooted at active\\16_sportingclub-fnb",
+      "frameworks": [
+        "Express",
+        "React",
+        "Vite"
+      ],
+      "languages": [
+        "React TSX",
+        "TypeScript",
+        "JSON",
+        "HTML"
+      ],
+      "keywords": [
+        "active",
+        "fnb",
+        "rooted",
+        "sportingclub"
+      ],
+      "lastModifiedIso": "2026-04-10T10:51:28.534Z",
+      "lastModifiedLabel": "2026-04-10",
+      "daysOld": 3,
+      "qualityScore": 42,
+      "freshnessScore": 100,
+      "testingScore": 0,
+      "docsScore": 2,
+      "readinessScore": 34,
+      "sourceFiles": 95,
+      "sourceLines": 16654,
+      "testFiles": 0,
+      "docsFiles": 1,
+      "configFiles": 5,
+      "manifestFiles": 1,
+      "lockFiles": 1,
+      "ciFiles": 0,
+      "dockerFiles": 0,
+      "totalFiles": 103,
+      "totalBytes": 5235651,
+      "nestedManifestSample": [
+        "sporting-club-fnb\\package.json"
+      ],
+      "warnings": [
+        {
+          "type": "danger",
+          "message": "High complexity (95 source files) but 0 test files detected."
+        },
+        {
+          "type": "warning",
+          "message": "No README.md found. Add documentation for better maintainability."
+        }
+      ],
+      "scripts": [],
+      "packageName": null,
+      "deps": [],
+      "similarApps": [
+        {
+          "name": "Rest Express",
+          "id": "sporting-club-fnb",
+          "score": 75,
+          "reasons": [
+            "General Workspace",
+            "Express, React, Vite, React TSX"
+          ]
+        },
+        {
+          "name": "Projects",
+          "id": "projects",
+          "score": 57,
+          "reasons": [
+            "General Workspace",
+            "React, Vite, React TSX, JSON"
+          ]
+        },
+        {
+          "name": "Eventos Catering",
+          "id": "active__04_fnb-suite__catering",
+          "score": 46,
+          "reasons": [
+            "React, Vite, TypeScript, React TSX"
+          ]
+        },
+        {
+          "name": "Menu Companion",
+          "id": "active__05_photo-studio__client-companion__web",
+          "score": 39,
+          "reasons": [
+            "React, Vite, React TSX, TypeScript"
           ]
         }
       ]

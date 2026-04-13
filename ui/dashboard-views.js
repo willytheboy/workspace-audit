@@ -4437,7 +4437,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
   }
 
-  async function seedSourcesAccessValidationWorkflowTasks() {
+  async function seedSourcesAccessValidationWorkflowTasks(options = {}) {
     const workflow = await api.fetchSourcesAccessValidationWorkflow();
     const items = workflow.items.filter((item) => item.status !== "ready");
     if (!items.length) return "No Workflow Tasks";
@@ -4448,7 +4448,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       snapshotStatus: "open",
       snapshotLimit: 100
     });
-    await renderSources();
+    if (options.renderTarget === "governance") {
+      await renderGovernance();
+    } else {
+      await renderSources();
+    }
     return result.snapshotCaptured
       ? `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"} + Snapshot`
       : `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;

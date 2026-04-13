@@ -61,6 +61,7 @@
  *     copyGovernanceDataSourcesAccessValidationWorkflow: () => Promise<void>,
  *     saveGovernanceDataSourcesAccessValidationWorkflowSnapshot: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift: () => Promise<void>,
+ *     seedGovernanceDataSourcesAccessValidationWorkflowTasks: () => Promise<void>,
  *     seedGovernanceDataSourcesAccessReviewTasks: () => Promise<void>,
  *     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessTaskLedger: () => Promise<void>,
@@ -490,6 +491,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "snapshot", "drift", "copy"],
         run: () => handlers.copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift()
+      },
+      {
+        id: "seed-governance-data-sources-access-validation-workflow-tasks",
+        label: "Seed source validation workflow tasks",
+        description: "Create deduplicated non-secret Data Sources tasks from pending or blocked validation workflow items without leaving Governance.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "tasks", "seed", "snapshot"],
+        run: () => handlers.seedGovernanceDataSourcesAccessValidationWorkflowTasks()
       },
       {
         id: "seed-governance-data-sources-access-review-tasks",

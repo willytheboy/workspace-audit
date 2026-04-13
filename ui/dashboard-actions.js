@@ -84,6 +84,7 @@
  *     copyLatestReleaseTaskLedgerSnapshotDrift: () => Promise<void>,
  *     bootstrapReleaseBuildGateLocalEvidence: () => Promise<void>,
  *     seedReleaseBuildGateActionTasks: () => Promise<void>,
+ *     seedReleaseBuildGateActionTasksWithSnapshot: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
  *     copyLatestAgentControlPlaneSnapshotDrift: () => Promise<void>,
  *     copyBaselineAgentControlPlaneSnapshotDrift: () => Promise<void>,
@@ -684,6 +685,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "build", "gate", "tasks", "seed"],
         run: () => handlers.seedReleaseBuildGateActionTasks()
+      },
+      {
+        id: "seed-release-build-gate-action-tasks-with-snapshot",
+        label: "Seed release gate tasks and snapshot",
+        description: "Create deduplicated Release Build Gate tasks and auto-capture the Release Control task ledger.",
+        category: "Actions",
+        keywords: ["governance", "release", "build", "gate", "tasks", "seed", "snapshot", "ledger"],
+        run: () => handlers.seedReleaseBuildGateActionTasksWithSnapshot()
       },
       {
         id: "save-release-checkpoint",

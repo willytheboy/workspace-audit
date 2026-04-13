@@ -28,10 +28,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Execution-result task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so task-ledger drift can become a non-secret Governance task or be approved by saving a refreshed ledger snapshot.
 - Release Control task ledger snapshots: deployment-gate tasks can now be exported, snapshotted, and compared for drift without storing credentials, provider tokens, private keys, certificates, cookies, browser sessions, or command output.
 - Release Control task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so deployment-gate task drift can become a non-secret Governance task or be approved by saving a refreshed Release Control task ledger snapshot.
+- Release Build Gate task auto-capture: batch task seeding can now persist a Release Control task ledger snapshot in the same non-secret operation so newly generated deployment-gate tasks have a durable baseline immediately.
 
 ## Next Checkpoint Candidates
 
-- Add Release Build Gate task-seeding auto-capture so seeded deployment-gate tasks can automatically persist a Release Control task ledger snapshot.
+- Add per-action Release Build Gate `Track Task + Snapshot` controls so individual generated deployment-gate actions can be converted to tasks with an immediate ledger baseline.
 
 ## Implementation Standard
 

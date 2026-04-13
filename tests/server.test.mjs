@@ -2868,12 +2868,24 @@ export async function releaseBuildGateTaskSeedingTest() {
     const repeatSeedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ actions: [openActions[0]] })
+      body: JSON.stringify({
+        actions: [openActions[0]],
+        saveSnapshot: true,
+        snapshotTitle: "Fixture Release Control Task Ledger Auto Capture",
+        snapshotStatus: "all",
+        snapshotLimit: 5
+      })
     });
     assert.equal(repeatSeedResponse.status, 200);
     const repeatSeedJson = await repeatSeedResponse.json();
     assert.equal(repeatSeedJson.totals.created, 0);
     assert.equal(repeatSeedJson.totals.skipped, 1);
+    assert.equal(repeatSeedJson.snapshotCaptured, true);
+    assert.equal(repeatSeedJson.snapshot.title, "Fixture Release Control Task Ledger Auto Capture");
+    assert.equal(repeatSeedJson.snapshot.statusFilter, "all");
+    assert.equal(repeatSeedJson.snapshot.total, 1);
+    assert.equal(repeatSeedJson.snapshot.openCount, 1);
+    assert.equal(repeatSeedJson.releaseTaskLedgerSnapshots.length, 2);
 
     const governanceResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceResponse.status, 200);
@@ -2883,10 +2895,12 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(governanceJson.summary.releaseControlTaskCount, 1);
     assert.equal(governanceJson.summary.releaseControlOpenTaskCount, 1);
     assert.equal(governanceJson.summary.releaseControlClosedTaskCount, 0);
-    assert.equal(governanceJson.summary.releaseTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceJson.summary.releaseTaskLedgerSnapshotCount, 2);
     assert.equal(governanceJson.releaseControlTasks[0].releaseBuildGateActionId, openActions[0].id);
-    assert.equal(governanceJson.releaseTaskLedgerSnapshots[0].title, "Fixture Release Control Task Ledger");
+    assert.equal(governanceJson.releaseTaskLedgerSnapshots[0].title, "Fixture Release Control Task Ledger Auto Capture");
+    assert.equal(governanceJson.releaseTaskLedgerSnapshots[1].title, "Fixture Release Control Task Ledger");
     assert.ok(governanceJson.operationLog.some((operation) => operation.type === "release-task-ledger-snapshot-created"));
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "release-task-ledger-snapshot-auto-captured"));
 
     const decisionResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision`);
     assert.equal(decisionResponse.status, 200);

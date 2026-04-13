@@ -93,7 +93,7 @@ function createEmptyTableRow(message) {
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
  *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
- *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
@@ -1860,6 +1860,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Creating";
           await seedReleaseBuildGateActionTasks();
           element.textContent = "Created";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-build-gate-tasks-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await seedReleaseBuildGateActionTasksWithSnapshot();
+          element.textContent = "Captured";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -5663,13 +5684,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Bootstrapped release gate evidence: smoke ${smokeStatus}`;
   }
 
-  async function seedReleaseBuildGateActionTasks() {
+  async function seedReleaseBuildGateActionTasks(options = {}) {
     const actions = (getFilteredGovernance()?.releaseBuildGate?.actions || [])
       .filter((action) => action.status !== "ready");
     if (!actions.length) return "No Gate Tasks";
-    const payload = await api.createReleaseBuildGateActionTasks({ actions });
+    const request = { actions };
+    if (options.saveSnapshot) {
+      request.saveSnapshot = true;
+      request.snapshotTitle = options.snapshotTitle || "Release Control Task Ledger Auto Capture";
+      request.snapshotStatus = options.snapshotStatus || "all";
+      request.snapshotLimit = options.snapshotLimit || 100;
+    }
+    const payload = await api.createReleaseBuildGateActionTasks(request);
     await renderGovernance();
-    return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+    const taskLabel = `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  async function seedReleaseBuildGateActionTasksWithSnapshot() {
+    return seedReleaseBuildGateActionTasks({
+      saveSnapshot: true,
+      snapshotTitle: "Release Control Task Ledger Auto Capture",
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
   }
 
   function findReleaseBuildGateAction(actionId) {
@@ -6116,6 +6154,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     acceptReleaseTaskLedgerSnapshotDrift,
     bootstrapReleaseBuildGateLocalEvidence,
     seedReleaseBuildGateActionTasks,
+    seedReleaseBuildGateActionTasksWithSnapshot,
     saveReleaseCheckpoint,
     copyLatestAgentControlPlaneSnapshotDrift,
     copyBaselineAgentControlPlaneSnapshotDrift,

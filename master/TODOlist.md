@@ -1195,3 +1195,10 @@
 - [x] Feed Release Control task ledger snapshot counts into Governance and Agent Control Plane evidence.
 - [x] Add command-palette parity for save and latest drift Release Control task ledger actions.
 - [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Task Auto Capture
+
+- [x] Add optional snapshot capture to `POST /api/releases/build-gate/actions/tasks`.
+- [x] Auto-capture a non-secret Release Control task ledger snapshot after Release Build Gate task seeding.
+- [x] Add Governance and command-palette controls for seed-and-snapshot release-gate task workflows.
+- [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.

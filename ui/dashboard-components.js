@@ -5032,6 +5032,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-build-gate-tasks-snapshot-btn",
+              text: "Seed + Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateTasksSnapshot: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn task-seeding-checkpoint-defer-btn",
               text: "Defer Batch",
               attrs: { type: "button" },

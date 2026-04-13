@@ -2138,6 +2138,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindAgentExecutionResultCheckpointActions(container) {
+    container.querySelectorAll("[data-agent-execution-result-checkpoint-status]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.agentExecutionResultCheckpointRunId || "";
+        const targetAction = element.dataset.agentExecutionResultCheckpointTargetAction || "baseline-refresh";
+        const status = element.dataset.agentExecutionResultCheckpointStatus || "needs-review";
+        if (!runId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createAgentExecutionResultCheckpoint({
+            runId,
+            targetAction,
+            status,
+            source: "governance-execution-queue",
+            reason: `Operator marked execution result ${targetAction} gate as ${status}.`,
+            note: "Checkpoint recorded from the Governance Agent Execution Queue."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindAgentWorkOrderRunActions(container) {
     container.querySelectorAll("[data-agent-work-order-run-copy-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -2317,6 +2354,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentPolicyCheckpointActions(container);
+    bindAgentExecutionResultCheckpointActions(container);
     bindAgentWorkOrderRunActions(container);
   }
 

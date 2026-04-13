@@ -129,6 +129,156 @@ function isStaleAgentWorkOrderRun(run, staleThresholdHours = 24, staleStatuses =
 }
 
 /**
+ * @param {GovernancePayload} governance
+ * @param {string} runId
+ * @param {string} targetAction
+ */
+function getLatestExecutionResultCheckpoint(governance, runId, targetAction) {
+  return (governance.agentExecutionResultCheckpoints || [])
+    .filter((checkpoint) => checkpoint.runId === runId && checkpoint.targetAction === targetAction)
+    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] || null;
+}
+
+/**
+ * @param {string} status
+ */
+function getExecutionCheckpointStatusColor(status) {
+  if (status === "approved") return "var(--success)";
+  if (status === "dismissed") return "var(--text-muted)";
+  if (status === "deferred") return "var(--warning)";
+  return "var(--danger)";
+}
+
+/**
+ * @param {import("./dashboard-types.js").PersistedAgentWorkOrderRun} run
+ * @param {string} targetAction
+ * @param {"approved" | "needs-review" | "deferred" | "dismissed"} status
+ * @param {string} label
+ */
+function createExecutionResultCheckpointButton(run, targetAction, status, label) {
+  return createElement("button", {
+    className: `btn governance-action-btn agent-execution-result-checkpoint-${status}-btn`,
+    text: label,
+    attrs: { type: "button" },
+    dataset: {
+      agentExecutionResultCheckpointRunId: run.id,
+      agentExecutionResultCheckpointTargetAction: targetAction,
+      agentExecutionResultCheckpointStatus: status
+    }
+  });
+}
+
+/**
+ * @param {import("./dashboard-types.js").PersistedAgentWorkOrderRun} run
+ * @param {GovernancePayload} governance
+ * @param {import("./dashboard-types.js").GovernanceAgentExecutionMetrics} executionMetrics
+ */
+function createExecutionResultCheckpointPanel(run, governance, executionMetrics) {
+  const actions = [];
+  if (["failed", "cancelled"].includes(run.status) && !run.archivedAt) {
+    actions.push(["retry", "Retry"]);
+  }
+  if (["passed", "failed", "cancelled"].includes(run.status) && !run.archivedAt) {
+    actions.push(["archive", "Archive"]);
+    actions.push(["retention", "Retention"]);
+    actions.push(["baseline-refresh", "Baseline"]);
+  }
+  if (run.slaBreachedAt && !run.slaResolvedAt && !run.archivedAt) {
+    actions.push(["resolve-sla", "Resolve SLA"]);
+    if (!actions.some(([targetAction]) => targetAction === "baseline-refresh")) {
+      actions.push(["baseline-refresh", "Baseline"]);
+    }
+  } else if (isStaleAgentWorkOrderRun(run, executionMetrics.staleThresholdHours, executionMetrics.staleStatuses) && !run.archivedAt) {
+    actions.push(["baseline-refresh", "Baseline"]);
+  }
+  if (!actions.length) return null;
+
+  return createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.55rem",
+      padding: "0.75rem",
+      border: "1px solid var(--border)",
+      borderRadius: "0.85rem",
+      background: "color-mix(in srgb, var(--surface-hover) 55%, transparent 45%)"
+    }
+  }, [
+    createElement("div", {
+      text: "Execution result checkpoints",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.78rem",
+        fontWeight: "800",
+        letterSpacing: "0.08em",
+        textTransform: "uppercase"
+      }
+    }),
+    ...actions.map(([targetAction, label]) => {
+      const checkpoint = getLatestExecutionResultCheckpoint(governance, run.id, targetAction);
+      const status = checkpoint?.status || "needs-review";
+      return createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.45rem",
+          paddingTop: "0.45rem",
+          borderTop: "1px solid var(--border)"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.7rem",
+            alignItems: "center"
+          }
+        }, [
+          createElement("div", {
+            text: `${label} gate`,
+            style: {
+              color: "var(--text)",
+              fontWeight: "800",
+              fontSize: "0.86rem"
+            }
+          }),
+          createTag(status, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: getExecutionCheckpointStatusColor(status)
+          })
+        ]),
+        checkpoint?.createdAt
+          ? createElement("div", {
+              text: `${checkpoint.reviewer || "operator"} • ${new Date(checkpoint.createdAt).toLocaleString()}${checkpoint.note ? ` • ${checkpoint.note}` : ""}`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.8rem",
+                lineHeight: "1.4"
+              }
+            })
+          : createElement("div", {
+              text: "No checkpoint recorded yet. Approval is required before this action can be finalized.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.8rem",
+                lineHeight: "1.4"
+              }
+            }),
+        createElement("div", {
+          className: "governance-actions"
+        }, [
+          createExecutionResultCheckpointButton(run, targetAction, "approved", "Approve"),
+          createExecutionResultCheckpointButton(run, targetAction, "needs-review", "Review"),
+          createExecutionResultCheckpointButton(run, targetAction, "deferred", "Defer"),
+          createExecutionResultCheckpointButton(run, targetAction, "dismissed", "Dismiss")
+        ])
+      ]);
+    })
+  ]);
+}
+
+/**
  * @param {string} label
  * @param {string} value
  * @param {string} tone
@@ -1462,6 +1612,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: `${summary.agentPolicyCheckpointUnresolvedCount || 0} unresolved / ${summary.agentPolicyCheckpointCount || 0} checkpoint(s) before queueing`
     }),
     createKpiCard({
+      accentColor: summary.agentExecutionResultCheckpointRequiredCount ? "var(--warning)" : summary.agentExecutionResultCheckpointApprovedCount ? "var(--success)" : "var(--primary)",
+      label: "Execution Gates",
+      value: `${summary.agentExecutionResultCheckpointRequiredCount || 0}`,
+      detail: `${summary.agentExecutionResultBaselineBlockedCount || 0} baseline blocker(s) • ${summary.agentExecutionResultCheckpointUnresolvedCount || 0}/${summary.agentExecutionResultCheckpointCount || 0} unresolved checkpoints`
+    }),
+    createKpiCard({
       accentColor: "var(--success)",
       label: "Work Orders",
       value: String(summary.agentWorkOrderSnapshotCount),
@@ -2724,6 +2880,74 @@ export function createGovernanceDeck(governance) {
         : null,
       createElement("div", {
         text: `${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"} | ${checkpoint.reviewer || "operator"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.78rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]);
+  });
+
+  const agentExecutionResultCheckpointEntries = (governance.agentExecutionResultCheckpoints || []).map((checkpoint) => {
+    const status = checkpoint.status || "needs-review";
+    return createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.6rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem"
+          }
+        }, [
+          createElement("div", {
+            text: checkpoint.projectName || checkpoint.projectId || "Execution result checkpoint",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${checkpoint.targetAction || "baseline-refresh"} | ${checkpoint.runStatus || "status unset"} | ${checkpoint.runTitle || checkpoint.runId}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(status.toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: getExecutionCheckpointStatusColor(status)
+        })
+      ]),
+      checkpoint.note || checkpoint.reason
+        ? createElement("div", {
+            text: checkpoint.note || checkpoint.reason,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        : null,
+      createElement("div", {
+        text: `${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"} | ${checkpoint.reviewer || "operator"} | ${checkpoint.secretPolicy || "Non-secret execution result metadata only."}`,
         style: {
           color: "var(--text-muted)",
           fontSize: "0.78rem",
@@ -5675,6 +5899,7 @@ export function createGovernanceDeck(governance) {
           })
         : null
     ]),
+    createExecutionResultCheckpointPanel(run, governance, executionMetrics),
     run.history?.length
       ? createElement("div", {
           style: {
@@ -5883,6 +6108,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Control Plane Snapshots", "Persisted consolidated Agent Control Plane handoffs.", agentControlPlaneSnapshotEntries),
     createListSection("Agent Readiness Matrix", "Ranked project readiness for supervised agent build passes.", agentReadinessEntries),
     createListSection("Agent Policy Checkpoints", "Operator decisions for generated managed-agent role, runtime, skill, and hook policies before queueing.", agentPolicyCheckpointEntries),
+    createListSection("Execution Result Checkpoints", "Operator decisions for retry, archive, retention, SLA resolution, and baseline-refresh result handling.", agentExecutionResultCheckpointEntries),
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),

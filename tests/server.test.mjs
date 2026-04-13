@@ -17,6 +17,24 @@ export async function serverTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved") => {
+    const checkpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId,
+        targetAction,
+        status,
+        note: `Fixture ${targetAction} checkpoint.`
+      })
+    });
+    assert.equal(checkpointResponse.status, 200);
+    const checkpointJson = await checkpointResponse.json();
+    assert.equal(checkpointJson.success, true);
+    assert.equal(checkpointJson.checkpoint.targetAction, targetAction);
+    assert.equal(checkpointJson.checkpoint.status, status);
+    return checkpointJson;
+  };
 
   try {
     const rootResponse = await fetch(`${baseUrl}/`);
@@ -56,6 +74,7 @@ export async function serverTest() {
     assert.equal(diagnosticsJson.milestoneCount, 0);
     assert.equal(diagnosticsJson.projectProfileCount, 0);
     assert.equal(diagnosticsJson.agentPolicyCheckpointCount, 0);
+    assert.equal(diagnosticsJson.agentExecutionResultCheckpointCount, 0);
     assert.equal(diagnosticsJson.scanRunCount, 1);
     assert.equal(diagnosticsJson.hasInventoryFile, true);
     assert.equal(diagnosticsJson.hasBootstrappedShell, true);
@@ -1135,6 +1154,13 @@ export async function serverTest() {
     const initialAgentWorkOrderRunsJson = await initialAgentWorkOrderRunsResponse.json();
     assert.equal(initialAgentWorkOrderRunsJson.length, 0);
 
+    const initialExecutionResultCheckpointsResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`);
+    assert.equal(initialExecutionResultCheckpointsResponse.status, 200);
+    const initialExecutionResultCheckpointsJson = await initialExecutionResultCheckpointsResponse.json();
+    assert.equal(initialExecutionResultCheckpointsJson.summary.total, 0);
+    assert.equal(initialExecutionResultCheckpointsJson.requirements.totalBlocked, 0);
+    assert.equal(initialExecutionResultCheckpointsJson.agentExecutionResultCheckpoints.length, 0);
+
     const batchAgentWorkOrderRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/batch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1257,6 +1283,22 @@ export async function serverTest() {
     assert.equal(cancelAgentWorkOrderRunJson.run.history[0].previousStatus, "running");
     assert.equal(cancelAgentWorkOrderRunJson.run.history[0].status, "cancelled");
 
+    const blockedRetryAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "queued",
+        notes: "Fixture run retried without checkpoint."
+      })
+    });
+    assert.equal(blockedRetryAgentWorkOrderRunResponse.status, 409);
+    const blockedRetryAgentWorkOrderRunJson = await blockedRetryAgentWorkOrderRunResponse.json();
+    assert.equal(blockedRetryAgentWorkOrderRunJson.checkpointBlocked, 1);
+    assert.equal(blockedRetryAgentWorkOrderRunJson.targetAction, "retry");
+
+    const retryCheckpointJson = await createExecutionResultCheckpoint(createAgentWorkOrderRunJson.run.id, "retry");
+    assert.equal(retryCheckpointJson.checkpoint.runStatus, "cancelled");
+
     const retryAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -1320,6 +1362,22 @@ export async function serverTest() {
     assert.equal(passAgentWorkOrderRunJson.run.history[0].previousStatus, "running");
     assert.equal(passAgentWorkOrderRunJson.run.history[0].status, "passed");
 
+    const blockedArchiveAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        archived: true,
+        notes: "Fixture run archived without checkpoint."
+      })
+    });
+    assert.equal(blockedArchiveAgentWorkOrderRunResponse.status, 409);
+    const blockedArchiveAgentWorkOrderRunJson = await blockedArchiveAgentWorkOrderRunResponse.json();
+    assert.equal(blockedArchiveAgentWorkOrderRunJson.checkpointBlocked, 1);
+    assert.equal(blockedArchiveAgentWorkOrderRunJson.targetAction, "archive");
+
+    const archiveCheckpointJson = await createExecutionResultCheckpoint(createAgentWorkOrderRunJson.run.id, "archive");
+    assert.equal(archiveCheckpointJson.checkpoint.runStatus, "passed");
+
     const archiveAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -1354,7 +1412,11 @@ export async function serverTest() {
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.archived, 1);
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.statusCounts.passed, 0);
     assert.equal(governanceAfterArchiveJson.agentExecutionMetrics.statusCounts.queued, 1);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointCount, 2);
+    assert.equal(governanceAfterArchiveJson.summary.agentExecutionResultCheckpointApprovedCount, 2);
+    assert.equal(governanceAfterArchiveJson.agentExecutionResultCheckpoints.length, 2);
     assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-work-order-run-archived"));
+    assert.ok(governanceAfterArchiveJson.operationLog.map((operation) => operation.type).includes("agent-execution-result-checkpoint-recorded"));
 
     const retentionRunIds = [];
     for (const status of ["passed", "failed", "cancelled"]) {
@@ -1378,6 +1440,25 @@ export async function serverTest() {
       retentionRunIds.push(retentionRunJson.run.id);
     }
 
+    const blockedRetentionResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/retention`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        retainCompleted: 1,
+        runIds: retentionRunIds
+      })
+    });
+    assert.equal(blockedRetentionResponse.status, 200);
+    const blockedRetentionJson = await blockedRetentionResponse.json();
+    assert.equal(blockedRetentionJson.success, true);
+    assert.equal(blockedRetentionJson.retained, 1);
+    assert.equal(blockedRetentionJson.archived, 0);
+    assert.equal(blockedRetentionJson.checkpointBlocked, 2);
+
+    for (const runId of retentionRunIds) {
+      await createExecutionResultCheckpoint(runId, "retention");
+    }
+
     const retentionResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/retention`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1392,6 +1473,7 @@ export async function serverTest() {
     assert.equal(retentionJson.retainCompleted, 1);
     assert.equal(retentionJson.retained, 1);
     assert.equal(retentionJson.archived, 2);
+    assert.equal(retentionJson.checkpointBlocked, 0);
     assert.equal(retentionJson.archivedRuns.length, 2);
 
     const betaUnarchivedRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs?projectId=beta-app&archived=false`);
@@ -1409,6 +1491,8 @@ export async function serverTest() {
     const governanceAfterRetentionJson = await governanceAfterRetentionResponse.json();
     assert.equal(governanceAfterRetentionJson.summary.agentWorkOrderRunCount, 5);
     assert.equal(governanceAfterRetentionJson.summary.archivedAgentWorkOrderRunCount, 3);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointCount, 5);
+    assert.equal(governanceAfterRetentionJson.summary.agentExecutionResultCheckpointApprovedCount, 5);
     assert.equal(governanceAfterRetentionJson.agentExecutionMetrics.archived, 3);
     assert.ok(governanceAfterRetentionJson.operationLog.map((operation) => operation.type).includes("agent-work-order-runs-retention-applied"));
 
@@ -1535,6 +1619,22 @@ export async function serverTest() {
     assert.equal(saveSlaBreachExecutionViewJson.success, true);
     assert.equal(saveSlaBreachExecutionViewJson.view.executionStatus, "sla-breached");
 
+    const blockedResolveSlaBreachResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/sla-breaches/resolve`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runIds: [staleRunJson.run.id]
+      })
+    });
+    assert.equal(blockedResolveSlaBreachResponse.status, 200);
+    const blockedResolveSlaBreachJson = await blockedResolveSlaBreachResponse.json();
+    assert.equal(blockedResolveSlaBreachJson.success, true);
+    assert.equal(blockedResolveSlaBreachJson.resolved, 0);
+    assert.equal(blockedResolveSlaBreachJson.checkpointBlocked, 1);
+
+    const resolveSlaCheckpointJson = await createExecutionResultCheckpoint(staleRunJson.run.id, "resolve-sla");
+    assert.equal(resolveSlaCheckpointJson.checkpoint.resultType, "sla-breach");
+
     const resolveSlaBreachResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/sla-breaches/resolve`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1546,6 +1646,7 @@ export async function serverTest() {
     const resolveSlaBreachJson = await resolveSlaBreachResponse.json();
     assert.equal(resolveSlaBreachJson.success, true);
     assert.equal(resolveSlaBreachJson.resolved, 1);
+    assert.equal(resolveSlaBreachJson.checkpointBlocked, 0);
     assert.equal(resolveSlaBreachJson.resolvedRuns[0].slaAction, "resolved");
     assert.equal(resolveSlaBreachJson.resolvedRuns[0].slaResolutionCount, 1);
     assert.ok(resolveSlaBreachJson.resolvedRuns[0].slaResolvedAt);
@@ -1556,6 +1657,8 @@ export async function serverTest() {
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaBreached, 0);
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaResolved, 1);
     assert.ok(governanceAfterSlaResolutionJson.agentExecutionMetrics.slaAverageResolutionHours >= 0);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointCount, 6);
+    assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionResultCheckpointApprovedCount, 6);
     assert.equal(governanceAfterSlaResolutionJson.summary.agentExecutionSlaLedgerCount, 1);
     assert.equal(governanceAfterSlaResolutionJson.agentExecutionSlaLedger[0].breachState, "resolved");
     assert.ok(governanceAfterSlaResolutionJson.operationLog.map((operation) => operation.type).includes("agent-work-order-runs-sla-breach-resolved"));
@@ -2046,12 +2149,33 @@ export async function serverTest() {
     assert.match(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneBaselineStatus.driftRecommendedAction, /No snapshot drift detected/);
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneBaselineStatus.health, "healthy");
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneBaselineStatus.snapshotCount, 2);
-    assert.ok(["ready", "review"].includes(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecision.decision));
+    assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecision.decision, "hold");
+    assert.ok(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecision.reasons.some((reason) => reason.code === "execution-result-baseline-checkpoints"));
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecision.baselineDriftSeverity, "none");
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecisionSnapshots.length, 1);
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneDecisionSnapshots[0].title, "Fixture Control Plane Decision");
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneSnapshots.length, 2);
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneSnapshots[0].isBaseline, true);
+
+    const blockedRefreshAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Blocked Fixture Refreshed Baseline",
+        limit: 5
+      })
+    });
+    assert.equal(blockedRefreshAgentControlPlaneBaselineResponse.status, 409);
+    const blockedRefreshAgentControlPlaneBaselineJson = await blockedRefreshAgentControlPlaneBaselineResponse.json();
+    assert.ok(blockedRefreshAgentControlPlaneBaselineJson.checkpointBlocked >= 1);
+    const baselineRefreshRunIds = [...new Set((blockedRefreshAgentControlPlaneBaselineJson.requirements?.items || [])
+      .filter((item) => item.targetAction === "baseline-refresh")
+      .map((item) => item.runId)
+      .filter(Boolean))];
+    assert.ok(baselineRefreshRunIds.length >= 1);
+    for (const runId of baselineRefreshRunIds) {
+      await createExecutionResultCheckpoint(runId, "baseline-refresh");
+    }
 
     const refreshAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/refresh`, {
       method: "POST",
@@ -2172,6 +2296,7 @@ export async function serverTest() {
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneSnapshotCount, 3);
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneBaselineSnapshotId, refreshAgentControlPlaneBaselineJson.snapshot.id);
     assert.equal(diagnosticsAfterProfileJson.agentPolicyCheckpointCount, 1);
+    assert.equal(diagnosticsAfterProfileJson.agentExecutionResultCheckpointCount, 6 + baselineRefreshRunIds.length);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentExecutionSlaLedgerSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderRunCount, 6);

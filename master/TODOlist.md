@@ -1150,3 +1150,10 @@
 - [x] Preserve audit retrieval for suppressed pairs through `status=not-related`, `status=all`, or explicit `includeNotRelated=true`.
 - [x] Add an end-to-end regression test that marks an overlap `Not Related` and confirms it disappears from the active list.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Execution Result Checkpoints
+
+- [x] Add a persisted non-secret execution-result checkpoint ledger for retry, archive, retention, SLA resolution, and baseline-refresh decisions.
+- [x] Require approved result checkpoints before terminal retries, archives, retention archival, SLA breach resolution, and baseline refresh finalization.
+- [x] Surface result checkpoint controls and summary gates in Governance Agent Execution Queue and Control Plane decision state.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

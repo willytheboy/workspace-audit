@@ -763,6 +763,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionResultCheckpointsPayload>}
+   */
+  fetchAgentExecutionResultCheckpoints() {
+    return fetchJson("/api/agent-execution-result-checkpoints");
+  },
+
+  /**
+   * @param {{ runId: string, targetAction: "retry" | "archive" | "retention" | "resolve-sla" | "baseline-refresh", status?: "approved" | "deferred" | "dismissed" | "needs-review", reason?: string, note?: string, reviewer?: string, source?: string }} payload
+   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").AgentExecutionResultCheckpoint, summary: import("./dashboard-types.js").AgentExecutionResultCheckpointSummary, agentExecutionResultCheckpointCount: number, governanceOperationCount: number }>}
+   */
+  createAgentExecutionResultCheckpoint(payload) {
+    return fetchJson("/api/agent-execution-result-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentWorkOrderSnapshot[]>}
    */
   fetchAgentWorkOrderSnapshots() {

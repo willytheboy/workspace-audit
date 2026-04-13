@@ -21,10 +21,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Source-specific checkpoint filters: Data Sources access review and evidence coverage decks now expose unresolved-checkpoint filters using each item's matched source checkpoint drilldown so operators can isolate risky inferred blockers in the currently visible source deck.
 - Managed agent and skill policies: generated role, runtime, isolation, skill-bundle, and hook recommendations now require a persisted non-secret policy checkpoint before they become executable agent work orders.
 - Convergence active list behavior: pairs marked `not-related` are hidden from the default active Convergence candidates API and active project workbench Convergence list while remaining available through the persisted review ledger and explicit audit filters.
+- Agent execution results: failed, cancelled, terminal, stale, and SLA-breached Agent Work Order runs now expose non-secret result checkpoints for retry, archive, retention, SLA resolution, and Control Plane baseline-refresh actions before those actions are finalized.
 
 ## Next Checkpoint Candidates
 
-- Add execution-result checkpoints for failed, cancelled, stale, or SLA-breached agent work-order runs before retries, archives, or baseline refreshes are treated as final.
+- Add checkpoint-driven auto-task creation for deferred execution-result gates so unresolved retry/archive/SLA/baseline decisions can become deduplicated Governance tasks.
 
 ## Implementation Standard
 

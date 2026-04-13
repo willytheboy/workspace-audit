@@ -1123,3 +1123,9 @@
 - [x] Add a reusable source-access checkpoint classifier and summary counts for approved, deferred, dismissed, needs-review, unresolved, and grouped source totals.
 - [x] Surface unresolved source-access checkpoint counts in Data Sources summaries, access review queue, evidence coverage, Governance KPIs, and Agent Control Plane handoffs.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Source Card Checkpoint Drilldowns
+
+- [x] Add source-specific checkpoint matching for Data Source records using non-secret checkpoint metadata.
+- [x] Surface per-source checkpoint totals and unresolved counts inside individual Source cards.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -1148,6 +1148,17 @@
  *   health: "ready" | "review" | "blocked",
  *   issue: string,
  *   access: DataSourceAccessProfile,
+ *   sourceAccessCheckpoints: {
+ *     total: number,
+ *     approved: number,
+ *     deferred: number,
+ *     dismissed: number,
+ *     needsReview: number,
+ *     unresolved: number,
+ *     sources: number,
+ *     bySource: Array<{ source: string, total: number, approved: number, deferred: number, dismissed: number, needsReview: number, unresolved: number, latestAt: string }>,
+ *     items: Array<{ id: string, batchId: string, title: string, source: string, status: string, itemCount: number, createdAt: string }>
+ *   },
  *   addedAt: string,
  *   lastCheckedAt: string
  * }} DataSourceHealthRecord

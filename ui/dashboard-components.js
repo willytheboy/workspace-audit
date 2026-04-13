@@ -452,6 +452,9 @@ export function createSourceItem(source) {
   const accessMethod = access?.accessMethod || "review-required";
   const accessRequiresReview = access?.requiresReview === true;
   const credentialHints = Array.isArray(access?.credentialHints) ? access.credentialHints.slice(0, 3) : [];
+  const checkpointSummary = "sourceAccessCheckpoints" in source ? source.sourceAccessCheckpoints : null;
+  const checkpointTotal = checkpointSummary?.total || 0;
+  const checkpointUnresolved = checkpointSummary?.unresolved || 0;
   const healthColor = health === "ready"
     ? "var(--success)"
     : health === "blocked"
@@ -522,6 +525,17 @@ export function createSourceItem(source) {
               color: "var(--text-muted)",
               fontSize: "0.76rem",
               marginTop: "0.25rem"
+            }
+          })
+        : null,
+      checkpointSummary
+        ? createElement("div", {
+            text: `Source checkpoints: ${checkpointUnresolved} unresolved / ${checkpointTotal} total${checkpointTotal ? ` | ${checkpointSummary.approved || 0} approved | ${checkpointSummary.dismissed || 0} dismissed` : ""}`,
+            style: {
+              color: checkpointUnresolved ? "var(--warning)" : checkpointTotal ? "var(--success)" : "var(--text-muted)",
+              fontSize: "0.78rem",
+              marginTop: "0.25rem",
+              maxWidth: "44rem"
             }
           })
         : null

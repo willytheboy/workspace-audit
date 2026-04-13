@@ -90,6 +90,7 @@ Architecture:
 - Data Sources access review and evidence-coverage cards now expose per-item `Confirm Item`, `Defer Item`, and `Dismiss Item` checkpoints so inferred source blockers can be reviewed before task creation.
 - Governance Task Seeding Checkpoints now support lifecycle status filtering and grouped audit sections for approved, deferred, dismissed, and needs-review task-batch decisions.
 - Data Sources and Agent Control Plane summaries now surface source-access checkpoint totals and unresolved counts so deferred or needs-review source decisions stay visible before ingestion or automated task seeding.
+- Individual Data Source cards now include source-specific checkpoint drilldowns, showing unresolved, total, approved, and dismissed checkpoint state when a checkpoint maps to that source.
 - Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.

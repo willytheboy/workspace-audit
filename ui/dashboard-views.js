@@ -1204,6 +1204,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Blocked: ${sourceSummary.blocked || 0}`,
       `High priority: ${sourceSummary.high || 0}`,
       `Medium priority: ${sourceSummary.medium || 0}`,
+      `Source-access task checkpoints: ${sourceSummary.checkpointUnresolved || governanceCache?.summary.sourceAccessCheckpointUnresolvedCount || 0} unresolved / ${sourceSummary.checkpointCount || governanceCache?.summary.sourceAccessCheckpointCount || 0} total`,
       `Scope filter: ${filters.scope}`,
       `Search filter: ${filters.search || "none"}`,
       "",
@@ -2303,6 +2304,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Data Sources access ready/review/blocked: ${governanceCache?.dataSourcesAccessGate?.ready ?? governanceCache?.summary.dataSourcesAccessReadyCount ?? 0}/${governanceCache?.dataSourcesAccessGate?.review ?? governanceCache?.summary.dataSourcesAccessReviewCount ?? 0}/${governanceCache?.dataSourcesAccessGate?.blocked ?? governanceCache?.summary.dataSourcesAccessBlockedCount ?? 0}`,
       `Data Sources access review queue: ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.total ?? governanceCache?.summary.dataSourcesAccessReviewQueueCount ?? 0}`,
       `Data Sources access review priority: ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.high ?? 0} high | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.medium ?? 0} medium | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.blocked ?? 0} blocked`,
+      `Source-access task checkpoints: ${governanceCache?.summary.sourceAccessCheckpointUnresolvedCount ?? 0} unresolved / ${governanceCache?.summary.sourceAccessCheckpointCount ?? 0} total`,
       `Data Sources access validation runbook: ${governanceCache?.summary.dataSourcesAccessValidationMethodCount ?? 0} method(s) across ${governanceCache?.summary.dataSourcesAccessValidationSourceCount ?? 0} source(s)`,
       `Data Sources access validation review/blocked: ${governanceCache?.summary.dataSourcesAccessValidationReviewCount ?? 0}/${governanceCache?.summary.dataSourcesAccessValidationBlockedCount ?? 0}`,
       `Data Sources access validation workflow: ${governanceCache?.summary.dataSourcesAccessValidationWorkflowReadyCount ?? 0} ready / ${governanceCache?.summary.dataSourcesAccessValidationWorkflowPendingCount ?? 0} pending / ${governanceCache?.summary.dataSourcesAccessValidationWorkflowBlockedCount ?? 0} blocked`,
@@ -2426,6 +2428,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Data Sources access ready/review/blocked: ${governanceCache?.dataSourcesAccessGate?.ready ?? governanceCache?.summary.dataSourcesAccessReadyCount ?? 0}/${governanceCache?.dataSourcesAccessGate?.review ?? governanceCache?.summary.dataSourcesAccessReviewCount ?? 0}/${governanceCache?.dataSourcesAccessGate?.blocked ?? governanceCache?.summary.dataSourcesAccessBlockedCount ?? 0}`,
       `- Data Sources access review queue: ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.total ?? governanceCache?.summary.dataSourcesAccessReviewQueueCount ?? 0}`,
       `- Data Sources access review priority: ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.high ?? 0} high | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.medium ?? 0} medium | ${governanceCache?.dataSourcesAccessReviewQueue?.summary?.blocked ?? 0} blocked`,
+      `- Source-access task checkpoints: ${governanceCache?.summary.sourceAccessCheckpointUnresolvedCount ?? 0} unresolved / ${governanceCache?.summary.sourceAccessCheckpointCount ?? 0} total`,
       `- Data Sources access validation runbook: ${governanceCache?.summary.dataSourcesAccessValidationMethodCount ?? 0} method(s) across ${governanceCache?.summary.dataSourcesAccessValidationSourceCount ?? 0} source(s)`,
       `- Data Sources access validation review/blocked: ${governanceCache?.summary.dataSourcesAccessValidationReviewCount ?? 0}/${governanceCache?.summary.dataSourcesAccessValidationBlockedCount ?? 0}`,
       `- Data Sources access validation evidence: ${governanceCache?.summary.dataSourcesAccessValidationEvidenceValidatedCount ?? 0} validated / ${governanceCache?.summary.dataSourcesAccessValidationEvidenceCount ?? 0} total`,
@@ -2530,6 +2533,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Release Control tasks: ${governance.agentControlPlaneDecision.releaseControlOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.releaseControlTaskCount || 0} total`);
       lines.push(`- Control Plane decision tasks: ${governance.agentControlPlaneDecision.agentControlPlaneDecisionOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.agentControlPlaneDecisionTaskCount || 0} total`);
       lines.push(`- Active runs: ${governance.agentControlPlaneDecision.activeRuns || 0}, stale active: ${governance.agentControlPlaneDecision.staleActiveRuns || 0}, SLA breached: ${governance.agentControlPlaneDecision.slaBreachedRuns || 0}`);
+      lines.push(`- Source-access task checkpoints: ${governance.agentControlPlaneDecision.sourceAccessCheckpointUnresolvedCount || 0} unresolved / ${governance.agentControlPlaneDecision.sourceAccessCheckpointCount || 0} total`);
       lines.push(`- Data Sources access tasks: ${governance.agentControlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.dataSourcesAccessTaskCount || 0} total`);
       const reasons = Array.isArray(governance.agentControlPlaneDecision.reasons) ? governance.agentControlPlaneDecision.reasons : [];
       if (reasons.length) {
@@ -3568,8 +3572,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     title.style.color = "var(--text)";
 
     const summary = document.createElement("div");
-    summary.textContent = `${queue.summary.total} item(s) | ${queue.summary.blocked} blocked | ${queue.summary.review} review`;
-    summary.style.color = queue.summary.blocked ? "var(--danger)" : queue.summary.review ? "var(--warning)" : "var(--success)";
+    summary.textContent = `${queue.summary.total} item(s) | ${queue.summary.blocked} blocked | ${queue.summary.review} review | ${queue.summary.checkpointUnresolved || 0} unresolved checkpoint(s)`;
+    summary.style.color = queue.summary.blocked ? "var(--danger)" : queue.summary.review || queue.summary.checkpointUnresolved ? "var(--warning)" : "var(--success)";
     summary.style.fontSize = "0.84rem";
 
     heading.append(title, summary);
@@ -3687,10 +3691,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     title.style.color = "var(--text)";
 
     const summary = document.createElement("div");
-    summary.textContent = `${coverage.summary.covered}/${coverage.summary.sourceCount} covered | ${coverage.summary.missing} missing | ${coverage.summary.highPriority} high priority`;
+    summary.textContent = `${coverage.summary.covered}/${coverage.summary.sourceCount} covered | ${coverage.summary.missing} missing | ${coverage.summary.highPriority} high priority | ${coverage.summary.checkpointUnresolved || 0} unresolved checkpoint(s)`;
     summary.style.color = coverage.summary.blocked || coverage.summary.highPriority
       ? "var(--danger)"
-      : coverage.summary.missing || coverage.summary.review
+      : coverage.summary.missing || coverage.summary.review || coverage.summary.checkpointUnresolved
         ? "var(--warning)"
         : "var(--success)";
     summary.style.fontSize = "0.84rem";
@@ -4149,13 +4153,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         return;
       }
 
+      const unresolvedCheckpointCount = sourcesPayload.summary.sourceAccessCheckpointUnresolvedCount || 0;
       updatePanelState("sources", {
         status: sourcesPayload.summary.blocked ? "error" : "ready",
         itemCount: sources.length,
         lastLoadedAt: new Date().toISOString(),
         message: sourcesPayload.summary.blocked
-          ? `${sourcesPayload.summary.blocked} blocked source(s) need attention.`
-          : `${sourcesPayload.summary.ready} ready, ${sourcesPayload.summary.review} review.`
+          ? `${sourcesPayload.summary.blocked} blocked source(s) need attention | ${unresolvedCheckpointCount} unresolved checkpoint(s).`
+          : `${sourcesPayload.summary.ready} ready, ${sourcesPayload.summary.review} review | ${unresolvedCheckpointCount} unresolved checkpoint(s).`
       });
       renderPanelStatus("sources");
       const fragment = document.createDocumentFragment();

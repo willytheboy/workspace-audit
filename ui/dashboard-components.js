@@ -1204,6 +1204,8 @@ export function createGovernanceSummaryGrid(governance) {
   }).length;
   const dataSourcesAccessValidationRunbookSummary = governance.dataSourcesAccessValidationRunbook?.summary || {};
   const dataSourcesAccessValidationEvidenceCoverageSummary = governance.dataSourcesAccessValidationEvidenceCoverage?.summary || {};
+  const sourceAccessCheckpointCount = summary.sourceAccessCheckpointCount || 0;
+  const sourceAccessCheckpointUnresolvedCount = summary.sourceAccessCheckpointUnresolvedCount || 0;
   const evidenceSnapshotDriftSeverity = summary.dataSourceAccessValidationEvidenceSnapshotDriftSeverity || "missing-snapshot";
   const evidenceSnapshotDriftAccent = evidenceSnapshotDriftSeverity === "high" || evidenceSnapshotDriftSeverity === "missing-snapshot"
     ? "var(--danger)"
@@ -1374,6 +1376,16 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Source Access Queue",
       value: String(dataSourcesAccessReviewCount),
       detail: `${dataSourcesAccessReviewSummary.blocked || 0} blocked | ${dataSourcesAccessReviewSummary.medium || 0} medium | ${dataSourcesAccessReviewSummary.methodCount || 0} method(s)`
+    }),
+    createKpiCard({
+      accentColor: sourceAccessCheckpointUnresolvedCount
+        ? "var(--warning)"
+        : sourceAccessCheckpointCount
+          ? "var(--success)"
+          : "var(--primary)",
+      label: "Source Checkpoints",
+      value: `${sourceAccessCheckpointUnresolvedCount}/${sourceAccessCheckpointCount}`,
+      detail: `${summary.sourceAccessCheckpointDeferredCount || 0} deferred | ${summary.sourceAccessCheckpointNeedsReviewCount || 0} needs review | ${summary.sourceAccessCheckpointSources || 0} source(s)`
     }),
     createKpiCard({
       accentColor: (dataSourcesAccessValidationRunbookSummary.blocked || summary.dataSourcesAccessValidationBlockedCount)

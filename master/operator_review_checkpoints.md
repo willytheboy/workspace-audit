@@ -20,7 +20,7 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Source-specific checkpoint drilldowns: individual Data Source cards now show matched checkpoint counts and recent items when source-specific task-seeding checkpoints reference the source ID, path, URL, or label.
 - Source-specific checkpoint filters: Data Sources access review and evidence coverage decks now expose unresolved-checkpoint filters using each item's matched source checkpoint drilldown so operators can isolate risky inferred blockers in the currently visible source deck.
 - Managed agent and skill policies: generated role, runtime, isolation, skill-bundle, and hook recommendations now require a persisted non-secret policy checkpoint before they become executable agent work orders.
-- Convergence active list behavior: pairs marked `not-related` are hidden from the active project workbench Convergence list while remaining available in the persisted review ledger for audit.
+- Convergence active list behavior: pairs marked `not-related` are hidden from the default active Convergence candidates API and active project workbench Convergence list while remaining available through the persisted review ledger and explicit audit filters.
 
 ## Next Checkpoint Candidates
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
-import { readFile, stat } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createWorkspaceAuditServer } from "../lib/workspace-audit-server.mjs";
 import { createFixtureWorkspace } from "./test-helpers.mjs";
@@ -2469,6 +2469,85 @@ export async function serverTest() {
     assert.equal(inventoryFileJson.summary.totalApps, 1);
     await stat(join(appDir, "workspace-state.db"));
     await stat(join(appDir, "workspace-state.json"));
+  } finally {
+    server.close();
+    await once(server, "close");
+  }
+}
+
+export async function convergenceReviewSuppressionTest() {
+  const { appDir, workspaceRoot } = await createFixtureWorkspace();
+  const betaDir = join(workspaceRoot, "beta-app");
+  await mkdir(join(betaDir, "src"), { recursive: true });
+  await writeFile(join(betaDir, "package.json"), JSON.stringify({
+    name: "beta-app",
+    description: "Beta app for convergence testing",
+    scripts: {
+      dev: "vite",
+      test: "node --test"
+    },
+    dependencies: {
+      react: "^19.0.0"
+    },
+    devDependencies: {
+      vite: "^7.0.0"
+    }
+  }, null, 2));
+  await writeFile(join(betaDir, "README.md"), "# Beta App\nA matching fixture app for convergence review suppression.\n");
+  await writeFile(join(betaDir, "vite.config.js"), "export default {};\n");
+  await writeFile(join(betaDir, "src", "index.js"), "export const answer = 43;\n");
+  await writeFile(join(betaDir, "src", "index.test.js"), "import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('fixture', () => assert.equal(1, 1));\n");
+
+  const server = createWorkspaceAuditServer({
+    rootDir: workspaceRoot,
+    publicDir: appDir
+  });
+
+  server.listen(0);
+  await once(server, "listening");
+
+  const address = server.address();
+  const baseUrl = `http://127.0.0.1:${address.port}`;
+
+  try {
+    const activeCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates?projectId=alpha-app`);
+    assert.equal(activeCandidatesResponse.status, 200);
+    const activeCandidatesJson = await activeCandidatesResponse.json();
+    const activePair = activeCandidatesJson.candidates.find((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app");
+    assert.ok(activePair);
+    assert.notEqual(activePair.reviewStatus, "not-related");
+
+    const createReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        status: "not-related",
+        note: "Different operator-confirmed product intent."
+      })
+    });
+    assert.equal(createReviewResponse.status, 200);
+    const createReviewJson = await createReviewResponse.json();
+    assert.equal(createReviewJson.review.status, "not-related");
+
+    const suppressedActiveCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates?projectId=alpha-app`);
+    assert.equal(suppressedActiveCandidatesResponse.status, 200);
+    const suppressedActiveCandidatesJson = await suppressedActiveCandidatesResponse.json();
+    assert.equal(suppressedActiveCandidatesJson.candidates.some((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app"), false);
+    assert.equal(suppressedActiveCandidatesJson.summary.notRelated, 0);
+
+    const auditCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates?projectId=alpha-app&status=not-related`);
+    assert.equal(auditCandidatesResponse.status, 200);
+    const auditCandidatesJson = await auditCandidatesResponse.json();
+    assert.equal(auditCandidatesJson.candidates.length, 1);
+    assert.equal(auditCandidatesJson.candidates[0].pairId, "alpha-app__converges_with__beta-app");
+    assert.equal(auditCandidatesJson.candidates[0].reviewStatus, "not-related");
+
+    const allCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates?projectId=alpha-app&status=all`);
+    assert.equal(allCandidatesResponse.status, 200);
+    const allCandidatesJson = await allCandidatesResponse.json();
+    assert.equal(allCandidatesJson.candidates.some((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app"), true);
   } finally {
     server.close();
     await once(server, "close");

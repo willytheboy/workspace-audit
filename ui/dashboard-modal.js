@@ -55,7 +55,7 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     fetchProjectProfiles: (projectId?: string) => Promise<PersistedProjectProfile[]>,
  *     fetchProjectProfileHistory: (projectId?: string) => Promise<PersistedProjectProfileHistory[]>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
- *     fetchConvergenceCandidates: (filters?: { projectId?: string, status?: string }) => Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>,
+ *     fetchConvergenceCandidates: (filters?: { projectId?: string, status?: string, includeNotRelated?: boolean }) => Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>,
  *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>
  *   }
  * }} options

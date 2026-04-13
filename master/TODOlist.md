@@ -1143,3 +1143,10 @@
 - [x] Require approved policy checkpoints before generated agent work orders can be queued from readiness items or snapshots.
 - [x] Suppress reviewed `Not Related` convergence candidates from the active project workbench list while keeping the persisted review ledger auditable.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Convergence Not Related Active Suppression Fix
+
+- [x] Exclude `not-related` pairs from the default active `/api/convergence/candidates` overlap list.
+- [x] Preserve audit retrieval for suppressed pairs through `status=not-related`, `status=all`, or explicit `includeNotRelated=true`.
+- [x] Add an end-to-end regression test that marks an overlap `Not Related` and confirms it disappears from the active list.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

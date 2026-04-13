@@ -122,13 +122,14 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ projectId?: string, status?: string }} [filters]
+   * @param {{ projectId?: string, status?: string, includeNotRelated?: boolean }} [filters]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>}
    */
   fetchConvergenceCandidates(filters = {}) {
     return fetchJson(withQuery("/api/convergence/candidates", {
       projectId: filters.projectId,
-      status: filters.status
+      status: filters.status,
+      includeNotRelated: filters.includeNotRelated ? "true" : undefined
     }));
   },
 

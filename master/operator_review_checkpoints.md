@@ -25,10 +25,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Agent execution results: failed, cancelled, terminal, stale, and SLA-breached Agent Work Order runs now expose non-secret result checkpoints for retry, archive, retention, SLA resolution, and Control Plane baseline-refresh actions before those actions are finalized.
 - Deferred execution-result gates: deferred Agent Execution result checkpoints now create a deduplicated non-secret Governance follow-up task per run/action pair so unresolved retry, archive, SLA, retention, or baseline-refresh decisions remain actionable.
 - Execution-result task ledger snapshots: deferred execution-result follow-up tasks can now be exported, snapshotted, and compared for drift without storing credentials, tokens, private keys, certificates, browser sessions, cookies, or command output.
+- Execution-result task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so task-ledger drift can become a non-secret Governance task or be approved by saving a refreshed ledger snapshot.
 
 ## Next Checkpoint Candidates
 
-- Add execution-result task ledger drift checkpoint controls so operators can convert material drift into follow-up tasks or accept a refreshed ledger baseline.
+- Add Release Control task ledger drift checkpoint controls so deployment-gate task drift can become a non-secret Governance task or be accepted through a refreshed ledger snapshot.
 
 ## Implementation Standard
 

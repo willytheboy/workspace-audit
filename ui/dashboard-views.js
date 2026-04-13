@@ -2015,6 +2015,80 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-agent-execution-result-task-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.agentExecutionResultTaskLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchAgentExecutionResultTaskLedgerSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          const severityLabel = formatDriftSeverityLabel(diff.driftSeverity);
+          element.textContent = diff.hasDrift ? `Copied ${severityLabel}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-agent-execution-result-task-ledger-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.agentExecutionResultTaskLedgerSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createAgentExecutionResultTaskLedgerDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-agent-execution-result-task-ledger-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.agentExecutionResultTaskLedgerSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptAgentExecutionResultTaskLedgerSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -5538,6 +5612,73 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
   }
 
+  function findAgentExecutionResultTaskLedgerSnapshot(snapshotId) {
+    return (governanceCache?.agentExecutionResultTaskLedgerSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getAgentExecutionResultTaskLedgerDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildAgentExecutionResultTaskLedgerDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Agent Execution Result task ledger drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review execution-result task ledger drift before the next run-gate handoff."}`,
+      `Open tasks: ${snapshotSummary.open ?? 0} -> ${liveSummary.open ?? 0}; total tasks: ${snapshotSummary.total ?? 0} -> ${liveSummary.total ?? 0}.`,
+      "Secret policy: non-secret execution-result task ledger metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Execution-result task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createAgentExecutionResultTaskLedgerDriftReviewTask(snapshotId) {
+    const snapshot = findAgentExecutionResultTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Agent Execution Result task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentExecutionResultTaskLedgerSnapshotDiff(snapshotId);
+    const title = `Review execution-result task ledger drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      projectId: "agent-execution-result",
+      projectName: "Agent Execution Result",
+      title,
+      description: buildAgentExecutionResultTaskLedgerDriftTaskDescription(snapshot, diff),
+      priority: getAgentExecutionResultTaskLedgerDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created execution-result task ledger drift review task";
+  }
+
+  async function acceptAgentExecutionResultTaskLedgerSnapshotDrift(snapshotId) {
+    const snapshot = findAgentExecutionResultTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Agent Execution Result task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentExecutionResultTaskLedgerSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.createAgentExecutionResultTaskLedgerSnapshot({
+      title: `Accepted execution-result task ledger drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      status: snapshot.statusFilter || "all",
+      limit: snapshot.limit || 100
+    });
+    await renderGovernance();
+    return "Accepted execution-result task ledger drift as current baseline";
+  }
+
   async function seedAgentControlPlaneDecisionTasks(options = {}) {
     const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
     if (!reasons.length) return "No Decision Tasks";
@@ -5741,6 +5882,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentExecutionResultTaskLedger,
     saveAgentExecutionResultTaskLedgerSnapshot,
     copyLatestAgentExecutionResultTaskLedgerSnapshotDrift,
+    createAgentExecutionResultTaskLedgerDriftReviewTask,
+    acceptAgentExecutionResultTaskLedgerSnapshotDrift,
     seedAgentControlPlaneDecisionTasks,
     seedAgentControlPlaneDecisionTasksWithSnapshot,
     clearAgentControlPlaneBaselineSnapshot,

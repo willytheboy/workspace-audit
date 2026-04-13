@@ -90,6 +90,9 @@
  *     copyAgentControlPlaneDecisionTaskLedger: () => Promise<void>,
  *     saveAgentControlPlaneDecisionTaskLedgerSnapshot: () => Promise<void>,
  *     copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift: () => Promise<void>,
+ *     copyAgentExecutionResultTaskLedger: () => Promise<void>,
+ *     saveAgentExecutionResultTaskLedgerSnapshot: () => Promise<void>,
+ *     copyLatestAgentExecutionResultTaskLedgerSnapshotDrift: () => Promise<void>,
  *     seedAgentControlPlaneDecisionTasks: () => Promise<void>,
  *     seedAgentControlPlaneDecisionTasksWithSnapshot: () => Promise<void>,
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
@@ -727,6 +730,30 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "control plane", "platform", "decision", "tasks", "ledger", "snapshot", "drift", "copy"],
         run: () => handlers.copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift()
+      },
+      {
+        id: "copy-agent-execution-result-task-ledger",
+        label: "Copy execution result task ledger",
+        description: "Copy the non-secret ledger of Governance tasks created from deferred Agent Execution Result checkpoints.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "result", "tasks", "ledger", "copy"],
+        run: () => handlers.copyAgentExecutionResultTaskLedger()
+      },
+      {
+        id: "save-agent-execution-result-task-ledger-snapshot",
+        label: "Save execution result task ledger snapshot",
+        description: "Persist the current Agent Execution Result task ledger as a non-secret handoff snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "result", "tasks", "ledger", "snapshot", "save"],
+        run: () => handlers.saveAgentExecutionResultTaskLedgerSnapshot()
+      },
+      {
+        id: "copy-latest-agent-execution-result-task-ledger-drift",
+        label: "Copy execution result task ledger drift",
+        description: "Copy the drift report comparing the latest Agent Execution Result task ledger snapshot to live tasks.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "result", "tasks", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestAgentExecutionResultTaskLedgerSnapshotDrift()
       },
       {
         id: "seed-agent-control-plane-decision-tasks",

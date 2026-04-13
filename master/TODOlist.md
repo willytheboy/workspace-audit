@@ -1179,3 +1179,11 @@
 - [x] Surface Governance controls to copy the task ledger, save a snapshot, copy drift, and copy saved snapshots.
 - [x] Feed execution-result task ledger snapshot counts into Agent Control Plane summaries and snapshots.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Execution Result Task Ledger Drift Checkpoints
+
+- [x] Add per-snapshot `Copy Drift`, `Track Drift`, and `Accept Drift` controls to execution-result task ledger snapshot cards.
+- [x] Convert execution-result task ledger drift reports into non-secret Governance review tasks with severity, score, summary deltas, and bounded drift fields.
+- [x] Accept intentional execution-result task ledger drift by saving a refreshed ledger snapshot as the current operator-approved baseline.
+- [x] Add command-palette parity for copy, save, and latest drift execution-result task ledger actions.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

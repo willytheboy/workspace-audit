@@ -4818,6 +4818,30 @@ export function createGovernanceDeck(governance) {
         dataset: {
           agentExecutionResultTaskLedgerSnapshotId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-result-task-ledger-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionResultTaskLedgerSnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-result-task-ledger-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionResultTaskLedgerSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-result-task-ledger-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionResultTaskLedgerSnapshotDriftAcceptId: snapshot.id
+        }
       })
     ])
   ]));

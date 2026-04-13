@@ -74,6 +74,7 @@ Architecture:
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.
 - `GET /api/sources/access-method-registry` now exposes a non-secret access method registry for local paths, Git remotes, GitHub/private repository signals, certificates, SSH keys, provider tokens, password/session requirements, and manual-export workflows.
 - The Sources view now renders and copies the access method registry so source-access blockers are visible before app-development ingestion or multi-agent build work.
+- The Sources access method registry now includes per-source operator checkpoints for confirming inferred access methods, flagging review, or marking blocked access without storing secrets.
 - `GET /api/sources/access-validation-workflow` now converts registry signals and evidence coverage into non-secret validation stages, blocker types, and operator-side next actions.
 - The Sources view now renders and copies the validation workflow so missing evidence and external access requirements are visible before ingestion.
 - `GET`/`POST /api/sources/access-validation-workflow-snapshots` now persists non-secret validation workflow baselines, with `/diff` support for workflow drift checks.

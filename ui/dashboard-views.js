@@ -908,6 +908,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    bindSourceAccessEvidenceActions(container, renderGovernance);
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {() => Promise<void>} refreshAfterRecord
+   */
+  function bindSourceAccessEvidenceActions(container, refreshAfterRecord) {
     container.querySelectorAll("[data-source-access-evidence-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -923,10 +931,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         const evidence = window.prompt(
           `Enter non-secret access validation evidence for ${sourceLabel}.\n\nDo not paste passwords, tokens, certificates, private keys, cookies, or browser sessions.`,
           status === "validated"
-            ? `Validated ${accessMethod} access outside this app.`
+            ? `Confirmed the inferred ${accessMethod} access method outside this app.`
             : status === "blocked"
               ? `Access blocked for ${accessMethod}; credentials or operator access must be resolved outside this app.`
-              : `Access review required for ${accessMethod}; non-secret evidence captured for follow-up.`
+              : `Access method ${accessMethod} needs operator review; non-secret evidence captured for follow-up.`
         );
         if (evidence == null) return;
         const trimmedEvidence = evidence.trim();
@@ -944,7 +952,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             checkedAt: new Date().toISOString()
           });
           element.textContent = result.taskSync?.updated ? `Synced ${result.taskSync.updated}` : "Recorded";
-          await renderGovernance();
+          await refreshAfterRecord();
         } catch (error) {
           element.disabled = false;
           element.textContent = originalLabel;
@@ -3154,7 +3162,51 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       sources.style.fontSize = "0.78rem";
       sources.style.marginTop = "0.25rem";
 
-      body.append(methodTitle, setup, sources);
+      const sourceActions = document.createElement("div");
+      sourceActions.className = "source-access-method-checkpoints";
+      sourceActions.style.display = "flex";
+      sourceActions.style.flexDirection = "column";
+      sourceActions.style.gap = "0.45rem";
+      sourceActions.style.marginTop = "0.75rem";
+
+      for (const source of method.sources.slice(0, 4)) {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.gap = "0.75rem";
+        row.style.alignItems = "center";
+        row.style.flexWrap = "wrap";
+
+        const sourceLabel = document.createElement("span");
+        sourceLabel.textContent = `${source.label || source.id || "Source"} • ${source.health || "review"}${source.requiresReview ? " • review required" : ""}`;
+        sourceLabel.style.color = "var(--text-muted)";
+        sourceLabel.style.fontSize = "0.78rem";
+
+        const actions = document.createElement("div");
+        actions.className = "governance-actions";
+        actions.style.marginTop = "0";
+
+        for (const [status, label] of [
+          ["validated", "Confirm Method"],
+          ["review", "Needs Review"],
+          ["blocked", "Blocked"]
+        ]) {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "btn governance-action-btn source-access-method-review-btn";
+          button.textContent = label;
+          button.dataset.sourceAccessEvidenceAction = status;
+          button.dataset.sourceId = source.id || "";
+          button.dataset.sourceLabel = source.label || source.id || "Source";
+          button.dataset.accessMethod = method.accessMethod || source.accessMethod || "review-required";
+          actions.append(button);
+        }
+
+        row.append(sourceLabel, actions);
+        sourceActions.append(row);
+      }
+
+      body.append(methodTitle, setup, sources, sourceActions);
 
       const stats = document.createElement("div");
       stats.style.display = "flex";
@@ -3876,6 +3928,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       container.replaceChildren(fragment);
       bindSourceRegistryActions(container, sources);
       bindDeploymentHealthActions(container);
+      bindSourceAccessEvidenceActions(container, renderSources);
       bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {

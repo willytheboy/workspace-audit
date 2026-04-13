@@ -1062,3 +1062,10 @@
 - [x] Refresh Convergence candidate status after each operator review and refresh findings when a pair is marked not related.
 - [x] Record the reusable operator checkpoint plan for other AI-generated classifications that may need human confirmation.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Method Registry Checkpoints
+
+- [x] Add per-source operator checkpoint controls to the Sources access method registry.
+- [x] Reuse the non-secret access validation evidence ledger for confirmed, review, and blocked access-method decisions.
+- [x] Reuse the same evidence handler across Sources and Governance so both views refresh their own surface after a decision.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -8,10 +8,10 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Store the review as non-secret state with pair IDs, names, score, reasons, status, note, reviewer, source, timestamps, and secret policy.
 - Treat `not-related` as a suppression rule for future generated overlap findings for the same pair.
 - Keep the original AI score and reasons visible so the operator can judge whether the recommendation is valid.
+- Data Sources access methods: Sources registry cards now allow the operator to confirm the inferred method, flag it for review, or mark it blocked through the non-secret access validation evidence ledger.
 
 ## Next Checkpoint Candidates
 
-- Data Sources access classification: confirm whether inferred credential, certificate, SSH, VPN, manual-export, or OAuth/session requirements are accurate before seeding tasks.
 - Governance gap detection: confirm whether a project is actually missing ownership, lifecycle, tier, or target-state data before bulk remediation.
 - Agent Control Plane drift: confirm whether snapshot drift is expected, harmful, or approved before converting drift into agent work orders.
 - Release Build Gate blockers: confirm whether local smoke, Git state, deployment health, or validation evidence blockers are real before holding a build pass.

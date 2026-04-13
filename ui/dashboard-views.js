@@ -1582,6 +1582,54 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-release-build-gate-action-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const actionId = element.dataset.releaseBuildGateActionTask || "";
+        if (!actionId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createReleaseBuildGateActionTask(actionId);
+          element.textContent = "Tasked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-build-gate-action-checkpoint]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const actionId = element.dataset.releaseBuildGateActionCheckpoint || "";
+        if (!actionId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await createReleaseBuildGateActionCheckpoint(actionId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -4696,6 +4744,40 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.createReleaseBuildGateActionTasks({ actions });
     await renderGovernance();
     return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+  }
+
+  function findReleaseBuildGateAction(actionId) {
+    return (getFilteredGovernance()?.releaseBuildGate?.actions || [])
+      .find((action) => action.id === actionId) || null;
+  }
+
+  async function createReleaseBuildGateActionTask(actionId) {
+    const action = findReleaseBuildGateAction(actionId);
+    if (!action) throw new Error(`Release Build Gate action not found: ${actionId}`);
+
+    const payload = await api.createReleaseBuildGateActionTasks({ actions: [action] });
+    await renderGovernance();
+    return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function createReleaseBuildGateActionCheckpoint(actionId) {
+    const releaseBuildGate = getFilteredGovernance()?.releaseBuildGate;
+    const action = findReleaseBuildGateAction(actionId);
+    if (!action) throw new Error(`Release Build Gate action not found: ${actionId}`);
+
+    const status = action.status === "ready" && releaseBuildGate?.decision === "ready" ? "ready" : "review";
+    const created = await api.createReleaseCheckpoint({
+      title: `Release gate action accepted: ${action.label || action.id}`,
+      status,
+      notes: [
+        `Accepted release build gate action ${action.id} as operator-reviewed from the Release Build Gate checkpoint.`,
+        `Action status: ${action.status || "open"}; priority: ${action.priority || "medium"}.`,
+        `Gate decision: ${releaseBuildGate?.decision || "review"}; risk score: ${releaseBuildGate?.riskScore || 0}.`,
+        "Secret policy: non-secret release metadata only; do not store passwords, tokens, certificates, private keys, cookies, or browser sessions."
+      ].join(" ")
+    });
+    await renderGovernance();
+    return `Accepted release gate action as ${created.checkpoint.status.toUpperCase()}`;
   }
 
   async function saveReleaseCheckpoint() {

@@ -69,6 +69,7 @@ Architecture:
 - Release Build Gate now includes a local evidence bootstrap action that runs a local app smoke check and saves a non-secret checkpoint without deploying to Vercel.
 - Release gate bootstrap checkpoints now inherit the computed release status, preventing false drift when local smoke evidence moves the release from review to ready.
 - Release Build Gate actions can now seed deduplicated Governance tasks so open release blockers become trackable work without storing secrets or deployment credentials.
+- Release Build Gate action cards now expose per-action `Track Task` and `Accept Risk` checkpoints so generated blockers can be acted on or recorded as operator-reviewed without suppressing the underlying gate evidence.
 - Data Sources can now copy the live health summary from the Sources toolbar or command palette for external source-audit handoffs.
 - Data Sources now classify non-secret access requirements, including likely filesystem, Git credential manager, SSH key, provider token, OAuth/session, database password, SSL certificate, VPN, or manual-export needs.
 - Data Sources access reports explicitly avoid collecting or storing passwords, tokens, private keys, or certificates.

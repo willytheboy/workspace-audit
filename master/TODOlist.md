@@ -1075,3 +1075,10 @@
 - [x] Add a per-item `Not Actionable` checkpoint to Governance action queue cards.
 - [x] Persist the decision through the existing Governance queue suppression ledger with restore support.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Action Checkpoints
+
+- [x] Add per-action `Track Task` controls to Release Build Gate action cards.
+- [x] Add per-action `Accept Risk` controls that save non-secret release checkpoints for operator-reviewed generated blockers.
+- [x] Keep the generated Release Build Gate evidence visible while adding explicit operator review state.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -4215,13 +4215,70 @@ export function createGovernanceDeck(governance) {
                       }
                     }),
                     ...releaseBuildGateActions.slice(0, 6).map((action) => createElement("div", {
-                      text: `${action.label || action.id}: ${action.description || "Review release gate evidence."}${action.commandHint ? ` | ${action.commandHint}` : ""}`,
                       style: {
-                        color: "var(--text-muted)",
-                        fontSize: "0.84rem",
-                        lineHeight: "1.45"
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "flex-start",
+                        gap: "0.75rem",
+                        padding: "0.55rem",
+                        border: "1px solid var(--border)",
+                        borderRadius: "0.7rem",
+                        background: "color-mix(in srgb, var(--bg) 70%, transparent 30%)"
                       }
-                    }))
+                    }, [
+                      createElement("div", {
+                        style: {
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.25rem",
+                          minWidth: "0"
+                        }
+                      }, [
+                        createElement("div", {
+                          text: `${action.label || action.id}: ${action.description || "Review release gate evidence."}`,
+                          style: {
+                            color: "var(--text-muted)",
+                            fontSize: "0.84rem",
+                            lineHeight: "1.45"
+                          }
+                        }),
+                        action.commandHint
+                          ? createElement("div", {
+                              text: action.commandHint,
+                              style: {
+                                color: "var(--text-muted)",
+                                fontSize: "0.78rem",
+                                lineHeight: "1.45",
+                                overflowWrap: "anywhere"
+                              }
+                            })
+                          : null
+                      ]),
+                      createElement("div", {
+                        className: "governance-actions",
+                        style: {
+                          flex: "0 0 auto",
+                          justifyContent: "flex-end"
+                        }
+                      }, [
+                        createElement("button", {
+                          className: "btn governance-action-btn release-build-gate-action-task-btn",
+                          text: "Track Task",
+                          attrs: { type: "button" },
+                          dataset: {
+                            releaseBuildGateActionTask: action.id || ""
+                          }
+                        }),
+                        createElement("button", {
+                          className: "btn governance-action-btn release-build-gate-action-accept-btn",
+                          text: "Accept Risk",
+                          attrs: { type: "button" },
+                          dataset: {
+                            releaseBuildGateActionCheckpoint: action.id || ""
+                          }
+                        })
+                      ])
+                    ]))
                   ])
                 : null
             ])

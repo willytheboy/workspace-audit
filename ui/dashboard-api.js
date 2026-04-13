@@ -914,6 +914,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }} payload
+   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").TaskSeedingCheckpoint, taskSeedingCheckpointCount: number, governanceOperationCount: number }>}
+   */
+  createTaskSeedingCheckpoint(payload) {
+    return fetchJson("/api/governance/task-seeding-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {string} [projectId]
    * @returns {Promise<import("./dashboard-types.js").PersistedProjectProfile[]>}
    */

@@ -2011,6 +2011,62 @@ export function createGovernanceDeck(governance) {
       : null
     ]);
   });
+  const taskSeedingCheckpointEntries = (governance.taskSeedingCheckpoints || []).map((checkpoint) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: checkpoint.title || "Generated task batch checkpoint",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${checkpoint.source || "governance"} • ${checkpoint.itemCount || 0} item(s) • ${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag((checkpoint.status || "needs-review").toUpperCase(), {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: checkpoint.status === "dismissed"
+          ? "var(--danger)"
+          : checkpoint.status === "deferred"
+            ? "var(--warning)"
+            : checkpoint.status === "approved"
+              ? "var(--success)"
+              : "var(--text-muted)"
+      })
+    ]),
+    checkpoint.note
+      ? createElement("div", {
+          text: checkpoint.note,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.88rem",
+            lineHeight: "1.5"
+          }
+        })
+      : null
+  ]));
   const governanceTaskUpdateLedgerSnapshotEntries = (governance.governanceTaskUpdateLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -3703,6 +3759,32 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn task-seeding-checkpoint-defer-btn",
+              text: "Defer Batch",
+              attrs: { type: "button" },
+              dataset: {
+                taskSeedingCheckpoint: "true",
+                taskSeedingBatchId: "agent-control-plane-decision-tasks",
+                taskSeedingStatus: "deferred",
+                taskSeedingSource: "agent-control-plane-decision",
+                taskSeedingTitle: "Agent Control Plane decision task batch",
+                taskSeedingItemCount: String(controlPlaneDecisionReasons.length)
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn task-seeding-checkpoint-dismiss-btn",
+              text: "Dismiss Batch",
+              attrs: { type: "button" },
+              dataset: {
+                taskSeedingCheckpoint: "true",
+                taskSeedingBatchId: "agent-control-plane-decision-tasks",
+                taskSeedingStatus: "dismissed",
+                taskSeedingSource: "agent-control-plane-decision",
+                taskSeedingTitle: "Agent Control Plane decision task batch",
+                taskSeedingItemCount: String(controlPlaneDecisionReasons.length)
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn control-plane-decision-task-ledger-copy-btn",
               text: "Copy Decision Tasks",
               attrs: { type: "button" },
@@ -4084,6 +4166,32 @@ export function createGovernanceDeck(governance) {
               attrs: { type: "button" },
               dataset: {
                 releaseBuildGateTasks: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn task-seeding-checkpoint-defer-btn",
+              text: "Defer Batch",
+              attrs: { type: "button" },
+              dataset: {
+                taskSeedingCheckpoint: "true",
+                taskSeedingBatchId: "release-build-gate-action-tasks",
+                taskSeedingStatus: "deferred",
+                taskSeedingSource: "release-build-gate",
+                taskSeedingTitle: "Release Build Gate action task batch",
+                taskSeedingItemCount: String(releaseBuildGateActions.filter((action) => action.status !== "ready").length)
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn task-seeding-checkpoint-dismiss-btn",
+              text: "Dismiss Batch",
+              attrs: { type: "button" },
+              dataset: {
+                taskSeedingCheckpoint: "true",
+                taskSeedingBatchId: "release-build-gate-action-tasks",
+                taskSeedingStatus: "dismissed",
+                taskSeedingSource: "release-build-gate",
+                taskSeedingTitle: "Release Build Gate action task batch",
+                taskSeedingItemCount: String(releaseBuildGateActions.filter((action) => action.status !== "ready").length)
               }
             }),
             createElement("button", {
@@ -5366,6 +5474,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", governanceTaskUpdateLedgerSnapshotEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

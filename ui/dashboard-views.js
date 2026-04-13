@@ -119,6 +119,7 @@ function createEmptyTableRow(message) {
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
+ *     createTaskSeedingCheckpoint: (payload: { batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }) => Promise<unknown>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
@@ -432,6 +433,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (operation) => [operation.summary || "", operation.type || "", operation.actor || "", JSON.stringify(operation.details || {})],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      taskSeedingCheckpoints: filterAndSort(
+        governance.taskSeedingCheckpoints || [],
+        (checkpoint) => [checkpoint.title || "", checkpoint.source || "", checkpoint.status || "", checkpoint.note || "", checkpoint.batchId || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       workflowRunbook: filterAndSort(
         governance.workflowRunbook,
         (item) => [item.projectName || "", item.title || "", item.phase || "", item.status || "", item.readiness || "", item.nextStep || "", item.blockers.join(" ")],
@@ -714,6 +720,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "queue") filtered.actionQueue = [];
       if (scope !== "queue") filtered.queueSuppressions = [];
       if (scope !== "operations") filtered.operationLog = [];
+      if (scope !== "operations") filtered.taskSeedingCheckpoints = [];
       if (scope !== "runbook") filtered.workflowRunbook = [];
       if (scope !== "agents") filtered.agentSessions = [];
       if (scope !== "agents") filtered.agentControlPlaneBaselineStatus = null;
@@ -852,6 +859,40 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             return;
           }
 
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-task-seeding-checkpoint]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const batchId = element.dataset.taskSeedingBatchId || "";
+        const status = element.dataset.taskSeedingStatus || "needs-review";
+        const title = element.dataset.taskSeedingTitle || "Generated task batch";
+        const source = element.dataset.taskSeedingSource || "governance";
+        const itemCount = Number(element.dataset.taskSeedingItemCount || 0);
+        if (!batchId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = status === "dismissed" ? "Dismissing" : "Deferring";
+          await api.createTaskSeedingCheckpoint({
+            batchId,
+            status,
+            title,
+            source,
+            itemCount,
+            note: `Operator marked generated task batch as ${status} from the Governance task seeding checkpoint.`
+          });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;

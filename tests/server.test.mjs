@@ -2655,6 +2655,38 @@ export async function releaseBuildGateTaskSeedingTest() {
       && operation.details.taskId === seedDecisionTaskJson.createdTasks[0].id
       && operation.details.nextStatus === "blocked"
     )));
+
+    const taskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        batchId: "fixture-generated-task-batch",
+        title: "Fixture Generated Task Batch",
+        source: "fixture",
+        status: "deferred",
+        itemCount: 2,
+        note: "Fixture non-secret task seeding checkpoint."
+      })
+    });
+    assert.equal(taskSeedingCheckpointResponse.status, 200);
+    const taskSeedingCheckpointJson = await taskSeedingCheckpointResponse.json();
+    assert.equal(taskSeedingCheckpointJson.success, true);
+    assert.equal(taskSeedingCheckpointJson.checkpoint.status, "deferred");
+    assert.equal(taskSeedingCheckpointJson.checkpoint.itemCount, 2);
+    assert.match(taskSeedingCheckpointJson.checkpoint.secretPolicy, /Non-secret generated task batch checkpoint/);
+
+    const taskSeedingCheckpointLedgerResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`);
+    assert.equal(taskSeedingCheckpointLedgerResponse.status, 200);
+    const taskSeedingCheckpointLedgerJson = await taskSeedingCheckpointLedgerResponse.json();
+    assert.equal(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.length, 1);
+    assert.equal(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints[0].batchId, "fixture-generated-task-batch");
+
+    const governanceAfterTaskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterTaskSeedingCheckpointResponse.status, 200);
+    const governanceAfterTaskSeedingCheckpointJson = await governanceAfterTaskSeedingCheckpointResponse.json();
+    assert.equal(governanceAfterTaskSeedingCheckpointJson.summary.taskSeedingCheckpointCount, 1);
+    assert.equal(governanceAfterTaskSeedingCheckpointJson.taskSeedingCheckpoints[0].status, "deferred");
+    assert.ok(governanceAfterTaskSeedingCheckpointJson.operationLog.some((operation) => operation.type === "task-seeding-checkpoint-recorded"));
   } finally {
     server.close();
     await once(server, "close");

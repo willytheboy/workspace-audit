@@ -424,6 +424,18 @@
  *   createdAt: string
  * }} GovernanceOperation
  * @typedef {{
+ *   id: string,
+ *   batchId: string,
+ *   title: string,
+ *   source: string,
+ *   status: "approved" | "deferred" | "dismissed" | "needs-review",
+ *   itemCount: number,
+ *   note: string,
+ *   reviewer: string,
+ *   secretPolicy: string,
+ *   createdAt: string
+ * }} TaskSeedingCheckpoint
+ * @typedef {{
  *   operationId: string,
  *   type: string,
  *   summary: string,
@@ -703,6 +715,7 @@
  *     actionQueueItems: number,
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
+ *     taskSeedingCheckpointCount: number,
  *     workflowRunbookItems: number,
  *     agentSessionCount: number,
  *     agentControlPlaneSnapshotCount: number,
@@ -801,6 +814,7 @@
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
+ *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   workflowRunbook: GovernanceWorkflowRunbookItem[],
  *   agentSessions: PersistedAgentSession[],
  *   agentControlPlaneBaselineStatus: GovernanceAgentControlPlaneBaselineStatus | null,

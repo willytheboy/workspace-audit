@@ -85,6 +85,7 @@ Architecture:
 - Governance can now seed non-secret source validation workflow tasks directly from the control-center toolbar or command palette while preserving the automatic task-ledger snapshot capture.
 - Governance now separates workflow-seeded source validation tasks into a dedicated KPI, deck section, and report section while keeping them in the general Data Sources access task ledger.
 - Governance action queue items now include a per-item `Not Actionable` checkpoint so generated remediation items can be suppressed individually and restored later if needed.
+- Governance generated task seeding now has persisted `Defer Batch` and `Dismiss Batch` checkpoints for high-risk task batches before or instead of creating task records.
 - Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.

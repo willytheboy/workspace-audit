@@ -1089,3 +1089,10 @@
 - [x] Add per-snapshot `Accept Drift` controls that refresh the live Agent Control Plane as the approved baseline.
 - [x] Keep the generated drift report copy/export path visible while adding explicit operator review choices.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Task Seeding Checkpoints
+
+- [x] Add a persisted non-secret task-seeding checkpoint ledger for generated task batches.
+- [x] Add `Defer Batch` and `Dismiss Batch` controls to Release Build Gate and Agent Control Plane decision task seeding controls.
+- [x] Surface saved task-seeding checkpoints in the Governance deck and operation log.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -195,6 +195,7 @@ Architecture:
 - Governance can now copy Agent Control Plane decision tasks from the control-plane decision gate or command palette as a non-secret remediation handoff.
 - `GET`/`POST /api/agent-control-plane/decision/task-ledger-snapshots` now persists non-secret Control Plane decision task ledger handoffs after live task state changes.
 - `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff` now compares saved Control Plane decision task ledger snapshots with the live ledger and returns markdown drift evidence.
+- Agent Control Plane handoffs, snapshot records, and baseline drift now track Control Plane decision task ledger snapshot counts.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.

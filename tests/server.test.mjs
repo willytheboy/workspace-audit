@@ -1581,12 +1581,15 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.deploymentSmokeChecks[0].label, "Fixture release gate local app");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.releaseCheckpoints[0].title, "Fixture Release Gate Bootstrap");
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.releaseBuildGate.decision, "review");
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.agentControlPlaneDecisionTaskLedgerSnapshots.length, 0);
+    assert.equal(createAgentControlPlaneSnapshotJson.snapshot.agentControlPlaneDecisionTaskLedgerSnapshotCount, 0);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidenceSnapshots.length, 1);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /# Agent Control Plane/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Deployment Smoke Checks/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Checkpoints/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Build Gate/);
+    assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /Control Plane decision task ledger snapshots: 0/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /Data Sources access gate: ready/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Runbook/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Data Sources Access Validation Evidence Coverage/);
@@ -1626,6 +1629,7 @@ export async function serverTest() {
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access validation evidence snapshots" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access tasks" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access task ledger snapshots" && item.before === 0 && item.current === 0));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Control Plane decision task ledger snapshots" && item.before === 0 && item.current === 0));
     assert.equal(agentControlPlaneSnapshotDiffJson.readiness.addedCount, 0);
     assert.equal(agentControlPlaneSnapshotDiffJson.executionRuns.changedCount, 0);
     assert.match(agentControlPlaneSnapshotDiffJson.markdown, /# Agent Control Plane Snapshot Drift/);

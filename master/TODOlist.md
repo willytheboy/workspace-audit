@@ -939,3 +939,10 @@
 - [x] Add `GET /api/agent-control-plane/decision/task-ledger-snapshots/diff` with latest/specific snapshot support.
 - [x] Add Governance deck and command-palette controls for saving snapshots and copying latest drift.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Ledger Snapshot Drift Wiring
+
+- [x] Feed Control Plane decision task ledger snapshot counts into Agent Control Plane handoffs.
+- [x] Persist decision task ledger snapshot counts/lists in Agent Control Plane snapshot records.
+- [x] Add decision task ledger snapshot counts to Agent Control Plane baseline drift metric deltas.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

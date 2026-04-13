@@ -80,6 +80,8 @@
  *     copyReleaseCheckpointDrift: () => Promise<void>,
  *     copyReleaseBuildGate: () => Promise<void>,
  *     copyGovernanceReleaseTaskLedger: () => Promise<void>,
+ *     saveReleaseTaskLedgerSnapshot: () => Promise<void>,
+ *     copyLatestReleaseTaskLedgerSnapshotDrift: () => Promise<void>,
  *     bootstrapReleaseBuildGateLocalEvidence: () => Promise<void>,
  *     seedReleaseBuildGateActionTasks: () => Promise<void>,
  *     saveReleaseCheckpoint: () => Promise<void>,
@@ -650,6 +652,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "release", "tasks", "ledger", "build", "gate", "handoff", "copy"],
         run: () => handlers.copyGovernanceReleaseTaskLedger()
+      },
+      {
+        id: "save-release-task-ledger-snapshot",
+        label: "Save release task ledger snapshot",
+        description: "Persist the current Release Control task ledger as a non-secret handoff snapshot.",
+        category: "Actions",
+        keywords: ["governance", "release", "tasks", "ledger", "build", "gate", "snapshot", "save"],
+        run: () => handlers.saveReleaseTaskLedgerSnapshot()
+      },
+      {
+        id: "copy-latest-release-task-ledger-drift",
+        label: "Copy release task ledger drift",
+        description: "Copy the drift report comparing the latest Release Control task ledger snapshot to live tasks.",
+        category: "Actions",
+        keywords: ["governance", "release", "tasks", "ledger", "build", "gate", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestReleaseTaskLedgerSnapshotDrift()
       },
       {
         id: "bootstrap-release-build-gate-local-evidence",

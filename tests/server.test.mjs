@@ -2827,6 +2827,44 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(openReleaseTaskLedgerJson.status, "open");
     assert.equal(openReleaseTaskLedgerJson.items.length, 1);
 
+    const missingReleaseTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingReleaseTaskLedgerSnapshotDiffResponse.status, 200);
+    const missingReleaseTaskLedgerSnapshotDiffJson = await missingReleaseTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(missingReleaseTaskLedgerSnapshotDiffJson.hasSnapshot, false);
+    assert.equal(missingReleaseTaskLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
+    assert.match(missingReleaseTaskLedgerSnapshotDiffJson.markdown, /# Release Control Task Ledger Snapshot Drift/);
+
+    const createReleaseTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Release Control Task Ledger", status: "all", limit: 5 })
+    });
+    assert.equal(createReleaseTaskLedgerSnapshotResponse.status, 200);
+    const createReleaseTaskLedgerSnapshotJson = await createReleaseTaskLedgerSnapshotResponse.json();
+    assert.equal(createReleaseTaskLedgerSnapshotJson.success, true);
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.title, "Fixture Release Control Task Ledger");
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.statusFilter, "all");
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.openCount, 1);
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.closedCount, 0);
+    assert.equal(createReleaseTaskLedgerSnapshotJson.snapshot.items.length, 1);
+    assert.match(createReleaseTaskLedgerSnapshotJson.snapshot.markdown, /# Release Control Task Ledger/);
+
+    const releaseTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots`);
+    assert.equal(releaseTaskLedgerSnapshotsResponse.status, 200);
+    const releaseTaskLedgerSnapshotsJson = await releaseTaskLedgerSnapshotsResponse.json();
+    assert.equal(releaseTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(releaseTaskLedgerSnapshotsJson[0].title, "Fixture Release Control Task Ledger");
+
+    const releaseTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(releaseTaskLedgerSnapshotDiffResponse.status, 200);
+    const releaseTaskLedgerSnapshotDiffJson = await releaseTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(releaseTaskLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(releaseTaskLedgerSnapshotDiffJson.hasDrift, false);
+    assert.equal(releaseTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(releaseTaskLedgerSnapshotDiffJson.snapshotTitle, "Fixture Release Control Task Ledger");
+    assert.match(releaseTaskLedgerSnapshotDiffJson.markdown, /# Release Control Task Ledger Snapshot Drift/);
+
     const repeatSeedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2845,7 +2883,10 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(governanceJson.summary.releaseControlTaskCount, 1);
     assert.equal(governanceJson.summary.releaseControlOpenTaskCount, 1);
     assert.equal(governanceJson.summary.releaseControlClosedTaskCount, 0);
+    assert.equal(governanceJson.summary.releaseTaskLedgerSnapshotCount, 1);
     assert.equal(governanceJson.releaseControlTasks[0].releaseBuildGateActionId, openActions[0].id);
+    assert.equal(governanceJson.releaseTaskLedgerSnapshots[0].title, "Fixture Release Control Task Ledger");
+    assert.ok(governanceJson.operationLog.some((operation) => operation.type === "release-task-ledger-snapshot-created"));
 
     const decisionResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision`);
     assert.equal(decisionResponse.status, 200);

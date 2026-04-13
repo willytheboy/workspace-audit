@@ -548,6 +548,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.releaseBuildGateActionId || "", task.releaseBuildGateDecision || "", task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
+      releaseTaskLedgerSnapshots: filterAndSort(
+        governance.releaseTaskLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       agentControlPlaneDecisionTasks: filterAndSort(
         governance.agentControlPlaneDecisionTasks || [],
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.agentControlPlaneDecisionReasonCode || "", task.agentControlPlaneDecision || "", task.description || ""],
@@ -758,6 +763,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseCheckpointDrift = null;
       if (scope !== "release") filtered.releaseBuildGate = null;
       if (scope !== "release") filtered.releaseControlTasks = [];
+      if (scope !== "release") filtered.releaseTaskLedgerSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
@@ -1610,6 +1616,145 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Copying";
           await copyGovernanceReleaseTaskLedger();
           element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await saveReleaseTaskLedgerSnapshot();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyLatestReleaseTaskLedgerSnapshotDrift();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.releaseTaskLedgerSnapshotId || "";
+        const snapshot = governanceCache?.releaseTaskLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.releaseTaskLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchReleaseTaskLedgerSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.releaseTaskLedgerSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createReleaseTaskLedgerDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.releaseTaskLedgerSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptReleaseTaskLedgerSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -2609,6 +2754,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
+      `Release Control task ledger snapshots: ${governanceCache?.summary.releaseTaskLedgerSnapshotCount ?? 0}`,
       `Control Plane decision tasks: ${governanceCache?.summary.agentControlPlaneDecisionOpenTaskCount ?? 0} open / ${governanceCache?.summary.agentControlPlaneDecisionTaskCount ?? 0} total`,
       `Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
@@ -2655,6 +2801,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible control plane decision: ${governance.agentControlPlaneDecision ? "yes" : "no"}`,
       `Visible Control Plane decision tasks: ${governance.agentControlPlaneDecisionTasks?.length || 0}`,
       `Visible Release Control tasks: ${governance.releaseControlTasks?.length || 0}`,
+      `Visible Release Control task ledger snapshots: ${(governance.releaseTaskLedgerSnapshots || []).length}`,
       `Visible Data Sources access gate: ${governance.dataSourcesAccessGate ? "yes" : "no"}`,
       `Visible Data Sources access review queue items: ${governance.dataSourcesAccessReviewQueue?.items?.length || 0}`,
       `Visible Data Sources access validation runbook methods: ${governance.dataSourcesAccessValidationRunbook?.methods?.length || 0}`,
@@ -2735,6 +2882,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Control plane decision: ${governanceCache?.agentControlPlaneDecision?.decision || "review"}`,
       `- Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `- Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
+      `- Release Control task ledger snapshots: ${governanceCache?.summary.releaseTaskLedgerSnapshotCount ?? 0}`,
       `- Control Plane decision tasks: ${governanceCache?.summary.agentControlPlaneDecisionOpenTaskCount ?? 0} open / ${governanceCache?.summary.agentControlPlaneDecisionTaskCount ?? 0} total`,
       `- Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `- Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
@@ -2894,6 +3042,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible Release Control tasks.");
+    }
+
+    lines.push("", "## Release Control Task Ledger Snapshots");
+    if (governance.releaseTaskLedgerSnapshots?.length) {
+      for (const snapshot of governance.releaseTaskLedgerSnapshots) {
+        lines.push(`- ${snapshot.title || "Release Control Task Ledger"}: ${snapshot.openCount || 0} open / ${snapshot.total || 0} total at ${snapshot.createdAt || "not recorded"}`);
+        lines.push(`  Status filter: ${snapshot.statusFilter || "all"} | Visible tasks: ${snapshot.visibleCount || 0}`);
+      }
+    } else {
+      lines.push("- No visible Release Control task ledger snapshots.");
     }
 
     lines.push("", "## Data Sources Access Gate");
@@ -5411,6 +5569,89 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${getFilteredGovernance()?.releaseControlTasks?.length || 0} Release Task${(getFilteredGovernance()?.releaseControlTasks?.length || 0) === 1 ? "" : "s"}`;
   }
 
+  async function saveReleaseTaskLedgerSnapshot() {
+    await api.createReleaseTaskLedgerSnapshot({
+      title: "Release Control Task Ledger",
+      status: "all",
+      limit: 100
+    });
+    await renderGovernance();
+    return "Saved Release Task Snapshot";
+  }
+
+  async function copyLatestReleaseTaskLedgerSnapshotDrift() {
+    const diff = await api.fetchReleaseTaskLedgerSnapshotDiff("latest");
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findReleaseTaskLedgerSnapshot(snapshotId) {
+    return (governanceCache?.releaseTaskLedgerSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getReleaseTaskLedgerDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildReleaseTaskLedgerDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Release Control task ledger drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review Release Control task ledger drift before the next deployment or build handoff."}`,
+      `Open tasks: ${snapshotSummary.open ?? 0} -> ${liveSummary.open ?? 0}; total tasks: ${snapshotSummary.total ?? 0} -> ${liveSummary.total ?? 0}.`,
+      "Secret policy: non-secret Release Control task ledger metadata only; do not store deployment tokens, credentials, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Release Control task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createReleaseTaskLedgerDriftReviewTask(snapshotId) {
+    const snapshot = findReleaseTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Release Control task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchReleaseTaskLedgerSnapshotDiff(snapshotId);
+    const title = `Review Release Control task ledger drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      projectId: "release-control",
+      projectName: "Release Control",
+      title,
+      description: buildReleaseTaskLedgerDriftTaskDescription(snapshot, diff),
+      priority: getReleaseTaskLedgerDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created Release Control task ledger drift review task";
+  }
+
+  async function acceptReleaseTaskLedgerSnapshotDrift(snapshotId) {
+    const snapshot = findReleaseTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Release Control task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchReleaseTaskLedgerSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.createReleaseTaskLedgerSnapshot({
+      title: `Accepted Release Control task ledger drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      status: snapshot.statusFilter || "all",
+      limit: snapshot.limit || 100
+    });
+    await renderGovernance();
+    return "Accepted Release Control task ledger drift as current baseline";
+  }
+
   async function bootstrapReleaseBuildGateLocalEvidence() {
     const payload = await api.bootstrapReleaseBuildGateLocalEvidence({
       label: "Local Workspace Audit app",
@@ -5869,6 +6110,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyReleaseCheckpointDrift,
     copyReleaseBuildGate,
     copyGovernanceReleaseTaskLedger,
+    saveReleaseTaskLedgerSnapshot,
+    copyLatestReleaseTaskLedgerSnapshotDrift,
+    createReleaseTaskLedgerDriftReviewTask,
+    acceptReleaseTaskLedgerSnapshotDrift,
     bootstrapReleaseBuildGateLocalEvidence,
     seedReleaseBuildGateActionTasks,
     saveReleaseCheckpoint,

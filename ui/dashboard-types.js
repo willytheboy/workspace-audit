@@ -712,6 +712,8 @@
  *   releaseControlOpenTaskCount: number,
  *   releaseControlClosedTaskCount: number,
  *   releaseControlTasks: PersistedTask[],
+ *   releaseTaskLedgerSnapshotCount: number,
+ *   releaseTaskLedgerSnapshots: PersistedReleaseTaskLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskCount: number,
  *   agentControlPlaneDecisionOpenTaskCount: number,
  *   agentControlPlaneDecisionClosedTaskCount: number,
@@ -808,6 +810,8 @@
  *   releaseControlOpenTaskCount: number,
  *   releaseControlClosedTaskCount: number,
  *   releaseControlTasks: PersistedTask[],
+ *   releaseTaskLedgerSnapshotCount: number,
+ *   releaseTaskLedgerSnapshots: PersistedReleaseTaskLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskCount: number,
  *   agentControlPlaneDecisionOpenTaskCount: number,
  *   agentControlPlaneDecisionClosedTaskCount: number,
@@ -1000,6 +1004,7 @@
  *     releaseControlTaskCount: number,
  *     releaseControlOpenTaskCount: number,
  *     releaseControlClosedTaskCount: number,
+ *     releaseTaskLedgerSnapshotCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
  *   },
@@ -1040,6 +1045,7 @@
  *   releaseCheckpointDrift?: ReleaseCheckpointDriftPayload | null,
  *   releaseBuildGate?: ReleaseBuildGatePayload | null,
  *   releaseControlTasks: PersistedTask[],
+ *   releaseTaskLedgerSnapshots: PersistedReleaseTaskLedgerSnapshot[],
  *   agentControlPlaneDecisionTasks: PersistedTask[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
@@ -1080,6 +1086,7 @@
  *   baselineStatus: GovernanceAgentControlPlaneBaselineStatus | null,
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
  *   releaseControlTasks: PersistedTask[],
+ *   releaseTaskLedgerSnapshots: PersistedReleaseTaskLedgerSnapshot[],
  *   agentControlPlaneDecisionTasks: PersistedTask[],
  *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
@@ -1680,6 +1687,35 @@
  *   items: ReleaseTaskLedgerItem[],
  *   markdown: string
  * }} ReleaseTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: ReleaseTaskLedgerItem[],
+ *   createdAt: string
+ * }} PersistedReleaseTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: ReleaseTaskLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, open: number, closed: number, visible: number } | null,
+ *   markdown: string
+ * }} ReleaseTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   generatedAt: string,
  *   summary: {

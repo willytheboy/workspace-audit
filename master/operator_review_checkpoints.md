@@ -26,10 +26,12 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Deferred execution-result gates: deferred Agent Execution result checkpoints now create a deduplicated non-secret Governance follow-up task per run/action pair so unresolved retry, archive, SLA, retention, or baseline-refresh decisions remain actionable.
 - Execution-result task ledger snapshots: deferred execution-result follow-up tasks can now be exported, snapshotted, and compared for drift without storing credentials, tokens, private keys, certificates, browser sessions, cookies, or command output.
 - Execution-result task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so task-ledger drift can become a non-secret Governance task or be approved by saving a refreshed ledger snapshot.
+- Release Control task ledger snapshots: deployment-gate tasks can now be exported, snapshotted, and compared for drift without storing credentials, provider tokens, private keys, certificates, cookies, browser sessions, or command output.
+- Release Control task ledger drift checkpoints: saved ledger snapshots now expose `Track Drift` and `Accept Drift` controls so deployment-gate task drift can become a non-secret Governance task or be approved by saving a refreshed Release Control task ledger snapshot.
 
 ## Next Checkpoint Candidates
 
-- Add Release Control task ledger drift checkpoint controls so deployment-gate task drift can become a non-secret Governance task or be accepted through a refreshed ledger snapshot.
+- Add Release Build Gate task-seeding auto-capture so seeded deployment-gate tasks can automatically persist a Release Control task ledger snapshot.
 
 ## Implementation Standard
 

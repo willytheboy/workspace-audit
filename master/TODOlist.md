@@ -1187,3 +1187,11 @@
 - [x] Accept intentional execution-result task ledger drift by saving a refreshed ledger snapshot as the current operator-approved baseline.
 - [x] Add command-palette parity for copy, save, and latest drift execution-result task ledger actions.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Control Task Ledger Snapshots And Drift Checkpoints
+
+- [x] Add a persisted non-secret Release Control task ledger snapshot store and diff API.
+- [x] Surface Governance controls to save Release Control task snapshots, copy snapshots, copy drift, track drift, and accept drift.
+- [x] Feed Release Control task ledger snapshot counts into Governance and Agent Control Plane evidence.
+- [x] Add command-palette parity for save and latest drift Release Control task ledger actions.
+- [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.

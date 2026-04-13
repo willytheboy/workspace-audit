@@ -5066,6 +5066,22 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-task-ledger-snapshot-save-btn",
+              text: "Save Task Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                releaseTaskLedgerSnapshotSave: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-task-ledger-drift-copy-btn",
+              text: "Copy Task Drift",
+              attrs: { type: "button" },
+              dataset: {
+                releaseTaskLedgerDriftCopy: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-checkpoint-drift-copy-btn",
               text: "Copy Drift",
               attrs: { type: "button" },
@@ -5477,6 +5493,90 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
+      })
+    ])
+  ]));
+  const releaseTaskLedgerSnapshotEntries = (governance.releaseTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Release Control Task Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} - ${snapshot.statusFilter || "all"} - ${snapshot.visibleCount || 0} visible`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.openCount || 0} OPEN`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.openCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.total || 0} total Release Control task(s) - ${snapshot.closedCount || 0} closed - ${snapshot.secretPolicy || "non-secret release-control task metadata only"}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn release-task-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          releaseTaskLedgerSnapshotId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn release-task-ledger-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          releaseTaskLedgerSnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn release-task-ledger-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          releaseTaskLedgerSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn release-task-ledger-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          releaseTaskLedgerSnapshotDriftAcceptId: snapshot.id
+        }
       })
     ])
   ]));
@@ -6366,6 +6466,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Execution Result Task Ledger Snapshots", "Persisted non-secret execution-result task ledger handoffs.", agentExecutionResultTaskLedgerSnapshotEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
+    createListSection("Release Control Task Ledger Snapshots", "Persisted non-secret Release Control task ledger handoffs.", releaseTaskLedgerSnapshotEntries),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),
     createListSection("Data Sources Access Review Queue", "Credential, certificate, SSH, and manual-access checks that can block supervised app-development ingestion.", dataSourcesAccessReviewQueueEntries),
     createListSection("Data Sources Access Validation Runbook", "Non-secret operator-side validation steps and command hints grouped by access method.", dataSourcesAccessValidationRunbookEntries),

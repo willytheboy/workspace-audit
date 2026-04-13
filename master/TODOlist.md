@@ -1136,3 +1136,10 @@
 - [x] Add unresolved-checkpoint filters to the Data Sources access review and evidence coverage decks.
 - [x] Record the Claude-style agents/skills strategy and update persistent app direction memory.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Managed Agent Skill Policy Checkpoints
+
+- [x] Add a persisted non-secret managed-agent policy checkpoint ledger for generated role, runtime, skill, hook, and isolation recommendations.
+- [x] Require approved policy checkpoints before generated agent work orders can be queued from readiness items or snapshots.
+- [x] Suppress reviewed `Not Related` convergence candidates from the active project workbench list while keeping the persisted review ledger auditable.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

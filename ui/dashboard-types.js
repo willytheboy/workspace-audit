@@ -188,6 +188,9 @@
  *   readyCount: number,
  *   needsPrepCount: number,
  *   blockedCount: number,
+ *   approvedPolicyCount?: number,
+ *   executableCount?: number,
+ *   unresolvedPolicyCount?: number,
  *   markdown: string,
  *   items: GovernanceAgentReadinessItem[],
  *   createdAt: string
@@ -212,6 +215,15 @@
  *   readinessScore: number,
  *   readinessStatus: string,
  *   blockers: string[],
+ *   agentPolicyId?: string,
+ *   agentPolicyCheckpointId?: string,
+ *   agentPolicyCheckpointStatus?: "approved" | "deferred" | "dismissed" | "needs-review",
+ *   agentRole?: string,
+ *   runtime?: string,
+ *   isolationMode?: string,
+ *   skillBundle?: string[],
+ *   hookPolicy?: string[],
+ *   agentPolicySecretPolicy?: string,
  *   validationCommands: string[],
  *   notes: string,
  *   history: PersistedAgentWorkOrderRunEvent[],
@@ -435,6 +447,54 @@
  *   secretPolicy: string,
  *   createdAt: string
  * }} TaskSeedingCheckpoint
+ * @typedef { "approved" | "deferred" | "dismissed" | "needs-review" } AgentPolicyCheckpointStatus
+ * @typedef {{
+ *   total: number,
+ *   approved: number,
+ *   deferred: number,
+ *   dismissed: number,
+ *   needsReview: number,
+ *   unresolved: number
+ * }} AgentPolicyCheckpointSummary
+ * @typedef {{
+ *   id: string,
+ *   policyId: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   relPath: string,
+ *   status: AgentPolicyCheckpointStatus,
+ *   role: string,
+ *   runtime: string,
+ *   isolationMode: string,
+ *   skillBundle: string[],
+ *   hookPolicy: string[],
+ *   source: string,
+ *   reason: string,
+ *   note: string,
+ *   reviewer: string,
+ *   secretPolicy: string,
+ *   createdAt: string
+ * }} AgentPolicyCheckpoint
+ * @typedef {{
+ *   policyId: string,
+ *   checkpointId: string,
+ *   checkpointStatus: AgentPolicyCheckpointStatus,
+ *   executable: boolean,
+ *   role: string,
+ *   runtime: string,
+ *   isolationMode: string,
+ *   skillBundle: string[],
+ *   hookPolicy: string[],
+ *   source: string,
+ *   recommendedAction: string,
+ *   secretPolicy: string
+ * }} AgentPolicyRecommendation
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: AgentPolicyCheckpointSummary,
+ *   agentPolicyCheckpoints: AgentPolicyCheckpoint[],
+ *   secretPolicy: string
+ * }} AgentPolicyCheckpointsPayload
  * @typedef {{
  *   operationId: string,
  *   type: string,
@@ -537,6 +597,7 @@
  *   latestAgentSessionAt: string,
  *   blockers: string[],
  *   nextStep: string,
+ *   agentPolicy: AgentPolicyRecommendation,
  *   updatedAt: string
  * }} GovernanceAgentReadinessItem
  * @typedef {{
@@ -653,6 +714,13 @@
  *   slaBreachedRuns: number,
  *   agentReadyProjects: number,
  *   agentReadinessItems: number,
+ *   agentPolicyCheckpointCount: number,
+ *   agentPolicyCheckpointApprovedCount: number,
+ *   agentPolicyCheckpointDeferredCount: number,
+ *   agentPolicyCheckpointDismissedCount: number,
+ *   agentPolicyCheckpointNeedsReviewCount: number,
+ *   agentPolicyCheckpointUnresolvedCount: number,
+ *   agentPolicyExecutableCount: number,
  *   releaseBuildGateDecision: "ready" | "review" | "hold" | "not-evaluated",
  *   releaseBuildGateRiskScore: number,
  *   releaseBuildGateReasonCount: number,
@@ -733,6 +801,13 @@
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
  *     taskSeedingCheckpointCount: number,
+ *     agentPolicyCheckpointCount: number,
+ *     agentPolicyCheckpointApprovedCount: number,
+ *     agentPolicyCheckpointDeferredCount: number,
+ *     agentPolicyCheckpointDismissedCount: number,
+ *     agentPolicyCheckpointNeedsReviewCount: number,
+ *     agentPolicyCheckpointUnresolvedCount: number,
+ *     agentPolicyExecutableCount: number,
  *     sourceAccessCheckpointCount: number,
  *     sourceAccessCheckpointApprovedCount: number,
  *     sourceAccessCheckpointDeferredCount: number,
@@ -840,6 +915,7 @@
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
+ *   agentPolicyCheckpoints: AgentPolicyCheckpoint[],
  *   workflowRunbook: GovernanceWorkflowRunbookItem[],
  *   agentSessions: PersistedAgentSession[],
  *   agentControlPlaneBaselineStatus: GovernanceAgentControlPlaneBaselineStatus | null,
@@ -1022,6 +1098,13 @@
  *   slaBreachedRuns: number,
  *   agentReadyProjects: number,
  *   agentReadinessItems: number,
+ *   agentPolicyCheckpointCount: number,
+ *   agentPolicyCheckpointApprovedCount: number,
+ *   agentPolicyCheckpointDeferredCount: number,
+ *   agentPolicyCheckpointDismissedCount: number,
+ *   agentPolicyCheckpointNeedsReviewCount: number,
+ *   agentPolicyCheckpointUnresolvedCount: number,
+ *   agentPolicyExecutableCount: number,
  *   dataSourcesGateDecision: "ready" | "review" | "hold" | "not-evaluated",
  *   dataSourcesReady: number,
  *   dataSourcesReview: number,

@@ -120,10 +120,13 @@ function createEmptyTableRow(message) {
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
  *     createTaskSeedingCheckpoint: (payload: { batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }) => Promise<unknown>,
+ *     createAgentPolicyCheckpoint: (payload: { policyId: string, projectId: string, projectName?: string, relPath?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", role?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], source?: string, reason?: string, note?: string, reviewer?: string }) => Promise<unknown>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createNote: (payload: { title: string, body?: string, kind?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
+ *     createAgentWorkOrderRun: (payload: { projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string }) => Promise<unknown>,
+ *     createAgentWorkOrderRunsFromSnapshot: (payload: { snapshotId: string }) => Promise<unknown>,
  *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean }) => Promise<unknown>,
  *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[] }) => Promise<unknown>,
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string }) => Promise<unknown>,
@@ -689,8 +692,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ),
       agentReadinessMatrix: filterAndSort(
         governance.agentReadinessMatrix,
-        (item) => [item.projectName || "", item.owner || "", item.status || "", item.lifecycle || "", item.targetState || "", item.nextStep || "", item.blockers.join(" ")],
+        (item) => [item.projectName || "", item.owner || "", item.status || "", item.lifecycle || "", item.targetState || "", item.nextStep || "", item.agentPolicy?.checkpointStatus || "", item.agentPolicy?.role || "", item.agentPolicy?.runtime || "", (item.agentPolicy?.skillBundle || []).join(" "), (item.agentPolicy?.hookPolicy || []).join(" "), item.blockers.join(" ")],
         (left, right) => left.score - right.score || right.openFindingCount - left.openFindingCount || left.projectName.localeCompare(right.projectName)
+      ),
+      agentPolicyCheckpoints: filterAndSort(
+        governance.agentPolicyCheckpoints || [],
+        (checkpoint) => [checkpoint.policyId || "", checkpoint.projectName || "", checkpoint.projectId || "", checkpoint.status || "", checkpoint.role || "", checkpoint.runtime || "", checkpoint.isolationMode || "", (checkpoint.skillBundle || []).join(" "), (checkpoint.hookPolicy || []).join(" "), checkpoint.note || "", checkpoint.reason || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
       agentWorkOrderSnapshots: filterAndSort(
         governance.agentWorkOrderSnapshots,
@@ -758,6 +766,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "data-sources") filtered.dataSourcesAccessTasks = [];
       if (scope !== "data-sources") filtered.dataSourceAccessTaskLedgerSnapshots = [];
       if (scope !== "readiness") filtered.agentReadinessMatrix = [];
+      if (scope !== "readiness") filtered.agentPolicyCheckpoints = [];
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
       if (scope !== "sla-ledger") filtered.agentExecutionSlaLedger = [];
@@ -2070,6 +2079,63 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {string | undefined} value
+   */
+  function parseDatasetList(value) {
+    if (!value) return [];
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed.map((item) => String(item || "").trim()).filter(Boolean) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindAgentPolicyCheckpointActions(container) {
+    container.querySelectorAll("[data-agent-policy-checkpoint-status]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const policyId = element.dataset.agentPolicyId || "";
+        const projectId = decodeURIComponent(element.dataset.agentPolicyProjectId || "");
+        const status = element.dataset.agentPolicyCheckpointStatus || "needs-review";
+        if (!policyId || !projectId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createAgentPolicyCheckpoint({
+            policyId,
+            projectId,
+            projectName: element.dataset.agentPolicyProjectName || "",
+            relPath: element.dataset.agentPolicyRelPath || "",
+            status,
+            role: element.dataset.agentPolicyRole || "readiness-reviewer",
+            runtime: element.dataset.agentPolicyRuntime || "planning-only-agent",
+            isolationMode: element.dataset.agentPolicyIsolationMode || "read-only-planning",
+            skillBundle: parseDatasetList(element.dataset.agentPolicySkillBundle),
+            hookPolicy: parseDatasetList(element.dataset.agentPolicyHookPolicy),
+            source: "agent-control-plane",
+            reason: `Operator marked generated managed-agent policy as ${status} before queueing.`,
+            note: "Checkpoint recorded from the Governance Agent Readiness Matrix."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
    * @param {HTMLElement} container
    */
   function bindAgentWorkOrderRunActions(container) {
@@ -2150,6 +2216,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             readinessScore: item.score,
             readinessStatus: item.status,
             blockers: item.blockers,
+            agentPolicyId: item.agentPolicy?.policyId || "",
+            agentPolicyCheckpointId: item.agentPolicy?.checkpointId || "",
+            agentPolicyCheckpointStatus: item.agentPolicy?.checkpointStatus || "needs-review",
+            agentRole: item.agentPolicy?.role || "",
+            runtime: item.agentPolicy?.runtime || "",
+            isolationMode: item.agentPolicy?.isolationMode || "",
+            skillBundle: item.agentPolicy?.skillBundle || [],
+            hookPolicy: item.agentPolicy?.hookPolicy || [],
             validationCommands: ["Run project-specific validation from the workbench Launchpad"],
             notes: "Queued from the Governance Agent Readiness Matrix."
           });
@@ -2242,6 +2316,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
+    bindAgentPolicyCheckpointActions(container);
     bindAgentWorkOrderRunActions(container);
   }
 
@@ -2319,6 +2394,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Data Sources access tasks: ${governanceCache?.summary.dataSourcesAccessOpenTaskCount ?? 0} open / ${governanceCache?.summary.dataSourcesAccessTaskCount ?? 0} total`,
       `Data Sources access task ledger snapshots: ${governanceCache?.summary.dataSourceAccessTaskLedgerSnapshotCount ?? 0}`,
       `Agent-ready projects: ${governanceCache?.summary.agentReadyProjects ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
+      `Agent policy checkpoints: ${governanceCache?.summary.agentPolicyCheckpointUnresolvedCount ?? 0} unresolved / ${governanceCache?.summary.agentPolicyCheckpointCount ?? 0} total`,
+      `Agent policy executable work orders: ${governanceCache?.summary.agentPolicyExecutableCount ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
       `Work order snapshots: ${governanceCache?.summary.agentWorkOrderSnapshotCount ?? 0}`,
       `SLA ledger snapshots: ${governanceCache?.summary.agentExecutionSlaLedgerSnapshotCount ?? 0}`,
       `Agent execution runs: ${governanceCache?.summary.activeAgentWorkOrderRunCount ?? 0}/${governanceCache?.summary.agentWorkOrderRunCount ?? 0}`,
@@ -2437,6 +2514,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Data Sources access validation evidence coverage gaps: ${governanceCache?.summary.dataSourcesAccessValidationEvidenceCoverageMissingCount ?? 0} missing | ${governanceCache?.summary.dataSourcesAccessValidationEvidenceCoverageHighPriorityCount ?? 0} high priority`,
       `- Data Sources access tasks: ${governanceCache?.summary.dataSourcesAccessOpenTaskCount ?? 0} open / ${governanceCache?.summary.dataSourcesAccessTaskCount ?? 0} total`,
       `- Agent-ready projects: ${governanceCache?.summary.agentReadyProjects ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
+      `- Agent policy checkpoints: ${governanceCache?.summary.agentPolicyCheckpointUnresolvedCount ?? 0} unresolved / ${governanceCache?.summary.agentPolicyCheckpointCount ?? 0} total`,
+      `- Agent policy executable work orders: ${governanceCache?.summary.agentPolicyExecutableCount ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
       `- Work order snapshots: ${governanceCache?.summary.agentWorkOrderSnapshotCount ?? 0}`,
       `- SLA ledger snapshots: ${governanceCache?.summary.agentExecutionSlaLedgerSnapshotCount ?? 0}`,
       `- Agent execution runs: ${governanceCache?.summary.activeAgentWorkOrderRunCount ?? 0}/${governanceCache?.summary.agentWorkOrderRunCount ?? 0}`,
@@ -2951,6 +3030,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }
 
     for (const item of governance.agentReadinessMatrix) {
+      const agentPolicy = item.agentPolicy || {};
       lines.push(`## ${item.projectName}`);
       lines.push("");
       lines.push(`- Project ID: ${item.projectId}`);
@@ -2961,6 +3041,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Primary objective: ${item.nextStep}`);
       lines.push(`- Evidence: ${item.openFindingCount} findings | ${item.openTaskCount} tasks | ${item.activeWorkflowCount} workflows | ${item.agentSessionCount} handoffs`);
       lines.push(`- Blockers: ${item.blockers.length ? item.blockers.join(", ") : "none"}`);
+      lines.push(`- Agent policy checkpoint: ${agentPolicy.checkpointStatus || "needs-review"} (${agentPolicy.executable ? "executable" : "blocked"})`);
+      lines.push(`- Managed agent role: ${agentPolicy.role || "readiness-reviewer"}`);
+      lines.push(`- Runtime / isolation: ${agentPolicy.runtime || "planning-only-agent"} / ${agentPolicy.isolationMode || "read-only-planning"}`);
+      lines.push(`- Skill bundle: ${(agentPolicy.skillBundle || []).join(", ") || "project-governance, validation-runner, handoff-pack"}`);
+      lines.push(`- Hook policy: ${(agentPolicy.hookPolicy || []).join(", ") || "policy-checkpoint-required, preflight-status-review, post-run-validation-log"}`);
+      lines.push(`- Secret policy: ${agentPolicy.secretPolicy || "Non-secret managed agent policy metadata only."}`);
       if (item.latestWorkflowTitle) {
         lines.push(`- Latest workflow: ${item.latestWorkflowTitle}`);
       }

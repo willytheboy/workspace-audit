@@ -743,6 +743,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").AgentPolicyCheckpointsPayload>}
+   */
+  fetchAgentPolicyCheckpoints() {
+    return fetchJson("/api/agent-policy-checkpoints");
+  },
+
+  /**
+   * @param {{ policyId: string, projectId: string, projectName?: string, relPath?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", role?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], source?: string, reason?: string, note?: string, reviewer?: string }} payload
+   * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").AgentPolicyCheckpoint, summary: import("./dashboard-types.js").AgentPolicyCheckpointSummary, agentPolicyCheckpointCount: number, governanceOperationCount: number }>}
+   */
+  createAgentPolicyCheckpoint(payload) {
+    return fetchJson("/api/agent-policy-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentWorkOrderSnapshot[]>}
    */
   fetchAgentWorkOrderSnapshots() {
@@ -797,7 +816,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], validationCommands?: string[], notes?: string }} payload
+   * @param {{ projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string }} payload
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   createAgentWorkOrderRun(payload) {

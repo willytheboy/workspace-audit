@@ -43,3 +43,4 @@ The target product is not only an audit dashboard. It should become the operator
 - Model subagents as constrained specialist workers with role, tool scope, model/runtime adapter metadata, memory policy, isolation mode, and acceptance criteria.
 - Model agent teams as lead-plus-worker execution plans with task dependencies, mailbox events, quality gates, cleanup lifecycle, and non-secret evidence capture.
 - Keep managed policies as a future precedence layer across organization, project, user, and runtime scopes so unsafe automation is controlled centrally.
+- Implement generated managed-agent policy checkpoints as the first executable gate: role, runtime, isolation, skill bundle, and hook policy recommendations stay blocked until approved, deferred, or dismissed by the operator.

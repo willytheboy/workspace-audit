@@ -55,6 +55,7 @@ export async function serverTest() {
     assert.equal(diagnosticsJson.noteCount, 0);
     assert.equal(diagnosticsJson.milestoneCount, 0);
     assert.equal(diagnosticsJson.projectProfileCount, 0);
+    assert.equal(diagnosticsJson.agentPolicyCheckpointCount, 0);
     assert.equal(diagnosticsJson.scanRunCount, 1);
     assert.equal(diagnosticsJson.hasInventoryFile, true);
     assert.equal(diagnosticsJson.hasBootstrappedShell, true);
@@ -1049,8 +1050,45 @@ export async function serverTest() {
     const agentWorkOrdersJson = await agentWorkOrdersResponse.json();
     assert.equal(agentWorkOrdersJson.total, 1);
     assert.equal(agentWorkOrdersJson.items[0].projectId, "alpha-app");
+    assert.equal(agentWorkOrdersJson.items[0].agentPolicy.policyId, "agent-policy:alpha-app");
+    assert.equal(agentWorkOrdersJson.items[0].agentPolicy.checkpointStatus, "needs-review");
+    assert.equal(agentWorkOrdersJson.items[0].agentPolicy.executable, false);
     assert.match(agentWorkOrdersJson.markdown, /# Agent Work Orders/);
     assert.match(agentWorkOrdersJson.markdown, /Alpha App/);
+    assert.match(agentWorkOrdersJson.markdown, /Agent policy checkpoint: needs-review/);
+
+    const initialAgentPolicyCheckpointsResponse = await fetch(`${baseUrl}/api/agent-policy-checkpoints`);
+    assert.equal(initialAgentPolicyCheckpointsResponse.status, 200);
+    const initialAgentPolicyCheckpointsJson = await initialAgentPolicyCheckpointsResponse.json();
+    assert.equal(initialAgentPolicyCheckpointsJson.summary.total, 0);
+
+    const approveAgentPolicyResponse = await fetch(`${baseUrl}/api/agent-policy-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        policyId: agentWorkOrdersJson.items[0].agentPolicy.policyId,
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        relPath: "alpha-app",
+        status: "approved",
+        role: agentWorkOrdersJson.items[0].agentPolicy.role,
+        runtime: agentWorkOrdersJson.items[0].agentPolicy.runtime,
+        isolationMode: agentWorkOrdersJson.items[0].agentPolicy.isolationMode,
+        skillBundle: agentWorkOrdersJson.items[0].agentPolicy.skillBundle,
+        hookPolicy: agentWorkOrdersJson.items[0].agentPolicy.hookPolicy,
+        note: "Fixture approved generated managed-agent policy."
+      })
+    });
+    assert.equal(approveAgentPolicyResponse.status, 200);
+    const approveAgentPolicyJson = await approveAgentPolicyResponse.json();
+    assert.equal(approveAgentPolicyJson.success, true);
+    assert.equal(approveAgentPolicyJson.checkpoint.status, "approved");
+
+    const approvedAgentWorkOrdersResponse = await fetch(`${baseUrl}/api/agent-work-orders`);
+    assert.equal(approvedAgentWorkOrdersResponse.status, 200);
+    const approvedAgentWorkOrdersJson = await approvedAgentWorkOrdersResponse.json();
+    assert.equal(approvedAgentWorkOrdersJson.items[0].agentPolicy.checkpointStatus, "approved");
+    assert.equal(approvedAgentWorkOrdersJson.items[0].agentPolicy.executable, true);
 
     const initialAgentWorkOrderSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-snapshots`);
     assert.equal(initialAgentWorkOrderSnapshotsResponse.status, 200);
@@ -1070,6 +1108,9 @@ export async function serverTest() {
     const createAgentWorkOrderSnapshotJson = await createAgentWorkOrderSnapshotResponse.json();
     assert.equal(createAgentWorkOrderSnapshotJson.success, true);
     assert.equal(createAgentWorkOrderSnapshotJson.snapshot.total, 1);
+    assert.equal(createAgentWorkOrderSnapshotJson.snapshot.approvedPolicyCount, 1);
+    assert.equal(createAgentWorkOrderSnapshotJson.snapshot.executableCount, 1);
+    assert.equal(createAgentWorkOrderSnapshotJson.snapshot.unresolvedPolicyCount, 0);
     assert.match(createAgentWorkOrderSnapshotJson.snapshot.markdown, /Alpha App/);
 
     const agentWorkOrderSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-snapshots`);
@@ -1082,6 +1123,11 @@ export async function serverTest() {
     assert.equal(governanceAfterWorkOrderSnapshotResponse.status, 200);
     const governanceAfterWorkOrderSnapshotJson = await governanceAfterWorkOrderSnapshotResponse.json();
     assert.equal(governanceAfterWorkOrderSnapshotJson.summary.agentWorkOrderSnapshotCount, 1);
+    assert.equal(governanceAfterWorkOrderSnapshotJson.summary.agentPolicyCheckpointCount, 1);
+    assert.equal(governanceAfterWorkOrderSnapshotJson.summary.agentPolicyCheckpointApprovedCount, 1);
+    assert.equal(governanceAfterWorkOrderSnapshotJson.summary.agentPolicyCheckpointUnresolvedCount, 0);
+    assert.equal(governanceAfterWorkOrderSnapshotJson.summary.agentPolicyExecutableCount, 1);
+    assert.equal(governanceAfterWorkOrderSnapshotJson.agentPolicyCheckpoints.length, 1);
     assert.equal(governanceAfterWorkOrderSnapshotJson.agentWorkOrderSnapshots.length, 1);
 
     const initialAgentWorkOrderRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs`);
@@ -1101,6 +1147,8 @@ export async function serverTest() {
     assert.equal(batchAgentWorkOrderRunsJson.success, true);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns.length, 1);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].snapshotId, createAgentWorkOrderSnapshotJson.snapshot.id);
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].agentPolicyId, "agent-policy:alpha-app");
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].agentPolicyCheckpointStatus, "approved");
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history.length, 1);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history[0].status, "queued");
 
@@ -1130,6 +1178,14 @@ export async function serverTest() {
         readinessScore: 45,
         readinessStatus: "blocked",
         blockers: ["active workflow missing"],
+        agentPolicyId: approvedAgentWorkOrdersJson.items[0].agentPolicy.policyId,
+        agentPolicyCheckpointId: approvedAgentWorkOrdersJson.items[0].agentPolicy.checkpointId,
+        agentPolicyCheckpointStatus: approvedAgentWorkOrdersJson.items[0].agentPolicy.checkpointStatus,
+        agentRole: approvedAgentWorkOrdersJson.items[0].agentPolicy.role,
+        runtime: approvedAgentWorkOrdersJson.items[0].agentPolicy.runtime,
+        isolationMode: approvedAgentWorkOrdersJson.items[0].agentPolicy.isolationMode,
+        skillBundle: approvedAgentWorkOrdersJson.items[0].agentPolicy.skillBundle,
+        hookPolicy: approvedAgentWorkOrdersJson.items[0].agentPolicy.hookPolicy,
         validationCommands: ["npm test"],
         notes: "Fixture execution queue item."
       })
@@ -1138,6 +1194,8 @@ export async function serverTest() {
     const createAgentWorkOrderRunJson = await createAgentWorkOrderRunResponse.json();
     assert.equal(createAgentWorkOrderRunJson.success, true);
     assert.equal(createAgentWorkOrderRunJson.run.status, "queued");
+    assert.equal(createAgentWorkOrderRunJson.run.agentPolicyCheckpointStatus, "approved");
+    assert.equal(createAgentWorkOrderRunJson.run.agentRole, approvedAgentWorkOrdersJson.items[0].agentPolicy.role);
     assert.equal(createAgentWorkOrderRunJson.run.history.length, 1);
     assert.equal(createAgentWorkOrderRunJson.run.history[0].status, "queued");
 
@@ -1181,6 +1239,7 @@ export async function serverTest() {
     assert.ok(governanceOperationTypes.includes("agent-work-order-runs-batch-queued"));
     assert.ok(governanceOperationTypes.includes("agent-work-order-run-created"));
     assert.ok(governanceOperationTypes.includes("agent-work-order-run-status-updated"));
+    assert.ok(governanceOperationTypes.includes("agent-policy-checkpoint-recorded"));
 
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
@@ -2112,6 +2171,7 @@ export async function serverTest() {
     assert.equal(diagnosticsAfterProfileJson.agentSessionCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneSnapshotCount, 3);
     assert.equal(diagnosticsAfterProfileJson.agentControlPlaneBaselineSnapshotId, refreshAgentControlPlaneBaselineJson.snapshot.id);
+    assert.equal(diagnosticsAfterProfileJson.agentPolicyCheckpointCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentExecutionSlaLedgerSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderRunCount, 6);

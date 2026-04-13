@@ -370,19 +370,31 @@ export function createDashboardModal({ getData, api }) {
     const similarContainer = document.getElementById("modal-similar");
     if (project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
+      let visibleSimilarCount = 0;
       for (const similar of project.similarApps) {
         const candidate = convergenceCandidates.find((item) =>
           (item.leftId === project.id && item.rightId === similar.id)
           || (item.rightId === project.id && item.leftId === similar.id)
         );
+        if (candidate?.reviewStatus === "not-related") {
+          continue;
+        }
+        visibleSimilarCount += 1;
         similarFragment.append(createSimilarCard(similar, {
           reviewStatus: candidate?.reviewStatus || "unreviewed",
           reviewNote: candidate?.reviewNote || ""
         }));
       }
-      similarContainer.replaceChildren(similarFragment);
-      bindAppLaunchers(similarContainer, openModal);
-      bindConvergenceReviewControls(similarContainer, project);
+      if (visibleSimilarCount) {
+        similarContainer.replaceChildren(similarFragment);
+        bindAppLaunchers(similarContainer, openModal);
+        bindConvergenceReviewControls(similarContainer, project);
+      } else {
+        similarContainer.replaceChildren(createWorkbenchEmptyState(
+          "No active convergence candidates",
+          "Reviewed pairs marked Not Related are hidden from this workbench list. Use the persisted review ledger if you need to audit those decisions."
+        ));
+      }
     } else {
       similarContainer.replaceChildren(createWorkbenchEmptyState(
         "No strong convergence detected",
@@ -399,17 +411,19 @@ export function createDashboardModal({ getData, api }) {
     container.querySelectorAll("[data-convergence-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.addEventListener("click", (event) => {
+        event.preventDefault();
         event.stopPropagation();
         const targetId = element.dataset.convergenceTargetId || "";
         const status = element.dataset.convergenceAction || "needs-review";
         const similar = project.similarApps?.find((item) => item.id === targetId);
         if (!similar) return;
+        const originalLabel = element.textContent || "";
         element.disabled = true;
         element.textContent = "Saving...";
         void handleConvergenceReview(project, similar, status).catch((error) => {
           alert(error instanceof Error ? error.message : "Convergence review failed.");
           element.disabled = false;
-          element.textContent = status.replaceAll("-", " ");
+          element.textContent = originalLabel;
         });
       });
     });

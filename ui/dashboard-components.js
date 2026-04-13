@@ -1456,6 +1456,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: "Projects ready for a supervised agent build pass"
     }),
     createKpiCard({
+      accentColor: summary.agentPolicyCheckpointUnresolvedCount ? "var(--warning)" : summary.agentPolicyCheckpointApprovedCount ? "var(--success)" : "var(--primary)",
+      label: "Agent Policies",
+      value: `${summary.agentPolicyExecutableCount || 0}/${summary.agentReadinessItems || 0}`,
+      detail: `${summary.agentPolicyCheckpointUnresolvedCount || 0} unresolved / ${summary.agentPolicyCheckpointCount || 0} checkpoint(s) before queueing`
+    }),
+    createKpiCard({
       accentColor: "var(--success)",
       label: "Work Orders",
       value: String(summary.agentWorkOrderSnapshotCount),
@@ -2387,7 +2393,41 @@ export function createGovernanceDeck(governance) {
     return null;
   }
 
-  const agentReadinessEntries = governance.agentReadinessMatrix.map((item) => createElement("div", {
+  const agentReadinessEntries = governance.agentReadinessMatrix.map((item) => {
+    const agentPolicy = item.agentPolicy || {
+      policyId: item.projectId ? `agent-policy:${item.projectId}` : "",
+      checkpointStatus: "needs-review",
+      executable: false,
+      role: "readiness-reviewer",
+      runtime: "planning-only-agent",
+      isolationMode: "read-only-planning",
+      skillBundle: [],
+      hookPolicy: [],
+      recommendedAction: "Review generated managed-agent policy before queueing."
+    };
+    const policyStatus = agentPolicy.checkpointStatus || "needs-review";
+    const policyColor = policyStatus === "approved"
+      ? "var(--success)"
+      : policyStatus === "dismissed"
+        ? "var(--text-muted)"
+        : policyStatus === "deferred"
+          ? "var(--warning)"
+          : "var(--danger)";
+    const policySkills = (agentPolicy.skillBundle || []).join(", ") || "project-governance";
+    const policyHooks = (agentPolicy.hookPolicy || []).join(", ") || "policy-checkpoint-required";
+    const policyActionPayload = {
+      agentPolicyId: agentPolicy.policyId || (item.projectId ? `agent-policy:${item.projectId}` : ""),
+      agentPolicyProjectId: encodeAppId(item.projectId),
+      agentPolicyProjectName: item.projectName,
+      agentPolicyRelPath: item.relPath || "",
+      agentPolicyRole: agentPolicy.role || "readiness-reviewer",
+      agentPolicyRuntime: agentPolicy.runtime || "planning-only-agent",
+      agentPolicyIsolationMode: agentPolicy.isolationMode || "read-only-planning",
+      agentPolicySkillBundle: JSON.stringify(agentPolicy.skillBundle || []),
+      agentPolicyHookPolicy: JSON.stringify(agentPolicy.hookPolicy || [])
+    };
+
+    return createElement("div", {
     className: "governance-gap-card",
     dataset: item.projectId ? { openAppId: encodeAppId(item.projectId) } : undefined,
     title: item.projectId ? "Open project workbench" : undefined,
@@ -2466,6 +2506,107 @@ export function createGovernanceDeck(governance) {
         color: item.agentSessionCount ? "var(--success)" : "var(--warning)"
       })
     ]),
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        background: "rgba(148, 163, 184, 0.08)",
+        borderStyle: "dashed"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem"
+          }
+        }, [
+          createElement("div", {
+            text: `Managed policy: ${agentPolicy.role || "readiness-reviewer"}`,
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${agentPolicy.runtime || "planning-only-agent"} / ${agentPolicy.isolationMode || "read-only-planning"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`POLICY ${policyStatus.toUpperCase()}`, {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: policyColor
+        })
+      ]),
+      createElement("div", {
+        text: agentPolicy.recommendedAction || "Review generated managed-agent policy before queueing.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `Skills: ${policySkills} | Hooks: ${policyHooks}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.78rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn agent-policy-checkpoint-approve-btn",
+          text: "Approve Policy",
+          attrs: { type: "button" },
+          dataset: {
+            ...policyActionPayload,
+            agentPolicyCheckpointStatus: "approved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-policy-checkpoint-review-btn",
+          text: "Needs Review",
+          attrs: { type: "button" },
+          dataset: {
+            ...policyActionPayload,
+            agentPolicyCheckpointStatus: "needs-review"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-policy-checkpoint-defer-btn",
+          text: "Defer",
+          attrs: { type: "button" },
+          dataset: {
+            ...policyActionPayload,
+            agentPolicyCheckpointStatus: "deferred"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-policy-checkpoint-dismiss-btn",
+          text: "Dismiss",
+          attrs: { type: "button" },
+          dataset: {
+            ...policyActionPayload,
+            agentPolicyCheckpointStatus: "dismissed"
+          }
+        })
+      ])
+    ]),
     getAgentReadinessAction(item)
       ? createElement("div", {
           className: "governance-actions"
@@ -2487,8 +2628,11 @@ export function createGovernanceDeck(governance) {
     }, [
       createElement("button", {
         className: "btn governance-action-btn agent-work-order-run-btn",
-        text: "Queue Run",
-        attrs: { type: "button" },
+        text: agentPolicy.executable ? "Queue Run" : "Approve Policy First",
+        attrs: agentPolicy.executable
+          ? { type: "button" }
+          : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+        title: agentPolicy.executable ? "Queue this approved generated managed-agent work order." : "Approve the generated managed-agent policy before queueing.",
         dataset: {
           agentWorkOrderRunProjectId: encodeAppId(item.projectId)
         }
@@ -2503,7 +2647,91 @@ export function createGovernanceDeck(governance) {
           color: "var(--text-muted)"
         })))
       : null
-  ]));
+  ]);
+  });
+
+  const agentPolicyCheckpointEntries = (governance.agentPolicyCheckpoints || []).map((checkpoint) => {
+    const status = checkpoint.status || "needs-review";
+    const statusColor = status === "approved"
+      ? "var(--success)"
+      : status === "dismissed"
+        ? "var(--text-muted)"
+        : status === "deferred"
+          ? "var(--warning)"
+          : "var(--danger)";
+    return createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.6rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem"
+          }
+        }, [
+          createElement("div", {
+            text: checkpoint.projectName || checkpoint.projectId || "Managed agent policy",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${checkpoint.policyId || "policy-id-missing"} | ${checkpoint.role || "role unset"} | ${checkpoint.runtime || "runtime unset"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(status.toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: statusColor
+        })
+      ]),
+      createElement("div", {
+        text: `Isolation: ${checkpoint.isolationMode || "unset"} | Skills: ${(checkpoint.skillBundle || []).join(", ") || "none"} | Hooks: ${(checkpoint.hookPolicy || []).join(", ") || "none"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      checkpoint.note || checkpoint.reason
+        ? createElement("div", {
+            text: checkpoint.note || checkpoint.reason,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        : null,
+      createElement("div", {
+        text: `${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"} | ${checkpoint.reviewer || "operator"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.78rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]);
+  });
 
   const agentWorkOrderSnapshotEntries = governance.agentWorkOrderSnapshots.map((snapshot) => createElement("div", {
     className: "governance-gap-card",
@@ -2551,7 +2779,7 @@ export function createGovernanceDeck(governance) {
       })
     ]),
     createElement("div", {
-      text: `Ready ${snapshot.readyCount} • Needs prep ${snapshot.needsPrepCount} • Blocked ${snapshot.blockedCount}`,
+      text: `Ready ${snapshot.readyCount} • Needs prep ${snapshot.needsPrepCount} • Blocked ${snapshot.blockedCount} • Policy approved ${snapshot.approvedPolicyCount || 0} • Executable ${snapshot.executableCount || 0}`,
       style: {
         color: "var(--text-muted)",
         fontSize: "0.88rem",
@@ -5341,6 +5569,16 @@ export function createGovernanceDeck(governance) {
         lineHeight: "1.5"
       }
     }),
+    run.agentPolicyId
+      ? createElement("div", {
+          text: `Agent policy: ${run.agentPolicyCheckpointStatus || "needs-review"} | ${run.agentRole || "role unset"} | ${run.runtime || "runtime unset"} / ${run.isolationMode || "isolation unset"} | skills ${(run.skillBundle || []).join(", ") || "none"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      : null,
     run.validationCommands.length
       ? createElement("div", {
           style: {
@@ -5401,6 +5639,13 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       }),
+      run.agentPolicyId
+        ? createTag(`policy ${run.agentPolicyCheckpointStatus || "needs-review"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: run.agentPolicyCheckpointStatus === "approved" ? "var(--success)" : "var(--warning)"
+          })
+        : null,
       run.archivedAt
         ? createTag("archived", {
             background: "var(--bg)",
@@ -5637,6 +5882,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Control Plane Baseline Status", "Current baseline selection state for baseline-vs-live drift workflows.", agentControlPlaneBaselineStatusEntries),
     createListSection("Control Plane Snapshots", "Persisted consolidated Agent Control Plane handoffs.", agentControlPlaneSnapshotEntries),
     createListSection("Agent Readiness Matrix", "Ranked project readiness for supervised agent build passes.", agentReadinessEntries),
+    createListSection("Agent Policy Checkpoints", "Operator decisions for generated managed-agent role, runtime, skill, and hook policies before queueing.", agentPolicyCheckpointEntries),
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),

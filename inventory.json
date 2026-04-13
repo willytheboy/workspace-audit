@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T11:43:01.321Z",
+  "generatedAt": "2026-04-13T12:02:59.566Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -22,11 +22,11 @@
     ]
   },
   "summary": {
-    "totalApps": 76,
+    "totalApps": 77,
     "zoneCounts": {
       "workspace": 13,
       "archived": 45,
-      "active": 17,
+      "active": 18,
       "sandbox": 1
     },
     "categoryCounts": {
@@ -39,10 +39,10 @@
       "Finance / Trading": 2,
       "CRM / Operations": 3,
       "Wellness / Nutrition": 3,
-      "General Workspace": 3
+      "General Workspace": 4
     },
     "avgQuality": 50,
-    "totalSource": 11962,
+    "totalSource": 11978,
     "totalTests": 326,
     "testCoverageSignal": 3,
     "newest": {
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T11:42:44.510Z",
+      "lastModifiedIso": "2026-04-13T12:02:40.486Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 199,
+      "docsFiles": 200,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 199,
-      "totalBytes": 273417,
+      "totalFiles": 200,
+      "totalBytes": 275053,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -2491,6 +2491,14 @@
       ],
       "similarApps": [
         {
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 52,
+          "reasons": [
+            "React, Vite, JavaScript, JSON"
+          ]
+        },
+        {
           "name": "Food Pyramid",
           "id": "active__13_food-pyramid",
           "score": 48,
@@ -2509,15 +2517,6 @@
         {
           "name": "My Story App",
           "id": "archive__experiments__my-story-app",
-          "score": 44,
-          "reasons": [
-            "Heritage / Content",
-            "React, JavaScript, JSON, HTML"
-          ]
-        },
-        {
-          "name": "New Sporting Club Pos",
-          "id": "archive__by-project__sporting-club__01_sporting-club-final__New_Sporting_Club_POS_x_New_Sporting_Club_POS",
           "score": 44,
           "reasons": [
             "Heritage / Content",
@@ -4578,7 +4577,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T11:42:44.510Z",
+      "lastModifiedIso": "2026-04-13T12:02:40.486Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4589,14 +4588,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 199,
+      "docsFiles": 200,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 199,
-      "totalBytes": 273417,
+      "totalFiles": 200,
+      "totalBytes": 275053,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -5319,12 +5318,11 @@
           ]
         },
         {
-          "name": "Dar Abu Nassar App",
-          "id": "dar-abu-nassar-v2",
-          "score": 44,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 48,
           "reasons": [
-            "Heritage / Content",
-            "React, JavaScript, JSON, HTML"
+            "React, JavaScript, JSON, CSS"
           ]
         }
       ]
@@ -5436,12 +5434,11 @@
           ]
         },
         {
-          "name": "Dar Abu Nassar App",
-          "id": "dar-abu-nassar-v2",
-          "score": 43,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 47,
           "reasons": [
-            "Heritage / Content",
-            "React, JavaScript, JSON, HTML"
+            "React, JavaScript, JSON, CSS"
           ]
         }
       ]
@@ -5559,12 +5556,11 @@
           ]
         },
         {
-          "name": "Dar Abu Nassar App",
-          "id": "dar-abu-nassar-v2",
-          "score": 44,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 49,
           "reasons": [
-            "Heritage / Content",
-            "React, JavaScript, JSON, HTML"
+            "React, JavaScript, JSON, CSS"
           ]
         }
       ]
@@ -6031,19 +6027,20 @@
           ]
         },
         {
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 53,
+          "reasons": [
+            "General Workspace",
+            "React, Vite, CSS, JSON"
+          ]
+        },
+        {
           "name": "Menu Companion",
           "id": "active__05_photo-studio__client-companion__web",
           "score": 40,
           "reasons": [
             "React, Vite, React TSX, CSS"
-          ]
-        },
-        {
-          "name": "My Story App",
-          "id": "archive__experiments__my-story-app",
-          "score": 32,
-          "reasons": [
-            "React, JSON, CSS, HTML"
           ]
         }
       ]
@@ -6156,11 +6153,11 @@
           ]
         },
         {
-          "name": "Workspace Reorganization",
-          "id": "temp-ws-reorg",
-          "score": 35,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 37,
           "reasons": [
-            "FastAPI, Python, React, Vite"
+            "React, Vite, JavaScript, JSON"
           ]
         }
       ]
@@ -6524,18 +6521,19 @@
         },
         {
           "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 45,
+          "reasons": [
+            "General Workspace",
+            "React, Vite, JSON, HTML"
+          ]
+        },
+        {
+          "name": "Sporting Club FNB",
           "id": "active__04_1_fnb-suite",
           "score": 41,
           "reasons": [
             "React, Vite, React TSX, TypeScript"
-          ]
-        },
-        {
-          "name": "Eventos Catering",
-          "id": "active__04_fnb-suite__catering",
-          "score": 36,
-          "reasons": [
-            "React, Vite, TypeScript, React TSX"
           ]
         }
       ]
@@ -7071,6 +7069,125 @@
       ]
     },
     {
+      "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+      "name": "Sporting Club FNB",
+      "dirName": "sporting-club-fnb",
+      "relPath": "active\\16_sportingclub-fnb\\sporting-club-fnb",
+      "absPath": "D:\\Development\\active\\16_sportingclub-fnb\\sporting-club-fnb",
+      "zone": "active",
+      "category": "General Workspace",
+      "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+      "frameworks": [
+        "React",
+        "Vite"
+      ],
+      "languages": [
+        "JavaScript",
+        "HTML",
+        "JSON",
+        "CSS"
+      ],
+      "keywords": [
+        "active",
+        "club",
+        "eslint",
+        "fnb",
+        "get",
+        "hmr",
+        "minimal",
+        "provides",
+        "react",
+        "rules",
+        "setup",
+        "some",
+        "sporting",
+        "sportingclub",
+        "template",
+        "this",
+        "vite",
+        "with",
+        "working"
+      ],
+      "lastModifiedIso": "2025-10-21T09:40:19.000Z",
+      "lastModifiedLabel": "2025-10-21",
+      "daysOld": 174,
+      "qualityScore": 45,
+      "freshnessScore": 40,
+      "testingScore": 0,
+      "docsScore": 64,
+      "readinessScore": 48,
+      "sourceFiles": 8,
+      "sourceLines": 6377,
+      "testFiles": 0,
+      "docsFiles": 2,
+      "configFiles": 2,
+      "manifestFiles": 1,
+      "lockFiles": 1,
+      "ciFiles": 0,
+      "dockerFiles": 0,
+      "totalFiles": 15,
+      "totalBytes": 635689,
+      "nestedManifestSample": [
+        "package.json"
+      ],
+      "warnings": [],
+      "scripts": [
+        "dev",
+        "build",
+        "lint",
+        "preview"
+      ],
+      "packageName": "sporting-club-fnb",
+      "deps": [
+        "react",
+        "react-dom",
+        "@eslint/js",
+        "@types/react",
+        "@types/react-dom",
+        "@vitejs/plugin-react",
+        "eslint",
+        "eslint-plugin-react-hooks",
+        "eslint-plugin-react-refresh",
+        "globals",
+        "vite"
+      ],
+      "similarApps": [
+        {
+          "name": "Projects",
+          "id": "projects",
+          "score": 53,
+          "reasons": [
+            "General Workspace",
+            "React, Vite, CSS, JSON"
+          ]
+        },
+        {
+          "name": "Dar Abu Nassar App",
+          "id": "dar-abu-nassar-v2",
+          "score": 52,
+          "reasons": [
+            "React, Vite, JavaScript, JSON"
+          ]
+        },
+        {
+          "name": "Food Pyramid",
+          "id": "active__13_food-pyramid",
+          "score": 52,
+          "reasons": [
+            "React, Vite, JavaScript, JSON"
+          ]
+        },
+        {
+          "name": "New Sporting Club Pos",
+          "id": "archive__by-project__sporting-club__01_sporting-club-final__New_Sporting_Club_POS_x_New_Sporting_Club_POS",
+          "score": 49,
+          "reasons": [
+            "React, JavaScript, JSON, CSS"
+          ]
+        }
+      ]
+    },
+    {
       "id": "archive__by-project__fnb__dropbox-offers-migration",
       "name": "Sporting Club Supabase Migration",
       "dirName": "dropbox-offers-migration",
@@ -7206,7 +7323,7 @@
         "rooted",
         "sportingclub"
       ],
-      "lastModifiedIso": "2026-04-10T10:51:28.534Z",
+      "lastModifiedIso": "2026-04-10T10:52:42.483Z",
       "lastModifiedLabel": "2026-04-10",
       "daysOld": 3,
       "qualityScore": 42,
@@ -7214,8 +7331,8 @@
       "testingScore": 0,
       "docsScore": 2,
       "readinessScore": 34,
-      "sourceFiles": 95,
-      "sourceLines": 16654,
+      "sourceFiles": 103,
+      "sourceLines": 18223,
       "testFiles": 0,
       "docsFiles": 1,
       "configFiles": 5,
@@ -7223,15 +7340,15 @@
       "lockFiles": 1,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 103,
-      "totalBytes": 5235651,
+      "totalFiles": 124,
+      "totalBytes": 5670288,
       "nestedManifestSample": [
-        "sporting-club-fnb\\package.json"
+        "sporting-club-fnb-a\\package.json"
       ],
       "warnings": [
         {
           "type": "danger",
-          "message": "High complexity (95 source files) but 0 test files detected."
+          "message": "High complexity (103 source files) but 0 test files detected."
         },
         {
           "type": "warning",
@@ -7269,11 +7386,12 @@
           ]
         },
         {
-          "name": "Menu Companion",
-          "id": "active__05_photo-studio__client-companion__web",
-          "score": 39,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 45,
           "reasons": [
-            "React, Vite, React TSX, TypeScript"
+            "General Workspace",
+            "React, Vite, HTML, JSON"
           ]
         }
       ]

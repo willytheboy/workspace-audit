@@ -1041,3 +1041,10 @@
 - [x] Add command-palette parity for Governance workflow task seeding.
 - [x] Preserve Sources behavior while letting Governance workflow seeding refresh the Governance deck and keep automatic task-ledger snapshot capture.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Data Sources Access Validation Workflow Task Visibility
+
+- [x] Add a Governance KPI for workflow-seeded Data Sources access validation tasks.
+- [x] Add a dedicated Governance deck section for workflow-seeded source validation tasks with lifecycle controls.
+- [x] Add workflow task counts and workflow identifiers to Governance source-access task ledger reports.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

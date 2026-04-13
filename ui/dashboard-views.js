@@ -646,7 +646,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         : null,
       dataSourcesAccessTasks: filterAndSort(
         governance.dataSourcesAccessTasks || [],
-        (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.sourceLabel || "", task.sourceType || "", task.accessMethod || "", task.description || ""],
+        (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.sourceLabel || "", task.sourceType || "", task.accessMethod || "", task.workflowStage || "", task.workflowStatus || "", task.sourceAccessValidationWorkflowId || "", task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
       dataSourceAccessTaskLedgerSnapshots: filterAndSort(
@@ -1158,12 +1158,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   function buildGovernanceDataSourcesAccessTaskLedgerMarkdown() {
     const governance = getFilteredGovernance();
     const tasks = governance?.dataSourcesAccessTasks || [];
+    const workflowTasks = tasks.filter((task) => task.sourceAccessValidationWorkflowId);
     const filters = getGovernanceFilterState();
     const lines = [
       "# Governance Data Sources Access Task Ledger",
       "",
       `Generated: ${new Date().toLocaleString()}`,
       `Visible tasks: ${tasks.length}`,
+      `Visible validation workflow tasks: ${workflowTasks.length}`,
       `Open tasks: ${governanceCache?.summary.dataSourcesAccessOpenTaskCount ?? 0}`,
       `Total tasks: ${governanceCache?.summary.dataSourcesAccessTaskCount ?? 0}`,
       `Scope filter: ${filters.scope}`,
@@ -1184,6 +1186,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`  Source: ${task.sourceLabel || "Source"} (${task.sourceType || "source"})`);
       lines.push(`  Access method: ${task.accessMethod || "review-required"}`);
       lines.push(`  Review id: ${task.sourceAccessReviewId || "source-access-task"}`);
+      if (task.sourceAccessValidationWorkflowId) {
+        lines.push(`  Workflow id: ${task.sourceAccessValidationWorkflowId}`);
+        lines.push(`  Workflow stage: ${task.workflowStage || "validation"} / ${task.workflowStatus || "pending"}`);
+      }
       if (task.description) {
         lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
       }
@@ -2477,12 +2483,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push("- No visible Data Sources access validation evidence snapshot drift.");
     }
 
+    lines.push("", "## Data Sources Access Validation Workflow Tasks");
+    const dataSourcesAccessValidationWorkflowTasks = (governance.dataSourcesAccessTasks || []).filter((task) => task.sourceAccessValidationWorkflowId);
+    if (dataSourcesAccessValidationWorkflowTasks.length) {
+      for (const task of dataSourcesAccessValidationWorkflowTasks) {
+        lines.push(`- ${task.title}: ${task.status || "open"} / ${task.priority || "low"}`);
+        lines.push(`  Source: ${task.sourceLabel || "Source"} (${task.sourceType || "source"})`);
+        lines.push(`  Workflow: ${task.workflowStage || "validation"} / ${task.workflowStatus || "pending"}`);
+        lines.push(`  Workflow id: ${task.sourceAccessValidationWorkflowId}`);
+        lines.push(`  Evidence: ${task.latestEvidenceStatus || task.coverageStatus || "missing"}`);
+      }
+    } else {
+      lines.push("- No visible Data Sources access validation workflow tasks.");
+    }
+
     lines.push("", "## Data Sources Access Task Ledger");
     if (governance.dataSourcesAccessTasks?.length) {
       for (const task of governance.dataSourcesAccessTasks) {
         lines.push(`- ${task.title}: ${task.status || "open"} / ${task.priority || "low"}`);
         lines.push(`  Source: ${task.sourceLabel || "Source"} (${task.sourceType || "source"})`);
         lines.push(`  Access method: ${task.accessMethod || "review-required"}`);
+        if (task.sourceAccessValidationWorkflowId) {
+          lines.push(`  Workflow id: ${task.sourceAccessValidationWorkflowId}`);
+        }
         if (task.description) {
           lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
         }

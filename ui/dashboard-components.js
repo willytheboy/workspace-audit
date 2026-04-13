@@ -1194,6 +1194,14 @@ export function createGovernanceSummaryGrid(governance) {
       : "var(--success)";
   const dataSourcesAccessReviewSummary = governance.dataSourcesAccessReviewQueue?.summary || {};
   const dataSourcesAccessReviewCount = dataSourcesAccessReviewSummary.total || summary.dataSourcesAccessReviewQueueCount || 0;
+  const dataSourcesAccessTasks = Array.isArray(governance.dataSourcesAccessTasks)
+    ? governance.dataSourcesAccessTasks
+    : [];
+  const dataSourcesAccessValidationWorkflowTaskCount = dataSourcesAccessTasks.filter((task) => task.sourceAccessValidationWorkflowId).length;
+  const dataSourcesAccessValidationWorkflowOpenTaskCount = dataSourcesAccessTasks.filter((task) => {
+    if (!task.sourceAccessValidationWorkflowId) return false;
+    return !["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase());
+  }).length;
   const dataSourcesAccessValidationRunbookSummary = governance.dataSourcesAccessValidationRunbook?.summary || {};
   const dataSourcesAccessValidationEvidenceCoverageSummary = governance.dataSourcesAccessValidationEvidenceCoverage?.summary || {};
   const evidenceSnapshotDriftSeverity = summary.dataSourceAccessValidationEvidenceSnapshotDriftSeverity || "missing-snapshot";
@@ -1408,6 +1416,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Workflow Drift",
       value: workflowSnapshotDriftSeverity.toUpperCase(),
       detail: `${summary.dataSourceAccessValidationWorkflowSnapshotCount || 0} snapshot(s) • ${summary.dataSourcesAccessValidationWorkflowReadyCount || 0}/${summary.dataSourcesAccessValidationWorkflowTotalCount || 0} ready • drift score ${summary.dataSourceAccessValidationWorkflowSnapshotDriftScore || 0}`
+    }),
+    createKpiCard({
+      accentColor: dataSourcesAccessValidationWorkflowOpenTaskCount ? "var(--warning)" : "var(--success)",
+      label: "Workflow Tasks",
+      value: `${dataSourcesAccessValidationWorkflowOpenTaskCount}/${dataSourcesAccessValidationWorkflowTaskCount}`,
+      detail: "Open source validation workflow tasks created from Governance or Sources seeding"
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -2496,6 +2510,7 @@ export function createGovernanceDeck(governance) {
   const dataSourcesAccessTasks = Array.isArray(governance.dataSourcesAccessTasks)
     ? governance.dataSourcesAccessTasks
     : [];
+  const dataSourcesAccessValidationWorkflowTasks = dataSourcesAccessTasks.filter((task) => task.sourceAccessValidationWorkflowId);
   const dataSourcesAccessGatePayload = governance.dataSourcesAccessGate;
   const dataSourcesAccessGateReasons = Array.isArray(dataSourcesAccessGatePayload?.reasons)
     ? dataSourcesAccessGatePayload.reasons
@@ -3286,6 +3301,112 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
           color: "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      task.status !== "resolved"
+        ? createElement("button", {
+            className: "btn governance-action-btn source-access-task-resolve-btn",
+            text: "Resolve",
+            attrs: { type: "button" },
+            dataset: {
+              sourceAccessTaskAction: "resolve",
+              taskId: task.id
+            }
+          })
+        : createElement("button", {
+            className: "btn governance-action-btn source-access-task-reopen-btn",
+            text: "Reopen",
+            attrs: { type: "button" },
+            dataset: {
+              sourceAccessTaskAction: "reopen",
+              taskId: task.id
+            }
+          }),
+      task.status !== "blocked"
+        ? createElement("button", {
+            className: "btn governance-action-btn source-access-task-block-btn",
+            text: "Block",
+            attrs: { type: "button" },
+            dataset: {
+              sourceAccessTaskAction: "block",
+              taskId: task.id
+            }
+          })
+        : null
+    ])
+  ]));
+  const dataSourcesAccessValidationWorkflowTaskEntries = dataSourcesAccessValidationWorkflowTasks.map((task) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: task.title || "Source validation workflow task",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.sourceLabel || "Source"} • ${task.workflowStage || "validation"} • ${task.accessMethod || "review-required"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag((task.status || "open").toUpperCase(), {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase()) ? "var(--success)" : task.status === "blocked" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      text: task.description ? String(task.description).split("\n")[0] : "Track the source access validation workflow without storing secrets.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(task.sourceAccessValidationWorkflowId || "source-access-validation-workflow", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(`Workflow: ${task.workflowStatus || "pending"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: task.workflowStatus === "ready" ? "var(--success)" : task.workflowStatus === "blocked" ? "var(--danger)" : "var(--warning)"
+      }),
+      createTag(`Evidence: ${task.latestEvidenceStatus || task.coverageStatus || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (task.latestEvidenceStatus || task.coverageStatus) === "validated" || (task.latestEvidenceStatus || task.coverageStatus) === "covered" ? "var(--success)" : (task.latestEvidenceStatus || task.coverageStatus) === "blocked" ? "var(--danger)" : "var(--warning)"
+      }),
+      createTag(task.secretPolicy || "non-secret-validation-workflow-only", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
       })
     ]),
     createElement("div", {
@@ -5176,6 +5297,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Data Sources Access Validation Evidence Snapshot Drift", "Latest saved evidence snapshot compared with the current non-secret evidence ledger.", dataSourceAccessValidationEvidenceSnapshotDiffEntries),
     createListSection("Data Sources Access Validation Workflow Snapshots", "Persisted non-secret source-access validation workflow handoffs.", dataSourceAccessValidationWorkflowSnapshotEntries),
     createListSection("Data Sources Access Validation Workflow Snapshot Drift", "Latest saved workflow snapshot compared with the current source-access validation workflow.", dataSourceAccessValidationWorkflowSnapshotDiffEntries),
+    createListSection("Data Sources Access Validation Workflow Tasks", "Workflow-seeded source-access tasks with their validation stage, evidence state, and lifecycle controls.", dataSourcesAccessValidationWorkflowTaskEntries),
     createListSection("Data Sources Access Task Ledger", "Trackable Governance tasks created from source-access review queue items.", dataSourcesAccessTaskEntries),
     createListSection("Data Sources Access Task Ledger Snapshots", "Persisted non-secret source-access task ledger handoffs.", dataSourcesAccessTaskLedgerSnapshotEntries),
     createListSection("Control Plane Decision Snapshots", "Persisted ready/review/hold decision gates for audit and supervised-build handoff history.", agentControlPlaneDecisionSnapshotEntries),

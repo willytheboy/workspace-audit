@@ -1103,3 +1103,10 @@
 - [x] Add Governance toolbar defer/dismiss checkpoint actions for source validation workflow, source-access review, and evidence-coverage task batches.
 - [x] Add command-palette defer/dismiss entries for the same source-access generated task batches.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Item Checkpoint Controls
+
+- [x] Add Sources per-item confirm/defer/dismiss checkpoints for Data Sources access review queue items.
+- [x] Add Sources per-item confirm/defer/dismiss checkpoints for Data Sources evidence coverage items.
+- [x] Add Governance deck per-item confirm/defer/dismiss checkpoints for the same inferred source-access blockers.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

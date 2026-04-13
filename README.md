@@ -87,6 +87,7 @@ Architecture:
 - Governance action queue items now include a per-item `Not Actionable` checkpoint so generated remediation items can be suppressed individually and restored later if needed.
 - Governance generated task seeding now has persisted `Defer Batch` and `Dismiss Batch` checkpoints for high-risk task batches before or instead of creating task records.
 - Sources and Governance task-seeding entry points now expose toolbar and command-palette defer/dismiss checkpoints for validation workflow, source-access review, and evidence-coverage task batches.
+- Data Sources access review and evidence-coverage cards now expose per-item `Confirm Item`, `Defer Item`, and `Dismiss Item` checkpoints so inferred source blockers can be reviewed before task creation.
 - Workflow task seeding can auto-capture a Data Sources access task-ledger snapshot so seeded validation work has an immediate review baseline.
 - Data Sources can now copy an actionable access checklist that turns those requirements into validation steps for each tracked source.
 - Data Sources can now copy a non-secret access validation runbook grouped by access method, including safe operator-side command hints.

@@ -2787,6 +2787,27 @@ export function createGovernanceDeck(governance) {
             color: "var(--text-muted)"
           })
         : null
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      ...[
+        ["approved", "Confirm Item"],
+        ["deferred", "Defer Item"],
+        ["dismissed", "Dismiss Item"]
+      ].map(([status, label]) => createElement("button", {
+        className: `btn governance-action-btn source-access-review-item-${status}-btn`,
+        text: label,
+        attrs: { type: "button" },
+        dataset: {
+          taskSeedingCheckpoint: "true",
+          taskSeedingBatchId: item.id || `source-access-review:${item.sourceId || item.label || "source"}`,
+          taskSeedingStatus: status,
+          taskSeedingSource: "governance-data-sources-access-review-queue",
+          taskSeedingTitle: item.title || `Source access review: ${item.label || item.sourceId || "Source"}`,
+          taskSeedingItemCount: "1"
+        }
+      }))
     ])
   ]));
   const dataSourcesAccessValidationRunbookEntries = dataSourcesAccessValidationRunbookMethods.map((method) => createElement("div", {
@@ -2938,6 +2959,27 @@ export function createGovernanceDeck(governance) {
           }
         })
       : null,
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      ...[
+        ["approved", "Confirm Item"],
+        ["deferred", "Defer Item"],
+        ["dismissed", "Dismiss Item"]
+      ].map(([status, label]) => createElement("button", {
+        className: `btn governance-action-btn source-evidence-coverage-item-${status}-btn`,
+        text: label,
+        attrs: { type: "button" },
+        dataset: {
+          taskSeedingCheckpoint: "true",
+          taskSeedingBatchId: item.id || `source-evidence-coverage:${item.sourceId || item.label || "source"}`,
+          taskSeedingStatus: status,
+          taskSeedingSource: "governance-data-sources-access-validation-evidence-coverage",
+          taskSeedingTitle: `Source evidence coverage: ${item.label || item.sourceId || "Source"}`,
+          taskSeedingItemCount: "1"
+        }
+      }))
+    ]),
     item.sourceId
       ? createElement("div", {
           className: "governance-actions"

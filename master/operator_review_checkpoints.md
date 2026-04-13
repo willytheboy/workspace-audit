@@ -14,10 +14,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Agent Control Plane snapshot drift: each saved snapshot now exposes `Track Drift` and `Accept Drift` controls so drift can become a non-secret Governance task or be approved by refreshing the live control plane as the current baseline.
 - Generated task seeding: high-risk task batch controls now expose `Defer Batch` and `Dismiss Batch` checkpoints that persist to a non-secret task-seeding checkpoint ledger and Governance operation log before or instead of creating tasks.
 - Source-access task seeding: Sources and Governance toolbar plus command-palette task-batch entry points now expose defer/dismiss checkpoints for validation workflow, review queue, and evidence-coverage task batches that derive from inferred source-access state.
+- Source-access inferred blocker items: Data Sources access review queue and evidence coverage cards now expose per-item confirm/defer/dismiss checkpoints before inferred blockers are converted into tasks.
 
 ## Next Checkpoint Candidates
 
-- Add per-item checkpoints to Data Sources access review queue and evidence coverage cards where individual inferred blockers should be confirmed, deferred, or dismissed before task creation.
+- Add checkpoint filtering and lifecycle status grouping to the Task Seeding Checkpoints Governance ledger so approved, deferred, and dismissed source-access decisions can be audited independently.
 
 ## Implementation Standard
 

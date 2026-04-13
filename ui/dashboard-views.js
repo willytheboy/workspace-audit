@@ -884,7 +884,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         const originalLabel = element.textContent || "";
         try {
           element.disabled = true;
-          element.textContent = status === "dismissed" ? "Dismissing" : "Deferring";
+          element.textContent = status === "dismissed" ? "Dismissing" : status === "approved" ? "Confirming" : "Deferring";
           await api.createTaskSeedingCheckpoint({
             batchId,
             status,
@@ -1013,6 +1013,45 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           element.textContent = result.taskSync?.updated ? `Synced ${result.taskSync.updated}` : "Recorded";
           await refreshAfterRecord();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindSourceTaskSeedingCheckpointActions(container) {
+    container.querySelectorAll("[data-source-task-seeding-checkpoint]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const batchId = element.dataset.taskSeedingBatchId || "";
+        const status = element.dataset.taskSeedingStatus || "needs-review";
+        const title = element.dataset.taskSeedingTitle || "Data Sources generated task item";
+        const source = element.dataset.taskSeedingSource || "sources";
+        const itemCount = Number(element.dataset.taskSeedingItemCount || 1);
+        if (!batchId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = status === "dismissed" ? "Dismissing" : status === "approved" ? "Confirming" : "Deferring";
+          await recordGeneratedTaskBatchCheckpoint({
+            batchId,
+            status,
+            title,
+            source,
+            itemCount,
+            renderTarget: "sources",
+            note: `Operator marked the Data Sources inferred task item as ${status} from the Sources item checkpoint before task creation.`
+          });
         } catch (error) {
           element.disabled = false;
           element.textContent = originalLabel;
@@ -3564,7 +3603,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       validation.style.fontSize = "0.78rem";
       validation.style.marginTop = "0.25rem";
 
-      body.append(itemTitle, action, validation);
+      const checkpointActions = document.createElement("div");
+      checkpointActions.className = "governance-actions source-access-review-item-checkpoints";
+      checkpointActions.style.marginTop = "0.65rem";
+      for (const [status, label] of [
+        ["approved", "Confirm Item"],
+        ["deferred", "Defer Item"],
+        ["dismissed", "Dismiss Item"]
+      ]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `btn governance-action-btn source-access-review-item-${status}-btn`;
+        button.textContent = label;
+        button.dataset.sourceTaskSeedingCheckpoint = "true";
+        button.dataset.taskSeedingBatchId = item.id || `source-access-review:${item.sourceId || item.label || "source"}`;
+        button.dataset.taskSeedingStatus = status;
+        button.dataset.taskSeedingSource = "sources-access-review-queue";
+        button.dataset.taskSeedingTitle = item.title || `Source access review: ${item.label || item.sourceId || "Source"}`;
+        button.dataset.taskSeedingItemCount = "1";
+        checkpointActions.append(button);
+      }
+
+      body.append(itemTitle, action, validation, checkpointActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -3672,7 +3732,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       evidence.style.fontSize = "0.78rem";
       evidence.style.lineHeight = "1.4";
 
-      body.append(cardTitle, action, evidence);
+      const checkpointActions = document.createElement("div");
+      checkpointActions.className = "governance-actions source-evidence-coverage-item-checkpoints";
+      checkpointActions.style.marginTop = "0.65rem";
+      for (const [status, label] of [
+        ["approved", "Confirm Item"],
+        ["deferred", "Defer Item"],
+        ["dismissed", "Dismiss Item"]
+      ]) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `btn governance-action-btn source-evidence-coverage-item-${status}-btn`;
+        button.textContent = label;
+        button.dataset.sourceTaskSeedingCheckpoint = "true";
+        button.dataset.taskSeedingBatchId = item.id || `source-evidence-coverage:${item.sourceId || item.label || "source"}`;
+        button.dataset.taskSeedingStatus = status;
+        button.dataset.taskSeedingSource = "sources-access-validation-evidence-coverage";
+        button.dataset.taskSeedingTitle = `Source evidence coverage: ${item.label || item.sourceId || "Source"}`;
+        button.dataset.taskSeedingItemCount = "1";
+        checkpointActions.append(button);
+      }
+
+      body.append(cardTitle, action, evidence, checkpointActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -4085,6 +4166,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindSourceRegistryActions(container, sources);
       bindDeploymentHealthActions(container);
       bindSourceAccessEvidenceActions(container, renderSources);
+      bindSourceTaskSeedingCheckpointActions(container);
       bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {

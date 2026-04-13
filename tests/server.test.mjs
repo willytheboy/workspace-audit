@@ -2693,17 +2693,37 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(sourceTaskSeedingCheckpointJson.checkpoint.status, "dismissed");
     assert.equal(sourceTaskSeedingCheckpointJson.checkpoint.source, "sources-access-validation-workflow");
 
+    const sourceItemTaskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        batchId: "fixture-source-review-item",
+        title: "Fixture Source Review Item Checkpoint",
+        source: "sources-access-review-queue",
+        status: "approved",
+        itemCount: 1,
+        note: "Fixture non-secret source review item checkpoint before task creation."
+      })
+    });
+    assert.equal(sourceItemTaskSeedingCheckpointResponse.status, 200);
+    const sourceItemTaskSeedingCheckpointJson = await sourceItemTaskSeedingCheckpointResponse.json();
+    assert.equal(sourceItemTaskSeedingCheckpointJson.success, true);
+    assert.equal(sourceItemTaskSeedingCheckpointJson.checkpoint.status, "approved");
+    assert.equal(sourceItemTaskSeedingCheckpointJson.checkpoint.source, "sources-access-review-queue");
+
     const taskSeedingCheckpointLedgerResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`);
     assert.equal(taskSeedingCheckpointLedgerResponse.status, 200);
     const taskSeedingCheckpointLedgerJson = await taskSeedingCheckpointLedgerResponse.json();
-    assert.equal(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.length, 2);
+    assert.equal(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.length, 3);
     assert.ok(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.batchId === "fixture-generated-task-batch"));
     assert.ok(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.batchId === "fixture-source-workflow-task-batch"));
+    assert.ok(taskSeedingCheckpointLedgerJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.batchId === "fixture-source-review-item"));
 
     const governanceAfterTaskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterTaskSeedingCheckpointResponse.status, 200);
     const governanceAfterTaskSeedingCheckpointJson = await governanceAfterTaskSeedingCheckpointResponse.json();
-    assert.equal(governanceAfterTaskSeedingCheckpointJson.summary.taskSeedingCheckpointCount, 2);
+    assert.equal(governanceAfterTaskSeedingCheckpointJson.summary.taskSeedingCheckpointCount, 3);
+    assert.ok(governanceAfterTaskSeedingCheckpointJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.status === "approved"));
     assert.ok(governanceAfterTaskSeedingCheckpointJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.status === "deferred"));
     assert.ok(governanceAfterTaskSeedingCheckpointJson.taskSeedingCheckpoints.some((checkpoint) => checkpoint.status === "dismissed"));
     assert.ok(governanceAfterTaskSeedingCheckpointJson.operationLog.some((operation) => operation.type === "task-seeding-checkpoint-recorded"));

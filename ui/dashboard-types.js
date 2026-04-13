@@ -521,6 +521,8 @@
  *   agentControlPlaneDecisionOpenTaskCount: number,
  *   agentControlPlaneDecisionClosedTaskCount: number,
  *   agentControlPlaneDecisionTasks: PersistedTask[],
+ *   governanceTaskUpdateLedgerSnapshotCount: number,
+ *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshotCount: number,
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
  *   dataSourcesGateDecision: "ready" | "review" | "hold" | "not-evaluated",
@@ -772,6 +774,7 @@
  *   releaseBuildGate: ReleaseBuildGatePayload | null,
  *   releaseControlTasks: PersistedTask[],
  *   agentControlPlaneDecisionTasks: PersistedTask[],
+ *   governanceTaskUpdateLedgerSnapshots: PersistedGovernanceTaskUpdateLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
@@ -953,6 +956,7 @@
  *   executionRuns: AgentControlPlaneSnapshotDriftSection,
  *   slaLedger: AgentControlPlaneSnapshotDriftSection,
  *   workOrderSnapshots: AgentControlPlaneSnapshotDriftSection,
+ *   governanceTaskUpdateLedgerSnapshots: AgentControlPlaneSnapshotDriftSection,
  *   slaLedgerSnapshots: AgentControlPlaneSnapshotDriftSection,
  *   markdown: string
  * }} AgentControlPlaneSnapshotDiffPayload

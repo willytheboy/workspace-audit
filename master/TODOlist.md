@@ -980,3 +980,10 @@
 - [x] Add `GET` and `POST /api/governance/task-update-ledger-snapshots` plus latest/specific snapshot drift.
 - [x] Add Governance deck, toolbar, and command-palette actions for saving task audit snapshots and copying drift.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Task Update Audit Snapshot Control Plane Wiring
+
+- [x] Feed Governance task update audit ledger snapshot counts into consolidated Agent Control Plane handoffs.
+- [x] Persist Governance task update audit ledger snapshot counts/lists in Agent Control Plane snapshot records.
+- [x] Add Governance task update audit ledger snapshot count and list drift to Agent Control Plane baseline drift.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -201,6 +201,7 @@ Architecture:
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
 - `GET /api/governance/task-update-ledger` now exposes task update audit operations as a non-secret lifecycle ledger with markdown handoff output.
 - `GET`/`POST /api/governance/task-update-ledger-snapshots` now persists non-secret task update audit ledger handoffs, and `/diff` compares the latest saved snapshot with live task update operations.
+- Agent Control Plane handoffs, snapshot records, and baseline drift now track Governance task update audit ledger snapshot counts and snapshot-list drift.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.

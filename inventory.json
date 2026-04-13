@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-13T07:27:47.497Z",
+  "generatedAt": "2026-04-13T07:48:33.132Z",
   "rootDir": "D:\\Development",
   "meta": {
     "zoneOptions": [
@@ -61,7 +61,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T07:26:13.394Z",
+      "lastModifiedIso": "2026-04-13T07:48:10.166Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 190,
+      "docsFiles": 191,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 190,
-      "totalBytes": 258094,
+      "totalFiles": 191,
+      "totalBytes": 260048,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -4578,7 +4578,7 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T07:26:13.394Z",
+      "lastModifiedIso": "2026-04-13T07:48:10.166Z",
       "lastModifiedLabel": "2026-04-13",
       "daysOld": 0,
       "qualityScore": 28,
@@ -4589,14 +4589,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 190,
+      "docsFiles": 191,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 190,
-      "totalBytes": 258094,
+      "totalFiles": 191,
+      "totalBytes": 260048,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -9195,7 +9195,7 @@
       ],
       "lastModifiedIso": "2026-01-31T19:36:57.739Z",
       "lastModifiedLabel": "2026-01-31",
-      "daysOld": 71,
+      "daysOld": 72,
       "qualityScore": 63,
       "freshnessScore": 65,
       "testingScore": 0,

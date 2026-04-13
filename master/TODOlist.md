@@ -1096,3 +1096,10 @@
 - [x] Add `Defer Batch` and `Dismiss Batch` controls to Release Build Gate and Agent Control Plane decision task seeding controls.
 - [x] Surface saved task-seeding checkpoints in the Governance deck and operation log.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Task Seeding Checkpoint Action Expansion
+
+- [x] Add Sources toolbar defer/dismiss checkpoint actions for validation workflow task batches.
+- [x] Add Governance toolbar defer/dismiss checkpoint actions for source validation workflow, source-access review, and evidence-coverage task batches.
+- [x] Add command-palette defer/dismiss entries for the same source-access generated task batches.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -158,6 +158,12 @@ async function seedSourcesAccessValidationWorkflowTasks() {
   return views.seedSourcesAccessValidationWorkflowTasks();
 }
 
+async function checkpointSourcesAccessValidationWorkflowTasks(status) {
+  setView("sources");
+  await views.renderSources();
+  return views.checkpointSourcesAccessValidationWorkflowTasks(status);
+}
+
 async function copySourcesAccessChecklist() {
   setView("sources");
   await views.renderSources();
@@ -222,6 +228,12 @@ async function seedGovernanceDataSourcesAccessValidationWorkflowTasks() {
   setView("governance");
   await views.renderGovernance();
   return views.seedSourcesAccessValidationWorkflowTasks({ renderTarget: "governance" });
+}
+
+async function checkpointGovernanceDataSourcesAccessValidationWorkflowTasks(status) {
+  setView("governance");
+  await views.renderGovernance();
+  return views.checkpointSourcesAccessValidationWorkflowTasks(status, { renderTarget: "governance" });
 }
 
 async function copySourcesAccessMatrix() {
@@ -299,10 +311,22 @@ async function seedGovernanceDataSourcesAccessReviewTasks() {
   return views.seedGovernanceDataSourcesAccessReviewTasks();
 }
 
+async function checkpointGovernanceDataSourcesAccessReviewTasks(status) {
+  setView("governance");
+  await views.renderGovernance();
+  return views.checkpointGovernanceDataSourcesAccessReviewTasks(status);
+}
+
 async function seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks() {
   setView("governance");
   await views.renderGovernance();
   return views.seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks();
+}
+
+async function checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks(status) {
+  setView("governance");
+  await views.renderGovernance();
+  return views.checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks(status);
 }
 
 async function copyGovernanceDataSourcesAccessTaskLedger() {
@@ -614,6 +638,7 @@ const actionRegistry = createDashboardActionRegistry({
     copySourcesAccessValidationWorkflow,
     saveSourcesAccessValidationWorkflowSnapshot,
     copyLatestSourcesAccessValidationWorkflowSnapshotDrift,
+    checkpointSourcesAccessValidationWorkflowTasks,
     seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
@@ -642,8 +667,11 @@ const actionRegistry = createDashboardActionRegistry({
     copyGovernanceDataSourcesAccessValidationWorkflow,
     saveGovernanceDataSourcesAccessValidationWorkflowSnapshot,
     copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift,
+    checkpointGovernanceDataSourcesAccessValidationWorkflowTasks,
     seedGovernanceDataSourcesAccessValidationWorkflowTasks,
+    checkpointGovernanceDataSourcesAccessReviewTasks,
     seedGovernanceDataSourcesAccessReviewTasks,
+    checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     copyGovernanceDataSourcesAccessTaskLedger,
     saveDataSourcesAccessTaskLedgerSnapshot,
@@ -886,6 +914,18 @@ function bindEventListeners() {
   );
 
   bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("defer-sources-access-validation-workflow-tasks-btn")),
+    "Deferring...",
+    () => checkpointSourcesAccessValidationWorkflowTasks("deferred")
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("dismiss-sources-access-validation-workflow-tasks-btn")),
+    "Dismissing...",
+    () => checkpointSourcesAccessValidationWorkflowTasks("dismissed")
+  );
+
+  bindAsyncButton(
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-checklist-btn")),
     "Copying...",
     () => copySourcesAccessChecklist()
@@ -1102,15 +1142,51 @@ function bindEventListeners() {
   );
 
   bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("defer-governance-source-access-validation-workflow-tasks-btn")),
+    "Deferring...",
+    () => checkpointGovernanceDataSourcesAccessValidationWorkflowTasks("deferred")
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("dismiss-governance-source-access-validation-workflow-tasks-btn")),
+    "Dismissing...",
+    () => checkpointGovernanceDataSourcesAccessValidationWorkflowTasks("dismissed")
+  );
+
+  bindAsyncButton(
     /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-source-access-tasks-btn")),
     "Creating...",
     () => seedGovernanceDataSourcesAccessReviewTasks()
   );
 
   bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("defer-governance-source-access-tasks-btn")),
+    "Deferring...",
+    () => checkpointGovernanceDataSourcesAccessReviewTasks("deferred")
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("dismiss-governance-source-access-tasks-btn")),
+    "Dismissing...",
+    () => checkpointGovernanceDataSourcesAccessReviewTasks("dismissed")
+  );
+
+  bindAsyncButton(
     /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-source-evidence-coverage-tasks-btn")),
     "Creating...",
     () => seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("defer-governance-source-evidence-coverage-tasks-btn")),
+    "Deferring...",
+    () => checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks("deferred")
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("dismiss-governance-source-evidence-coverage-tasks-btn")),
+    "Dismissing...",
+    () => checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks("dismissed")
   );
 
   bindAsyncButton(

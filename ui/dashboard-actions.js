@@ -33,6 +33,7 @@
  *     copySourcesAccessValidationWorkflow: () => Promise<void>,
  *     saveSourcesAccessValidationWorkflowSnapshot: () => Promise<void>,
  *     copyLatestSourcesAccessValidationWorkflowSnapshotDrift: () => Promise<void>,
+ *     checkpointSourcesAccessValidationWorkflowTasks: (status: "deferred" | "dismissed") => Promise<void>,
  *     seedSourcesAccessValidationWorkflowTasks: () => Promise<void>,
  *     copySourcesAccessChecklist: () => Promise<void>,
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
@@ -61,8 +62,11 @@
  *     copyGovernanceDataSourcesAccessValidationWorkflow: () => Promise<void>,
  *     saveGovernanceDataSourcesAccessValidationWorkflowSnapshot: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessValidationWorkflowSnapshotDrift: () => Promise<void>,
+ *     checkpointGovernanceDataSourcesAccessValidationWorkflowTasks: (status: "deferred" | "dismissed") => Promise<void>,
  *     seedGovernanceDataSourcesAccessValidationWorkflowTasks: () => Promise<void>,
+ *     checkpointGovernanceDataSourcesAccessReviewTasks: (status: "deferred" | "dismissed") => Promise<void>,
  *     seedGovernanceDataSourcesAccessReviewTasks: () => Promise<void>,
+ *     checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks: (status: "deferred" | "dismissed") => Promise<void>,
  *     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessTaskLedger: () => Promise<void>,
  *     saveDataSourcesAccessTaskLedgerSnapshot: () => Promise<void>,
@@ -265,6 +269,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "validation", "workflow", "tasks", "seed", "blockers"],
         run: () => handlers.seedSourcesAccessValidationWorkflowTasks()
+      },
+      {
+        id: "defer-sources-access-validation-workflow-tasks",
+        label: "Defer sources validation workflow tasks",
+        description: "Record a non-secret checkpoint that defers the generated validation workflow task batch.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "validation", "workflow", "tasks", "defer", "checkpoint"],
+        run: () => handlers.checkpointSourcesAccessValidationWorkflowTasks("deferred")
+      },
+      {
+        id: "dismiss-sources-access-validation-workflow-tasks",
+        label: "Dismiss sources validation workflow tasks",
+        description: "Record a non-secret checkpoint that dismisses the generated validation workflow task batch.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "validation", "workflow", "tasks", "dismiss", "checkpoint"],
+        run: () => handlers.checkpointSourcesAccessValidationWorkflowTasks("dismissed")
       },
       {
         id: "copy-sources-access-checklist",
@@ -501,6 +521,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         run: () => handlers.seedGovernanceDataSourcesAccessValidationWorkflowTasks()
       },
       {
+        id: "defer-governance-data-sources-access-validation-workflow-tasks",
+        label: "Defer source validation workflow tasks",
+        description: "Record a Governance checkpoint that defers the generated source validation workflow task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "tasks", "defer", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessValidationWorkflowTasks("deferred")
+      },
+      {
+        id: "dismiss-governance-data-sources-access-validation-workflow-tasks",
+        label: "Dismiss source validation workflow tasks",
+        description: "Record a Governance checkpoint that dismisses the generated source validation workflow task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "validation", "workflow", "tasks", "dismiss", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessValidationWorkflowTasks("dismissed")
+      },
+      {
         id: "seed-governance-data-sources-access-review-tasks",
         label: "Seed source access tasks",
         description: "Create deduplicated Governance tasks from the visible Data Sources access review queue.",
@@ -509,12 +545,44 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         run: () => handlers.seedGovernanceDataSourcesAccessReviewTasks()
       },
       {
+        id: "defer-governance-data-sources-access-review-tasks",
+        label: "Defer source access tasks",
+        description: "Record a Governance checkpoint that defers the generated source access review task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "review", "queue", "tasks", "defer", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessReviewTasks("deferred")
+      },
+      {
+        id: "dismiss-governance-data-sources-access-review-tasks",
+        label: "Dismiss source access tasks",
+        description: "Record a Governance checkpoint that dismisses the generated source access review task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "review", "queue", "tasks", "dismiss", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessReviewTasks("dismissed")
+      },
+      {
         id: "seed-governance-data-sources-evidence-coverage-tasks",
         label: "Seed source evidence coverage tasks",
         description: "Create Data Sources tasks for missing, review, or blocked source-access evidence coverage gaps.",
         category: "Actions",
         keywords: ["governance", "sources", "data sources", "access", "evidence", "coverage", "tasks", "seed"],
         run: () => handlers.seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks()
+      },
+      {
+        id: "defer-governance-data-sources-evidence-coverage-tasks",
+        label: "Defer source evidence coverage tasks",
+        description: "Record a Governance checkpoint that defers the generated source evidence coverage task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "evidence", "coverage", "tasks", "defer", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks("deferred")
+      },
+      {
+        id: "dismiss-governance-data-sources-evidence-coverage-tasks",
+        label: "Dismiss source evidence coverage tasks",
+        description: "Record a Governance checkpoint that dismisses the generated source evidence coverage task batch.",
+        category: "Actions",
+        keywords: ["governance", "sources", "data sources", "access", "evidence", "coverage", "tasks", "dismiss", "checkpoint"],
+        run: () => handlers.checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks("dismissed")
       },
       {
         id: "copy-governance-data-sources-access-task-ledger",

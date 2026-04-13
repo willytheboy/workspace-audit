@@ -4669,6 +4669,56 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
   }
 
+  function getTaskSeedingCheckpointStatusLabel(status) {
+    if (status === "deferred") return "Deferred";
+    if (status === "dismissed") return "Dismissed";
+    if (status === "approved") return "Approved";
+    return "Marked";
+  }
+
+  async function recordGeneratedTaskBatchCheckpoint({
+    batchId,
+    status,
+    title,
+    source,
+    itemCount,
+    note,
+    renderTarget
+  }) {
+    const allowedStatuses = new Set(["approved", "deferred", "dismissed", "needs-review"]);
+    const checkpointStatus = allowedStatuses.has(status) ? status : "needs-review";
+    await api.createTaskSeedingCheckpoint({
+      batchId,
+      title,
+      source,
+      status: checkpointStatus,
+      itemCount,
+      note
+    });
+    if (renderTarget === "sources") {
+      await renderSources();
+    } else {
+      await renderGovernance();
+    }
+    return `${getTaskSeedingCheckpointStatusLabel(checkpointStatus)} ${title}`;
+  }
+
+  async function checkpointSourcesAccessValidationWorkflowTasks(status, options = {}) {
+    const workflow = await api.fetchSourcesAccessValidationWorkflow();
+    const items = workflow.items.filter((item) => item.status !== "ready");
+    const renderTarget = options.renderTarget === "governance" ? "governance" : "sources";
+    const surface = renderTarget === "governance" ? "Governance" : "Sources";
+    return recordGeneratedTaskBatchCheckpoint({
+      batchId: "data-sources-access-validation-workflow-tasks",
+      title: "Data Sources access validation workflow task batch",
+      source: renderTarget === "governance" ? "governance-data-sources-access-validation-workflow" : "sources-access-validation-workflow",
+      status,
+      itemCount: items.length,
+      renderTarget,
+      note: `Operator marked the Data Sources access validation workflow generated task batch as ${status} from the ${surface} task-seeding checkpoint before creating tasks.`
+    });
+  }
+
   async function seedSourcesAccessValidationWorkflowTasks(options = {}) {
     const workflow = await api.fetchSourcesAccessValidationWorkflow();
     const items = workflow.items.filter((item) => item.status !== "ready");
@@ -5057,6 +5107,19 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Created ${result.totals.created} Task${result.totals.created === 1 ? "" : "s"}`;
   }
 
+  async function checkpointGovernanceDataSourcesAccessReviewTasks(status) {
+    const items = getFilteredGovernance()?.dataSourcesAccessReviewQueue?.items || [];
+    return recordGeneratedTaskBatchCheckpoint({
+      batchId: "governance-data-sources-access-review-tasks",
+      title: "Governance Data Sources access review task batch",
+      source: "governance-data-sources-access-review-queue",
+      status,
+      itemCount: items.length,
+      renderTarget: "governance",
+      note: `Operator marked the Governance Data Sources access review generated task batch as ${status} from the Governance task-seeding checkpoint before creating tasks.`
+    });
+  }
+
   async function seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks() {
     const items = (getFilteredGovernance()?.dataSourcesAccessValidationEvidenceCoverage?.items || [])
       .filter((item) => item.coverageStatus !== "covered");
@@ -5064,6 +5127,20 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({ items });
     await renderGovernance();
     return `Created ${result.totals.created} Evidence Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks(status) {
+    const items = (getFilteredGovernance()?.dataSourcesAccessValidationEvidenceCoverage?.items || [])
+      .filter((item) => item.coverageStatus !== "covered");
+    return recordGeneratedTaskBatchCheckpoint({
+      batchId: "governance-data-sources-access-validation-evidence-coverage-tasks",
+      title: "Governance Data Sources evidence coverage task batch",
+      source: "governance-data-sources-access-validation-evidence-coverage",
+      status,
+      itemCount: items.length,
+      renderTarget: "governance",
+      note: `Operator marked the Governance Data Sources evidence coverage generated task batch as ${status} from the Governance task-seeding checkpoint before creating tasks.`
+    });
   }
 
   async function copyGovernanceDataSourcesAccessTaskLedger() {
@@ -5179,6 +5256,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessValidationWorkflow,
     saveSourcesAccessValidationWorkflowSnapshot,
     copyLatestSourcesAccessValidationWorkflowSnapshotDrift,
+    checkpointSourcesAccessValidationWorkflowTasks,
     seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
@@ -5191,7 +5269,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessGate,
     copyGovernanceDataSourcesAccessGate,
     copyGovernanceDataSourcesAccessReviewQueue,
+    checkpointGovernanceDataSourcesAccessReviewTasks,
     seedGovernanceDataSourcesAccessReviewTasks,
+    checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     seedGovernanceDataSourcesAccessValidationEvidenceCoverageTasks,
     copyGovernanceDataSourcesAccessTaskLedger,
     saveDataSourcesAccessTaskLedgerSnapshot,

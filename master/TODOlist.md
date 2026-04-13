@@ -1164,3 +1164,10 @@
 - [x] Surface execution-result follow-up task counts, task cards, and lifecycle controls in Governance.
 - [x] Feed execution-result follow-up tasks into Agent Control Plane decision and handoff markdown.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Convergence Not Related Workbench Removal Guard
+
+- [x] Remove a Convergence pair from the active project workbench immediately after a successful `Not Related` save.
+- [x] Defensively filter the reloaded Convergence payload by the reviewed pair before rendering so stale payloads cannot re-add the card.
+- [x] Add a parser guard for the optimistic removal path.
+- [x] Add parser checks, server tests, build validation, docs, milestone tracking, relaunch, commit, and push.

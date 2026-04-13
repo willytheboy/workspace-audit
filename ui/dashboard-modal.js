@@ -315,6 +315,35 @@ export function createDashboardModal({ getData, api }) {
   /**
    * @param {AuditProject} project
    */
+  function hasConvergenceCandidate(project) {
+    return convergenceCandidates.some((candidate) =>
+      candidate.leftId === project.id || candidate.rightId === project.id
+    );
+  }
+
+  /**
+   * @param {ConvergenceCandidate} candidate
+   * @param {string} projectId
+   * @param {string} targetId
+   */
+  function isConvergenceCandidateForPair(candidate, projectId, targetId) {
+    return (candidate.leftId === projectId && candidate.rightId === targetId)
+      || (candidate.rightId === projectId && candidate.leftId === targetId);
+  }
+
+  /**
+   * @param {string} projectId
+   * @param {string} targetId
+   */
+  function removeConvergenceCandidate(projectId, targetId) {
+    convergenceCandidates = convergenceCandidates.filter((candidate) =>
+      !isConvergenceCandidateForPair(candidate, projectId, targetId)
+    );
+  }
+
+  /**
+   * @param {AuditProject} project
+   */
   function renderOverview(project) {
     const stackContainer = document.getElementById("modal-stack");
     stackContainer.replaceChildren(createStackTags([...project.frameworks, ...project.languages]));
@@ -373,7 +402,7 @@ export function createDashboardModal({ getData, api }) {
         "Loading convergence review",
         "Active overlap candidates are being refreshed from the persisted review ledger."
       ));
-    } else if (project.similarApps?.length) {
+    } else if (hasConvergenceCandidate(project) || project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
       const activeSimilarCandidates = convergenceCandidates
         .filter((candidate) => candidate.reviewStatus !== "not-related")
@@ -432,10 +461,7 @@ export function createDashboardModal({ getData, api }) {
         const status = element.dataset.convergenceAction || "needs-review";
         let similar = project.similarApps?.find((item) => item.id === targetId);
         if (!similar) {
-          const candidate = convergenceCandidates.find((item) =>
-            (item.leftId === project.id && item.rightId === targetId)
-            || (item.rightId === project.id && item.leftId === targetId)
-          );
+          const candidate = convergenceCandidates.find((item) => isConvergenceCandidateForPair(item, project.id, targetId));
           if (candidate) {
             const isLeftProject = candidate.leftId === project.id;
             similar = {
@@ -479,12 +505,16 @@ export function createDashboardModal({ getData, api }) {
     });
     if (!currentProject || currentProject.id !== project.id) return;
     if (status === "not-related") {
+      removeConvergenceCandidate(project.id, similar.id);
+      renderWorkbench();
       await api.refreshFindings();
       findings = await api.fetchFindings(project.id);
     }
     const convergence = await api.fetchConvergenceCandidates({ projectId: project.id });
     if (!currentProject || currentProject.id !== project.id) return;
-    convergenceCandidates = convergence.candidates || [];
+    convergenceCandidates = status === "not-related"
+      ? (convergence.candidates || []).filter((candidate) => !isConvergenceCandidateForPair(candidate, project.id, similar.id))
+      : convergence.candidates || [];
     renderWorkbench();
   }
 

@@ -31,6 +31,8 @@
  *     copySourcesAccessRequirements: () => Promise<void>,
  *     copySourcesAccessMethodRegistry: () => Promise<void>,
  *     copySourcesAccessValidationWorkflow: () => Promise<void>,
+ *     saveSourcesAccessValidationWorkflowSnapshot: () => Promise<void>,
+ *     copyLatestSourcesAccessValidationWorkflowSnapshotDrift: () => Promise<void>,
  *     seedSourcesAccessValidationWorkflowTasks: () => Promise<void>,
  *     copySourcesAccessChecklist: () => Promise<void>,
  *     copySourcesAccessValidationRunbook: () => Promise<void>,
@@ -235,6 +237,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["sources", "data sources", "access", "validation", "workflow", "blockers", "credentials", "copy"],
         run: () => handlers.copySourcesAccessValidationWorkflow()
+      },
+      {
+        id: "save-sources-access-validation-workflow-snapshot",
+        label: "Save sources validation workflow snapshot",
+        description: "Persist the non-secret source access validation workflow as a reload-safe baseline.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "validation", "workflow", "snapshot", "baseline", "save"],
+        run: () => handlers.saveSourcesAccessValidationWorkflowSnapshot()
+      },
+      {
+        id: "copy-latest-sources-access-validation-workflow-drift",
+        label: "Copy sources validation workflow drift",
+        description: "Copy markdown drift between the latest saved validation workflow snapshot and the live workflow.",
+        category: "Actions",
+        keywords: ["sources", "data sources", "access", "validation", "workflow", "snapshot", "drift", "diff", "copy"],
+        run: () => handlers.copyLatestSourcesAccessValidationWorkflowSnapshotDrift()
       },
       {
         id: "seed-sources-access-validation-workflow-tasks",

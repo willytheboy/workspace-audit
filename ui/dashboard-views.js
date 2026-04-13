@@ -3,6 +3,7 @@
 import {
   createAppCard,
   createAppTableRow,
+  createDataSourcesAccessValidationWorkflowSnapshotItem,
   createDataSourcesSummarySnapshotItem,
   createEmptyCard,
   createFindingItem,
@@ -76,6 +77,9 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessRequirements: () => Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>,
  *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
  *     fetchSourcesAccessValidationWorkflow: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>,
+ *     fetchSourcesAccessValidationWorkflowSnapshots: () => Promise<import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[]>,
+ *     createSourcesAccessValidationWorkflowSnapshot: (payload?: { title?: string }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot, dataSourceAccessValidationWorkflowSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[] }>,
+ *     fetchSourcesAccessValidationWorkflowSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowSnapshotDiffPayload>,
  *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
@@ -2867,6 +2871,41 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[]} snapshots
+   */
+  function createDataSourcesAccessValidationWorkflowSnapshotSection(snapshots) {
+    if (!snapshots.length) return null;
+    const section = document.createElement("section");
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Data Sources Validation Workflow Snapshot History";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const count = document.createElement("div");
+    count.textContent = `${snapshots.length} saved`;
+    count.style.color = "var(--text-muted)";
+    count.style.fontSize = "0.84rem";
+
+    heading.append(title, count);
+    section.append(heading);
+    for (const snapshot of snapshots.slice(0, 8)) {
+      section.append(createDataSourcesAccessValidationWorkflowSnapshotItem(snapshot));
+    }
+    return section;
+  }
+
+  /**
    * @param {import("./dashboard-types.js").DataSourcesAccessMatrixPayload} matrix
    */
   function createDataSourcesAccessMatrixSection(matrix) {
@@ -3570,6 +3609,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   /**
    * @param {HTMLElement} container
+   * @param {import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[]} snapshots
+   */
+  function bindDataSourcesAccessValidationWorkflowSnapshotActions(container, snapshots) {
+    container.querySelectorAll("[data-source-access-validation-workflow-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationWorkflowSnapshotId || "";
+        const snapshot = snapshots.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
    * @param {import("./dashboard-types.js").DataSourceHealthRecord[]} sources
    */
   function bindSourceRegistryActions(container, sources) {
@@ -3649,10 +3718,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMethodRegistry, accessValidationWorkflow, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMethodRegistry, accessValidationWorkflow, workflowSnapshots, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
         api.fetchSourcesAccessMethodRegistry(),
         api.fetchSourcesAccessValidationWorkflow(),
+        api.fetchSourcesAccessValidationWorkflowSnapshots(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
         api.fetchSourcesAccessValidationEvidenceCoverage(),
@@ -3696,6 +3766,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       fragment.append(createDeploymentHealthSection(deploymentHealth));
       fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
       fragment.append(createDataSourcesAccessValidationWorkflowSection(accessValidationWorkflow));
+      const workflowSnapshotSection = createDataSourcesAccessValidationWorkflowSnapshotSection(workflowSnapshots || []);
+      if (workflowSnapshotSection) {
+        fragment.append(workflowSnapshotSection);
+      }
       fragment.append(createDataSourcesAccessReviewQueueSection(accessReviewQueue));
       fragment.append(createDataSourcesAccessMethodRegistrySection(accessMethodRegistry));
       fragment.append(createDataSourcesAccessMatrixSection(accessMatrix));
@@ -3706,6 +3780,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       container.replaceChildren(fragment);
       bindSourceRegistryActions(container, sources);
       bindDeploymentHealthActions(container);
+      bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {
       updatePanelState("sources", {
@@ -4268,6 +4343,20 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.pending} pending`;
   }
 
+  async function saveSourcesAccessValidationWorkflowSnapshot() {
+    const created = await api.createSourcesAccessValidationWorkflowSnapshot({
+      title: "Data Sources Access Validation Workflow"
+    });
+    await renderSources();
+    return `Saved ${created.snapshot.total} workflow item${created.snapshot.total === 1 ? "" : "s"}`;
+  }
+
+  async function copyLatestSourcesAccessValidationWorkflowSnapshotDrift() {
+    const diff = await api.fetchSourcesAccessValidationWorkflowSnapshotDiff("latest");
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
   async function seedSourcesAccessValidationWorkflowTasks() {
     const workflow = await api.fetchSourcesAccessValidationWorkflow();
     const items = workflow.items.filter((item) => item.status !== "ready");
@@ -4668,6 +4757,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesAccessRequirements,
     copySourcesAccessMethodRegistry,
     copySourcesAccessValidationWorkflow,
+    saveSourcesAccessValidationWorkflowSnapshot,
+    copyLatestSourcesAccessValidationWorkflowSnapshotDrift,
     seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,

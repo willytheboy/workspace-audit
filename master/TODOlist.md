@@ -1013,3 +1013,10 @@
 - [x] Reuse Data Sources access task-ledger snapshot records so workflow task creation has a review baseline.
 - [x] Update Sources seeding to request snapshot capture by default.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Validation Workflow Snapshots
+
+- [x] Add saved non-secret Data Sources access validation workflow snapshots.
+- [x] Add workflow snapshot drift comparison against the live validation workflow.
+- [x] Surface Sources toolbar and command-palette actions for saving workflow snapshots and copying drift.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

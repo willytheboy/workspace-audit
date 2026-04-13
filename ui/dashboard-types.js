@@ -1391,6 +1391,40 @@
  *   markdown: string
  * }} DataSourcesAccessValidationWorkflowPayload
  * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   total: number,
+ *   readyCount: number,
+ *   pendingCount: number,
+ *   blockedCount: number,
+ *   missingEvidenceCount: number,
+ *   externalAccessRequiredCount: number,
+ *   tokenRequiredCount: number,
+ *   passwordRequiredCount: number,
+ *   certificateRequiredCount: number,
+ *   sshRequiredCount: number,
+ *   manualRequiredCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: DataSourcesAccessValidationWorkflowItem[],
+ *   createdAt: string
+ * }} PersistedDataSourcesAccessValidationWorkflowSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: DataSourcesAccessValidationWorkflowPayload["summary"] | null,
+ *   snapshotSummary: { total: number, ready: number, pending: number, blocked: number, missingEvidence: number, externalAccessRequired: number, tokenRequired: number, passwordRequired: number, certificateRequired: number, sshRequired: number, manualRequired: number } | null,
+ *   markdown: string
+ * }} DataSourcesAccessValidationWorkflowSnapshotDiffPayload
+ * @typedef {{
  *   generatedAt: string,
  *   summary: {
  *     total: number,

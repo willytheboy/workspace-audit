@@ -639,6 +639,83 @@ export function createDataSourcesSummarySnapshotItem(snapshot) {
 }
 
 /**
+ * @param {import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot} snapshot
+ */
+export function createDataSourcesAccessValidationWorkflowSnapshotItem(snapshot) {
+  const healthColor = snapshot.blockedCount > 0
+    ? "var(--danger)"
+    : snapshot.pendingCount > 0
+      ? "var(--warning)"
+      : "var(--success)";
+  return createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: "1rem",
+      background: "var(--surface)",
+      border: "1px solid var(--border)",
+      borderRadius: "0.65rem",
+      gap: "1rem"
+    }
+  }, [
+    createElement("div", {}, [
+      createElement("div", {
+        text: snapshot.title || "Data Sources Access Validation Workflow",
+        style: {
+          fontWeight: "800",
+          color: "var(--text)",
+          marginBottom: "0.25rem"
+        }
+      }),
+      createElement("div", {
+        text: new Date(snapshot.createdAt).toLocaleString(),
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem"
+        }
+      }),
+      createElement("div", {
+        text: `${snapshot.total} total | ${snapshot.readyCount} ready | ${snapshot.pendingCount} pending | ${snapshot.blockedCount} blocked | ${snapshot.missingEvidenceCount} missing evidence`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          marginTop: "0.35rem"
+        }
+      })
+    ]),
+    createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        flexWrap: "wrap",
+        justifyContent: "flex-end"
+      }
+    }, [
+      createTag(snapshot.blockedCount > 0 ? "BLOCKED" : snapshot.pendingCount > 0 ? "PENDING" : "READY", {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: healthColor
+      }),
+      createTag(`${snapshot.externalAccessRequiredCount || 0} EXTERNAL`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.externalAccessRequiredCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotId: snapshot.id
+        }
+      })
+    ])
+  ]);
+}
+
+/**
  * @param {PersistedFinding} finding
  */
 export function createFindingItem(finding) {

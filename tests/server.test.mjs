@@ -47,6 +47,7 @@ export async function serverTest() {
     assert.equal(diagnosticsJson.releaseCheckpointCount, 0);
     assert.equal(diagnosticsJson.dataSourceHealthSnapshotCount, 0);
     assert.equal(diagnosticsJson.dataSourceAccessValidationEvidenceSnapshotCount, 0);
+    assert.equal(diagnosticsJson.dataSourceAccessValidationWorkflowSnapshotCount, 0);
     assert.equal(diagnosticsJson.findingsCount, 0);
     assert.equal(diagnosticsJson.taskCount, 0);
     assert.equal(diagnosticsJson.workflowCount, 0);
@@ -239,6 +240,48 @@ export async function serverTest() {
     assert.equal(sourcesAccessValidationWorkflowJson.items[0].status, "pending");
     assert.match(sourcesAccessValidationWorkflowJson.secretPolicy, /Non-secret source access validation workflow/);
     assert.match(sourcesAccessValidationWorkflowJson.markdown, /# Data Sources Access Validation Workflow/);
+
+    const initialSourcesAccessValidationWorkflowSnapshotsResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`);
+    assert.equal(initialSourcesAccessValidationWorkflowSnapshotsResponse.status, 200);
+    const initialSourcesAccessValidationWorkflowSnapshotsJson = await initialSourcesAccessValidationWorkflowSnapshotsResponse.json();
+    assert.equal(initialSourcesAccessValidationWorkflowSnapshotsJson.length, 0);
+
+    const missingSourcesAccessValidationWorkflowSnapshotDiffResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingSourcesAccessValidationWorkflowSnapshotDiffResponse.status, 200);
+    const missingSourcesAccessValidationWorkflowSnapshotDiffJson = await missingSourcesAccessValidationWorkflowSnapshotDiffResponse.json();
+    assert.equal(missingSourcesAccessValidationWorkflowSnapshotDiffJson.hasSnapshot, false);
+    assert.equal(missingSourcesAccessValidationWorkflowSnapshotDiffJson.driftSeverity, "missing-snapshot");
+    assert.match(missingSourcesAccessValidationWorkflowSnapshotDiffJson.markdown, /# Data Sources Access Validation Workflow Snapshot Drift/);
+
+    const createSourcesAccessValidationWorkflowSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Source Access Validation Workflow" })
+    });
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotResponse.status, 200);
+    const createSourcesAccessValidationWorkflowSnapshotJson = await createSourcesAccessValidationWorkflowSnapshotResponse.json();
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.success, true);
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.title, "Fixture Source Access Validation Workflow");
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.total, 1);
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.pendingCount, 1);
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.missingEvidenceCount, 1);
+    assert.equal(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.items.length, 1);
+    assert.match(createSourcesAccessValidationWorkflowSnapshotJson.snapshot.markdown, /# Data Sources Access Validation Workflow/);
+
+    const sourcesAccessValidationWorkflowSnapshotsResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`);
+    assert.equal(sourcesAccessValidationWorkflowSnapshotsResponse.status, 200);
+    const sourcesAccessValidationWorkflowSnapshotsJson = await sourcesAccessValidationWorkflowSnapshotsResponse.json();
+    assert.equal(sourcesAccessValidationWorkflowSnapshotsJson.length, 1);
+    assert.equal(sourcesAccessValidationWorkflowSnapshotsJson[0].title, "Fixture Source Access Validation Workflow");
+
+    const sourcesAccessValidationWorkflowSnapshotDiffResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots/diff?snapshotId=latest`);
+    assert.equal(sourcesAccessValidationWorkflowSnapshotDiffResponse.status, 200);
+    const sourcesAccessValidationWorkflowSnapshotDiffJson = await sourcesAccessValidationWorkflowSnapshotDiffResponse.json();
+    assert.equal(sourcesAccessValidationWorkflowSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(sourcesAccessValidationWorkflowSnapshotDiffJson.hasDrift, false);
+    assert.equal(sourcesAccessValidationWorkflowSnapshotDiffJson.snapshotTitle, "Fixture Source Access Validation Workflow");
+    assert.equal(sourcesAccessValidationWorkflowSnapshotDiffJson.snapshotSummary.pending, 1);
+    assert.match(sourcesAccessValidationWorkflowSnapshotDiffJson.markdown, /# Data Sources Access Validation Workflow Snapshot Drift/);
 
     const sourcesAccessChecklistResponse = await fetch(`${baseUrl}/api/sources/access-checklist`);
     assert.equal(sourcesAccessChecklistResponse.status, 200);

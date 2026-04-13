@@ -143,6 +143,16 @@ async function copySourcesAccessValidationWorkflow() {
   return views.copySourcesAccessValidationWorkflow();
 }
 
+async function saveSourcesAccessValidationWorkflowSnapshot() {
+  setView("sources");
+  return views.saveSourcesAccessValidationWorkflowSnapshot();
+}
+
+async function copyLatestSourcesAccessValidationWorkflowSnapshotDrift() {
+  setView("sources");
+  return views.copyLatestSourcesAccessValidationWorkflowSnapshotDrift();
+}
+
 async function seedSourcesAccessValidationWorkflowTasks() {
   setView("sources");
   return views.seedSourcesAccessValidationWorkflowTasks();
@@ -578,6 +588,8 @@ const actionRegistry = createDashboardActionRegistry({
     copySourcesAccessRequirements,
     copySourcesAccessMethodRegistry,
     copySourcesAccessValidationWorkflow,
+    saveSourcesAccessValidationWorkflowSnapshot,
+    copyLatestSourcesAccessValidationWorkflowSnapshotDrift,
     seedSourcesAccessValidationWorkflowTasks,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
@@ -825,6 +837,18 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-validation-workflow-btn")),
     "Copying...",
     () => copySourcesAccessValidationWorkflow()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("save-sources-access-validation-workflow-snapshot-btn")),
+    "Saving...",
+    () => saveSourcesAccessValidationWorkflowSnapshot()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-sources-access-validation-workflow-drift-btn")),
+    "Copying...",
+    () => copyLatestSourcesAccessValidationWorkflowSnapshotDrift()
   );
 
   bindAsyncButton(

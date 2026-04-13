@@ -122,6 +122,40 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ projectId?: string, status?: string }} [filters]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>}
+   */
+  fetchConvergenceCandidates(filters = {}) {
+    return fetchJson(withQuery("/api/convergence/candidates", {
+      projectId: filters.projectId,
+      status: filters.status
+    }));
+  },
+
+  /**
+   * @param {{ projectId?: string, status?: string }} [filters]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceReview[]>}
+   */
+  fetchConvergenceReviews(filters = {}) {
+    return fetchJson(withQuery("/api/convergence/reviews", {
+      projectId: filters.projectId,
+      status: filters.status
+    }));
+  },
+
+  /**
+   * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
+   * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
+   */
+  saveConvergenceReview(payload) {
+    return fetchJson("/api/convergence/reviews", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>}
    */
   fetchSources() {
@@ -1074,6 +1108,7 @@ export const dashboardApi = {
    *   totalProjects: number,
    *   historySnapshots: number,
    *   sourceCount: number,
+   *   convergenceReviewCount: number,
    *   findingsCount: number,
    *   taskCount: number,
    *   workflowCount: number,

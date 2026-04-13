@@ -40,6 +40,7 @@
  *   rootDir?: string,
  *   meta: AuditMeta,
  *   summary: AuditSummary,
+ *   crossChecks?: Array<{ leftId: string, rightId: string, leftName: string, rightName: string, score: number, reasons: string[] }>,
  *   projects: AuditProject[]
  * }} AuditPayload
  * @typedef {{
@@ -53,6 +54,55 @@
  *   createdAt: string,
  *   status: string
  * }} PersistedFinding
+ * @typedef { "confirmed-overlap" | "not-related" | "needs-review" | "merge-candidate" } ConvergenceReviewStatus
+ * @typedef {{
+ *   id: string,
+ *   pairId: string,
+ *   leftId: string,
+ *   rightId: string,
+ *   leftName: string,
+ *   rightName: string,
+ *   score: number,
+ *   reasons: string[],
+ *   status: ConvergenceReviewStatus,
+ *   note: string,
+ *   reviewer: string,
+ *   source: string,
+ *   createdAt: string,
+ *   updatedAt: string,
+ *   secretPolicy: string
+ * }} ConvergenceReview
+ * @typedef {{
+ *   pairId: string,
+ *   leftId: string,
+ *   rightId: string,
+ *   leftName: string,
+ *   rightName: string,
+ *   score: number,
+ *   reasons: string[],
+ *   reviewStatus: ConvergenceReviewStatus | "unreviewed",
+ *   reviewId: string,
+ *   reviewNote: string,
+ *   reviewedAt: string,
+ *   reviewer: string,
+ *   secretPolicy: string
+ * }} ConvergenceCandidate
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     total: number,
+ *     reviewed: number,
+ *     unreviewed: number,
+ *     confirmedOverlap: number,
+ *     notRelated: number,
+ *     needsReview: number,
+ *     mergeCandidate: number
+ *   },
+ *   candidates: ConvergenceCandidate[],
+ *   reviews: ConvergenceReview[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceCandidatesPayload
  * @typedef {{
  *   id: string,
  *   projectId?: string,

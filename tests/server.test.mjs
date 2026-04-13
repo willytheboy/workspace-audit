@@ -48,6 +48,7 @@ export async function serverTest() {
     assert.equal(diagnosticsJson.dataSourceHealthSnapshotCount, 0);
     assert.equal(diagnosticsJson.dataSourceAccessValidationEvidenceSnapshotCount, 0);
     assert.equal(diagnosticsJson.dataSourceAccessValidationWorkflowSnapshotCount, 0);
+    assert.equal(diagnosticsJson.convergenceReviewCount, 0);
     assert.equal(diagnosticsJson.findingsCount, 0);
     assert.equal(diagnosticsJson.taskCount, 0);
     assert.equal(diagnosticsJson.workflowCount, 0);
@@ -629,6 +630,45 @@ export async function serverTest() {
     assert.equal(filteredFindingsResponse.status, 200);
     const filteredFindingsJson = await filteredFindingsResponse.json();
     assert.equal(Array.isArray(filteredFindingsJson), true);
+
+    const convergenceCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates`);
+    assert.equal(convergenceCandidatesResponse.status, 200);
+    const convergenceCandidatesJson = await convergenceCandidatesResponse.json();
+    assert.equal(Array.isArray(convergenceCandidatesJson.candidates), true);
+    assert.equal(convergenceCandidatesJson.summary.total, 0);
+    assert.match(convergenceCandidatesJson.markdown, /# Convergence Review Candidates/);
+
+    const initialConvergenceReviewsResponse = await fetch(`${baseUrl}/api/convergence/reviews`);
+    assert.equal(initialConvergenceReviewsResponse.status, 200);
+    const initialConvergenceReviewsJson = await initialConvergenceReviewsResponse.json();
+    assert.deepEqual(initialConvergenceReviewsJson, []);
+
+    const createConvergenceReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        leftName: "Alpha App",
+        rightName: "Beta App",
+        score: 87,
+        reasons: ["React", "Vite"],
+        status: "not-related",
+        note: "Same stack but different product intent."
+      })
+    });
+    assert.equal(createConvergenceReviewResponse.status, 200);
+    const createConvergenceReviewJson = await createConvergenceReviewResponse.json();
+    assert.equal(createConvergenceReviewJson.success, true);
+    assert.equal(createConvergenceReviewJson.review.status, "not-related");
+    assert.equal(createConvergenceReviewJson.review.pairId, "alpha-app__converges_with__beta-app");
+    assert.match(createConvergenceReviewJson.review.secretPolicy, /Non-secret convergence/);
+
+    const filteredConvergenceReviewsResponse = await fetch(`${baseUrl}/api/convergence/reviews?projectId=alpha-app&status=not-related`);
+    assert.equal(filteredConvergenceReviewsResponse.status, 200);
+    const filteredConvergenceReviewsJson = await filteredConvergenceReviewsResponse.json();
+    assert.equal(filteredConvergenceReviewsJson.length, 1);
+    assert.equal(filteredConvergenceReviewsJson[0].note, "Same stack but different product intent.");
 
     const createTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
       method: "POST",

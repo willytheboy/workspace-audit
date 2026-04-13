@@ -1048,3 +1048,10 @@
 - [x] Add a dedicated Governance deck section for workflow-seeded source validation tasks with lifecycle controls.
 - [x] Add workflow task counts and workflow identifiers to Governance source-access task ledger reports.
 - [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Convergence Review Persistence API
+
+- [x] Add durable non-secret Convergence review records to the workspace store.
+- [x] Add candidate and review API endpoints for overlap review decisions.
+- [x] Suppress generated overlap findings when a pair is marked not related.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

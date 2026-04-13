@@ -48,6 +48,8 @@ Architecture:
 - The view and modal layers now build the main dashboard surfaces through DOM components instead of large `innerHTML` strings, which makes the UI safer to extend and easier to debug.
 - The generated `index.html` carries a bootstrapped inventory snapshot, and the dashboard refreshes from `/api/inventory` when the live server is available.
 - The header now exposes runtime status, including whether the page is using the live API, a local file fallback, or the embedded snapshot, plus the latest snapshot/load timestamps.
+- Convergence now has a persistent review API so generated overlap candidates can be marked `confirmed-overlap`, `not-related`, `needs-review`, or `merge-candidate` before becoming actionable.
+- `GET /api/convergence/candidates`, `GET /api/convergence/reviews`, and `POST /api/convergence/reviews` expose non-secret human review state for overlap candidates; `not-related` reviews suppress future generated convergence findings for that pair.
 - The Trends and Sources panels now expose their own loading, ready, empty, and error states with panel-level status strips and notices.
 - The Trends and Sources panels also have their own refresh controls, so you can reload those views without rerunning the full audit.
 - The graph view is now rendered with local SVG logic instead of a remote D3 CDN, so the dashboard can load cleanly offline and on restricted networks.

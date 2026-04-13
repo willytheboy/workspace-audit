@@ -993,3 +993,9 @@
 - [x] Add a non-secret Data Sources access method registry covering local paths, Git remotes, GitHub/private repo signals, token/password/certificate/SSH/manual access flags, and setup guidance.
 - [x] Expose the registry through `/api/sources/access-method-registry`, the dashboard API client, command palette, Sources toolbar, and Sources deck.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Validation Workflow
+
+- [x] Add a derived non-secret Data Sources access validation workflow from registry and evidence coverage.
+- [x] Surface workflow stages, blocker types, and next actions through API, Sources deck, toolbar, and command palette.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

@@ -75,6 +75,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesSummary: () => Promise<import("./dashboard-types.js").DataSourcesSummaryPayload>,
  *     fetchSourcesAccessRequirements: () => Promise<import("./dashboard-types.js").DataSourcesAccessRequirementsPayload>,
  *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
+ *     fetchSourcesAccessValidationWorkflow: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
@@ -3045,6 +3046,109 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload} workflow
+   */
+  function createDataSourcesAccessValidationWorkflowSection(workflow) {
+    const section = document.createElement("section");
+    section.className = "source-access-validation-workflow";
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Data Sources Access Validation Workflow";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const summary = document.createElement("div");
+    summary.textContent = `${workflow.summary.ready} ready | ${workflow.summary.pending} pending | ${workflow.summary.blocked} blocked | ${workflow.summary.externalAccessRequired} external`;
+    summary.style.color = workflow.summary.blocked
+      ? "var(--danger)"
+      : workflow.summary.pending
+        ? "var(--warning)"
+        : "var(--success)";
+    summary.style.fontSize = "0.84rem";
+
+    heading.append(title, summary);
+    section.append(heading);
+
+    if (!workflow.items.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No source access validation workflow items found.";
+      empty.style.padding = "1rem";
+      empty.style.border = "1px solid var(--border)";
+      empty.style.borderRadius = "0.65rem";
+      empty.style.background = "var(--surface)";
+      empty.style.color = "var(--text-muted)";
+      section.append(empty);
+      return section;
+    }
+
+    for (const item of workflow.items.slice(0, 10)) {
+      const card = document.createElement("div");
+      card.className = "source-access-validation-workflow-card";
+      card.style.display = "flex";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "1rem";
+      card.style.padding = "1rem";
+      card.style.border = "1px solid var(--border)";
+      card.style.borderRadius = "0.65rem";
+      card.style.background = "var(--surface)";
+      card.style.borderLeft = `4px solid ${item.status === "blocked" ? "var(--danger)" : item.status === "pending" ? "var(--warning)" : "var(--success)"}`;
+
+      const body = document.createElement("div");
+      const itemTitle = document.createElement("div");
+      itemTitle.textContent = item.label;
+      itemTitle.style.fontWeight = "800";
+      itemTitle.style.color = "var(--text)";
+      itemTitle.style.marginBottom = "0.25rem";
+
+      const action = document.createElement("div");
+      action.textContent = item.action;
+      action.style.color = "var(--text-muted)";
+      action.style.fontSize = "0.84rem";
+
+      const blockers = document.createElement("div");
+      blockers.textContent = item.blockerTypes.length ? `Blockers: ${item.blockerTypes.join(", ")}` : "Blockers: none";
+      blockers.style.color = "var(--text-muted)";
+      blockers.style.fontSize = "0.78rem";
+      blockers.style.marginTop = "0.25rem";
+
+      body.append(itemTitle, action, blockers);
+
+      const meta = document.createElement("div");
+      meta.style.display = "flex";
+      meta.style.flexDirection = "column";
+      meta.style.alignItems = "flex-end";
+      meta.style.gap = "0.25rem";
+      meta.style.color = "var(--text-muted)";
+      meta.style.fontSize = "0.82rem";
+      for (const line of [
+        item.status.toUpperCase(),
+        item.priority.toUpperCase(),
+        item.stage,
+        item.accessMethod
+      ]) {
+        const metaLine = document.createElement("span");
+        metaLine.textContent = line;
+        meta.append(metaLine);
+      }
+
+      card.append(body, meta);
+      section.append(card);
+    }
+
+    return section;
+  }
+
+  /**
    * @param {import("./dashboard-types.js").DataSourcesAccessReviewQueuePayload} queue
    */
   function createDataSourcesAccessReviewQueueSection(queue) {
@@ -3544,9 +3648,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMethodRegistry, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMethodRegistry, accessValidationWorkflow, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
         api.fetchSourcesAccessMethodRegistry(),
+        api.fetchSourcesAccessValidationWorkflow(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
         api.fetchSourcesAccessValidationEvidenceCoverage(),
@@ -3589,6 +3694,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
       fragment.append(createDeploymentHealthSection(deploymentHealth));
       fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
+      fragment.append(createDataSourcesAccessValidationWorkflowSection(accessValidationWorkflow));
       fragment.append(createDataSourcesAccessReviewQueueSection(accessReviewQueue));
       fragment.append(createDataSourcesAccessMethodRegistrySection(accessMethodRegistry));
       fragment.append(createDataSourcesAccessMatrixSection(accessMatrix));
@@ -4155,6 +4261,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.summary.totalMethods} access method${payload.summary.totalMethods === 1 ? "" : "s"}`;
   }
 
+  async function copySourcesAccessValidationWorkflow() {
+    const payload = await api.fetchSourcesAccessValidationWorkflow();
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.pending} pending`;
+  }
+
   async function copySourcesAccessChecklist() {
     const payload = await api.fetchSourcesAccessChecklist();
     await copyText(payload.markdown);
@@ -4537,6 +4649,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySourcesSummary,
     copySourcesAccessRequirements,
     copySourcesAccessMethodRegistry,
+    copySourcesAccessValidationWorkflow,
     copySourcesAccessChecklist,
     copySourcesAccessValidationRunbook,
     copySourcesAccessValidationEvidence,

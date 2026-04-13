@@ -242,6 +242,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>}
+   */
+  fetchSourcesAccessValidationWorkflow() {
+    return fetchJson("/api/sources/access-validation-workflow");
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>}
    */
   fetchSourcesAccessChecklist() {

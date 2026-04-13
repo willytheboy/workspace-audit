@@ -229,6 +229,17 @@ export async function serverTest() {
     assert.match(sourcesAccessMethodRegistryJson.secretPolicy, /Non-secret access method registry/);
     assert.match(sourcesAccessMethodRegistryJson.markdown, /# Data Sources Access Method Registry/);
 
+    const sourcesAccessValidationWorkflowResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow`);
+    assert.equal(sourcesAccessValidationWorkflowResponse.status, 200);
+    const sourcesAccessValidationWorkflowJson = await sourcesAccessValidationWorkflowResponse.json();
+    assert.equal(sourcesAccessValidationWorkflowJson.summary.total, 1);
+    assert.equal(sourcesAccessValidationWorkflowJson.summary.pending, 1);
+    assert.equal(sourcesAccessValidationWorkflowJson.summary.missingEvidence, 1);
+    assert.equal(sourcesAccessValidationWorkflowJson.items[0].stage, "record-validation-evidence");
+    assert.equal(sourcesAccessValidationWorkflowJson.items[0].status, "pending");
+    assert.match(sourcesAccessValidationWorkflowJson.secretPolicy, /Non-secret source access validation workflow/);
+    assert.match(sourcesAccessValidationWorkflowJson.markdown, /# Data Sources Access Validation Workflow/);
+
     const sourcesAccessChecklistResponse = await fetch(`${baseUrl}/api/sources/access-checklist`);
     assert.equal(sourcesAccessChecklistResponse.status, 200);
     const sourcesAccessChecklistJson = await sourcesAccessChecklistResponse.json();
@@ -326,6 +337,13 @@ export async function serverTest() {
     assert.equal(sourcesAccessValidationEvidenceCoverageJson.items[0].coverageStatus, "covered");
     assert.equal(sourcesAccessValidationEvidenceCoverageJson.items[0].latestEvidenceStatus, "validated");
     assert.match(sourcesAccessValidationEvidenceCoverageJson.markdown, /Operator confirmed/);
+
+    const sourcesAccessValidationWorkflowAfterEvidenceResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow`);
+    assert.equal(sourcesAccessValidationWorkflowAfterEvidenceResponse.status, 200);
+    const sourcesAccessValidationWorkflowAfterEvidenceJson = await sourcesAccessValidationWorkflowAfterEvidenceResponse.json();
+    assert.equal(sourcesAccessValidationWorkflowAfterEvidenceJson.summary.ready, 1);
+    assert.equal(sourcesAccessValidationWorkflowAfterEvidenceJson.items[0].stage, "validated");
+    assert.equal(sourcesAccessValidationWorkflowAfterEvidenceJson.items[0].status, "ready");
 
     const createSourcesAccessValidationEvidenceSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-snapshots`, {
       method: "POST",
@@ -465,6 +483,17 @@ export async function serverTest() {
     assert.equal(sourcesAccessMethodRegistryAfterAddJson.summary.tokenLikely, 1);
     assert.ok(sourcesAccessMethodRegistryAfterAddJson.methods.some((method) => method.accessMethod === "git-https" && method.category === "git" && method.privateRepoLikely === 1));
     assert.match(sourcesAccessMethodRegistryAfterAddJson.markdown, /git-https/);
+
+    const sourcesAccessValidationWorkflowAfterAddResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow`);
+    assert.equal(sourcesAccessValidationWorkflowAfterAddResponse.status, 200);
+    const sourcesAccessValidationWorkflowAfterAddJson = await sourcesAccessValidationWorkflowAfterAddResponse.json();
+    assert.equal(sourcesAccessValidationWorkflowAfterAddJson.summary.total, 2);
+    assert.equal(sourcesAccessValidationWorkflowAfterAddJson.summary.ready, 1);
+    assert.equal(sourcesAccessValidationWorkflowAfterAddJson.summary.pending, 1);
+    assert.equal(sourcesAccessValidationWorkflowAfterAddJson.summary.externalAccessRequired, 1);
+    assert.equal(sourcesAccessValidationWorkflowAfterAddJson.summary.tokenRequired, 1);
+    assert.ok(sourcesAccessValidationWorkflowAfterAddJson.items.some((item) => item.accessMethod === "git-https" && item.stage === "external-access-review" && item.blockerTypes.includes("token-or-oauth")));
+    assert.match(sourcesAccessValidationWorkflowAfterAddJson.markdown, /external-access-review/);
 
     const sourcesAccessChecklistAfterAddResponse = await fetch(`${baseUrl}/api/sources/access-checklist`);
     assert.equal(sourcesAccessChecklistAfterAddResponse.status, 200);

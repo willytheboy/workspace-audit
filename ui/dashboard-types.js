@@ -1346,6 +1346,47 @@
  *   markdown: string
  * }} DataSourcesAccessMethodRegistryPayload
  * @typedef {{
+ *   id: string,
+ *   sourceId: string,
+ *   label: string,
+ *   type: string,
+ *   locator: string,
+ *   accessMethod: string,
+ *   category: string,
+ *   status: "ready" | "pending" | "blocked",
+ *   stage: "validated" | "record-validation-evidence" | "external-access-review" | "blocked",
+ *   priority: "high" | "medium" | "low",
+ *   externalAccessRequired: boolean,
+ *   blockerTypes: string[],
+ *   latestEvidenceStatus: string,
+ *   latestEvidenceAt: string,
+ *   coverageStatus: string,
+ *   action: string,
+ *   commandHints: string[],
+ *   secretPolicy: string
+ * }} DataSourcesAccessValidationWorkflowItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   summary: {
+ *     total: number,
+ *     ready: number,
+ *     pending: number,
+ *     blocked: number,
+ *     missingEvidence: number,
+ *     externalAccessRequired: number,
+ *     tokenRequired: number,
+ *     passwordRequired: number,
+ *     certificateRequired: number,
+ *     sshRequired: number,
+ *     manualRequired: number
+ *   },
+ *   secretPolicy: string,
+ *   items: DataSourcesAccessValidationWorkflowItem[],
+ *   registry: DataSourcesAccessMethodRegistryPayload,
+ *   coverage: DataSourcesAccessValidationEvidenceCoveragePayload,
+ *   markdown: string
+ * }} DataSourcesAccessValidationWorkflowPayload
+ * @typedef {{
  *   generatedAt: string,
  *   summary: {
  *     total: number,

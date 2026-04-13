@@ -1110,3 +1110,10 @@
 - [x] Add Sources per-item confirm/defer/dismiss checkpoints for Data Sources evidence coverage items.
 - [x] Add Governance deck per-item confirm/defer/dismiss checkpoints for the same inferred source-access blockers.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Task Seeding Checkpoint Lifecycle Filtering
+
+- [x] Add a Governance lifecycle status filter for task-seeding checkpoints.
+- [x] Group the Task Seeding Checkpoints Governance ledger by approved, deferred, dismissed, and needs-review status.
+- [x] Persist the lifecycle filter in saved Governance execution views.
+- [x] Add parser checks, docs, milestone tracking, validation, relaunch, commit, and push.

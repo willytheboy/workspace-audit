@@ -112,7 +112,7 @@ function createEmptyTableRow(message) {
  *     createGovernanceTaskUpdateLedgerSnapshot: (payload?: { title?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>,
  *     fetchGovernanceTaskUpdateLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerSnapshotDiffPayload>,
  *     fetchGovernanceExecutionViews: () => Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>,
- *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
+ *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
  *     saveGovernanceExecutionPolicy: (payload: { staleThresholdHours: number }) => Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>,
  *     bootstrapGovernance: (payload: { mode: "profiles" | "starter-pack", projectIds: string[] }) => Promise<unknown>,
@@ -256,6 +256,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       search: /** @type {HTMLInputElement | null} */ (document.getElementById("governance-search"))?.value.trim().toLowerCase() || "",
       scope: /** @type {HTMLSelectElement | null} */ (document.getElementById("governance-scope"))?.value || "all",
       sort: /** @type {HTMLSelectElement | null} */ (document.getElementById("governance-sort"))?.value || "recent",
+      taskSeedingStatus: /** @type {HTMLSelectElement | null} */ (document.getElementById("governance-task-seeding-status"))?.value || "all",
       executionStatus: /** @type {HTMLSelectElement | null} */ (document.getElementById("governance-execution-status"))?.value || "all",
       executionRetention: Number(/** @type {HTMLSelectElement | null} */ (document.getElementById("governance-execution-retention"))?.value || 25),
       staleThresholdHours: Number(/** @type {HTMLSelectElement | null} */ (document.getElementById("governance-execution-stale-threshold"))?.value || governanceExecutionPolicy.staleThresholdHours || 24),
@@ -306,6 +307,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (searchInput) searchInput.value = view.search || "";
     setSelectControlValue("governance-scope", view.scope || "execution");
     setSelectControlValue("governance-sort", view.sort || "recent");
+    setSelectControlValue("governance-task-seeding-status", view.taskSeedingStatus || "all");
     setSelectControlValue("governance-execution-status", view.executionStatus || "all");
     setSelectControlValue("governance-execution-retention", String(view.executionRetention || 25));
     if (showArchivedCheckbox) showArchivedCheckbox.checked = Boolean(view.showArchivedExecution);
@@ -318,8 +320,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   function buildGovernanceExecutionViewTitle(filters) {
     const scope = filters.scope === "execution" ? "Execution" : `Governance ${filters.scope}`;
     const archiveLabel = filters.showArchivedExecution ? "with archived" : "active only";
+    const checkpointLabel = filters.taskSeedingStatus && filters.taskSeedingStatus !== "all" ? ` | checkpoints ${filters.taskSeedingStatus}` : "";
     const searchLabel = filters.search ? ` | ${filters.search.slice(0, 32)}` : "";
-    return `${scope}: ${filters.executionStatus} | keep ${filters.executionRetention} | ${archiveLabel}${searchLabel}`;
+    return `${scope}: ${filters.executionStatus} | keep ${filters.executionRetention} | ${archiveLabel}${checkpointLabel}${searchLabel}`;
   }
 
   /**
@@ -330,6 +333,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const sortMode = filters.sort;
     const search = filters.search;
     const executionStatus = filters.executionStatus;
+    const taskSeedingStatus = filters.taskSeedingStatus;
 
     /**
      * @param {string[]} values
@@ -379,6 +383,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
      */
     function matchesExecutionArchive(run) {
       return filters.showArchivedExecution || !run.archivedAt;
+    }
+
+    /**
+     * @param {import("./dashboard-types.js").TaskSeedingCheckpoint} checkpoint
+     */
+    function matchesTaskSeedingStatus(checkpoint) {
+      if (taskSeedingStatus === "all") return true;
+      return (checkpoint.status || "needs-review") === taskSeedingStatus;
     }
 
     const filtered = {
@@ -437,7 +449,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.taskSeedingCheckpoints || [],
         (checkpoint) => [checkpoint.title || "", checkpoint.source || "", checkpoint.status || "", checkpoint.note || "", checkpoint.batchId || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
-      ),
+      ).filter(matchesTaskSeedingStatus),
       workflowRunbook: filterAndSort(
         governance.workflowRunbook,
         (item) => [item.projectName || "", item.title || "", item.phase || "", item.status || "", item.readiness || "", item.nextStep || "", item.blockers.join(" ")],
@@ -2182,6 +2194,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const searchInput = document.getElementById("governance-search");
     const scopeSelect = document.getElementById("governance-scope");
     const sortSelect = document.getElementById("governance-sort");
+    const taskSeedingStatusSelect = document.getElementById("governance-task-seeding-status");
     const executionStatusSelect = document.getElementById("governance-execution-status");
     const executionRetentionSelect = document.getElementById("governance-execution-retention");
     const executionStaleThresholdSelect = document.getElementById("governance-execution-stale-threshold");
@@ -2195,6 +2208,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     searchInput?.addEventListener("input", handler);
     scopeSelect?.addEventListener("change", handler);
     sortSelect?.addEventListener("change", handler);
+    taskSeedingStatusSelect?.addEventListener("change", handler);
     executionStatusSelect?.addEventListener("change", handler);
     executionRetentionSelect?.addEventListener("change", handler);
     executionStaleThresholdSelect?.addEventListener("change", handler);
@@ -4547,6 +4561,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       search: filters.search,
       scope: filters.scope,
       sort: filters.sort,
+      taskSeedingStatus: filters.taskSeedingStatus,
       executionStatus: filters.executionStatus,
       executionRetention: Number.isFinite(filters.executionRetention) ? filters.executionRetention : 25,
       showArchivedExecution: filters.showArchivedExecution

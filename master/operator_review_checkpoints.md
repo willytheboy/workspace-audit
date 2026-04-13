@@ -15,10 +15,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Generated task seeding: high-risk task batch controls now expose `Defer Batch` and `Dismiss Batch` checkpoints that persist to a non-secret task-seeding checkpoint ledger and Governance operation log before or instead of creating tasks.
 - Source-access task seeding: Sources and Governance toolbar plus command-palette task-batch entry points now expose defer/dismiss checkpoints for validation workflow, review queue, and evidence-coverage task batches that derive from inferred source-access state.
 - Source-access inferred blocker items: Data Sources access review queue and evidence coverage cards now expose per-item confirm/defer/dismiss checkpoints before inferred blockers are converted into tasks.
+- Task-seeding checkpoint ledger: Governance now filters and groups task-batch decisions by lifecycle status so approved, deferred, dismissed, and needs-review checkpoints can be audited independently.
 
 ## Next Checkpoint Candidates
 
-- Add checkpoint filtering and lifecycle status grouping to the Task Seeding Checkpoints Governance ledger so approved, deferred, and dismissed source-access decisions can be audited independently.
+- Add source-specific checkpoint counts to Data Sources and Agent Control Plane summaries so unresolved source-access decisions are visible before task seeding or ingestion.
 
 ## Implementation Standard
 

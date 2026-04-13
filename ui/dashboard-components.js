@@ -2011,62 +2011,118 @@ export function createGovernanceDeck(governance) {
       : null
     ]);
   });
-  const taskSeedingCheckpointEntries = (governance.taskSeedingCheckpoints || []).map((checkpoint) => createElement("div", {
-    className: "governance-gap-card",
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      gap: "0.6rem"
-    }
-  }, [
-    createElement("div", {
+  const taskSeedingCheckpointStatusOrder = ["approved", "deferred", "dismissed", "needs-review"];
+  const taskSeedingCheckpointStatusLabels = {
+    approved: "Approved",
+    deferred: "Deferred",
+    dismissed: "Dismissed",
+    "needs-review": "Needs Review"
+  };
+  const taskSeedingCheckpointStatusColors = {
+    approved: "var(--success)",
+    deferred: "var(--warning)",
+    dismissed: "var(--danger)",
+    "needs-review": "var(--text-muted)"
+  };
+  /**
+   * @param {import("./dashboard-types.js").TaskSeedingCheckpoint} checkpoint
+   */
+  function getTaskSeedingCheckpointLifecycleStatus(checkpoint) {
+    const status = checkpoint.status || "needs-review";
+    return taskSeedingCheckpointStatusOrder.includes(status) ? status : "needs-review";
+  }
+  /**
+   * @param {import("./dashboard-types.js").TaskSeedingCheckpoint} checkpoint
+   */
+  function createTaskSeedingCheckpointEntry(checkpoint) {
+    const lifecycleStatus = getTaskSeedingCheckpointLifecycleStatus(checkpoint);
+    return createElement("div", {
+      className: "governance-gap-card",
       style: {
         display: "flex",
-        justifyContent: "space-between",
-        gap: "0.8rem",
-        alignItems: "flex-start"
+        flexDirection: "column",
+        gap: "0.6rem"
       }
     }, [
-      createElement("div", {}, [
-        createElement("div", {
-          text: checkpoint.title || "Generated task batch checkpoint",
-          style: {
-            fontWeight: "800",
-            color: "var(--text)"
-          }
-        }),
-        createElement("div", {
-          text: `${checkpoint.source || "governance"} • ${checkpoint.itemCount || 0} item(s) • ${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"}`,
-          style: {
-            color: "var(--text-muted)",
-            fontSize: "0.84rem",
-            marginTop: "0.3rem"
-          }
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: checkpoint.title || "Generated task batch checkpoint",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${checkpoint.source || "governance"} - ${checkpoint.itemCount || 0} item(s) - ${checkpoint.createdAt ? new Date(checkpoint.createdAt).toLocaleString() : "saved checkpoint"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem"
+            }
+          })
+        ]),
+        createTag((taskSeedingCheckpointStatusLabels[lifecycleStatus] || lifecycleStatus).toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: taskSeedingCheckpointStatusColors[lifecycleStatus] || "var(--text-muted)"
         })
       ]),
-      createTag((checkpoint.status || "needs-review").toUpperCase(), {
-        border: "1px solid var(--border)",
-        background: "var(--bg)",
-        color: checkpoint.status === "dismissed"
-          ? "var(--danger)"
-          : checkpoint.status === "deferred"
-            ? "var(--warning)"
-            : checkpoint.status === "approved"
-              ? "var(--success)"
-              : "var(--text-muted)"
-      })
-    ]),
-    checkpoint.note
-      ? createElement("div", {
-          text: checkpoint.note,
+      checkpoint.note
+        ? createElement("div", {
+            text: checkpoint.note,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          })
+        : null
+    ]);
+  }
+  const taskSeedingCheckpointEntries = taskSeedingCheckpointStatusOrder.flatMap((status) => {
+    const checkpoints = (governance.taskSeedingCheckpoints || []).filter((checkpoint) => getTaskSeedingCheckpointLifecycleStatus(checkpoint) === status);
+    if (!checkpoints.length) return [];
+    return [
+      createElement("div", {
+        className: "task-seeding-checkpoint-status-group",
+        dataset: { taskSeedingCheckpointStatusGroup: status },
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "0.8rem",
+          padding: "0.45rem 0.65rem",
+          border: "1px solid var(--border)",
+          borderRadius: "999px",
+          background: "var(--surface-hover)"
+        }
+      }, [
+        createElement("strong", {
+          text: taskSeedingCheckpointStatusLabels[status],
           style: {
-            color: "var(--text-muted)",
-            fontSize: "0.88rem",
-            lineHeight: "1.5"
+            color: "var(--text)",
+            fontSize: "0.82rem",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase"
           }
+        }),
+        createTag(`${checkpoints.length} checkpoint(s)`, {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: taskSeedingCheckpointStatusColors[status] || "var(--text-muted)"
         })
-      : null
-  ]));
+      ]),
+      ...checkpoints.map(createTaskSeedingCheckpointEntry)
+    ];
+  });
   const governanceTaskUpdateLedgerSnapshotEntries = (governance.governanceTaskUpdateLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {

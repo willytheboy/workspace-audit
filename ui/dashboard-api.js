@@ -552,7 +552,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, search: string, scope: string, sort: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }} payload
+   * @param {{ title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }} payload
    * @returns {Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>}
    */
   saveGovernanceExecutionView(payload) {

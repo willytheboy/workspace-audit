@@ -500,6 +500,7 @@
  *   search: string,
  *   scope: string,
  *   sort: string,
+ *   taskSeedingStatus: string,
  *   executionStatus: string,
  *   executionRetention: number,
  *   showArchivedExecution: boolean,

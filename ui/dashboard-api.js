@@ -423,6 +423,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerPayload>}
+   */
+  fetchGovernanceTaskUpdateLedger(options = {}) {
+    return fetchJson(withQuery("/api/governance/task-update-ledger", options));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>}
    */
   fetchGovernanceExecutionViews() {

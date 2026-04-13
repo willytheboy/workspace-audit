@@ -967,3 +967,9 @@
 - [x] Capture task id, title, project, previous status, next status, and changed field names without storing full payloads.
 - [x] Verify Control Plane decision task lifecycle updates create task update audit entries.
 - [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.
+
+## Next Governance Task Update Audit Ledger
+
+- [x] Add `GET /api/governance/task-update-ledger` with bounded non-secret task update operation output.
+- [x] Add toolbar and command-palette copy actions for the task update audit ledger.
+- [x] Add parser checks, server tests, docs, milestone tracking, validation, relaunch, commit, and push.

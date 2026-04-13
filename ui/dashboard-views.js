@@ -101,6 +101,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesSummarySnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesSummarySnapshotDiffPayload>,
  *     deleteSource: (sourceId: string) => Promise<unknown>,
  *     fetchGovernance: () => Promise<import("./dashboard-types.js").GovernancePayload>,
+ *     fetchGovernanceTaskUpdateLedger: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerPayload>,
  *     fetchGovernanceExecutionViews: () => Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>,
  *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
@@ -3978,6 +3979,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     textarea.remove();
   }
 
+  async function copyGovernanceTaskUpdateLedger() {
+    const payload = await api.fetchGovernanceTaskUpdateLedger({ limit: 100 });
+    await copyText(payload.markdown);
+    return `Copied ${payload.summary.visible} task update${payload.summary.visible === 1 ? "" : "s"}`;
+  }
+
   async function copySourcesSummary() {
     const payload = await api.fetchSourcesSummary();
     await copyText(payload.markdown);
@@ -4393,6 +4400,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyLatestSourcesSummarySnapshotDrift,
     copySlaBreachLedger,
     copyGovernanceSummary,
+    copyGovernanceTaskUpdateLedger,
     exportCsv,
     bootstrapGovernance,
     executeVisibleGovernanceQueue,

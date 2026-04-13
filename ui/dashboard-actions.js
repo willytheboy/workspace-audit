@@ -47,6 +47,7 @@
  *     exportCsv: () => void,
  *     exportGovernanceReport: () => Promise<void>,
  *     copyGovernanceSummary: () => Promise<void>,
+ *     copyGovernanceTaskUpdateLedger: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessGate: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessReviewQueue: () => Promise<void>,
  *     copyGovernanceDataSourcesAccessValidationEvidence: () => Promise<void>,
@@ -367,6 +368,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "copy", "summary"],
         run: () => handlers.copyGovernanceSummary()
+      },
+      {
+        id: "copy-governance-task-update-ledger",
+        label: "Copy task update audit ledger",
+        description: "Copy the non-secret Governance task update audit ledger for lifecycle status changes.",
+        category: "Actions",
+        keywords: ["governance", "tasks", "update", "audit", "ledger", "lifecycle", "copy"],
+        run: () => handlers.copyGovernanceTaskUpdateLedger()
       },
       {
         id: "copy-governance-data-sources-access-gate",

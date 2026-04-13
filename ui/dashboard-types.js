@@ -370,6 +370,35 @@
  *   createdAt: string
  * }} GovernanceOperation
  * @typedef {{
+ *   operationId: string,
+ *   type: string,
+ *   summary: string,
+ *   actor: string,
+ *   taskId: string,
+ *   title: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   previousStatus: string,
+ *   nextStatus: string,
+ *   updatedFields: string[],
+ *   createdAt: string
+ * }} GovernanceTaskUpdateLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     statusChanges: number,
+ *     metadataUpdates: number,
+ *     taskCount: number,
+ *     projectCount: number
+ *   },
+ *   items: GovernanceTaskUpdateLedgerItem[],
+ *   markdown: string
+ * }} GovernanceTaskUpdateLedgerPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   search: string,

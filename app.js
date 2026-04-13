@@ -212,6 +212,12 @@ async function copyGovernanceSummary() {
   await views.copyGovernanceSummary();
 }
 
+async function copyGovernanceTaskUpdateLedger() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyGovernanceTaskUpdateLedger();
+}
+
 async function copyGovernanceDataSourcesAccessReviewQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -559,6 +565,7 @@ const actionRegistry = createDashboardActionRegistry({
     exportCsv: () => views.exportCsv(),
     exportGovernanceReport,
     copyGovernanceSummary,
+    copyGovernanceTaskUpdateLedger,
     copyGovernanceDataSourcesAccessGate,
     copyGovernanceDataSourcesAccessReviewQueue,
     copyGovernanceDataSourcesAccessValidationEvidence,
@@ -928,6 +935,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-summary-btn")),
     "Copying...",
     () => copyGovernanceSummary()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-task-update-ledger-btn")),
+    "Copying...",
+    () => copyGovernanceTaskUpdateLedger()
   );
 
   bindAsyncButton(

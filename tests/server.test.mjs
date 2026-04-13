@@ -568,6 +568,17 @@ export async function serverTest() {
     const patchTaskJson = await patchTaskResponse.json();
     assert.equal(patchTaskJson.task.status, "done");
 
+    const taskUpdateLedgerResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger`);
+    assert.equal(taskUpdateLedgerResponse.status, 200);
+    const taskUpdateLedgerJson = await taskUpdateLedgerResponse.json();
+    assert.equal(taskUpdateLedgerJson.summary.total, 1);
+    assert.equal(taskUpdateLedgerJson.summary.statusChanges, 1);
+    assert.equal(taskUpdateLedgerJson.summary.taskCount, 1);
+    assert.equal(taskUpdateLedgerJson.items[0].taskId, createTaskJson.task.id);
+    assert.equal(taskUpdateLedgerJson.items[0].previousStatus, "open");
+    assert.equal(taskUpdateLedgerJson.items[0].nextStatus, "done");
+    assert.match(taskUpdateLedgerJson.markdown, /# Governance Task Update Ledger/);
+
     const createWorkflowResponse = await fetch(`${baseUrl}/api/workflows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

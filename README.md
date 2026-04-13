@@ -199,6 +199,7 @@ Architecture:
 - Agent Control Plane decision task seeding can now auto-capture a non-secret task ledger snapshot in the same operation from the decision deck, command palette, or `POST /api/agent-control-plane/decision/tasks` with `saveSnapshot`.
 - Control Plane decision task cards now include Resolve, Reopen, and Block lifecycle controls backed by the shared task update API.
 - Agent Control Plane handoffs, decisions, decision snapshots, and snapshot drift now track Control Plane decision task totals/open/closed counts.
+- `GET /api/governance/task-update-ledger` now exposes task update audit operations as a non-secret lifecycle ledger with markdown handoff output.
 - Governance can now copy the filtered Data Sources Access Review Queue from the toolbar or command palette as a non-secret source-access handoff.
 - Governance can now seed deduplicated Data Sources access-review tasks from the visible review queue, converting credential/certificate/manual checks into trackable work without storing secrets.
 - Governance now includes a Data Sources Access Task Ledger so seeded source-access tasks are visible in the control-center deck, summaries, and reports.
@@ -252,6 +253,7 @@ Core routes:
 - `GET /api/sources/summary-snapshots/diff?snapshotId=latest`
 - `GET /api/diagnostics`
 - `GET /api/governance`
+- `GET /api/governance/task-update-ledger`
 - `GET /api/governance/execution-views`
 - `POST /api/governance/execution-views`
 - `GET /api/governance/execution-policy`

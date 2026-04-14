@@ -1404,6 +1404,13 @@
 - [x] Persist audit-row checkpoint decisions as non-secret Governance tasks.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
 
+## Next Governance Task Update Audit Ledger Drift Item Checkpoints
+
+- [x] Load the latest Governance task update audit ledger snapshot drift into the Governance deck.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls for task update audit drift rows.
+- [x] Persist audit drift checkpoint decisions as non-secret Governance tasks.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
 ## Future Vibe Coder Operating Guide
 
 - [x] Persist the vibe-coder guided operating cycle as a project objective.

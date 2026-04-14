@@ -1019,6 +1019,7 @@
  *   operationLog: GovernanceOperation[],
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
+ *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,
  *   agentPolicyCheckpoints: AgentPolicyCheckpoint[],
  *   agentExecutionResultCheckpoints: AgentExecutionResultCheckpoint[],
  *   agentExecutionResultRequirements: AgentExecutionResultRequirements,

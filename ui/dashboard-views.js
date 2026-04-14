@@ -469,6 +469,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             )
           }
         : null,
+      governanceTaskUpdateLedgerSnapshotDiff: governance.governanceTaskUpdateLedgerSnapshotDiff && matchesSearch([
+        "governance task update audit ledger snapshot drift",
+        governance.governanceTaskUpdateLedgerSnapshotDiff.snapshotTitle || "",
+        governance.governanceTaskUpdateLedgerSnapshotDiff.driftSeverity || "",
+        governance.governanceTaskUpdateLedgerSnapshotDiff.recommendedAction || "",
+        governance.governanceTaskUpdateLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.governanceTaskUpdateLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.governanceTaskUpdateLedgerSnapshotDiff
+        : null,
       workflowRunbook: filterAndSort(
         governance.workflowRunbook,
         (item) => [item.projectName || "", item.title || "", item.phase || "", item.status || "", item.readiness || "", item.nextStep || "", item.blockers.join(" ")],
@@ -2053,6 +2063,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Updating";
           element.textContent = await createGovernanceTaskUpdateLedgerItemCheckpoint(operationId, action);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-governance-task-update-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.governanceTaskUpdateLedgerDriftItemField || "";
+        const decision = element.dataset.governanceTaskUpdateLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await createGovernanceTaskUpdateLedgerDriftItemCheckpoint(field, decision);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -3701,6 +3735,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible suppressed queue items: ${governance.queueSuppressions.length}`,
       `Visible operation log entries: ${governance.operationLog.length}`,
       `Visible task update audit rows: ${governance.governanceTaskUpdateLedger?.items?.length || 0}`,
+      `Visible task update audit snapshot drift: ${governance.governanceTaskUpdateLedgerSnapshotDiff ? "yes" : "no"}`,
       `Visible workflow runbook items: ${governance.workflowRunbook.length}`,
       `Visible agent sessions: ${governance.agentSessions.length}`,
       `Visible control plane baseline status: ${governance.agentControlPlaneBaselineStatus ? "yes" : "no"}`,
@@ -6254,11 +6289,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
         api.fetchGovernanceTaskUpdateLedger({ limit: 50 }),
+        api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest"),
         api.fetchReleaseSummary(),
         api.fetchReleaseCheckpointDrift("latest"),
         api.fetchReleaseBuildGate(),
@@ -6270,6 +6306,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       governanceCache = {
         ...governance,
         governanceTaskUpdateLedger,
+        governanceTaskUpdateLedgerSnapshotDiff,
         releaseSummary,
         releaseCheckpointDrift,
         releaseBuildGate,
@@ -6291,6 +6328,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.queueSuppressions.length
         + governance.operationLog.length
         + (governanceTaskUpdateLedger?.items || []).length
+        + (governanceTaskUpdateLedgerSnapshotDiff ? 1 : 0)
+        + (governanceTaskUpdateLedgerSnapshotDiff?.driftItems || []).length
         + governance.workflowRunbook.length
         + governance.agentSessions.length
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
@@ -6746,6 +6785,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       projectName: item.projectName || "Governance",
       title: `Task update audit ${decision.label.toLowerCase()}: ${item.title || item.taskId || operationId}`.slice(0, 140),
       description: buildGovernanceTaskUpdateLedgerItemCheckpointDescription(decision, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
+  }
+
+  function findGovernanceTaskUpdateLedgerDriftItem(field) {
+    const diff = governanceCache?.governanceTaskUpdateLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function buildGovernanceTaskUpdateLedgerDriftItemCheckpointDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Governance task update audit ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Governance task update audit ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Governance task update audit ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret Governance task update audit ledger drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createGovernanceTaskUpdateLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findGovernanceTaskUpdateLedgerDriftItem(field);
+    if (!diff) throw new Error("Governance task update audit ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Governance task update audit ledger drift item not found: ${field}`);
+
+    const decision = getGovernanceTaskUpdateLedgerCheckpointDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "governance",
+      projectName: "Governance",
+      title: `Task update audit drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildGovernanceTaskUpdateLedgerDriftItemCheckpointDescription(decision, diff, item),
       priority: decision.priority,
       status: decision.status
     });

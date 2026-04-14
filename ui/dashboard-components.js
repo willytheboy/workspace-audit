@@ -2451,6 +2451,158 @@ export function createGovernanceDeck(governance) {
       })
     ])
   ]));
+  const governanceTaskUpdateLedgerSnapshotDiff = governance.governanceTaskUpdateLedgerSnapshotDiff;
+  const governanceTaskUpdateLedgerDriftItems = Array.isArray(governanceTaskUpdateLedgerSnapshotDiff?.driftItems)
+    ? governanceTaskUpdateLedgerSnapshotDiff.driftItems
+    : [];
+  const governanceTaskUpdateLedgerSnapshotDiffEntries = governanceTaskUpdateLedgerSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: governanceTaskUpdateLedgerSnapshotDiff.snapshotTitle || "No Governance task update audit snapshot",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: governanceTaskUpdateLedgerSnapshotDiff.snapshotCreatedAt ? new Date(governanceTaskUpdateLedgerSnapshotDiff.snapshotCreatedAt).toLocaleString() : "No snapshot saved yet",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((governanceTaskUpdateLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: governanceTaskUpdateLedgerSnapshotDiff.driftSeverity === "high" || governanceTaskUpdateLedgerSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : governanceTaskUpdateLedgerSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: governanceTaskUpdateLedgerSnapshotDiff.recommendedAction || "Save a Governance task update audit ledger snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `${governanceTaskUpdateLedgerSnapshotDiff.driftScore || 0} drift score - ${governanceTaskUpdateLedgerDriftItems.length} drift item(s)`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          governanceTaskUpdateLedgerDriftItems.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem",
+                  padding: "0.7rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.85rem",
+                  background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+                }
+              }, [
+                createElement("div", {
+                  text: "Task update audit drift fields",
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.78rem",
+                    fontWeight: "800",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase"
+                  }
+                }),
+                ...governanceTaskUpdateLedgerDriftItems.slice(0, 8).map((item) => createElement("div", {
+                  style: {
+                    display: "grid",
+                    gap: "0.5rem",
+                    padding: "0.65rem",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.75rem",
+                    background: "var(--surface)"
+                  }
+                }, [
+                  createElement("div", {
+                    text: `${item.label || item.field || "Task update audit drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                    style: {
+                      color: "var(--text)",
+                      fontSize: "0.84rem",
+                      fontWeight: "700",
+                      lineHeight: "1.45"
+                    }
+                  }),
+                  createElement("div", {
+                    className: "governance-actions"
+                  }, [
+                    createElement("button", {
+                      className: "btn governance-action-btn governance-task-update-ledger-drift-item-confirm-btn",
+                      text: "Confirm",
+                      attrs: { type: "button" },
+                      dataset: {
+                        governanceTaskUpdateLedgerDriftItemField: item.field || item.label || "",
+                        governanceTaskUpdateLedgerDriftItemDecision: "confirmed"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn governance-task-update-ledger-drift-item-defer-btn",
+                      text: "Defer",
+                      attrs: { type: "button" },
+                      dataset: {
+                        governanceTaskUpdateLedgerDriftItemField: item.field || item.label || "",
+                        governanceTaskUpdateLedgerDriftItemDecision: "deferred"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn governance-task-update-ledger-drift-item-escalate-btn",
+                      text: "Escalate",
+                      attrs: { type: "button" },
+                      dataset: {
+                        governanceTaskUpdateLedgerDriftItemField: item.field || item.label || "",
+                        governanceTaskUpdateLedgerDriftItemDecision: "escalated"
+                      }
+                    })
+                  ])
+                ])),
+                governanceTaskUpdateLedgerDriftItems.length > 8
+                  ? createElement("div", {
+                      text: `${governanceTaskUpdateLedgerDriftItems.length - 8} additional drift item(s).`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.8rem"
+                      }
+                    })
+                  : null
+              ])
+            : null
+        ])
+      ]
+    : [];
   const governanceTaskUpdateLedgerSnapshotEntries = (governance.governanceTaskUpdateLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -7844,7 +7996,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
-    createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", governanceTaskUpdateLedgerSnapshotEntries),
+    createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

@@ -1298,3 +1298,10 @@
 - [x] Add target-level `Track Release Task` controls that convert deployment health status into Release Control tasks with a release task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret deployment metadata policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Deployment Smoke-Check Ledger Checkpoints
+
+- [x] Add recent-smoke-check `Confirm` and `Defer` controls using the non-secret task-seeding checkpoint ledger.
+- [x] Add recent-smoke-check `Track Release Task` controls that convert individual smoke outcomes into Release Control tasks with a release task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret smoke-check metadata policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

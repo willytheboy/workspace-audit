@@ -5235,7 +5235,33 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         status.style.color = smokeCheck.status === "pass" ? "var(--success)" : "var(--danger)";
         status.style.fontWeight = "800";
 
-        row.append(label, status);
+        const actions = document.createElement("div");
+        actions.className = "governance-actions deployment-smoke-check-checkpoints";
+        actions.style.marginTop = "0";
+
+        for (const [checkpointStatus, checkpointLabel] of [["approved", "Confirm"], ["deferred", "Defer"]]) {
+          const checkpointButton = document.createElement("button");
+          checkpointButton.className = `btn governance-action-btn deployment-smoke-check-${checkpointStatus}-btn`;
+          checkpointButton.type = "button";
+          checkpointButton.textContent = checkpointLabel;
+          checkpointButton.dataset.sourceTaskSeedingCheckpoint = "true";
+          checkpointButton.dataset.taskSeedingBatchId = `sources-deployment-smoke-check:${smokeCheck.id || smokeCheck.targetId || smokeCheck.url || "smoke-check"}`;
+          checkpointButton.dataset.taskSeedingStatus = checkpointStatus;
+          checkpointButton.dataset.taskSeedingSource = "sources-deployment-smoke-check-ledger";
+          checkpointButton.dataset.taskSeedingTitle = `Deployment smoke check: ${smokeCheck.label || smokeCheck.host || smokeCheck.url || "target"}`;
+          checkpointButton.dataset.taskSeedingItemCount = "1";
+          checkpointButton.dataset.taskSeedingNote = `Operator marked deployment smoke-check result ${smokeCheck.id || smokeCheck.targetId || "smoke-check"} as ${checkpointStatus}; non-secret smoke-check metadata only.`;
+          actions.append(checkpointButton);
+        }
+
+        const taskButton = document.createElement("button");
+        taskButton.className = "btn governance-action-btn deployment-smoke-check-release-task-btn";
+        taskButton.type = "button";
+        taskButton.textContent = "Track Release Task";
+        taskButton.dataset.deploymentSmokeReleaseTaskId = smokeCheck.id || "";
+        actions.append(taskButton);
+
+        row.append(label, status, actions);
         recent.append(row);
       }
     }
@@ -5534,6 +5560,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Creating";
           const label = await createDeploymentHealthReleaseTask(targetId);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-deployment-smoke-release-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const smokeCheckId = element.dataset.deploymentSmokeReleaseTaskId || "";
+        if (!smokeCheckId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createDeploymentSmokeCheckReleaseTask(smokeCheckId);
           element.textContent = label;
         } catch (error) {
           element.textContent = originalLabel;
@@ -6457,6 +6507,46 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const taskLabel = created
       ? `Created ${created} Release Task${created === 1 ? "" : "s"}`
       : `Skipped ${skipped} Release Task${skipped === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  async function createDeploymentSmokeCheckReleaseTask(smokeCheckId) {
+    const ledger = await api.fetchDeploymentSmokeChecks();
+    const smokeCheck = (ledger.smokeChecks || []).find((item) => item.id === smokeCheckId);
+    if (!smokeCheck) throw new Error(`Deployment smoke check not found: ${smokeCheckId}`);
+
+    const priority = smokeCheck.status === "fail" ? "high" : "low";
+    const label = `Review deployment smoke check: ${smokeCheck.label || smokeCheck.host || smokeCheck.url || smokeCheck.id}`;
+    const action = {
+      id: `deployment-smoke-check:${smokeCheck.id}`,
+      label,
+      status: "open",
+      priority,
+      description: [
+        `Review non-secret deployment smoke-check outcome ${smokeCheck.id}.`,
+        `Target: ${smokeCheck.label || smokeCheck.host || smokeCheck.url || "deployment target"}.`,
+        `Provider: ${smokeCheck.provider || "deployment"}.`,
+        `Status: ${(smokeCheck.status || "fail").toUpperCase()} HTTP ${smokeCheck.httpStatus || "unreachable"}.`,
+        `Latency: ${smokeCheck.latencyMs || 0}ms; content type: ${smokeCheck.contentType || "not captured"}.`,
+        smokeCheck.error ? `Error class: ${smokeCheck.error}.` : "",
+        "Secret policy: store only non-secret deployment smoke-check metadata. Do not store credentials, provider tokens, cookies, certificates, private keys, browser sessions, response bodies, or command output."
+      ].filter(Boolean).join(" "),
+      commandHint: smokeCheck.url ? `Use the Sources deployment-health Smoke Check action for ${smokeCheck.url}.` : "Use the Sources deployment-health Smoke Check action."
+    };
+
+    const result = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: `Release Control Smoke Check Task Auto Capture: ${smokeCheck.label || smokeCheck.host || smokeCheck.id}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderSources();
+    const created = result.totals.created || 0;
+    const skipped = result.totals.skipped || 0;
+    const taskLabel = created
+      ? `Created ${created} Smoke Task${created === 1 ? "" : "s"}`
+      : `Skipped ${skipped} Smoke Task${skipped === 1 ? "" : "s"}`;
     return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 

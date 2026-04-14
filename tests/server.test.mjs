@@ -2017,6 +2017,8 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeHandoffJson.summary.cliBridgeHandoffCount, 1);
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs.length, 1);
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].sourceRunner, "codex");
+    assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].followUpWorkOrderRunId, queueCliBridgeWorkOrderRunJson.run.id);
+    assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].followUpWorkOrderRunner, "claude");
     assert.ok(governanceAfterCliBridgeHandoffJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-recorded"));
 
     const createCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-results`, {

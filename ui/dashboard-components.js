@@ -3013,6 +3013,13 @@ export function createGovernanceDeck(governance) {
               color: "var(--primary)"
             })
           : null,
+        handoff.followUpWorkOrderRunId
+          ? createTag(`follow-up ${handoff.followUpWorkOrderRunStatus || "queued"} ${handoff.followUpWorkOrderRunner || "runner"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--success)"
+            })
+          : null,
         createTag(`${(handoff.changedFiles || []).length} changed file(s)`, {
           background: "var(--bg)",
           border: "1px solid var(--border)",
@@ -3074,8 +3081,10 @@ export function createGovernanceDeck(governance) {
         }),
         createElement("button", {
           className: "btn governance-action-btn cli-bridge-handoff-work-order-run-btn",
-          text: "Queue Work-Order Run",
-          attrs: { type: "button" },
+          text: handoff.followUpWorkOrderRunId ? "Run Queued" : "Queue Work-Order Run",
+          attrs: handoff.followUpWorkOrderRunId
+            ? { type: "button", disabled: "disabled", "aria-disabled": "true" }
+            : { type: "button" },
           dataset: {
             cliBridgeHandoffWorkOrderRun: handoff.id || "",
             cliBridgeHandoffWorkOrderRunner: handoff.targetRunner === "codex" || handoff.targetRunner === "claude"

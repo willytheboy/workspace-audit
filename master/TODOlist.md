@@ -1529,3 +1529,10 @@
 - [x] Add Governance handoff controls to queue follow-up runs for Codex CLI or Claude CLI supervision without launching either CLI.
 - [x] Preserve duplicate protection, app-owned broker metadata, and no-secrets policy on queued runs.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Follow-up Run Ledger Link
+
+- [x] Link queued follow-up Agent Work Order Runs back onto their source CLI bridge handoff.
+- [x] Surface follow-up run status and runner metadata in the Governance handoff ledger.
+- [x] Disable duplicate queue controls when an active follow-up run already exists for the handoff.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

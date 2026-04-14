@@ -282,6 +282,10 @@
  *   reviewedBy?: string,
  *   reviewedAt?: string,
  *   reviewHistory?: Array<{ action: string, status: string, note: string, reviewer: string, createdAt: string }>,
+ *   followUpWorkOrderRunId?: string,
+ *   followUpWorkOrderRunStatus?: string,
+ *   followUpWorkOrderRunner?: "codex" | "claude",
+ *   followUpWorkOrderQueuedAt?: string,
  *   secretPolicy: string,
  *   createdAt: string,
  *   updatedAt: string

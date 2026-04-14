@@ -1281,6 +1281,39 @@
  *   markdown: string
  * }} CliBridgeRunnerDryRunPayload
  * @typedef {{
+ *   sourceType: "cli-bridge-handoff",
+ *   sourceHandoffId: string,
+ *   runner: "codex" | "claude",
+ *   projectId: string,
+ *   projectName: string,
+ *   workOrderRunId: string,
+ *   title: string,
+ *   objective: string,
+ *   sourceSummary: string,
+ *   sourceValidationSummary: string,
+ *   changedFiles: string[],
+ *   validationCommands: string[],
+ *   acceptanceCriteria: string[],
+ *   prompt: string
+ * }} CliBridgeFollowUpWorkOrderDraft
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: "cli-bridge-follow-up-work-order-draft.v1",
+ *   bridgeMode: "workspace-audit-work-order-broker",
+ *   executionMode: "non-executing",
+ *   runner: "codex" | "claude",
+ *   handoffId: string,
+ *   draftDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: AgentControlPlaneDecisionReason[],
+ *   contextDecision: "ready" | "review" | "hold",
+ *   sourceHandoff: PersistedCliBridgeHandoff | Record<string, never>,
+ *   linkedRun: PersistedAgentWorkOrderRun | Record<string, never>,
+ *   draft: CliBridgeFollowUpWorkOrderDraft,
+ *   markdown: string
+ * }} CliBridgeFollowUpWorkOrderDraftPayload
+ * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,
  *   message: string

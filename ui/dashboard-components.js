@@ -3058,6 +3058,19 @@ export function createGovernanceDeck(governance) {
             cliBridgeHandoffReview: "escalate",
             cliBridgeHandoffId: handoff.id || ""
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-work-order-draft-btn",
+          text: "Copy Work-Order Draft",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffWorkOrderDraft: handoff.id || "",
+            cliBridgeHandoffWorkOrderRunner: handoff.targetRunner === "codex" || handoff.targetRunner === "claude"
+              ? handoff.targetRunner
+              : handoff.sourceRunner === "codex"
+                ? "claude"
+                : "codex"
+          }
         })
       ])
     ]))

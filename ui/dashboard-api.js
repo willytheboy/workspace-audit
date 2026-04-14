@@ -655,6 +655,15 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} handoffId
+   * @param {{ runner?: "codex" | "claude", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>}
+   */
+  fetchCliBridgeFollowUpWorkOrderDraft(handoffId, options = {}) {
+    return fetchJson(withQuery(`/api/cli-bridge/handoffs/${encodeURIComponent(handoffId)}/work-order-draft`, options));
+  },
+
+  /**
    * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */

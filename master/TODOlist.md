@@ -1515,3 +1515,10 @@
 - [x] Add review queue, accepted, rejected, needs-review, and escalated counters to Governance.
 - [x] Prioritize needs-review and proposed handoffs above accepted and rejected history.
 - [x] Add filtered ledger copy controls, parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Follow-up Work-Order Drafts
+
+- [x] Add a non-executing follow-up work-order draft API for reviewed CLI bridge handoffs.
+- [x] Add Governance handoff controls to copy sanitized next-runner work-order drafts.
+- [x] Preserve the app-owned broker boundary, no-free-chat rule, and no-secrets policy for Codex CLI and Claude CLI drafts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

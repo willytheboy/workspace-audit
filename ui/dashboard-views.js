@@ -139,6 +139,7 @@ function createEmptyTableRow(message) {
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
  *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
  *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
+ *     fetchCliBridgeFollowUpWorkOrderDraft: (handoffId: string, options?: { runner?: "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>,
  *     fetchCliBridgeHandoffs: (options?: { runner?: "all" | "codex" | "claude", status?: "all" | "proposed" | "accepted" | "rejected" | "needs-review", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>,
  *     createCliBridgeRunnerResult: (payload: { runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }) => Promise<unknown>,
  *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }) => Promise<unknown>
@@ -1641,6 +1642,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const payload = await api.fetchCliBridgeRunnerDryRun({ runner, limit: 24 });
           await copyText(payload.markdown);
           element.textContent = payload.dryRunDecision === "ready" ? "Copied Ready" : `Copied ${payload.dryRunDecision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-handoff-work-order-draft]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const handoffId = element.dataset.cliBridgeHandoffWorkOrderDraft || "";
+        const runner = element.dataset.cliBridgeHandoffWorkOrderRunner || "codex";
+        if (!handoffId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Drafting";
+          const payload = await api.fetchCliBridgeFollowUpWorkOrderDraft(handoffId, { runner, limit: 12 });
+          await copyText(payload.markdown);
+          element.textContent = payload.draftDecision === "ready" ? "Copied Draft" : `Copied ${payload.draftDecision}`;
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

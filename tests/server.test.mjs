@@ -1977,6 +1977,17 @@ export async function serverTest() {
     assert.equal(acceptedCliBridgeHandoffsJson.summary.accepted, 1);
     assert.match(acceptedCliBridgeHandoffsJson.markdown, /Status filter: accepted/);
 
+    const acceptedCliBridgeWorkOrderDraftResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeHandoffJson.handoff.id}/work-order-draft?runner=claude`);
+    assert.equal(acceptedCliBridgeWorkOrderDraftResponse.status, 200);
+    const acceptedCliBridgeWorkOrderDraftJson = await acceptedCliBridgeWorkOrderDraftResponse.json();
+    assert.equal(acceptedCliBridgeWorkOrderDraftJson.protocolVersion, "cli-bridge-follow-up-work-order-draft.v1");
+    assert.equal(acceptedCliBridgeWorkOrderDraftJson.executionMode, "non-executing");
+    assert.equal(acceptedCliBridgeWorkOrderDraftJson.runner, "claude");
+    assert.equal(acceptedCliBridgeWorkOrderDraftJson.handoffId, createCliBridgeHandoffJson.handoff.id);
+    assert.equal(acceptedCliBridgeWorkOrderDraftJson.sourceHandoff.status, "accepted");
+    assert.match(acceptedCliBridgeWorkOrderDraftJson.draft.prompt, /Codex completed the bounded fixture implementation slice/);
+    assert.match(acceptedCliBridgeWorkOrderDraftJson.markdown, /# CLI Bridge Follow-up Work-Order Draft/);
+
     const claudeCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=claude&limit=5`);
     assert.equal(claudeCliBridgeHandoffsResponse.status, 200);
     const claudeCliBridgeHandoffsJson = await claudeCliBridgeHandoffsResponse.json();
@@ -2042,6 +2053,15 @@ export async function serverTest() {
     assert.equal(needsReviewCliBridgeHandoffsJson.available, 2);
     assert.equal(needsReviewCliBridgeHandoffsJson.summary.reviewQueue, 1);
     assert.equal(needsReviewCliBridgeHandoffsJson.items[0].reviewAction, "escalate");
+
+    const escalatedCliBridgeWorkOrderDraftResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeRunnerResultJson.handoff.id}/work-order-draft?runner=codex`);
+    assert.equal(escalatedCliBridgeWorkOrderDraftResponse.status, 200);
+    const escalatedCliBridgeWorkOrderDraftJson = await escalatedCliBridgeWorkOrderDraftResponse.json();
+    assert.equal(escalatedCliBridgeWorkOrderDraftJson.runner, "codex");
+    assert.equal(escalatedCliBridgeWorkOrderDraftJson.draftDecision, "review");
+    assert.equal(escalatedCliBridgeWorkOrderDraftJson.sourceHandoff.reviewAction, "escalate");
+    assert.ok(escalatedCliBridgeWorkOrderDraftJson.reasons.some((reason) => reason.code === "cli-bridge-handoff-not-accepted"));
+    assert.match(escalatedCliBridgeWorkOrderDraftJson.markdown, /Do not free-chat with another runner/);
 
     const governanceAfterCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterCliBridgeRunnerResultResponse.status, 200);

@@ -3047,6 +3047,19 @@ export async function convergenceReviewSuppressionTest() {
   const baseUrl = `http://127.0.0.1:${address.port}`;
 
   try {
+    const inventoryResponse = await fetch(`${baseUrl}/api/inventory`);
+    assert.equal(inventoryResponse.status, 200);
+    const inventoryJson = await inventoryResponse.json();
+    const isAlphaBetaPair = (candidate) => [candidate.leftId, candidate.rightId].sort().join("__converges_with__") === "alpha-app__converges_with__beta-app";
+    assert.equal(inventoryJson.crossChecks.some(isAlphaBetaPair), true);
+    assert.equal(inventoryJson.projects.some((project) =>
+      project.id === "alpha-app" && Array.isArray(project.similarApps) && project.similarApps.some((similar) => similar.id === "beta-app")
+    ), true);
+    await writeFile(join(appDir, "inventory.json"), JSON.stringify({
+      ...inventoryJson,
+      crossChecks: []
+    }, null, 2));
+
     const activeCandidatesResponse = await fetch(`${baseUrl}/api/convergence/candidates?projectId=alpha-app`);
     assert.equal(activeCandidatesResponse.status, 200);
     const activeCandidatesJson = await activeCandidatesResponse.json();

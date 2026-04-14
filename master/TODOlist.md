@@ -1596,3 +1596,10 @@
 - [x] Add a non-secret baseline-status API for the latest saved CLI bridge run trace snapshot.
 - [x] Surface freshness, health, drift severity, and recommended action in Governance execution scope.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Auto-Detect Restore
+
+- [x] Restore auto-detected convergence candidates from both generated cross-checks and per-project similar app signals.
+- [x] Keep operator-contributed overlaps in the same workbench with AI due diligence and review actions.
+- [x] Preserve Not Related decisions as hidden tombstones so rejected auto-detected pairs do not reappear.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

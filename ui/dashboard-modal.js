@@ -318,9 +318,18 @@ export function createDashboardModal({ getData, api }) {
    * @param {AuditProject} project
    */
   function hasConvergenceCandidate(project) {
-    return convergenceCandidates.some((candidate) =>
-      candidate.leftId === project.id || candidate.rightId === project.id
-    );
+    return getMergedConvergenceCandidates(project)
+      .some((candidate) => candidate.reviewStatus !== "not-related");
+  }
+
+  /**
+   * @param {string} leftId
+   * @param {string} rightId
+   */
+  function createConvergencePairKey(leftId, rightId) {
+    return [String(leftId || "").trim(), String(rightId || "").trim()]
+      .sort()
+      .join("__converges_with__");
   }
 
   /**
@@ -341,6 +350,53 @@ export function createDashboardModal({ getData, api }) {
     convergenceCandidates = convergenceCandidates.filter((candidate) =>
       !isConvergenceCandidateForPair(candidate, projectId, targetId)
     );
+  }
+
+  /**
+   * @param {AuditProject} project
+   * @returns {ConvergenceCandidate[]}
+   */
+  function getMergedConvergenceCandidates(project) {
+    const candidateMap = new Map();
+    const notRelatedPairs = new Set();
+
+    for (const candidate of convergenceCandidates) {
+      if (!candidate.leftId || !candidate.rightId) continue;
+      const pairId = candidate.pairId || createConvergencePairKey(candidate.leftId, candidate.rightId);
+      if (candidate.reviewStatus === "not-related") {
+        notRelatedPairs.add(pairId);
+      }
+      if (candidate.leftId === project.id || candidate.rightId === project.id) {
+        candidateMap.set(pairId, candidate);
+      }
+    }
+
+    for (const similar of Array.isArray(project.similarApps) ? project.similarApps : []) {
+      if (!similar.id || similar.id === project.id) continue;
+      const pairId = createConvergencePairKey(project.id, similar.id);
+      if (notRelatedPairs.has(pairId) || candidateMap.has(pairId)) continue;
+      candidateMap.set(pairId, {
+        pairId,
+        leftId: project.id,
+        rightId: similar.id,
+        leftName: project.name,
+        rightName: similar.name,
+        score: similar.score,
+        reasons: Array.isArray(similar.reasons) ? similar.reasons : [],
+        reviewStatus: "unreviewed",
+        reviewId: "",
+        reviewNote: "",
+        reviewedAt: "",
+        reviewer: "",
+        reviewSource: "auto-detected-convergence",
+        operatorProposed: false,
+        generatedInsight: "Auto-detected from workspace similarity analysis. Confirm, mark Not Related, Needs Review, or Merge.",
+        assimilationRecommendation: "",
+        secretPolicy: "Non-secret convergence review metadata only."
+      });
+    }
+
+    return [...candidateMap.values()];
   }
 
   /**
@@ -400,14 +456,15 @@ export function createDashboardModal({ getData, api }) {
 
     const similarContainer = document.getElementById("modal-similar");
     const proposalCard = createConvergenceProposalCard(project, getData().projects || []);
+    const mergedConvergenceCandidates = getMergedConvergenceCandidates(project);
     if (workbenchLoading) {
       similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
         "Loading convergence review",
         "Active overlap candidates are being refreshed from the persisted review ledger."
       ));
-    } else if (hasConvergenceCandidate(project) || project.similarApps?.length) {
+    } else if (mergedConvergenceCandidates.length || project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
-      const activeSimilarCandidates = convergenceCandidates
+      const activeSimilarCandidates = mergedConvergenceCandidates
         .filter((candidate) => candidate.reviewStatus !== "not-related")
         .map((candidate) => {
           const isLeftProject = candidate.leftId === project.id;
@@ -445,7 +502,7 @@ export function createDashboardModal({ getData, api }) {
       } else {
         similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
           "No active convergence candidates",
-          "Reviewed pairs marked Not Related are hidden from this workbench list. Use the persisted review ledger if you need to audit those decisions."
+          "Reviewed pairs marked Not Related are hidden from this workbench list. Auto-detected pairs and operator proposals stay available unless the operator removes them."
         ));
       }
     } else {
@@ -471,7 +528,7 @@ export function createDashboardModal({ getData, api }) {
         const status = element.dataset.convergenceAction || "needs-review";
         let similar = project.similarApps?.find((item) => item.id === targetId);
         if (!similar) {
-          const candidate = convergenceCandidates.find((item) => isConvergenceCandidateForPair(item, project.id, targetId));
+          const candidate = getMergedConvergenceCandidates(project).find((item) => isConvergenceCandidateForPair(item, project.id, targetId));
           if (candidate) {
             const isLeftProject = candidate.leftId === project.id;
             similar = {
@@ -541,11 +598,9 @@ export function createDashboardModal({ getData, api }) {
       await api.refreshFindings();
       findings = await api.fetchFindings(project.id);
     }
-    const convergence = await api.fetchConvergenceCandidates({ projectId: project.id });
+    const convergence = await api.fetchConvergenceCandidates({ projectId: project.id, status: "all", includeNotRelated: true });
     if (!currentProject || currentProject.id !== project.id) return;
-    convergenceCandidates = status === "not-related"
-      ? (convergence.candidates || []).filter((candidate) => !isConvergenceCandidateForPair(candidate, project.id, similar.id))
-      : convergence.candidates || [];
+    convergenceCandidates = convergence.candidates || [];
     renderWorkbench();
   }
 
@@ -1218,7 +1273,7 @@ export function createDashboardModal({ getData, api }) {
         api.fetchMilestones(project.id),
         api.fetchProjectProfiles(project.id),
         api.fetchProjectProfileHistory(project.id),
-        api.fetchConvergenceCandidates({ projectId: project.id })
+        api.fetchConvergenceCandidates({ projectId: project.id, status: "all", includeNotRelated: true })
       ]);
 
       if (!currentProject || currentProject.id !== project.id) {

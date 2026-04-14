@@ -288,6 +288,24 @@ export function createSimilarCard(similar, options = {}) {
             borderColor: "var(--border)"
           })
         ])
+      : options.reviewSource === "auto-detected-convergence"
+        ? createElement("div", {
+            className: "tags",
+            style: {
+              marginTop: "0.5rem"
+            }
+          }, [
+            createTag("Auto detected", {
+              background: "var(--bg)",
+              color: "var(--success)",
+              borderColor: "var(--success)"
+            }),
+            createTag("Operator can confirm or remove", {
+              background: "var(--bg)",
+              color: "var(--text-muted)",
+              borderColor: "var(--border)"
+            })
+          ])
       : null,
     createElement("div", {
       className: "governance-actions",

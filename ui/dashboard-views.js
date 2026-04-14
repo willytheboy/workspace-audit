@@ -1289,6 +1289,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-convergence-task-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.convergenceTaskCheckpointAction || "";
+        if (!taskId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          const label = await updateConvergenceTaskCheckpoint(taskId, action);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     bindSourceAccessEvidenceActions(container, renderGovernance);
   }
 
@@ -8873,6 +8898,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Agent Execution Result follow-up task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getAgentExecutionResultTaskCheckpointPatch(task, action);
+    const updated = await api.updateTask(taskId, patch);
+    await renderGovernance();
+    const nextTask = updated.task || patch;
+    if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
+    if (checkpointStatus === "deferred") return "Deferred";
+    return `Confirmed ${nextTask.status || "resolved"}`;
+  }
+
+  function getConvergenceTaskCheckpointPatch(task, action) {
+    const checkpointStatus = action === "escalate" ? "escalated" : action === "defer" ? "deferred" : "confirmed";
+    const patch = {
+      convergenceTaskCheckpointStatus: checkpointStatus,
+      convergenceTaskCheckpointedAt: new Date().toISOString(),
+      convergenceTaskCheckpointNote: [
+        `Operator ${checkpointStatus} Convergence review task ${task.title || task.id}.`,
+        `Pair: ${task.convergenceLeftName || task.convergenceLeftId || "left project"} -> ${task.convergenceRightName || task.convergenceRightId || "right project"}; review ${task.convergenceReviewStatus || "needs-review"}; score ${task.convergenceScore || 0}%.`,
+        "Secret policy: non-secret convergence review task metadata only; do not store credentials, provider tokens, cookies, certificates, private keys, browser sessions, repository secrets, or command output."
+      ].join(" ")
+    };
+
+    if (action === "defer") {
+      patch.status = "deferred";
+    } else if (action === "escalate") {
+      patch.status = "blocked";
+      patch.priority = "high";
+    } else {
+      patch.status = "resolved";
+    }
+
+    return { checkpointStatus, patch };
+  }
+
+  async function updateConvergenceTaskCheckpoint(taskId, action) {
+    const task = (governanceCache?.convergenceTasks || []).find((item) => item.id === taskId);
+    if (!task) throw new Error(`Convergence review task not found: ${taskId}`);
+
+    const { checkpointStatus, patch } = getConvergenceTaskCheckpointPatch(task, action);
     const updated = await api.updateTask(taskId, patch);
     await renderGovernance();
     const nextTask = updated.task || patch;

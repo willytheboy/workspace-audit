@@ -2576,6 +2576,33 @@ export function createGovernanceDeck(governance) {
     createElement("div", {
       className: "governance-actions"
     }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-task-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceTaskCheckpointAction: "confirm",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-task-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceTaskCheckpointAction: "defer",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-task-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceTaskCheckpointAction: "escalate",
+          taskId: task.id || ""
+        }
+      }),
       task.convergenceLeftId ? createElement("button", {
         className: "btn governance-action-btn",
         text: "Open Left",

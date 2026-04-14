@@ -1624,3 +1624,10 @@
 - [x] Add duplicate protection so repeated task seeding skips existing open convergence tasks.
 - [x] Add Governance controls to track individual convergence candidates as tasks and show the resulting task ledger cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Lifecycle Controls
+
+- [x] Add Governance controls to confirm, defer, or escalate Convergence Review Tasks.
+- [x] Persist non-secret convergence task checkpoint metadata through the existing task update flow.
+- [x] Keep Confirm resolved, Defer deferred, and Escalate blocked/high-priority behavior aligned with other task ledgers.
+- [x] Add parser checks, validation, relaunch, commit, and push.

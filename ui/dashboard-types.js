@@ -253,6 +253,35 @@
  *   updatedAt: string
  * }} PersistedAgentWorkOrderRun
  * @typedef {{
+ *   id: string,
+ *   sourceRunner: "codex" | "claude" | "operator" | "workspace-audit",
+ *   targetRunner: "codex" | "claude" | "operator" | "workspace-audit",
+ *   status: "proposed" | "accepted" | "rejected" | "needs-review",
+ *   resultType: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   workOrderRunId: string,
+ *   title: string,
+ *   summary: string,
+ *   changedFiles: string[],
+ *   validationSummary: string,
+ *   nextAction: string,
+ *   notes: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} PersistedCliBridgeHandoff
+ * @typedef {{
+ *   generatedAt: string,
+ *   runner: "all" | "codex" | "claude",
+ *   limit: number,
+ *   total: number,
+ *   visible: number,
+ *   secretPolicy: string,
+ *   items: PersistedCliBridgeHandoff[],
+ *   markdown: string
+ * }} CliBridgeHandoffLedgerPayload
+ * @typedef {{
  *   total: number,
  *   active: number,
  *   completed: number,

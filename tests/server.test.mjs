@@ -1902,6 +1902,45 @@ export async function serverTest() {
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
 
+    const initialCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=all&limit=5`);
+    assert.equal(initialCliBridgeHandoffsResponse.status, 200);
+    const initialCliBridgeHandoffsJson = await initialCliBridgeHandoffsResponse.json();
+    assert.equal(initialCliBridgeHandoffsJson.total, 0);
+    assert.match(initialCliBridgeHandoffsJson.markdown, /# CLI Bridge Handoff Ledger/);
+
+    const createCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceRunner: "codex",
+        targetRunner: "claude",
+        status: "proposed",
+        resultType: "implementation-result",
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        workOrderRunId: createAgentWorkOrderRunJson.run.id,
+        title: "Codex implementation handoff for Claude review",
+        summary: "Codex completed the bounded fixture implementation slice and requests Claude review.",
+        changedFiles: ["src/index.js"],
+        validationSummary: "Fixture validation passed.",
+        nextAction: "Claude should review the summary and recommend follow-up work-order scope."
+      })
+    });
+    assert.equal(createCliBridgeHandoffResponse.status, 200);
+    const createCliBridgeHandoffJson = await createCliBridgeHandoffResponse.json();
+    assert.equal(createCliBridgeHandoffJson.success, true);
+    assert.equal(createCliBridgeHandoffJson.handoff.sourceRunner, "codex");
+    assert.equal(createCliBridgeHandoffJson.handoff.targetRunner, "claude");
+    assert.match(createCliBridgeHandoffJson.handoff.secretPolicy, /Non-secret CLI bridge handoff/);
+    assert.equal(createCliBridgeHandoffJson.ledger.total, 1);
+
+    const claudeCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=claude&limit=5`);
+    assert.equal(claudeCliBridgeHandoffsResponse.status, 200);
+    const claudeCliBridgeHandoffsJson = await claudeCliBridgeHandoffsResponse.json();
+    assert.equal(claudeCliBridgeHandoffsJson.total, 1);
+    assert.equal(claudeCliBridgeHandoffsJson.items[0].targetRunner, "claude");
+    assert.match(claudeCliBridgeHandoffsJson.markdown, /Codex implementation handoff for Claude review/);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

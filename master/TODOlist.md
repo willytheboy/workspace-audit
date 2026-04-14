@@ -1466,3 +1466,10 @@
 - [x] Bind controls to the non-executing `/api/cli-bridge/context` endpoint.
 - [x] Preserve sanitized Markdown-only handoffs and no-secrets policy.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Handoff Ledger API
+
+- [x] Add a persistent non-secret CLI bridge handoff ledger for Codex, Claude, operator, and Workspace Audit handoffs.
+- [x] Add `GET` and `POST /api/cli-bridge/handoffs` with runner filtering and Markdown ledger output.
+- [x] Add dashboard API/types, parser checks, and server test coverage.
+- [x] Add validation, relaunch, commit, and push.

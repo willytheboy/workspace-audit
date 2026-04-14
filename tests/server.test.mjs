@@ -2669,6 +2669,10 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        saveSnapshot: true,
+        snapshotTitle: "Fixture Source Evidence Coverage Task Ledger Auto Capture",
+        snapshotStatus: "all",
+        snapshotLimit: 5,
         items: [{
           id: "source-access-validation-evidence-coverage:github-coverage-fixture",
           label: "GitHub Coverage Fixture",
@@ -2680,14 +2684,23 @@ export async function serverTest() {
     const repeatSeedSourceEvidenceCoverageTasksJson = await repeatSeedSourceEvidenceCoverageTasksResponse.json();
     assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.totals.created, 0);
     assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.totals.skipped, 1);
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.snapshotCaptured, true);
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.snapshot.title, "Fixture Source Evidence Coverage Task Ledger Auto Capture");
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.snapshot.statusFilter, "all");
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.snapshot.total, 2);
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.snapshot.openCount, 1);
+    assert.equal(repeatSeedSourceEvidenceCoverageTasksJson.dataSourceAccessTaskLedgerSnapshots.length, 3);
 
     const governanceAfterSourceEvidenceCoverageTasksResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterSourceEvidenceCoverageTasksResponse.status, 200);
     const governanceAfterSourceEvidenceCoverageTasksJson = await governanceAfterSourceEvidenceCoverageTasksResponse.json();
     assert.equal(governanceAfterSourceEvidenceCoverageTasksJson.summary.dataSourcesAccessTaskCount, 2);
     assert.equal(governanceAfterSourceEvidenceCoverageTasksJson.summary.dataSourcesAccessOpenTaskCount, 1);
+    assert.equal(governanceAfterSourceEvidenceCoverageTasksJson.summary.dataSourceAccessTaskLedgerSnapshotCount, 3);
+    assert.equal(governanceAfterSourceEvidenceCoverageTasksJson.dataSourceAccessTaskLedgerSnapshots[0].title, "Fixture Source Evidence Coverage Task Ledger Auto Capture");
     assert.equal(governanceAfterSourceEvidenceCoverageTasksJson.dataSourcesAccessTasks.some((task) => task.sourceAccessValidationEvidenceCoverageId === "source-access-validation-evidence-coverage:github-coverage-fixture"), true);
     assert.ok(governanceAfterSourceEvidenceCoverageTasksJson.operationLog.some((operation) => operation.type === "data-source-access-validation-evidence-coverage-tasks-created"));
+    assert.ok(governanceAfterSourceEvidenceCoverageTasksJson.operationLog.some((operation) => operation.type === "data-source-access-validation-evidence-coverage-task-ledger-snapshot-auto-captured"));
 
     const historyResponse = await fetch(`${baseUrl}/api/history`);
     assert.equal(historyResponse.status, 200);

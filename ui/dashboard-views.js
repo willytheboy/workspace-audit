@@ -85,6 +85,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
  *     fetchSourcesAccessValidationEvidenceCoverage: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload>,
+ *     createSourcesAccessValidationEvidenceCoverageTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
  *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
  *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
@@ -1147,6 +1148,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Capturing";
           await createSourceAccessReviewTaskWithSnapshot(itemId, renderTarget === "sources" ? "sources" : "governance");
+          element.textContent = "Captured";
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {"governance" | "sources"} [defaultRenderTarget]
+   */
+  function bindSourceEvidenceCoverageTaskSnapshotActions(container, defaultRenderTarget = "governance") {
+    container.querySelectorAll("[data-source-evidence-coverage-task-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemId = element.dataset.sourceEvidenceCoverageTaskSnapshot || "";
+        const renderTarget = element.dataset.sourceEvidenceCoverageTaskSnapshotRenderTarget || defaultRenderTarget;
+        if (!itemId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await createSourceEvidenceCoverageTaskWithSnapshot(itemId, renderTarget === "sources" ? "sources" : "governance");
           element.textContent = "Captured";
         } catch (error) {
           element.disabled = false;
@@ -2796,6 +2827,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
     bindSourceAccessReviewTaskSnapshotActions(container, "governance");
+    bindSourceEvidenceCoverageTaskSnapshotActions(container, "governance");
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentPolicyCheckpointActions(container);
@@ -4473,6 +4505,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         button.dataset.taskSeedingItemCount = "1";
         checkpointActions.append(button);
       }
+      const trackSnapshotButton = document.createElement("button");
+      trackSnapshotButton.type = "button";
+      trackSnapshotButton.className = "btn governance-action-btn source-evidence-coverage-task-snapshot-btn";
+      trackSnapshotButton.textContent = "Track + Snapshot";
+      trackSnapshotButton.dataset.sourceEvidenceCoverageTaskSnapshot = item.id || "";
+      trackSnapshotButton.dataset.sourceEvidenceCoverageTaskSnapshotRenderTarget = "sources";
+      checkpointActions.append(trackSnapshotButton);
 
       body.append(cardTitle, action, evidence, sourceCheckpoints, checkpointActions);
 
@@ -4895,6 +4934,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindSourceAccessEvidenceActions(container, renderSources);
       bindSourceTaskSeedingCheckpointActions(container);
       bindSourceAccessReviewTaskSnapshotActions(container, "sources");
+      bindSourceEvidenceCoverageTaskSnapshotActions(container, "sources");
       bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {
@@ -6191,6 +6231,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({ items });
     await renderGovernance();
     return `Created ${result.totals.created} Evidence Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function createSourceEvidenceCoverageTaskWithSnapshot(itemId, renderTarget = "governance") {
+    const cachedCoverage = renderTarget === "governance"
+      ? getFilteredGovernance()?.dataSourcesAccessValidationEvidenceCoverage
+      : null;
+    const coverage = cachedCoverage || await api.fetchSourcesAccessValidationEvidenceCoverage();
+    const item = (coverage?.items || []).find((entry) => entry.id === itemId);
+    if (!item) throw new Error(`Source evidence coverage item not found: ${itemId}`);
+
+    const label = item.label || item.sourceId || itemId;
+    const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({
+      items: [item],
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Evidence Coverage Task Ledger Auto Capture: ${label}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    if (renderTarget === "sources") {
+      await renderSources();
+    } else {
+      await renderGovernance();
+    }
+    const taskLabel = `Created ${result.totals.created} Evidence Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function checkpointGovernanceDataSourcesAccessValidationEvidenceCoverageTasks(status) {

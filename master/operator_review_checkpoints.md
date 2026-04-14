@@ -32,10 +32,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Release Build Gate per-action task snapshots: individual generated gate actions now expose `Track + Snapshot` so one blocker can become a task and ledger baseline without seeding the whole batch.
 - Agent Control Plane decision per-reason task snapshots: individual control-plane decision reasons now expose `Track + Snapshot` so one blocker can become a decision task and decision task-ledger baseline without seeding the whole batch.
 - Data Sources access review per-item task snapshots: individual source-access review blockers now expose `Track + Snapshot` so one source item can become a task and source-access task-ledger baseline without seeding the whole queue.
+- Data Sources evidence coverage per-item task snapshots: individual source-access evidence coverage blockers now expose `Track + Snapshot` so one coverage gap can become a task and source-access task-ledger baseline without seeding the whole batch.
 
 ## Next Checkpoint Candidates
 
-- Add per-item Data Sources evidence coverage `Track Task + Snapshot` controls so individual source-access coverage blockers can be converted to tasks with an immediate source-access task-ledger baseline.
+- Add per-item Data Sources validation workflow `Track + Snapshot` controls so individual workflow blockers can be converted to tasks with an immediate source-access task-ledger baseline.
 
 ## Implementation Standard
 

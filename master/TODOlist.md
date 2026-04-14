@@ -1221,3 +1221,10 @@
 - [x] Add per-item `Track + Snapshot` controls to Sources and Governance Data Sources access review cards.
 - [x] Auto-capture a non-secret Data Sources access task ledger snapshot after source-access review task seeding.
 - [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Evidence Coverage Per-Item Task Snapshot
+
+- [x] Add optional snapshot capture to `POST /api/sources/access-validation-evidence-coverage/tasks`.
+- [x] Add per-item `Track + Snapshot` controls to Sources and Governance Data Sources evidence coverage cards.
+- [x] Auto-capture a non-secret Data Sources access task ledger snapshot after evidence coverage task seeding.
+- [x] Add parser checks, server tests, docs, validation, relaunch, commit, and push.

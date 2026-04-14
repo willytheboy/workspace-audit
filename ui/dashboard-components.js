@@ -3543,7 +3543,16 @@ export function createGovernanceDeck(governance) {
           taskSeedingTitle: `Source evidence coverage: ${item.label || item.sourceId || "Source"}`,
           taskSeedingItemCount: "1"
         }
-      }))
+      })),
+      createElement("button", {
+        className: "btn governance-action-btn source-evidence-coverage-task-snapshot-btn",
+        text: "Track + Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          sourceEvidenceCoverageTaskSnapshot: item.id || "",
+          sourceEvidenceCoverageTaskSnapshotRenderTarget: "governance"
+        }
+      })
     ]),
     item.sourceId
       ? createElement("div", {

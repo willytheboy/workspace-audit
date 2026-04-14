@@ -8117,6 +8117,20 @@ export function createGovernanceDeck(governance) {
             color: run.cliBridgeDraftDecision === "ready" ? "var(--success)" : run.cliBridgeDraftDecision === "hold" ? "var(--danger)" : "var(--warning)"
           })
         : null,
+      run.latestCliBridgeResultHandoffId
+        ? createTag(`CLI result ${run.latestCliBridgeResultStatus || "needs-review"} ${run.latestCliBridgeResultRunner || "runner"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: run.latestCliBridgeResultStatus === "changed" || run.latestCliBridgeResultStatus === "ready" ? "var(--success)" : run.latestCliBridgeResultStatus === "failed" || run.latestCliBridgeResultStatus === "blocked" ? "var(--danger)" : "var(--warning)"
+          })
+        : null,
+      run.latestCliBridgeResultHandoffId
+        ? createTag(`result handoff ${run.latestCliBridgeResultHandoffId}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          })
+        : null,
       run.archivedAt
         ? createTag("archived", {
             background: "var(--bg)",

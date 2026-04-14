@@ -1550,3 +1550,10 @@
 - [x] Bind captured summaries to the exact Agent Work Order Run through the existing non-secret runner-result intake endpoint.
 - [x] Preserve operator review before accepting results or queueing another follow-up handoff.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Result Run Link
+
+- [x] Link captured CLI runner result handoffs back onto their source Agent Work Order Run.
+- [x] Surface latest CLI result status, runner, and result handoff id in the Agent Execution Queue.
+- [x] Add run-history and operation-log traceability for result intake.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

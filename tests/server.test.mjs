@@ -2043,6 +2043,10 @@ export async function serverTest() {
     assert.equal(createCliBridgeRunnerResultJson.handoff.targetRunner, "operator");
     assert.equal(createCliBridgeRunnerResultJson.handoff.resultStatus, "changed");
     assert.equal(createCliBridgeRunnerResultJson.handoff.handoffRecommendation, "operator");
+    assert.equal(createCliBridgeRunnerResultJson.linkedRun.id, createAgentWorkOrderRunJson.run.id);
+    assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultHandoffId, createCliBridgeRunnerResultJson.handoff.id);
+    assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultStatus, "changed");
+    assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultRunner, "claude");
     assert.equal(createCliBridgeRunnerResultJson.ledger.total, 2);
     assert.ok(createCliBridgeRunnerResultJson.ledger.markdown.includes("runner-result:changed"));
 
@@ -2090,7 +2094,11 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeRunnerResultJson.summary.cliBridgeHandoffReviewQueueCount, 1);
     assert.equal(governanceAfterCliBridgeRunnerResultJson.summary.cliBridgeHandoffEscalatedCount, 1);
     assert.equal(governanceAfterCliBridgeRunnerResultJson.cliBridgeHandoffs[0].status, "needs-review");
+    const cliBridgeResultLinkedRun = governanceAfterCliBridgeRunnerResultJson.agentWorkOrderRuns.find((run) => run.id === createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeResultLinkedRun.latestCliBridgeResultHandoffId, createCliBridgeRunnerResultJson.handoff.id);
+    assert.equal(cliBridgeResultLinkedRun.latestCliBridgeResultStatus, "changed");
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-recorded"));
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-linked-to-run"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-recorded"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-task-created"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-follow-up-work-order-run-queued"));

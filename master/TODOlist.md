@@ -1361,3 +1361,10 @@
 - [x] Persist task-row checkpoint decisions through non-secret execution-result task metadata and lifecycle updates.
 - [x] Preserve the non-secret agent execution-result follow-up task metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Agent Execution Result Task Ledger Drift Item Checkpoints
+
+- [x] Add latest execution-result task ledger drift field rows to Governance execution-result task-ledger snapshot cards.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Agent Execution Result task metadata.
+- [x] Preserve the non-secret agent execution-result task ledger drift metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

@@ -5255,6 +5255,158 @@ export function createGovernanceDeck(governance) {
       })
     ])
   ]));
+  const agentExecutionResultTaskLedgerSnapshotDiff = governance.agentExecutionResultTaskLedgerSnapshotDiff;
+  const agentExecutionResultTaskLedgerDriftItems = Array.isArray(agentExecutionResultTaskLedgerSnapshotDiff?.driftItems)
+    ? agentExecutionResultTaskLedgerSnapshotDiff.driftItems
+    : [];
+  const agentExecutionResultTaskLedgerSnapshotDiffEntries = agentExecutionResultTaskLedgerSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: agentExecutionResultTaskLedgerSnapshotDiff.snapshotTitle || "No execution-result task snapshot",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: agentExecutionResultTaskLedgerSnapshotDiff.snapshotCreatedAt ? new Date(agentExecutionResultTaskLedgerSnapshotDiff.snapshotCreatedAt).toLocaleString() : "No snapshot saved yet",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((agentExecutionResultTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: agentExecutionResultTaskLedgerSnapshotDiff.driftSeverity === "high" || agentExecutionResultTaskLedgerSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : agentExecutionResultTaskLedgerSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: agentExecutionResultTaskLedgerSnapshotDiff.recommendedAction || "Save an execution-result task ledger snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `${agentExecutionResultTaskLedgerSnapshotDiff.driftScore || 0} drift score - ${agentExecutionResultTaskLedgerDriftItems.length} drift item(s)`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          agentExecutionResultTaskLedgerDriftItems.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem",
+                  padding: "0.7rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.85rem",
+                  background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+                }
+              }, [
+                createElement("div", {
+                  text: "Execution-result task ledger drift fields",
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.78rem",
+                    fontWeight: "800",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase"
+                  }
+                }),
+                ...agentExecutionResultTaskLedgerDriftItems.slice(0, 8).map((item) => createElement("div", {
+                  style: {
+                    display: "grid",
+                    gap: "0.5rem",
+                    padding: "0.65rem",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.75rem",
+                    background: "var(--surface)"
+                  }
+                }, [
+                  createElement("div", {
+                    text: `${item.label || item.field || "Execution-result task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                    style: {
+                      color: "var(--text)",
+                      fontSize: "0.84rem",
+                      fontWeight: "700",
+                      lineHeight: "1.45"
+                    }
+                  }),
+                  createElement("div", {
+                    className: "governance-actions"
+                  }, [
+                    createElement("button", {
+                      className: "btn governance-action-btn agent-execution-result-task-ledger-drift-item-confirm-btn",
+                      text: "Confirm",
+                      attrs: { type: "button" },
+                      dataset: {
+                        agentExecutionResultTaskLedgerDriftItemField: item.field || item.label || "",
+                        agentExecutionResultTaskLedgerDriftItemDecision: "confirmed"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn agent-execution-result-task-ledger-drift-item-defer-btn",
+                      text: "Defer",
+                      attrs: { type: "button" },
+                      dataset: {
+                        agentExecutionResultTaskLedgerDriftItemField: item.field || item.label || "",
+                        agentExecutionResultTaskLedgerDriftItemDecision: "deferred"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn agent-execution-result-task-ledger-drift-item-escalate-btn",
+                      text: "Escalate",
+                      attrs: { type: "button" },
+                      dataset: {
+                        agentExecutionResultTaskLedgerDriftItemField: item.field || item.label || "",
+                        agentExecutionResultTaskLedgerDriftItemDecision: "escalated"
+                      }
+                    })
+                  ])
+                ])),
+                agentExecutionResultTaskLedgerDriftItems.length > 8
+                  ? createElement("div", {
+                      text: `${agentExecutionResultTaskLedgerDriftItems.length - 8} additional drift item(s).`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.8rem"
+                      }
+                    })
+                  : null
+              ])
+            : null
+        ])
+      ]
+    : [];
   const agentExecutionResultTaskLedgerSnapshotEntries = (governance.agentExecutionResultTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -7257,7 +7409,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Control Plane Decision Task Ledger", "Trackable Governance tasks created from Agent Control Plane decision reasons.", agentControlPlaneDecisionTaskEntries),
     createListSection("Execution Result Follow-up Tasks", "Trackable Governance tasks created when execution-result gate checkpoints are deferred.", [...agentExecutionResultTaskLedgerControlEntries, ...agentExecutionResultTaskEntries]),
     createListSection("Control Plane Decision Task Ledger Snapshots", "Persisted non-secret Control Plane decision task ledger handoffs.", [...agentControlPlaneDecisionTaskLedgerSnapshotDiffEntries, ...agentControlPlaneDecisionTaskLedgerSnapshotEntries]),
-    createListSection("Execution Result Task Ledger Snapshots", "Persisted non-secret execution-result task ledger handoffs.", agentExecutionResultTaskLedgerSnapshotEntries),
+    createListSection("Execution Result Task Ledger Snapshots", "Persisted non-secret execution-result task ledger handoffs.", [...agentExecutionResultTaskLedgerSnapshotDiffEntries, ...agentExecutionResultTaskLedgerSnapshotEntries]),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
     createListSection("Release Control Task Ledger Snapshots", "Persisted non-secret Release Control task ledger handoffs.", [...releaseTaskLedgerSnapshotDiffEntries, ...releaseTaskLedgerSnapshotEntries]),

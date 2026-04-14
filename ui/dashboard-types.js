@@ -1033,6 +1033,7 @@
  *   agentControlPlaneDecisionTaskLedgerSnapshots: PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[],
  *   agentControlPlaneDecisionTaskLedgerSnapshotDiff?: AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload | null,
  *   agentExecutionResultTaskLedgerSnapshots: PersistedAgentExecutionResultTaskLedgerSnapshot[],
+ *   agentExecutionResultTaskLedgerSnapshotDiff?: AgentExecutionResultTaskLedgerSnapshotDiffPayload | null,
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],

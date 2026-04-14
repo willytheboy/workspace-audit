@@ -1319,3 +1319,10 @@
 - [x] Add saved-checkpoint `Track Task` controls that convert individual checkpoint rows into Release Control tasks with a task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret checkpoint metadata policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Checkpoint Drift Field Checkpoints
+
+- [x] Add per-field `Confirm` and `Defer` controls to Release Control checkpoint drift fields using the release checkpoint ledger.
+- [x] Add per-field `Track Task` controls that convert individual drift fields into Release Control tasks with a task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret drift metadata policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

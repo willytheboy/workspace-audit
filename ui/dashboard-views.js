@@ -2164,6 +2164,55 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-release-checkpoint-drift-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.releaseCheckpointDriftField || "";
+        const decision = element.dataset.releaseCheckpointDriftFieldDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const label = await createReleaseCheckpointDriftFieldDecision(field, decision);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-checkpoint-drift-field-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.releaseCheckpointDriftFieldTask || "";
+        if (!field) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createReleaseCheckpointDriftFieldTask(field);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-release-build-gate-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -6773,6 +6822,86 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.fetchReleaseCheckpointDrift("latest");
     await copyText(payload.markdown);
     return payload.hasSnapshot ? `Copied ${formatDriftSeverityLabel(payload.driftSeverity)}` : "No Release Checkpoint";
+  }
+
+  function getReleaseCheckpointDriftContext() {
+    const governance = getFilteredGovernance() || {};
+    const drift = governance.releaseCheckpointDrift || null;
+    const driftItems = Array.isArray(drift?.driftItems) ? drift.driftItems : [];
+    return {
+      drift,
+      driftItems
+    };
+  }
+
+  function findReleaseCheckpointDriftField(field) {
+    const { drift, driftItems } = getReleaseCheckpointDriftContext();
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return {
+      drift,
+      item
+    };
+  }
+
+  function buildReleaseCheckpointDriftFieldNotes(decision, drift, item) {
+    return [
+      `Operator ${decision} Release Control checkpoint drift field ${item.field || item.label || "field"}.`,
+      `Snapshot: ${drift?.snapshotTitle || drift?.snapshotId || "latest release checkpoint"}.`,
+      `Field: ${item.label || item.field}; previous: ${item.before || "none"}; current: ${item.current || "none"}; severity: ${item.severity || "review"}.`,
+      `Drift severity: ${drift?.driftSeverity || "none"}; score: ${drift?.driftScore || 0}.`,
+      `Recommended action: ${drift?.recommendedAction || "Review release checkpoint drift before changing release readiness."}`,
+      "Secret policy: non-secret release checkpoint drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createReleaseCheckpointDriftFieldDecision(field, checkpointDecision) {
+    const { drift, item } = findReleaseCheckpointDriftField(field);
+    if (!item) throw new Error(`Release checkpoint drift field not found: ${field}`);
+
+    const normalizedDecision = checkpointDecision === "confirmed" ? "confirmed" : "deferred";
+    const status = normalizedDecision === "confirmed" ? drift?.live?.status || "review" : "review";
+    const created = await api.createReleaseCheckpoint({
+      title: `Release checkpoint drift ${normalizedDecision}: ${item.label || item.field}`,
+      status,
+      notes: buildReleaseCheckpointDriftFieldNotes(normalizedDecision, drift, item)
+    });
+    await renderGovernance();
+    return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
+  }
+
+  async function createReleaseCheckpointDriftFieldTask(field) {
+    const { drift, item } = findReleaseCheckpointDriftField(field);
+    if (!item) throw new Error(`Release checkpoint drift field not found: ${field}`);
+
+    const priority = item.severity === "high" ? "high" : item.severity === "medium" ? "medium" : "low";
+    const action = {
+      id: `release-checkpoint-drift:${drift?.snapshotId || "latest"}:${item.field || item.label || "field"}`,
+      label: `Review release checkpoint drift: ${item.label || item.field}`,
+      status: "open",
+      priority,
+      description: [
+        `Review Release Control checkpoint drift field ${item.field || item.label || "field"}.`,
+        `Snapshot: ${drift?.snapshotTitle || drift?.snapshotId || "latest release checkpoint"}.`,
+        `Previous: ${item.before || "none"}; current: ${item.current || "none"}; severity: ${item.severity || "review"}.`,
+        `Drift severity: ${drift?.driftSeverity || "none"}; score: ${drift?.driftScore || 0}.`,
+        `Recommended action: ${drift?.recommendedAction || "Review release checkpoint drift before changing release readiness."}`,
+        "Secret policy: store only non-secret release checkpoint drift metadata. Do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" "),
+      commandHint: "Use Copy Drift and compare the latest Release Control checkpoint against live release evidence before accepting or remediating drift."
+    };
+
+    const payload = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: `Release Control Drift Field Task Auto Capture: ${item.label || item.field}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const taskLabel = payload.totals.created
+      ? `Created ${payload.totals.created} Drift Task${payload.totals.created === 1 ? "" : "s"}`
+      : `Skipped ${payload.totals.skipped} Drift Task${payload.totals.skipped === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function copyReleaseBuildGate() {

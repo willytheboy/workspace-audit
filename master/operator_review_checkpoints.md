@@ -46,10 +46,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources deployment smoke-check ledger checkpoints: recent smoke-check rows now expose `Confirm`, `Defer`, and `Track Release Task` controls so individual smoke outcomes can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
 - Release Build Gate local evidence checkpoints: Governance Release Control now exposes `Confirm Local Evidence`, `Defer Local Evidence`, and `Track Evidence Task` controls so local smoke/bootstrap evidence can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
 - Release Control saved checkpoint ledger checkpoints: saved release checkpoint rows now expose `Confirm`, `Defer`, and `Track Task` controls so checkpoint history can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
+- Release Control checkpoint drift field checkpoints: individual release checkpoint drift fields now expose `Confirm`, `Defer`, and `Track Task` controls so drift can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Release Control checkpoint drift field checkpoints so individual drift fields can be confirmed, deferred, or converted into Release Control tasks without storing response bodies or secrets.
+- Add Release Control task ledger item checkpoints so individual release-control tasks can be confirmed, deferred, or escalated without storing response bodies or secrets.
 
 ## Implementation Standard
 

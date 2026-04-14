@@ -3157,13 +3157,51 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceTaskLedgerJson.markdown, /# Convergence Review Task Ledger/);
     assert.match(convergenceTaskLedgerJson.secretPolicy, /Non-secret convergence review task metadata only/);
 
+    const missingConvergenceTaskLedgerDiffResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(missingConvergenceTaskLedgerDiffResponse.status, 200);
+    const missingConvergenceTaskLedgerDiffJson = await missingConvergenceTaskLedgerDiffResponse.json();
+    assert.equal(missingConvergenceTaskLedgerDiffJson.hasSnapshot, false);
+    assert.equal(missingConvergenceTaskLedgerDiffJson.driftSeverity, "missing-snapshot");
+
+    const createConvergenceTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Convergence Review Task Ledger",
+        status: "all",
+        limit: 10
+      })
+    });
+    assert.equal(createConvergenceTaskLedgerSnapshotResponse.status, 200);
+    const createConvergenceTaskLedgerSnapshotJson = await createConvergenceTaskLedgerSnapshotResponse.json();
+    assert.equal(createConvergenceTaskLedgerSnapshotJson.success, true);
+    assert.equal(createConvergenceTaskLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(createConvergenceTaskLedgerSnapshotJson.snapshot.pairCount, 1);
+    assert.equal(createConvergenceTaskLedgerSnapshotJson.snapshot.title, "Fixture Convergence Review Task Ledger");
+
+    const convergenceTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots`);
+    assert.equal(convergenceTaskLedgerSnapshotsResponse.status, 200);
+    const convergenceTaskLedgerSnapshotsJson = await convergenceTaskLedgerSnapshotsResponse.json();
+    assert.equal(convergenceTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(convergenceTaskLedgerSnapshotsJson[0].title, "Fixture Convergence Review Task Ledger");
+
+    const convergenceTaskLedgerDiffResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(convergenceTaskLedgerDiffResponse.status, 200);
+    const convergenceTaskLedgerDiffJson = await convergenceTaskLedgerDiffResponse.json();
+    assert.equal(convergenceTaskLedgerDiffJson.hasSnapshot, true);
+    assert.equal(convergenceTaskLedgerDiffJson.hasDrift, false);
+    assert.match(convergenceTaskLedgerDiffJson.markdown, /# Convergence Review Task Ledger Snapshot Drift/);
+
     const governanceAfterConvergenceTasksResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterConvergenceTasksResponse.status, 200);
     const governanceAfterConvergenceTasksJson = await governanceAfterConvergenceTasksResponse.json();
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceOpenTaskCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskLedgerSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
   } finally {
     server.close();
     await once(server, "close");

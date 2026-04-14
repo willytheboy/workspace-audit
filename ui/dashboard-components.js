@@ -2536,6 +2536,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy All",
           attrs: { type: "button" },
           dataset: { convergenceTaskLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-snapshot-save-btn",
+          text: "Save Snapshot",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerSnapshotSave: "true" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-drift-copy-btn",
+          text: "Copy Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerDriftCopy: "latest" }
         })
       ])
     ]),
@@ -2666,6 +2678,133 @@ export function createGovernanceDeck(governance) {
     ])
   ]))
   ];
+  const convergenceTaskLedgerSnapshotDiff = governance.convergenceTaskLedgerSnapshotDiff || null;
+  const convergenceTaskLedgerSnapshotDiffEntries = convergenceTaskLedgerSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-task-ledger-drift-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Latest Convergence task ledger drift",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: convergenceTaskLedgerSnapshotDiff.hasSnapshot
+              ? `${convergenceTaskLedgerSnapshotDiff.snapshotTitle || "Convergence Review Task Ledger"} | score ${convergenceTaskLedgerSnapshotDiff.driftScore || 0}`
+              : "No convergence task ledger snapshot has been saved yet.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem"
+            }
+          })
+        ]),
+        createTag((convergenceTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: convergenceTaskLedgerSnapshotDiff.driftSeverity === "none" ? "var(--success)" : convergenceTaskLedgerSnapshotDiff.driftSeverity === "high" || convergenceTaskLedgerSnapshotDiff.driftSeverity === "missing-snapshot" ? "var(--danger)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: convergenceTaskLedgerSnapshotDiff.recommendedAction || "Save a Convergence Review task ledger snapshot before drift comparisons.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-drift-copy-btn",
+          text: "Copy Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerDriftCopy: "latest" }
+        })
+      ])
+    ])
+  ] : [];
+  const convergenceTaskLedgerSnapshotEntries = (governance.convergenceTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-task-ledger-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Convergence Review Task Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} | ${snapshot.statusFilter || "all"} | ${snapshot.visibleCount || 0} visible | ${snapshot.pairCount || 0} pair(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.openCount || 0} OPEN`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.openCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.total || 0} total convergence task(s) | ${snapshot.closedCount || 0} closed | ${snapshot.operatorProposedCount || 0} operator-proposed | ${snapshot.secretPolicy || "non-secret convergence task metadata only"}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-task-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: { convergenceTaskLedgerSnapshotId: snapshot.id }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-task-ledger-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: { convergenceTaskLedgerSnapshotDriftId: snapshot.id }
+      })
+    ])
+  ]));
   const taskSeedingCheckpointStatusOrder = ["approved", "deferred", "dismissed", "needs-review"];
   const taskSeedingCheckpointStatusLabels = {
     approved: "Approved",
@@ -9581,6 +9720,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
+    createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),

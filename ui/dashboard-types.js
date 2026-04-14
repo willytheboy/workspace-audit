@@ -158,6 +158,38 @@
  * }} ConvergenceTaskLedgerPayload
  * @typedef {{
  *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   pairCount: number,
+ *   operatorProposedCount: number,
+ *   reviewStatusCounts: Record<string, number>,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: ConvergenceTaskLedgerItem[],
+ *   createdAt: string
+ * }} PersistedConvergenceTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: ConvergenceTaskLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, open: number, closed: number, visible: number, pairCount: number, operatorProposed: number } | null,
+ *   markdown: string
+ * }} ConvergenceTaskLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   id: string,
  *   projectId?: string,
  *   projectName?: string,
  *   title: string,
@@ -1152,6 +1184,7 @@
  *     convergenceTaskCount: number,
  *     convergenceOpenTaskCount: number,
  *     convergenceClosedTaskCount: number,
+ *     convergenceTaskLedgerSnapshotCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
  *   },
@@ -1187,6 +1220,8 @@
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshotDiff?: DataSourcesAccessTaskLedgerSnapshotDiffPayload | null,
+ *   convergenceTaskLedgerSnapshots: PersistedConvergenceTaskLedgerSnapshot[],
+ *   convergenceTaskLedgerSnapshotDiff?: ConvergenceTaskLedgerSnapshotDiffPayload | null,
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],

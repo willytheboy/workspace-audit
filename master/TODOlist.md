@@ -1638,3 +1638,10 @@
 - [x] Add Governance controls to copy Convergence Review Task ledgers for operator or future CLI-runner handoff.
 - [x] Include pair count, priority split, operator-proposed count, checkpoint metadata, and no-secrets policy in the ledger payload.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Ledger Snapshots
+
+- [x] Add persisted Convergence Review Task Ledger snapshots and latest/specific snapshot drift APIs.
+- [x] Surface save snapshot, copy latest drift, copy snapshot, and copy per-snapshot drift controls in Governance.
+- [x] Add snapshot count and drift state to the Governance convergence scope.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

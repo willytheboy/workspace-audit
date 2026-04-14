@@ -617,6 +617,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.releaseTaskLedgerSnapshotDiff
         : null,
+      convergenceTaskLedgerSnapshots: filterAndSort(
+        governance.convergenceTaskLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), String(snapshot.pairCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
+      convergenceTaskLedgerSnapshotDiff: governance.convergenceTaskLedgerSnapshotDiff && matchesSearch([
+        "convergence review task ledger snapshot drift",
+        governance.convergenceTaskLedgerSnapshotDiff.snapshotTitle || "",
+        governance.convergenceTaskLedgerSnapshotDiff.driftSeverity || "",
+        governance.convergenceTaskLedgerSnapshotDiff.recommendedAction || "",
+        governance.convergenceTaskLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.convergenceTaskLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.convergenceTaskLedgerSnapshotDiff
+        : null,
       agentControlPlaneDecisionTasks: filterAndSort(
         governance.agentControlPlaneDecisionTasks || [],
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.agentControlPlaneDecisionReasonCode || "", task.agentControlPlaneDecision || "", task.description || ""],
@@ -877,6 +892,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "operations") filtered.taskSeedingCheckpoints = [];
       if (scope !== "convergence") filtered.convergenceCandidates = null;
       if (scope !== "convergence") filtered.convergenceTasks = [];
+      if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshots = [];
+      if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshotDiff = null;
       if (scope !== "runbook") filtered.workflowRunbook = [];
       if (scope !== "agents") filtered.agentSessions = [];
       if (scope !== "agents") filtered.agentControlPlaneBaselineStatus = null;
@@ -1702,6 +1719,103 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const payload = await api.fetchConvergenceTaskLedger(status === "open" || status === "closed" ? status : "all");
           await copyText(payload.markdown);
           element.textContent = `Copied ${payload.summary.visible}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-task-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createConvergenceTaskLedgerSnapshot({
+            title: "Convergence Review Task Ledger",
+            status: "all",
+            limit: 100
+          });
+          await renderGovernance();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-task-ledger-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const diff = await api.fetchConvergenceTaskLedgerSnapshotDiff("latest");
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-task-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceTaskLedgerSnapshotId || "";
+        const snapshot = governanceCache?.convergenceTaskLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-task-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceTaskLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchConvergenceTaskLedgerSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -7058,7 +7172,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -7073,7 +7187,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest"),
         api.fetchCliBridgeRunTraceSnapshotDiff("latest"),
         api.fetchCliBridgeRunTraceSnapshotBaselineStatus(),
-        api.fetchConvergenceCandidates({ status: "all", includeNotRelated: true })
+        api.fetchConvergenceCandidates({ status: "all", includeNotRelated: true }),
+        api.fetchConvergenceTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
@@ -7088,7 +7203,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         agentExecutionResultTaskLedgerSnapshotDiff,
         dataSourceAccessTaskLedgerSnapshotDiff,
         cliBridgeRunTraceSnapshotDiff,
-        cliBridgeRunTraceSnapshotBaselineStatus
+        cliBridgeRunTraceSnapshotBaselineStatus,
+        convergenceTaskLedgerSnapshotDiff
       };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
@@ -7105,6 +7221,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceCandidates ? 1 : 0)
         + (convergenceCandidates?.candidates || []).length
         + (governance.convergenceTasks || []).length
+        + (governance.convergenceTaskLedgerSnapshots || []).length
+        + (convergenceTaskLedgerSnapshotDiff ? 1 : 0)
+        + (convergenceTaskLedgerSnapshotDiff?.driftItems || []).length
         + (governanceTaskUpdateLedger?.items || []).length
         + (governanceTaskUpdateLedgerSnapshotDiff ? 1 : 0)
         + (governanceTaskUpdateLedgerSnapshotDiff?.driftItems || []).length

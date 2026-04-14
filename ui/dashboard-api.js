@@ -189,6 +189,33 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceTaskLedgerSnapshot[]>}
+   */
+  fetchConvergenceTaskLedgerSnapshots() {
+    return fetchJson("/api/convergence/task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceTaskLedgerSnapshot, convergenceTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceTaskLedgerSnapshot[] }>}
+   */
+  createConvergenceTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchConvergenceTaskLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/convergence/task-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @returns {Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>}
    */
   fetchSources() {

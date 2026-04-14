@@ -8096,6 +8096,27 @@ export function createGovernanceDeck(governance) {
             color: run.agentPolicyCheckpointStatus === "approved" ? "var(--success)" : "var(--warning)"
           })
         : null,
+      run.cliBridgeHandoffId
+        ? createTag(`CLI bridge ${run.cliBridgeRunner || "runner"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--primary)",
+            color: "var(--primary)"
+          })
+        : null,
+      run.cliBridgeHandoffId
+        ? createTag(`handoff ${run.cliBridgeHandoffId}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          })
+        : null,
+      run.cliBridgeDraftDecision
+        ? createTag(`draft ${run.cliBridgeDraftDecision}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: run.cliBridgeDraftDecision === "ready" ? "var(--success)" : run.cliBridgeDraftDecision === "hold" ? "var(--danger)" : "var(--warning)"
+          })
+        : null,
       run.archivedAt
         ? createTag("archived", {
             background: "var(--bg)",
@@ -8192,6 +8213,17 @@ export function createGovernanceDeck(governance) {
           agentWorkOrderRunCopyId: run.id
         }
       }),
+      run.cliBridgeHandoffId
+        ? createElement("button", {
+            className: "btn governance-action-btn cli-bridge-runner-contract-copy-btn",
+            text: "Copy CLI Contract",
+            attrs: { type: "button" },
+            dataset: {
+              cliBridgeRunnerContractRunId: run.id,
+              cliBridgeRunnerContractRunner: run.cliBridgeRunner || "codex"
+            }
+          })
+        : null,
       ["queued", "running", "blocked"].includes(run.status)
         ? [
           run.status === "queued"

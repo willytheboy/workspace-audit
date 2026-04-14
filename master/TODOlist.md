@@ -1536,3 +1536,10 @@
 - [x] Surface follow-up run status and runner metadata in the Governance handoff ledger.
 - [x] Disable duplicate queue controls when an active follow-up run already exists for the handoff.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Execution Queue Contract Copy
+
+- [x] Surface CLI bridge provenance tags on Agent Execution Queue run cards.
+- [x] Add per-run `Copy CLI Contract` controls for CLI-origin queued runs.
+- [x] Bind the controls to the existing non-executing CLI runner dry-run contract endpoint with the exact run id.
+- [x] Add parser checks, validation, relaunch, commit, and push.

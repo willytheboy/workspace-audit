@@ -1284,3 +1284,10 @@
 - [x] Add method-card `Track Evidence Tasks` controls that convert matching evidence-coverage gaps into source-access evidence follow-up tasks with a task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret validation runbook policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Checklist Checkpoints
+
+- [x] Add a visible Sources Data Sources access checklist deck.
+- [x] Add item-level `Confirm` and `Defer` controls using the non-secret task-seeding checkpoint ledger.
+- [x] Add item-level `Track Workflow Task` controls that convert matching validation workflow blockers into source-access workflow tasks with a task-ledger auto-capture snapshot.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

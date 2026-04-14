@@ -41,10 +41,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources access matrix checkpoints: access-method matrix rows now expose `Confirm`, `Defer`, and `Track Tasks` controls so inferred source-access readiness can be operator-reviewed or converted into source-access review tasks without storing secrets.
 - Data Sources access method registry checkpoints: method registry rows now expose `Confirm`, `Defer`, and `Record Evidence` controls so method-level source access classifications can be reviewed or converted into non-secret validation evidence without storing secrets.
 - Data Sources access validation runbook checkpoints: generated runbook method cards now expose `Confirm`, `Defer`, and `Track Evidence Tasks` controls so validation guidance can be reviewed or converted into source-access evidence follow-up tasks without storing secrets.
+- Data Sources access checklist checkpoints: source checklist items now expose `Confirm`, `Defer`, and `Track Workflow Task` controls so checklist classifications can be operator-reviewed or converted into validation workflow tasks without storing secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources access checklist checkpoint controls so checklist items can be confirmed, deferred, or converted into validation workflow tasks without storing secrets.
+- Add Data Sources deployment health checkpoint controls so deployment targets and smoke-check outcomes can be confirmed, deferred, or converted into release readiness tasks without storing secrets.
 
 ## Implementation Standard
 

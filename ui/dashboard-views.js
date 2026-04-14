@@ -1223,6 +1223,34 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   /**
    * @param {HTMLElement} container
+   */
+  function bindSourceAccessChecklistTaskActions(container) {
+    container.querySelectorAll("[data-source-access-checklist-task-source-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const sourceId = element.dataset.sourceAccessChecklistTaskSourceId || "";
+        if (!sourceId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createSourceAccessChecklistWorkflowTasks(sourceId);
+          element.textContent = label;
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
    * @param {"governance" | "sources"} [defaultRenderTarget]
    */
   function bindSourceAccessReviewTaskSnapshotActions(container, defaultRenderTarget = "governance") {
@@ -4214,6 +4242,136 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {import("./dashboard-types.js").DataSourcesAccessChecklistPayload} checklist
+   */
+  function createDataSourcesAccessChecklistSection(checklist) {
+    const section = document.createElement("section");
+    section.className = "source-access-checklist-deck";
+    section.style.display = "flex";
+    section.style.flexDirection = "column";
+    section.style.gap = "0.75rem";
+    section.style.marginTop = "1rem";
+
+    const heading = document.createElement("div");
+    heading.style.display = "flex";
+    heading.style.justifyContent = "space-between";
+    heading.style.alignItems = "center";
+    heading.style.gap = "1rem";
+
+    const title = document.createElement("div");
+    title.textContent = "Data Sources Access Checklist";
+    title.style.fontWeight = "800";
+    title.style.color = "var(--text)";
+
+    const summary = document.createElement("div");
+    summary.textContent = `${checklist.summary.ready} ready | ${checklist.summary.review} review | ${checklist.summary.blocked} blocked`;
+    summary.style.color = checklist.summary.blocked
+      ? "var(--danger)"
+      : checklist.summary.review
+        ? "var(--warning)"
+        : "var(--success)";
+    summary.style.fontSize = "0.84rem";
+
+    heading.append(title, summary);
+    section.append(heading);
+
+    if (!checklist.items.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No source access checklist items found.";
+      empty.style.padding = "1rem";
+      empty.style.border = "1px solid var(--border)";
+      empty.style.borderRadius = "0.65rem";
+      empty.style.background = "var(--surface)";
+      empty.style.color = "var(--text-muted)";
+      section.append(empty);
+      return section;
+    }
+
+    for (const item of checklist.items.slice(0, 10)) {
+      const card = document.createElement("div");
+      card.className = "source-access-checklist-card";
+      card.style.display = "flex";
+      card.style.justifyContent = "space-between";
+      card.style.gap = "1rem";
+      card.style.padding = "1rem";
+      card.style.border = "1px solid var(--border)";
+      card.style.borderRadius = "0.65rem";
+      card.style.background = "var(--surface)";
+      card.style.borderLeft = `4px solid ${item.status === "blocked" ? "var(--danger)" : item.status === "review" ? "var(--warning)" : "var(--success)"}`;
+
+      const body = document.createElement("div");
+      const itemTitle = document.createElement("div");
+      itemTitle.textContent = item.label || item.sourceId || "Source access checklist item";
+      itemTitle.style.fontWeight = "800";
+      itemTitle.style.color = "var(--text)";
+      itemTitle.style.marginBottom = "0.25rem";
+
+      const details = document.createElement("div");
+      details.textContent = `${item.accessMethod || "review-required"} | ${item.action || "Review source access."}`;
+      details.style.color = "var(--text-muted)";
+      details.style.fontSize = "0.84rem";
+      details.style.lineHeight = "1.45";
+
+      const validation = document.createElement("div");
+      validation.textContent = item.validation || "Confirm the source can be reached without storing secrets in this app.";
+      validation.style.color = "var(--text-muted)";
+      validation.style.fontSize = "0.78rem";
+      validation.style.lineHeight = "1.45";
+      validation.style.marginTop = "0.35rem";
+
+      const actions = document.createElement("div");
+      actions.className = "governance-actions source-access-checklist-checkpoints";
+      actions.style.marginTop = "0.75rem";
+
+      for (const [status, label] of [["approved", "Confirm"], ["deferred", "Defer"]]) {
+        const checkpointButton = document.createElement("button");
+        checkpointButton.className = `btn governance-action-btn source-access-checklist-${status}-btn`;
+        checkpointButton.type = "button";
+        checkpointButton.textContent = label;
+        checkpointButton.dataset.sourceTaskSeedingCheckpoint = "true";
+        checkpointButton.dataset.taskSeedingBatchId = `sources-access-checklist:${item.sourceId || item.id || item.label || "source"}`;
+        checkpointButton.dataset.taskSeedingStatus = status;
+        checkpointButton.dataset.taskSeedingSource = "sources-access-checklist";
+        checkpointButton.dataset.taskSeedingTitle = `Data Sources access checklist: ${item.label || item.sourceId || "Source"}`;
+        checkpointButton.dataset.taskSeedingItemCount = "1";
+        checkpointButton.dataset.taskSeedingNote = `Operator marked the Data Sources access checklist item for ${item.label || item.sourceId || "Source"} as ${status}; non-secret checklist metadata only.`;
+        actions.append(checkpointButton);
+      }
+
+      const taskButton = document.createElement("button");
+      taskButton.className = "btn governance-action-btn source-access-checklist-task-btn";
+      taskButton.type = "button";
+      taskButton.textContent = "Track Workflow Task";
+      taskButton.dataset.sourceAccessChecklistTaskSourceId = item.sourceId || "";
+      actions.append(taskButton);
+
+      body.append(itemTitle, details, validation, actions);
+
+      const status = document.createElement("div");
+      status.style.display = "flex";
+      status.style.flexDirection = "column";
+      status.style.alignItems = "flex-end";
+      status.style.gap = "0.25rem";
+      status.style.color = "var(--text-muted)";
+      status.style.fontSize = "0.82rem";
+      for (const line of [
+        item.status,
+        item.sourceHealth || "review",
+        item.credentialHint || "non-secret access metadata"
+      ]) {
+        const statLine = document.createElement("span");
+        statLine.textContent = line;
+        status.append(statLine);
+      }
+
+      card.append(body, status);
+      section.append(card);
+    }
+
+    return section;
+  }
+
+  /**
    * @param {import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload} registry
    */
   function createDataSourcesAccessMethodRegistrySection(registry) {
@@ -5353,11 +5511,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       message: "Fetching tracked source locations from the live server."
     }));
     try {
-      const [sourcesPayload, accessMethodRegistry, accessValidationWorkflow, workflowSnapshots, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
+      const [sourcesPayload, accessMethodRegistry, accessValidationWorkflow, workflowSnapshots, accessChecklist, accessMatrix, accessReviewQueue, accessValidationEvidenceCoverage, deploymentHealth, snapshots] = await Promise.all([
         api.fetchSourcesSummary(),
         api.fetchSourcesAccessMethodRegistry(),
         api.fetchSourcesAccessValidationWorkflow(),
         api.fetchSourcesAccessValidationWorkflowSnapshots(),
+        api.fetchSourcesAccessChecklist(),
         api.fetchSourcesAccessMatrix(),
         api.fetchSourcesAccessReviewQueue(),
         api.fetchSourcesAccessValidationEvidenceCoverage(),
@@ -5400,6 +5559,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         fragment.append(createSourceItem(source));
       }
       fragment.append(createDeploymentHealthSection(deploymentHealth));
+      fragment.append(createDataSourcesAccessChecklistSection(accessChecklist));
       fragment.append(createDataSourcesAccessValidationEvidenceCoverageSection(accessValidationEvidenceCoverage));
       fragment.append(createDataSourcesAccessValidationWorkflowSection(accessValidationWorkflow));
       const workflowSnapshotSection = createDataSourcesAccessValidationWorkflowSnapshotSection(workflowSnapshots || []);
@@ -5418,6 +5578,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindDeploymentHealthActions(container);
       bindSourceAccessEvidenceActions(container, renderSources);
       bindSourceTaskSeedingCheckpointActions(container);
+      bindSourceAccessChecklistTaskActions(container);
       bindSourceAccessMatrixTaskActions(container);
       bindSourceAccessMethodRegistryActions(container, accessMethodRegistry);
       bindSourceAccessReviewTaskSnapshotActions(container, "sources");
@@ -6144,6 +6305,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       await renderGovernance();
     }
     const taskLabel = `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  async function createSourceAccessChecklistWorkflowTasks(sourceId) {
+    const workflow = await api.fetchSourcesAccessValidationWorkflow();
+    const items = (workflow?.items || [])
+      .filter((item) => item.sourceId === sourceId && item.status !== "ready");
+    if (!items.length) return "No Workflow Tasks";
+
+    const label = items[0]?.label || sourceId;
+    const result = await api.createSourcesAccessValidationWorkflowTasks({
+      items,
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Checklist Workflow Task Ledger Auto Capture: ${label}`.slice(0, 120),
+      snapshotStatus: "open",
+      snapshotLimit: 100
+    });
+    await renderSources();
+    const created = result.totals.created || 0;
+    const skipped = result.totals.skipped || 0;
+    const taskLabel = created
+      ? `Created ${created} Checklist Task${created === 1 ? "" : "s"}`
+      : `Skipped ${skipped} Checklist Task${skipped === 1 ? "" : "s"}`;
     return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 

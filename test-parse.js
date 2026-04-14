@@ -287,6 +287,7 @@ try {
   console.log("Workbench profile history:", html.includes('id="workbench-profile-history-list"') ? "Present" : "Missing");
   console.log("Workbench script run history:", dashboardApiSource.includes("/api/script-runs") && dashboardModalSource.includes("Execution history") ? "Present" : "Missing");
   console.log("Workbench agent handoff pack:", dashboardModalSource.includes("Agent Handoff Pack") && dashboardModalSource.includes("Copy Handoff Pack") && dashboardApiSource.includes("/api/agent-sessions") ? "Present" : "Missing");
+  console.log("Governance CLI bridge architecture:", dashboardComponentsSource.includes("CLI Bridge Architecture") && dashboardComponentsSource.includes("cli-bridge-architecture-card") && dashboardComponentsSource.includes("Work-order broker, not agent-to-agent free chat") && dashboardComponentsSource.includes("Codex SDK or codex exec") && dashboardComponentsSource.includes("Claude Code SDK or claude -p") ? "Present" : "Missing");
   console.log("App shell module:", html.includes('src="./app.js"') ? "Present" : "Missing");
 } catch (error) {
   console.error("Parse error:", error.message);

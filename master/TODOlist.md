@@ -1445,3 +1445,10 @@
 - [x] Block runner readiness when Data Sources, Agent Control Plane, Release Build Gate, stale execution, or SLA breach evidence is not clean.
 - [x] Keep the gate advisory-only and non-executing until the supervised CLI prototype is explicitly ready.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Work-Order Architecture
+
+- [x] Add a Governance deck card that explains how Codex CLI and Claude CLI should connect through Workspace Audit Pro.
+- [x] Define the app as the work-order broker and control plane instead of allowing uncontrolled agent-to-agent free chat.
+- [x] Document SDK-first, MCP-context, subprocess-fallback, no-secrets, and validation-loop integration rules.
+- [x] Add parser checks, validation, relaunch, commit, and push.

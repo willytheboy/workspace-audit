@@ -8241,6 +8241,113 @@ export function createGovernanceDeck(governance) {
         : null
     ])
   ];
+  const cliBridgeArchitectureSteps = [
+    ["App-owned broker", "Workspace Audit Pro owns the work order, readiness gate, validation plan, result ledger, and relaunch checkpoint. Codex CLI and Claude CLI never free-chat directly."],
+    ["Shared context pack", "The app prepares a sanitized MCP-style context pack with target repo, source-access status, acceptance criteria, non-goals, and no secrets."],
+    ["Runner adapters", "Use Codex SDK or codex exec for Codex work slices, and Claude Code SDK or claude -p for Claude work slices. Prefer SDKs when the app needs structured control and resumable threads."],
+    ["Handoff protocol", "One runner returns plan/result JSON, the app validates it, then the app decides whether to create a sanitized follow-up work order for the other runner."],
+    ["Validation loop", "Each accepted slice must pass checks, build, local smoke, relaunch, milestone note, git commit, and optional GitHub push before the next slice starts."]
+  ];
+  const cliBridgeArchitectureEntries = [
+    createElement("div", {
+      className: "governance-gap-card cli-bridge-architecture-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Work-order broker, not agent-to-agent free chat",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "Recommended method for connecting Codex CLI and Claude CLI: the app becomes the control plane that creates bounded work orders, runs one adapter at a time, validates outputs, and records non-secret handoffs.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag("bridge plan", {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag("MCP context", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--primary)"
+        }),
+        createTag("SDK first", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        }),
+        createTag("subprocess fallback", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--warning)"
+        }),
+        createTag("no secrets", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--danger)"
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(13rem, 1fr))",
+          gap: "0.6rem"
+        }
+      }, cliBridgeArchitectureSteps.map(([label, detail], index) => createElement("div", {
+        style: {
+          padding: "0.7rem",
+          border: "1px solid var(--border)",
+          borderRadius: "0.85rem",
+          background: "var(--bg)"
+        }
+      }, [
+        createElement("div", {
+          text: `${index + 1}. ${label}`,
+          style: {
+            color: "var(--text)",
+            fontWeight: "900",
+            fontSize: "0.88rem"
+          }
+        }),
+        createElement("div", {
+          text: detail,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+            lineHeight: "1.45",
+            marginTop: "0.3rem"
+          }
+        })
+      ])))
+    ])
+  ];
 
   return createElement("div", {
     style: {
@@ -8259,6 +8366,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),
     createListSection("Vibe Coder Operating Guide", "Step-by-step operating cycle for safe app debugging, build validation, local relaunch, and supervised agent work.", vibeCoderOperatingGuideEntries),
     createListSection("CLI Runner Readiness Gate", "Readiness signal for a future supervised Codex CLI / Claude CLI work-order runner prototype.", cliRunnerReadinessEntries),
+    createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

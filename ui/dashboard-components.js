@@ -3573,7 +3573,36 @@ export function createGovernanceDeck(governance) {
         fontSize: "0.84rem",
         lineHeight: "1.45"
       }
-    })
+    }),
+    createElement("div", {
+      className: "governance-actions data-source-access-validation-runbook-checkpoints"
+    }, [
+      ...[
+        ["approved", "Confirm"],
+        ["deferred", "Defer"]
+      ].map(([status, label]) => createElement("button", {
+        className: `btn governance-action-btn data-source-access-validation-runbook-${status}-btn`,
+        text: label,
+        attrs: { type: "button" },
+        dataset: {
+          taskSeedingCheckpoint: "true",
+          taskSeedingBatchId: `data-sources-access-validation-runbook:${method.accessMethod || "review-required"}`,
+          taskSeedingStatus: status,
+          taskSeedingSource: "governance-data-sources-access-validation-runbook",
+          taskSeedingTitle: `Data Sources access validation runbook: ${method.accessMethod || method.title || "review-required"}`,
+          taskSeedingItemCount: String((method.sources || []).length),
+          taskSeedingNote: `Operator marked the Data Sources access validation runbook method ${method.accessMethod || method.title || "review-required"} as ${status}; non-secret runbook metadata only.`
+        }
+      })),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-runbook-task-btn",
+        text: "Track Evidence Tasks",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationRunbookTaskMethod: method.accessMethod || ""
+        }
+      })
+    ])
   ]));
   const dataSourcesAccessValidationEvidenceCoverageItems = Array.isArray(governance.dataSourcesAccessValidationEvidenceCoverage?.items)
     ? governance.dataSourcesAccessValidationEvidenceCoverage.items

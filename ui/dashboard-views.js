@@ -913,6 +913,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         const title = element.dataset.taskSeedingTitle || "Generated task batch";
         const source = element.dataset.taskSeedingSource || "governance";
         const itemCount = Number(element.dataset.taskSeedingItemCount || 0);
+        const note = element.dataset.taskSeedingNote || `Operator marked generated task batch as ${status} from the Governance task seeding checkpoint.`;
         if (!batchId) return;
 
         const originalLabel = element.textContent || "";
@@ -925,7 +926,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             title,
             source,
             itemCount,
-            note: `Operator marked generated task batch as ${status} from the Governance task seeding checkpoint.`
+            note
           });
           await renderGovernance();
         } catch (error) {
@@ -1182,6 +1183,34 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             element.textContent = originalLabel;
             return;
           }
+          element.textContent = label;
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindSourceAccessValidationRunbookTaskActions(container) {
+    container.querySelectorAll("[data-source-access-validation-runbook-task-method]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const accessMethod = element.dataset.sourceAccessValidationRunbookTaskMethod || "";
+        if (!accessMethod) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createSourceAccessValidationRunbookEvidenceTasks(accessMethod);
           element.textContent = label;
         } catch (error) {
           element.disabled = false;
@@ -3070,6 +3099,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindSourceAccessReviewTaskSnapshotActions(container, "governance");
     bindSourceEvidenceCoverageTaskSnapshotActions(container, "governance");
     bindSourceValidationWorkflowTaskSnapshotActions(container, "governance");
+    bindSourceAccessValidationRunbookTaskActions(container);
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentPolicyCheckpointActions(container);
@@ -6831,6 +6861,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({ items });
     await renderGovernance();
     return `Created ${result.totals.created} Evidence Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function createSourceAccessValidationRunbookEvidenceTasks(accessMethod) {
+    const cachedCoverage = getFilteredGovernance()?.dataSourcesAccessValidationEvidenceCoverage;
+    const coverage = cachedCoverage || await api.fetchSourcesAccessValidationEvidenceCoverage();
+    const items = (coverage?.items || [])
+      .filter((item) => item.accessMethod === accessMethod && item.coverageStatus !== "covered");
+    if (!items.length) return "No Runbook Tasks";
+
+    const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({
+      items,
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Runbook Evidence Task Ledger Auto Capture: ${accessMethod}`.slice(0, 120),
+      snapshotStatus: "open",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const created = result.totals.created || 0;
+    const skipped = result.totals.skipped || 0;
+    const taskLabel = created
+      ? `Created ${created} Runbook Task${created === 1 ? "" : "s"}`
+      : `Skipped ${skipped} Runbook Task${skipped === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function createSourceEvidenceCoverageTaskWithSnapshot(itemId, renderTarget = "governance") {

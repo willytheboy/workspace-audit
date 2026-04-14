@@ -1277,3 +1277,10 @@
 - [x] Add method-row `Record Evidence` controls that create non-secret access validation evidence records for sources in the selected method.
 - [x] Preserve the non-secret access-method metadata policy for checkpoint notes and evidence prompts.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Validation Runbook Checkpoints
+
+- [x] Add method-card `Confirm` and `Defer` controls to the Governance Data Sources access validation runbook deck using the non-secret task-seeding checkpoint ledger.
+- [x] Add method-card `Track Evidence Tasks` controls that convert matching evidence-coverage gaps into source-access evidence follow-up tasks with a task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret validation runbook policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

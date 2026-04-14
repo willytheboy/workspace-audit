@@ -8345,7 +8345,35 @@ export function createGovernanceDeck(governance) {
             marginTop: "0.3rem"
           }
         })
-      ])))
+      ]))),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-context-copy-btn",
+          text: "Copy Codex Context",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeContextRunner: "codex"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-context-copy-btn",
+          text: "Copy Claude Context",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeContextRunner: "claude"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-context-copy-btn",
+          text: "Copy Full Context",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeContextRunner: "all"
+          }
+        })
+      ])
     ])
   ];
 

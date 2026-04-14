@@ -1459,3 +1459,10 @@
 - [x] Return sanitized work orders, bridge decision, runner adapter guidance, handoff contract, validation loop, and no-secrets policy.
 - [x] Add dashboard API/types and server/parser test coverage.
 - [x] Add validation, relaunch, commit, and push.
+
+## Next CLI Bridge Context Copy Controls
+
+- [x] Add Governance card actions to copy Codex-only, Claude-only, and full CLI bridge context packs.
+- [x] Bind controls to the non-executing `/api/cli-bridge/context` endpoint.
+- [x] Preserve sanitized Markdown-only handoffs and no-secrets policy.
+- [x] Add parser checks, validation, relaunch, commit, and push.

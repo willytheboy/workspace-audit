@@ -1596,6 +1596,34 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {HTMLElement} container
+   */
+  function bindCliBridgeContextActions(container) {
+    container.querySelectorAll("[data-cli-bridge-context-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.cliBridgeContextRunner || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const payload = await api.fetchCliBridgeContext({ runner, limit: 24 });
+          await copyText(payload.markdown);
+          element.textContent = payload.bridgeDecision === "ready" ? "Copied Ready" : `Copied ${payload.bridgeDecision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
    * @param {import("./dashboard-types.js").PersistedAgentWorkOrderRun} run
    */
   function buildAgentWorkOrderRunBrief(run) {
@@ -3703,6 +3731,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindAppLaunchers(container, openModal);
     bindGovernanceQuickActions(container);
     bindVibeCoderGuideActions(container);
+    bindCliBridgeContextActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
     bindSlaLedgerItemActions(container);

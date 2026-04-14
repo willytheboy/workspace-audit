@@ -28,6 +28,8 @@ The target product is not only an audit dashboard. It should become the operator
 - Prefer derived, non-secret trust signals over storing credentials or raw secrets.
 - Relaunch after each milestone so the operator can monitor progress.
 - When a clean checkpoint is reached, initialize Git and push to a GitHub remote so each milestone can become a commit-level rollback point.
+- Treat user education as a product feature: the app should guide a vibe coder through debugging, build cycles, agent supervision, validation, commits, and release decisions step by step.
+- When the current checkpoint milestones are consolidated, add an in-app process guide that explains how to run a safe app-building cycle with Workspace Audit Pro as the backbone and Claude CLI / Codex CLI as supervised execution engines.
 
 ## Persistent Direction Update: 2026-04-12
 
@@ -44,3 +46,10 @@ The target product is not only an audit dashboard. It should become the operator
 - Model agent teams as lead-plus-worker execution plans with task dependencies, mailbox events, quality gates, cleanup lifecycle, and non-secret evidence capture.
 - Keep managed policies as a future precedence layer across organization, project, user, and runtime scopes so unsafe automation is controlled centrally.
 - Implement generated managed-agent policy checkpoints as the first executable gate: role, runtime, isolation, skill bundle, and hook policy recommendations stay blocked until approved, deferred, or dismissed by the operator.
+
+## Vibe Coder Enablement Update: 2026-04-14
+
+- The app must help a non-traditional or vibe-first builder understand what is happening during app debugging, implementation, validation, and release readiness.
+- Each future app-building workflow should expose clear steps: intent capture, source/access check, work-order generation, agent assignment, execution monitoring, validation evidence, human review, commit, and release gate.
+- The assistant should explicitly tell the user when the Claude CLI / Codex CLI prototype is ready, then provide a step-by-step operating guide before asking the user to supervise external agent execution.
+- The product should make the process teachable: explain why a gate blocks, what evidence is missing, what command or agent is being run, what passed, what failed, and what the next safe action is.

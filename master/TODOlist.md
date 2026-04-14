@@ -1403,3 +1403,10 @@
 - [x] Add task-update audit row `Confirm`, `Defer`, and `Escalate` controls.
 - [x] Persist audit-row checkpoint decisions as non-secret Governance tasks.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Future Vibe Coder Operating Guide
+
+- [x] Persist the vibe-coder guided operating cycle as a project objective.
+- [x] Add a durable step-by-step guide for debugging, building, validation, agent supervision, commit, and release cycles.
+- [ ] Promote the guide into the app UI after the current checkpoint consolidation milestones are complete.
+- [ ] Add Codex CLI and Claude CLI work-order runner guidance once the first supervised CLI prototype is ready.

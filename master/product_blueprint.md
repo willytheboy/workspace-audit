@@ -78,6 +78,14 @@ It should not absorb non-development donor apps or drift into vertical business-
 - execution/SLA tracking
 - validation evidence and snapshot drift
 
+## 7. Guided Vibe-Coder Operating Layer
+
+- step-by-step build and debugging process
+- plain-language explanation of gates, failures, and evidence
+- supervised Claude CLI / Codex CLI operating guide
+- milestone-by-milestone progress map
+- teachable validation, commit, rollback, and release loops
+
 ## Non-Goals For Now
 
 - multi-user auth

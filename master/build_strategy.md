@@ -74,6 +74,19 @@ Outcome:
 
 - app-development goals can be converted into supervised, evidence-backed agent build passes without bypassing source access, governance, or validation gates
 
+## Level 7: Guided Operator Learning Loop
+
+Target:
+
+- step-by-step debugging and build-cycle guide for vibe coders
+- in-app explanation of why a gate is ready, review, or hold
+- guided Claude CLI / Codex CLI operating process
+- validation, commit, rollback, and release-check teaching flow
+
+Outcome:
+
+- the user can supervise app-building agents effectively without needing to manually infer the process from raw logs, source files, or hidden agent reasoning
+
 ## Layers
 
 - Presentation layer
@@ -99,6 +112,7 @@ Always prefer:
 3. workbench/detail upgrade
 4. workflow/agent capability
 5. autonomous control-plane capability
+6. guided operator learning layer
 
 Do not invert this order.
 

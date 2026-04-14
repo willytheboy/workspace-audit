@@ -459,6 +459,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (checkpoint) => [checkpoint.title || "", checkpoint.source || "", checkpoint.status || "", checkpoint.note || "", checkpoint.batchId || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ).filter(matchesTaskSeedingStatus),
+      governanceTaskUpdateLedger: governance.governanceTaskUpdateLedger
+        ? {
+            ...governance.governanceTaskUpdateLedger,
+            items: filterAndSort(
+              governance.governanceTaskUpdateLedger.items || [],
+              (item) => [item.title || "", item.taskId || "", item.projectName || "", item.previousStatus || "", item.nextStatus || "", (item.updatedFields || []).join(" "), item.operationId || ""],
+              (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+            )
+          }
+        : null,
       workflowRunbook: filterAndSort(
         governance.workflowRunbook,
         (item) => [item.projectName || "", item.title || "", item.phase || "", item.status || "", item.readiness || "", item.nextStep || "", item.blockers.join(" ")],
@@ -2027,6 +2037,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindGovernanceTaskUpdateLedgerActions(container) {
+    container.querySelectorAll("[data-governance-task-update-ledger-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const operationId = element.dataset.governanceTaskUpdateLedgerOperationId || "";
+        const action = element.dataset.governanceTaskUpdateLedgerCheckpointAction || "";
+        if (!operationId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await createGovernanceTaskUpdateLedgerItemCheckpoint(operationId, action);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindGovernanceTaskUpdateLedgerSnapshotActions(container) {
     container.querySelectorAll("[data-governance-task-update-ledger-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -3553,6 +3592,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindGovernanceQuickActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
+    bindGovernanceTaskUpdateLedgerActions(container);
     bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
@@ -3660,6 +3700,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible action queue items: ${governance.actionQueue.length}`,
       `Visible suppressed queue items: ${governance.queueSuppressions.length}`,
       `Visible operation log entries: ${governance.operationLog.length}`,
+      `Visible task update audit rows: ${governance.governanceTaskUpdateLedger?.items?.length || 0}`,
       `Visible workflow runbook items: ${governance.workflowRunbook.length}`,
       `Visible agent sessions: ${governance.agentSessions.length}`,
       `Visible control plane baseline status: ${governance.agentControlPlaneBaselineStatus ? "yes" : "no"}`,
@@ -6213,10 +6254,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
+        api.fetchGovernanceTaskUpdateLedger({ limit: 50 }),
         api.fetchReleaseSummary(),
         api.fetchReleaseCheckpointDrift("latest"),
         api.fetchReleaseBuildGate(),
@@ -6227,6 +6269,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ]);
       governanceCache = {
         ...governance,
+        governanceTaskUpdateLedger,
         releaseSummary,
         releaseCheckpointDrift,
         releaseBuildGate,
@@ -6247,6 +6290,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.actionQueue.length
         + governance.queueSuppressions.length
         + governance.operationLog.length
+        + (governanceTaskUpdateLedger?.items || []).length
         + governance.workflowRunbook.length
         + governance.agentSessions.length
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
@@ -6672,6 +6716,41 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function getGovernanceTaskUpdateLedgerCheckpointDecision(action) {
+    if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildGovernanceTaskUpdateLedgerItemCheckpointDescription(decision, item) {
+    return [
+      `Operator ${decision.label.toLowerCase()} Governance task update audit row ${item.operationId || item.taskId || "unknown"}.`,
+      `Task: ${item.title || item.taskId || "unknown task"}.`,
+      `Project: ${item.projectName || item.projectId || "unassigned"}.`,
+      `Status transition: ${item.previousStatus || "unset"} -> ${item.nextStatus || "unset"}.`,
+      `Changed fields: ${Array.isArray(item.updatedFields) && item.updatedFields.length ? item.updatedFields.join(", ") : "none recorded"}.`,
+      "Secret policy: non-secret Governance task update audit metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createGovernanceTaskUpdateLedgerItemCheckpoint(operationId, action) {
+    const item = (governanceCache?.governanceTaskUpdateLedger?.items || [])
+      .find((candidate) => candidate.operationId === operationId);
+    if (!item) throw new Error(`Governance task update audit row not found: ${operationId}`);
+
+    const decision = getGovernanceTaskUpdateLedgerCheckpointDecision(action);
+    await api.createTask({
+      projectId: item.projectId || "governance",
+      projectName: item.projectName || "Governance",
+      title: `Task update audit ${decision.label.toLowerCase()}: ${item.title || item.taskId || operationId}`.slice(0, 140),
+      description: buildGovernanceTaskUpdateLedgerItemCheckpointDescription(decision, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   async function copySourcesSummary() {

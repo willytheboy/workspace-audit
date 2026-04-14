@@ -2367,6 +2367,90 @@ export function createGovernanceDeck(governance) {
       ...checkpoints.map(createTaskSeedingCheckpointEntry)
     ];
   });
+  const governanceTaskUpdateLedgerItems = Array.isArray(governance.governanceTaskUpdateLedger?.items)
+    ? governance.governanceTaskUpdateLedger.items
+    : [];
+  const governanceTaskUpdateLedgerEntries = governanceTaskUpdateLedgerItems.map((item) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: item.title || item.taskId || "Governance task update audit row",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${item.projectName || item.projectId || "unassigned"} - ${item.previousStatus || "unset"} -> ${item.nextStatus || "unset"} - ${item.createdAt ? new Date(item.createdAt).toLocaleString() : "recorded update"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag((item.type || "governance-task-updated").toUpperCase(), {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: item.previousStatus !== item.nextStatus ? "var(--warning)" : "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      text: item.updatedFields?.length
+        ? `Changed fields: ${item.updatedFields.join(", ")}`
+        : "Task lifecycle audit metadata captured without secrets.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn governance-task-update-ledger-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          governanceTaskUpdateLedgerCheckpointAction: "confirm",
+          governanceTaskUpdateLedgerOperationId: item.operationId || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn governance-task-update-ledger-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          governanceTaskUpdateLedgerCheckpointAction: "defer",
+          governanceTaskUpdateLedgerOperationId: item.operationId || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn governance-task-update-ledger-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          governanceTaskUpdateLedgerCheckpointAction: "escalate",
+          governanceTaskUpdateLedgerOperationId: item.operationId || ""
+        }
+      })
+    ])
+  ]));
   const governanceTaskUpdateLedgerSnapshotEntries = (governance.governanceTaskUpdateLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -7759,6 +7843,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
+    createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", governanceTaskUpdateLedgerSnapshotEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

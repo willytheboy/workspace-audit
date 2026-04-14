@@ -1018,6 +1018,7 @@
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
+ *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   agentPolicyCheckpoints: AgentPolicyCheckpoint[],
  *   agentExecutionResultCheckpoints: AgentExecutionResultCheckpoint[],
  *   agentExecutionResultRequirements: AgentExecutionResultRequirements,

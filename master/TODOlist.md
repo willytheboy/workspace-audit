@@ -1396,3 +1396,10 @@
 - [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls for workflow task ledger drift rows.
 - [x] Persist workflow task drift checkpoint decisions as non-secret Data Sources task metadata.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Governance Task Update Audit Ledger Item Checkpoints
+
+- [x] Load the live Governance task update audit ledger into the Governance deck.
+- [x] Add task-update audit row `Confirm`, `Defer`, and `Escalate` controls.
+- [x] Persist audit-row checkpoint decisions as non-secret Governance tasks.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

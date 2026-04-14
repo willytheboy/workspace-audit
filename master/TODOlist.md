@@ -1494,3 +1494,10 @@
 - [x] Convert runner summaries into app-owned CLI bridge handoff ledger records.
 - [x] Preserve operator review before accepting results or creating follow-up work orders.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Handoff Review Workflow
+
+- [x] Add operator review actions for CLI bridge handoffs.
+- [x] Support accepted, rejected, and escalated review states.
+- [x] Create a normal open task when a CLI handoff is escalated for follow-up.
+- [x] Add UI controls, parser checks, server coverage, validation, relaunch, commit, and push.

@@ -1954,6 +1954,21 @@ export async function serverTest() {
     assert.match(createCliBridgeHandoffJson.handoff.secretPolicy, /Non-secret CLI bridge handoff/);
     assert.equal(createCliBridgeHandoffJson.ledger.total, 1);
 
+    const acceptCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeHandoffJson.handoff.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "accept",
+        note: "Fixture operator accepted the Codex to Claude handoff."
+      })
+    });
+    assert.equal(acceptCliBridgeHandoffResponse.status, 200);
+    const acceptCliBridgeHandoffJson = await acceptCliBridgeHandoffResponse.json();
+    assert.equal(acceptCliBridgeHandoffJson.success, true);
+    assert.equal(acceptCliBridgeHandoffJson.handoff.status, "accepted");
+    assert.equal(acceptCliBridgeHandoffJson.handoff.reviewAction, "accept");
+    assert.equal(acceptCliBridgeHandoffJson.ledger.total, 1);
+
     const claudeCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=claude&limit=5`);
     assert.equal(claudeCliBridgeHandoffsResponse.status, 200);
     const claudeCliBridgeHandoffsJson = await claudeCliBridgeHandoffsResponse.json();
@@ -1994,11 +2009,30 @@ export async function serverTest() {
     assert.equal(createCliBridgeRunnerResultJson.ledger.total, 2);
     assert.ok(createCliBridgeRunnerResultJson.ledger.markdown.includes("runner-result:changed"));
 
+    const escalateCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeRunnerResultJson.handoff.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "escalate",
+        createTask: true,
+        note: "Fixture operator escalated the runner result for follow-up."
+      })
+    });
+    assert.equal(escalateCliBridgeRunnerResultResponse.status, 200);
+    const escalateCliBridgeRunnerResultJson = await escalateCliBridgeRunnerResultResponse.json();
+    assert.equal(escalateCliBridgeRunnerResultJson.success, true);
+    assert.equal(escalateCliBridgeRunnerResultJson.handoff.status, "needs-review");
+    assert.equal(escalateCliBridgeRunnerResultJson.handoff.reviewAction, "escalate");
+    assert.equal(escalateCliBridgeRunnerResultJson.createdTask.cliBridgeHandoffId, createCliBridgeRunnerResultJson.handoff.id);
+    assert.match(escalateCliBridgeRunnerResultJson.createdTask.secretPolicy, /Non-secret CLI bridge handoff review task/);
+
     const governanceAfterCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterCliBridgeRunnerResultResponse.status, 200);
     const governanceAfterCliBridgeRunnerResultJson = await governanceAfterCliBridgeRunnerResultResponse.json();
     assert.equal(governanceAfterCliBridgeRunnerResultJson.summary.cliBridgeHandoffCount, 2);
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-recorded"));
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-recorded"));
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-task-created"));
 
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);

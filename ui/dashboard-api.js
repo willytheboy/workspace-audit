@@ -687,6 +687,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} handoffId
+   * @param {{ action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }} payload
+   * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, createdTask?: import("./dashboard-types.js").PersistedTask | null, skippedTask?: { id: string, title: string, reason: string } | null, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload, taskCount: number, governanceOperationCount: number }>}
+   */
+  reviewCliBridgeHandoff(handoffId, payload) {
+    return fetchJson(`/api/cli-bridge/handoffs/${encodeURIComponent(handoffId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").AgentControlPlaneBaselineStatusPayload>}
    */
   fetchAgentControlPlaneBaselineStatus() {

@@ -155,6 +155,9 @@
  *   agentExecutionResultTargetAction?: AgentExecutionResultTargetAction,
  *   agentExecutionResultCheckpointStatus?: AgentExecutionResultCheckpointStatus,
  *   agentExecutionResultResultType?: string,
+ *   cliBridgeHandoffId?: string,
+ *   cliBridgeHandoffAction?: string,
+ *   cliBridgeHandoffStatus?: string,
  *   secretPolicy?: string,
  *   createdAt: string,
  *   updatedAt: string
@@ -270,6 +273,11 @@
  *   resultStatus?: string,
  *   handoffRecommendation?: "codex" | "claude" | "operator" | "workspace-audit",
  *   blockers?: string[],
+ *   reviewAction?: string,
+ *   reviewStatus?: string,
+ *   reviewedBy?: string,
+ *   reviewedAt?: string,
+ *   reviewHistory?: Array<{ action: string, status: string, note: string, reviewer: string, createdAt: string }>,
  *   secretPolicy: string,
  *   createdAt: string,
  *   updatedAt: string

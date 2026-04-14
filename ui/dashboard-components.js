@@ -2955,7 +2955,38 @@ export function createGovernanceDeck(governance) {
               lineHeight: "1.45"
             }
           })
-        : null
+        : null,
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-review-btn",
+          text: "Accept Result",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffReview: "accept",
+            cliBridgeHandoffId: handoff.id || ""
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-review-btn",
+          text: "Reject Result",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffReview: "reject",
+            cliBridgeHandoffId: handoff.id || ""
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-review-btn",
+          text: "Escalate",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffReview: "escalate",
+            cliBridgeHandoffId: handoff.id || ""
+          }
+        })
+      ])
     ]))
   ];
 

@@ -136,7 +136,11 @@ function createEmptyTableRow(message) {
  *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean }) => Promise<unknown>,
  *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[] }) => Promise<unknown>,
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string }) => Promise<unknown>,
- *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>
+ *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
+ *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
+ *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
+ *     fetchCliBridgeHandoffs: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>,
+ *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }) => Promise<unknown>
  *   },
  *   openModal: (id: string) => void
  * }} options
@@ -1663,6 +1667,34 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           alert(getErrorMessage(error));
         } finally {
           element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-handoff-review]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const action = element.dataset.cliBridgeHandoffReview || "needs-review";
+        const handoffId = element.dataset.cliBridgeHandoffId || "";
+        if (!handoffId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = action === "accept" ? "Accepting" : action === "reject" ? "Rejecting" : "Escalating";
+          await api.reviewCliBridgeHandoff(handoffId, {
+            action,
+            createTask: action === "escalate",
+            note: `Operator selected ${action} from the Governance CLI bridge handoff ledger.`
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          element.disabled = false;
+          alert(getErrorMessage(error));
         }
       };
     });

@@ -5312,6 +5312,30 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn release-build-gate-local-evidence-confirm-btn",
+              text: "Confirm Local Evidence",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateLocalEvidenceCheckpoint: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-build-gate-local-evidence-defer-btn",
+              text: "Defer Local Evidence",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateLocalEvidenceCheckpoint: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-build-gate-local-evidence-task-btn",
+              text: "Track Evidence Task",
+              attrs: { type: "button" },
+              dataset: {
+                releaseBuildGateLocalEvidenceTask: "true"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn release-build-gate-tasks-btn",
               text: "Seed Gate Tasks",
               attrs: { type: "button" },

@@ -2206,6 +2206,51 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-release-build-gate-local-evidence-checkpoint]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const checkpointStatus = element.dataset.releaseBuildGateLocalEvidenceCheckpoint || "";
+        if (!checkpointStatus) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const label = await createReleaseBuildGateLocalEvidenceCheckpoint(checkpointStatus);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-build-gate-local-evidence-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createReleaseBuildGateLocalEvidenceTask();
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-release-build-gate-tasks]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -6785,6 +6830,95 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await renderGovernance();
     const smokeStatus = payload.smokeCheck?.status || "not-run";
     return `Bootstrapped release gate evidence: smoke ${smokeStatus}`;
+  }
+
+  function getReleaseBuildGateEvidenceContext() {
+    const governance = getFilteredGovernance() || {};
+    const releaseSummary = governance.releaseSummary || null;
+    const releaseBuildGate = governance.releaseBuildGate || null;
+    const latestSmokeCheck = releaseSummary?.latestSmokeCheck || null;
+    return {
+      releaseSummary,
+      releaseBuildGate,
+      latestSmokeCheck
+    };
+  }
+
+  function getReleaseBuildGateLocalEvidencePriority(releaseBuildGate, releaseSummary, latestSmokeCheck) {
+    if (releaseBuildGate?.decision === "hold" || releaseSummary?.summary?.status === "hold" || latestSmokeCheck?.status === "fail") return "high";
+    if (releaseBuildGate?.decision === "review" || releaseSummary?.summary?.status === "review") return "medium";
+    return "low";
+  }
+
+  function buildReleaseBuildGateLocalEvidenceNotes(decision, releaseSummary, releaseBuildGate, latestSmokeCheck) {
+    const releaseStatus = releaseSummary?.summary?.status || "review";
+    const gateDecision = releaseBuildGate?.decision || "not-evaluated";
+    const riskScore = releaseBuildGate?.riskScore || 0;
+    const smokeStatus = latestSmokeCheck?.status || "not-run";
+    const smokeStatusText = latestSmokeCheck
+      ? `${smokeStatus.toUpperCase()} HTTP ${latestSmokeCheck.httpStatus || "unreachable"} at ${latestSmokeCheck.checkedAt || "not recorded"}`
+      : "not recorded";
+
+    return [
+      `Operator ${decision} local release gate smoke/bootstrap evidence from the Release Control checkpoint.`,
+      `Release status: ${releaseStatus}; gate decision: ${gateDecision}; risk score: ${riskScore}.`,
+      `Latest smoke check: ${smokeStatusText}.`,
+      `Deployment smoke totals: ${releaseSummary?.summary?.deploymentSmokeCheckPassCount || 0} pass / ${releaseSummary?.summary?.deploymentSmokeCheckFailCount || 0} fail / ${releaseSummary?.summary?.deploymentSmokeCheckCount || 0} total.`,
+      `Git evidence: ${releaseSummary?.git?.available ? `${releaseSummary.git.branch || "unknown"} @ ${releaseSummary.git.commitShort || "unknown"}` : "unavailable"}.`,
+      "Secret policy: non-secret local release evidence only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createReleaseBuildGateLocalEvidenceCheckpoint(checkpointDecision) {
+    const { releaseSummary, releaseBuildGate, latestSmokeCheck } = getReleaseBuildGateEvidenceContext();
+    if (!releaseSummary) throw new Error("Release summary is not loaded.");
+
+    const normalizedDecision = checkpointDecision === "confirmed" ? "confirmed" : "deferred";
+    const checkpointStatus = normalizedDecision === "confirmed"
+      ? releaseSummary.summary?.status || releaseBuildGate?.decision || "review"
+      : "review";
+    const created = await api.createReleaseCheckpoint({
+      title: `Release gate local evidence ${normalizedDecision}: ${releaseSummary.git?.commitShort || "current"}`,
+      status: checkpointStatus,
+      notes: buildReleaseBuildGateLocalEvidenceNotes(normalizedDecision, releaseSummary, releaseBuildGate, latestSmokeCheck)
+    });
+    await renderGovernance();
+    return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
+  }
+
+  async function createReleaseBuildGateLocalEvidenceTask() {
+    const { releaseSummary, releaseBuildGate, latestSmokeCheck } = getReleaseBuildGateEvidenceContext();
+    if (!releaseSummary) throw new Error("Release summary is not loaded.");
+
+    const priority = getReleaseBuildGateLocalEvidencePriority(releaseBuildGate, releaseSummary, latestSmokeCheck);
+    const action = {
+      id: `release-local-evidence:${latestSmokeCheck?.id || releaseSummary.git?.commitShort || releaseSummary.generatedAt || "current"}`,
+      label: "Review local release gate evidence",
+      status: "open",
+      priority,
+      description: [
+        "Review local release gate smoke/bootstrap evidence before the next supervised build pass.",
+        `Release status: ${releaseSummary.summary?.status || "review"}; gate decision: ${releaseBuildGate?.decision || "not-evaluated"}; risk score: ${releaseBuildGate?.riskScore || 0}.`,
+        `Latest smoke check: ${latestSmokeCheck ? `${latestSmokeCheck.status || "fail"} HTTP ${latestSmokeCheck.httpStatus || "unreachable"} at ${latestSmokeCheck.checkedAt || "not recorded"}` : "not recorded"}.`,
+        `Deployment smoke totals: ${releaseSummary.summary?.deploymentSmokeCheckPassCount || 0} pass / ${releaseSummary.summary?.deploymentSmokeCheckFailCount || 0} fail / ${releaseSummary.summary?.deploymentSmokeCheckCount || 0} total.`,
+        `Latest release checkpoint count: ${releaseSummary.summary?.releaseCheckpointCount || 0}.`,
+        "Secret policy: store only non-secret local release evidence metadata. Do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" "),
+      commandHint: "Use Bootstrap Local Evidence, Copy Gate, and the local app smoke-check ledger before promoting the next build."
+    };
+
+    const payload = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: "Release Control Local Evidence Task Auto Capture",
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const taskLabel = payload.totals.created
+      ? `Created ${payload.totals.created} Evidence Task${payload.totals.created === 1 ? "" : "s"}`
+      : `Skipped ${payload.totals.skipped} Evidence Task${payload.totals.skipped === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function seedReleaseBuildGateActionTasks(options = {}) {

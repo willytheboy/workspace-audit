@@ -1305,3 +1305,10 @@
 - [x] Add recent-smoke-check `Track Release Task` controls that convert individual smoke outcomes into Release Control tasks with a release task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret smoke-check metadata policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Build Gate Local Evidence Checkpoints
+
+- [x] Add Governance Release Control `Confirm Local Evidence` and `Defer Local Evidence` controls using the release checkpoint ledger.
+- [x] Add `Track Evidence Task` controls that convert local smoke/bootstrap evidence into a Release Control task with a task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret local evidence policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

@@ -140,6 +140,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
  *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
  *     fetchCliBridgeHandoffs: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>,
+ *     createCliBridgeRunnerResult: (payload: { runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }) => Promise<unknown>,
  *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }) => Promise<unknown>
  *   },
  *   openModal: (id: string) => void
@@ -1667,6 +1668,37 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           alert(getErrorMessage(error));
         } finally {
           element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-runner-result-capture]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.cliBridgeRunnerResultCapture || "codex";
+        const summary = prompt(`Paste a non-secret ${runner} runner result summary. Do not include secrets or raw credential-bearing output.`);
+        if (!summary || !summary.trim()) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Recording";
+          await api.createCliBridgeRunnerResult({
+            runner,
+            status: "needs-review",
+            summary: summary.trim(),
+            handoffRecommendation: "workspace-audit",
+            nextAction: "Review this manually recorded runner result before accepting or escalating it.",
+            notes: "Recorded from the Governance CLI bridge handoff ledger."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          element.disabled = false;
+          alert(getErrorMessage(error));
         }
       };
     });

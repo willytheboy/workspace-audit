@@ -1501,3 +1501,10 @@
 - [x] Support accepted, rejected, and escalated review states.
 - [x] Create a normal open task when a CLI handoff is escalated for follow-up.
 - [x] Add UI controls, parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Manual Result Capture
+
+- [x] Add Governance controls to manually record Codex CLI and Claude CLI dry-run summaries.
+- [x] Route captured summaries through the non-secret runner-result intake endpoint.
+- [x] Preserve operator review before accepting or escalating captured results.
+- [x] Add parser checks, validation, relaunch, commit, and push.

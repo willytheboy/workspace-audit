@@ -2867,6 +2867,22 @@ export function createGovernanceDeck(governance) {
           dataset: {
             cliBridgeHandoffLedgerCopy: "true"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-result-capture-btn",
+          text: "Record Codex Result",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerResultCapture: "codex"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-result-capture-btn",
+          text: "Record Claude Result",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerResultCapture: "claude"
+          }
         })
       ])
     ]),

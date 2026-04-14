@@ -3776,6 +3776,44 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-runner-result-run-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.cliBridgeRunnerResultRunId || "";
+        const runner = element.dataset.cliBridgeRunnerResultRunner || "codex";
+        const run = governanceCache?.agentWorkOrderRuns.find((item) => item.id === runId);
+        if (!run) return;
+        const summary = prompt(`Paste a non-secret ${runner} runner result summary for ${run.title}. Do not include secrets or raw credential-bearing output.`);
+        if (!summary || !summary.trim()) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Recording";
+          await api.createCliBridgeRunnerResult({
+            runner,
+            workOrderRunId: run.id,
+            projectId: run.projectId,
+            projectName: run.projectName,
+            status: "needs-review",
+            title: `${runner} result for ${run.title}`,
+            summary: summary.trim(),
+            handoffRecommendation: "workspace-audit",
+            nextAction: "Review this run-tied CLI result before accepting or queueing another follow-up work order.",
+            notes: "Recorded from the Agent Execution Queue CLI bridge run card."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          element.disabled = false;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
     container.querySelectorAll("[data-agent-work-order-run-archive]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

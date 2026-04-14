@@ -8224,6 +8224,17 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      run.cliBridgeHandoffId
+        ? createElement("button", {
+            className: "btn governance-action-btn cli-bridge-runner-result-run-capture-btn",
+            text: "Record CLI Result",
+            attrs: { type: "button" },
+            dataset: {
+              cliBridgeRunnerResultRunId: run.id,
+              cliBridgeRunnerResultRunner: run.cliBridgeRunner || "codex"
+            }
+          })
+        : null,
       ["queued", "running", "blocked"].includes(run.status)
         ? [
           run.status === "queued"

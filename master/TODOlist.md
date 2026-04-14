@@ -1543,3 +1543,10 @@
 - [x] Add per-run `Copy CLI Contract` controls for CLI-origin queued runs.
 - [x] Bind the controls to the existing non-executing CLI runner dry-run contract endpoint with the exact run id.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Execution Queue Result Capture
+
+- [x] Add per-run `Record CLI Result` controls for CLI-origin Agent Execution Queue cards.
+- [x] Bind captured summaries to the exact Agent Work Order Run through the existing non-secret runner-result intake endpoint.
+- [x] Preserve operator review before accepting results or queueing another follow-up handoff.
+- [x] Add parser checks, validation, relaunch, commit, and push.

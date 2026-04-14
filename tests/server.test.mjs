@@ -3419,6 +3419,14 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
     assert.equal(closedTaskLedgerJson.items[0].status, "resolved");
     assert.equal(closedTaskLedgerJson.items[0].lastSourceAccessValidationEvidenceStatus, "validated");
     assert.equal(closedTaskLedgerJson.items[0].sourceAccessValidationWorkflowId, workflowJson.items[0].id);
+
+    const taskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(taskLedgerSnapshotDiffResponse.status, 200);
+    const taskLedgerSnapshotDiffJson = await taskLedgerSnapshotDiffResponse.json();
+    assert.equal(taskLedgerSnapshotDiffJson.snapshotWorkflowTaskSummary.total, 1);
+    assert.equal(taskLedgerSnapshotDiffJson.liveWorkflowTaskSummary.total, 0);
+    assert.ok(taskLedgerSnapshotDiffJson.driftItems.some((item) => item.category === "source-access-validation-workflow-task-ledger"));
+    assert.ok(taskLedgerSnapshotDiffJson.driftItems.some((item) => item.field.startsWith("source-access-validation-workflow-task:")));
   } finally {
     server.close();
     await once(server, "close");

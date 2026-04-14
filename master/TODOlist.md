@@ -1389,3 +1389,10 @@
 - [x] Persist task-row checkpoint decisions through non-secret workflow-task metadata and lifecycle updates.
 - [x] Preserve the non-secret source-access validation workflow task metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Validation Workflow Task Ledger Drift Item Checkpoints
+
+- [x] Add workflow-task-specific summary and row drift fields to the shared Data Sources access task ledger snapshot diff.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls for workflow task ledger drift rows.
+- [x] Persist workflow task drift checkpoint decisions as non-secret Data Sources task metadata.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

@@ -1998,6 +1998,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-source-validation-workflow-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.sourceValidationWorkflowTaskLedgerDriftItemField || "";
+        const decision = element.dataset.sourceValidationWorkflowTaskLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateDataSourcesAccessValidationWorkflowTaskLedgerDriftItemCheckpoint(field, decision);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -8320,6 +8344,48 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       projectName: "Data Sources",
       title: `Source-access task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildDataSourcesAccessTaskLedgerDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
+  }
+
+  function findDataSourcesAccessValidationWorkflowTaskLedgerDriftItem(field) {
+    const diff = governanceCache?.dataSourceAccessTaskLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const workflowTaskDriftItems = driftItems.filter((candidate) => {
+      const category = String(candidate.category || "");
+      const candidateField = String(candidate.field || "");
+      return category === "source-access-validation-workflow-task-ledger" || candidateField.startsWith("source-access-validation-workflow-task");
+    });
+    const item = workflowTaskDriftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function buildDataSourcesAccessValidationWorkflowTaskLedgerDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Data Sources access validation workflow task ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Data Sources access validation workflow task ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Data Sources access task ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret source-access validation workflow task ledger drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function updateDataSourcesAccessValidationWorkflowTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findDataSourcesAccessValidationWorkflowTaskLedgerDriftItem(field);
+    if (!diff) throw new Error("Data Sources access validation workflow task ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Data Sources access validation workflow task ledger drift item not found: ${field}`);
+
+    const decision = getDataSourcesAccessTaskLedgerDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title: `Validation workflow task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildDataSourcesAccessValidationWorkflowTaskLedgerDriftItemDescription(decision, diff, item),
       priority: decision.priority,
       status: decision.status
     });

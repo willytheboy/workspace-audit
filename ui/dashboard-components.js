@@ -4412,6 +4412,157 @@ export function createGovernanceDeck(governance) {
   const dataSourcesAccessTaskLedgerDriftItems = Array.isArray(dataSourcesAccessTaskLedgerSnapshotDiff?.driftItems)
     ? dataSourcesAccessTaskLedgerSnapshotDiff.driftItems
     : [];
+  const dataSourcesAccessValidationWorkflowTaskLedgerDriftItems = dataSourcesAccessTaskLedgerDriftItems.filter((item) => {
+    const category = String(item.category || "");
+    const field = String(item.field || "");
+    return category === "source-access-validation-workflow-task-ledger" || field.startsWith("source-access-validation-workflow-task");
+  });
+  const dataSourcesAccessValidationWorkflowTaskLedgerSnapshotDiffEntries = dataSourcesAccessTaskLedgerSnapshotDiff && dataSourcesAccessValidationWorkflowTaskLedgerDriftItems.length
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: "Data Sources Validation Workflow Task Ledger Drift",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: dataSourcesAccessTaskLedgerSnapshotDiff.snapshotTitle || "Latest source-access task ledger snapshot",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((dataSourcesAccessTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: dataSourcesAccessTaskLedgerSnapshotDiff.driftSeverity === "high" || dataSourcesAccessTaskLedgerSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : dataSourcesAccessTaskLedgerSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: "Focused workflow-task drift derived from the shared Data Sources access task ledger; non-secret metadata only.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `${dataSourcesAccessValidationWorkflowTaskLedgerDriftItems.length} workflow task drift item(s) - ${dataSourcesAccessTaskLedgerSnapshotDiff.driftScore || 0} total ledger drift score`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.45rem",
+              padding: "0.7rem",
+              border: "1px solid var(--border)",
+              borderRadius: "0.85rem",
+              background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+            }
+          }, [
+            createElement("div", {
+              text: "Validation workflow task drift fields",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.78rem",
+                fontWeight: "800",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }
+            }),
+            ...dataSourcesAccessValidationWorkflowTaskLedgerDriftItems.slice(0, 8).map((item) => createElement("div", {
+              style: {
+                display: "grid",
+                gap: "0.5rem",
+                padding: "0.65rem",
+                border: "1px solid var(--border)",
+                borderRadius: "0.75rem",
+                background: "var(--surface)"
+              }
+            }, [
+              createElement("div", {
+                text: `${item.label || item.field || "Validation workflow task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                style: {
+                  color: "var(--text)",
+                  fontSize: "0.84rem",
+                  fontWeight: "700",
+                  lineHeight: "1.45"
+                }
+              }),
+              createElement("div", {
+                className: "governance-actions"
+              }, [
+                createElement("button", {
+                  className: "btn governance-action-btn source-validation-workflow-task-ledger-drift-item-confirm-btn",
+                  text: "Confirm",
+                  attrs: { type: "button" },
+                  dataset: {
+                    sourceValidationWorkflowTaskLedgerDriftItemField: item.field || item.label || "",
+                    sourceValidationWorkflowTaskLedgerDriftItemDecision: "confirmed"
+                  }
+                }),
+                createElement("button", {
+                  className: "btn governance-action-btn source-validation-workflow-task-ledger-drift-item-defer-btn",
+                  text: "Defer",
+                  attrs: { type: "button" },
+                  dataset: {
+                    sourceValidationWorkflowTaskLedgerDriftItemField: item.field || item.label || "",
+                    sourceValidationWorkflowTaskLedgerDriftItemDecision: "deferred"
+                  }
+                }),
+                createElement("button", {
+                  className: "btn governance-action-btn source-validation-workflow-task-ledger-drift-item-escalate-btn",
+                  text: "Escalate",
+                  attrs: { type: "button" },
+                  dataset: {
+                    sourceValidationWorkflowTaskLedgerDriftItemField: item.field || item.label || "",
+                    sourceValidationWorkflowTaskLedgerDriftItemDecision: "escalated"
+                  }
+                })
+              ])
+            ])),
+            dataSourcesAccessValidationWorkflowTaskLedgerDriftItems.length > 8
+              ? createElement("div", {
+                  text: `${dataSourcesAccessValidationWorkflowTaskLedgerDriftItems.length - 8} additional workflow task drift item(s).`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.8rem"
+                  }
+                })
+              : null
+          ])
+        ])
+      ]
+    : [];
   const dataSourcesAccessTaskLedgerSnapshotDiffEntries = dataSourcesAccessTaskLedgerSnapshotDiff
     ? [
         createElement("div", {
@@ -7631,7 +7782,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Data Sources Access Validation Workflow Snapshot Drift", "Latest saved workflow snapshot compared with the current source-access validation workflow.", dataSourceAccessValidationWorkflowSnapshotDiffEntries),
     createListSection("Data Sources Access Validation Workflow Tasks", "Workflow-seeded source-access tasks with their validation stage, evidence state, and lifecycle controls.", dataSourcesAccessValidationWorkflowTaskEntries),
     createListSection("Data Sources Access Task Ledger", "Trackable Governance tasks created from source-access review queue items.", dataSourcesAccessTaskEntries),
-    createListSection("Data Sources Access Task Ledger Snapshots", "Persisted non-secret source-access task ledger handoffs.", [...dataSourcesAccessTaskLedgerSnapshotDiffEntries, ...dataSourcesAccessTaskLedgerSnapshotEntries]),
+    createListSection("Data Sources Access Task Ledger Snapshots", "Persisted non-secret source-access task ledger handoffs.", [...dataSourcesAccessValidationWorkflowTaskLedgerSnapshotDiffEntries, ...dataSourcesAccessTaskLedgerSnapshotDiffEntries, ...dataSourcesAccessTaskLedgerSnapshotEntries]),
     createListSection("Control Plane Decision Snapshots", "Persisted ready/review/hold decision gates for audit and supervised-build handoff history.", agentControlPlaneDecisionSnapshotEntries),
     createListSection("Control Plane Baseline Status", "Current baseline selection state for baseline-vs-live drift workflows.", agentControlPlaneBaselineStatusEntries),
     createListSection("Control Plane Snapshots", "Persisted consolidated Agent Control Plane handoffs.", agentControlPlaneSnapshotEntries),

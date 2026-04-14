@@ -56,10 +56,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources access task ledger item checkpoints: individual source-access task rows now expose `Confirm`, `Defer`, and `Escalate` controls so task triage can be persisted through non-secret source-access task metadata without storing response bodies or secrets.
 - Data Sources access task ledger drift item checkpoints: individual source-access task ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level drift can be persisted as non-secret Data Sources tasks without storing response bodies or secrets.
 - Data Sources validation workflow task item checkpoints: individual validation workflow task rows now expose `Confirm`, `Defer`, and `Escalate` controls so task triage can be persisted through non-secret workflow-task metadata without storing response bodies or secrets.
+- Data Sources validation workflow task ledger drift item checkpoints: workflow-task-specific source-access task ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level workflow task drift can be persisted as non-secret Data Sources tasks without storing response bodies or secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources validation workflow task ledger drift item checkpoints so individual validation workflow task drift rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
+- Add Governance task update audit ledger item checkpoints so individual task update audit rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
 
 ## Implementation Standard
 

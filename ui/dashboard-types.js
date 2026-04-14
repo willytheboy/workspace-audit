@@ -2219,9 +2219,11 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   driftItems: Array<{ category?: string, field: string, label: string, before: string | number, current: string | number, delta: number }>,
  *   liveSummary: DataSourcesAccessTaskLedgerPayload["summary"] | null,
  *   snapshotSummary: { total: number, open: number, closed: number, visible: number } | null,
+ *   liveWorkflowTaskSummary?: { total: number, open: number, closed: number, blocked: number, ready: number, pending: number } | null,
+ *   snapshotWorkflowTaskSummary?: { total: number, open: number, closed: number, blocked: number, ready: number, pending: number } | null,
  *   markdown: string
  * }} DataSourcesAccessTaskLedgerSnapshotDiffPayload
  * @typedef {{

@@ -677,6 +677,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} runId
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTracePayload>}
+   */
+  fetchCliBridgeRunTrace(runId) {
+    return fetchJson(`/api/cli-bridge/runs/${encodeURIComponent(runId)}/trace`);
+  },
+
+  /**
    * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */

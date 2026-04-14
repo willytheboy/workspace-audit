@@ -8245,6 +8245,16 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      run.cliBridgeHandoffId || run.latestCliBridgeResultHandoffId || run.latestCliBridgeReviewHandoffId
+        ? createElement("button", {
+            className: "btn governance-action-btn cli-bridge-run-trace-copy-btn",
+            text: "Copy CLI Trace",
+            attrs: { type: "button" },
+            dataset: {
+              cliBridgeRunTraceId: run.id
+            }
+          })
+        : null,
       run.cliBridgeHandoffId
         ? createElement("button", {
             className: "btn governance-action-btn cli-bridge-runner-result-run-capture-btn",

@@ -1564,3 +1564,10 @@
 - [x] Surface latest CLI review action and status in the Agent Execution Queue.
 - [x] Add run-history and operation-log traceability for handoff review decisions.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Pack
+
+- [x] Add a non-executing CLI bridge run trace API for a selected Agent Work Order Run.
+- [x] Include linked run metadata, related handoffs, result intake, review decisions, and run history in copyable Markdown.
+- [x] Add Agent Execution Queue `Copy CLI Trace` controls for CLI-linked runs.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

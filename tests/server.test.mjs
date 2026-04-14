@@ -2112,6 +2112,17 @@ export async function serverTest() {
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-task-created"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-follow-up-work-order-run-queued"));
 
+    const cliBridgeRunTraceResponse = await fetch(`${baseUrl}/api/cli-bridge/runs/${createAgentWorkOrderRunJson.run.id}/trace`);
+    assert.equal(cliBridgeRunTraceResponse.status, 200);
+    const cliBridgeRunTraceJson = await cliBridgeRunTraceResponse.json();
+    assert.equal(cliBridgeRunTraceJson.protocolVersion, "cli-bridge-run-trace.v1");
+    assert.equal(cliBridgeRunTraceJson.executionMode, "non-executing");
+    assert.equal(cliBridgeRunTraceJson.runId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeRunTraceJson.traceDecision, "ready");
+    assert.ok(cliBridgeRunTraceJson.relatedHandoffCount >= 2);
+    assert.match(cliBridgeRunTraceJson.markdown, /# CLI Bridge Run Trace/);
+    assert.match(cliBridgeRunTraceJson.markdown, /CLI bridge handoff review recorded/);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

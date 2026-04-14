@@ -1333,6 +1333,21 @@
  *   markdown: string
  * }} CliBridgeFollowUpWorkOrderDraftPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: "cli-bridge-run-trace.v1",
+ *   bridgeMode: "workspace-audit-work-order-broker",
+ *   executionMode: "non-executing",
+ *   runId: string,
+ *   traceDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: AgentControlPlaneDecisionReason[],
+ *   run: PersistedAgentWorkOrderRun | Record<string, never>,
+ *   relatedHandoffs: PersistedCliBridgeHandoff[],
+ *   relatedHandoffCount: number,
+ *   markdown: string
+ * }} CliBridgeRunTracePayload
+ * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,
  *   message: string

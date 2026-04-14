@@ -3217,6 +3217,124 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const cliBridgeRunTraceSnapshotBaselineStatus = governance.cliBridgeRunTraceSnapshotBaselineStatus;
+  const cliBridgeRunTraceSnapshotBaselineStatusEntries = cliBridgeRunTraceSnapshotBaselineStatus
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-run-trace-baseline-status-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: cliBridgeRunTraceSnapshotBaselineStatus.hasBaseline
+                  ? (cliBridgeRunTraceSnapshotBaselineStatus.title || "CLI Bridge Run Trace Baseline")
+                  : "No CLI bridge trace baseline selected",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeRunTraceSnapshotBaselineStatus.hasBaseline && cliBridgeRunTraceSnapshotBaselineStatus.createdAt
+                  ? `${new Date(cliBridgeRunTraceSnapshotBaselineStatus.createdAt).toLocaleString()} | run ${cliBridgeRunTraceSnapshotBaselineStatus.runId || "unknown"}`
+                  : `${cliBridgeRunTraceSnapshotBaselineStatus.snapshotCount || 0} saved trace snapshot(s) available`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeRunTraceSnapshotBaselineStatus.health || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunTraceSnapshotBaselineStatus.health === "healthy"
+                ? "var(--success)"
+                : cliBridgeRunTraceSnapshotBaselineStatus.health === "drifted" || cliBridgeRunTraceSnapshotBaselineStatus.health === "missing"
+                  ? "var(--danger)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(cliBridgeRunTraceSnapshotBaselineStatus.hasBaseline ? "BASELINE SET" : "BASELINE MISSING", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunTraceSnapshotBaselineStatus.hasBaseline ? "var(--success)" : "var(--warning)"
+            }),
+            createTag((cliBridgeRunTraceSnapshotBaselineStatus.freshness || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunTraceSnapshotBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+            }),
+            createTag(`drift ${cliBridgeRunTraceSnapshotBaselineStatus.driftScore || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunTraceSnapshotBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+            }),
+            createTag((cliBridgeRunTraceSnapshotBaselineStatus.driftSeverity || "missing-baseline").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunTraceSnapshotBaselineStatus.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: cliBridgeRunTraceSnapshotBaselineStatus.hasBaseline
+              ? `Freshness: ${cliBridgeRunTraceSnapshotBaselineStatus.ageHours || 0}h old | stale after ${cliBridgeRunTraceSnapshotBaselineStatus.freshnessThresholdHours || 24}h`
+              : `Freshness: missing | stale threshold ${cliBridgeRunTraceSnapshotBaselineStatus.freshnessThresholdHours || 24}h`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Baseline health: ${cliBridgeRunTraceSnapshotBaselineStatus.health || "missing"} | ${cliBridgeRunTraceSnapshotBaselineStatus.recommendedAction || "Save a CLI bridge run trace snapshot before relying on trace baseline drift."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Drift action: ${cliBridgeRunTraceSnapshotBaselineStatus.driftRecommendedAction || "Save a CLI bridge run trace snapshot before comparing drift."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-run-trace-baseline-status-copy-btn",
+              text: "Copy Baseline Status",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunTraceBaselineStatusCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
     ? [
@@ -9064,6 +9182,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
+    createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

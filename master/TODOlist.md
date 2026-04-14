@@ -1590,3 +1590,9 @@
 - [x] Add Governance controls to copy drift for specific saved CLI bridge run trace snapshots.
 - [x] Add operator controls to track drift as tasks, accept live trace as the refreshed snapshot baseline, and checkpoint individual drift fields.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Baseline Status
+
+- [x] Add a non-secret baseline-status API for the latest saved CLI bridge run trace snapshot.
+- [x] Surface freshness, health, drift severity, and recommended action in Governance execution scope.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

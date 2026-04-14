@@ -1129,6 +1129,7 @@
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
+ *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -1381,6 +1382,31 @@
  *   snapshotSummary: { traceDecision: string, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
  *   markdown: string
  * }} CliBridgeRunTraceSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasBaseline: boolean,
+ *   baselineSnapshotId: string,
+ *   snapshotId: string,
+ *   title: string,
+ *   createdAt: string,
+ *   runId: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   snapshotCount: number,
+ *   ageHours: number,
+ *   freshness: "fresh" | "stale" | "missing",
+ *   freshnessThresholdHours: number,
+ *   health: "healthy" | "changed" | "drifted" | "stale" | "missing",
+ *   recommendedAction: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-baseline",
+ *   driftRecommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   diff: CliBridgeRunTraceSnapshotDiffPayload | null,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} CliBridgeRunTraceSnapshotBaselineStatusPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

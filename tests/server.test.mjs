@@ -2164,6 +2164,19 @@ export async function serverTest() {
     assert.equal(cliBridgeRunTraceSnapshotDiffJson.driftSeverity, "none");
     assert.match(cliBridgeRunTraceSnapshotDiffJson.markdown, /# CLI Bridge Run Trace Snapshot Drift/);
 
+    const cliBridgeRunTraceSnapshotBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/run-trace-snapshots/baseline-status`);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusResponse.status, 200);
+    const cliBridgeRunTraceSnapshotBaselineStatusJson = await cliBridgeRunTraceSnapshotBaselineStatusResponse.json();
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.hasBaseline, true);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.baselineSnapshotId, cliBridgeRunTraceSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.snapshotId, cliBridgeRunTraceSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.runId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.freshness, "fresh");
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.health, "healthy");
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.driftScore, 0);
+    assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.driftSeverity, "none");
+    assert.match(cliBridgeRunTraceSnapshotBaselineStatusJson.markdown, /# CLI Bridge Run Trace Baseline Status/);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

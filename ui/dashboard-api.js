@@ -700,6 +700,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotBaselineStatusPayload>}
+   */
+  fetchCliBridgeRunTraceSnapshotBaselineStatus() {
+    return fetchJson("/api/cli-bridge/run-trace-snapshots/baseline-status");
+  },
+
+  /**
    * @param {string} runId
    * @param {{ title?: string }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot, cliBridgeRunTraceSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[], governanceOperationCount: number }>}

@@ -1270,3 +1270,10 @@
 - [x] Add method-row `Track Tasks` controls that convert matching access-review queue items into source-access review tasks with a task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret access-method metadata policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Method Registry Checkpoints
+
+- [x] Add method-row `Confirm` and `Defer` controls to the Data Sources access method registry deck using the non-secret task-seeding checkpoint ledger.
+- [x] Add method-row `Record Evidence` controls that create non-secret access validation evidence records for sources in the selected method.
+- [x] Preserve the non-secret access-method metadata policy for checkpoint notes and evidence prompts.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

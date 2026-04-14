@@ -1159,6 +1159,41 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   /**
    * @param {HTMLElement} container
+   * @param {import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload} registry
+   */
+  function bindSourceAccessMethodRegistryActions(container, registry) {
+    container.querySelectorAll("[data-source-access-method-registry-evidence-method]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const accessMethod = element.dataset.sourceAccessMethodRegistryEvidenceMethod || "";
+        const method = (registry?.methods || []).find((item) => item.accessMethod === accessMethod);
+        if (!method) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Recording";
+          const label = await recordSourceAccessMethodRegistryEvidence(method);
+          if (label === "Cancelled") {
+            element.disabled = false;
+            element.textContent = originalLabel;
+            return;
+          }
+          element.textContent = label;
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
    * @param {"governance" | "sources"} [defaultRenderTarget]
    */
   function bindSourceAccessReviewTaskSnapshotActions(container, defaultRenderTarget = "governance") {
@@ -4217,6 +4252,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       setup.style.color = "var(--text-muted)";
       setup.style.fontSize = "0.84rem";
 
+      const methodActions = document.createElement("div");
+      methodActions.className = "governance-actions source-access-method-registry-checkpoints";
+      methodActions.style.marginTop = "0.75rem";
+
+      for (const [status, label] of [["approved", "Confirm"], ["deferred", "Defer"]]) {
+        const checkpointButton = document.createElement("button");
+        checkpointButton.className = `btn governance-action-btn source-access-method-registry-${status}-btn`;
+        checkpointButton.type = "button";
+        checkpointButton.textContent = label;
+        checkpointButton.dataset.sourceTaskSeedingCheckpoint = "true";
+        checkpointButton.dataset.taskSeedingBatchId = `sources-access-method-registry:${method.accessMethod}`;
+        checkpointButton.dataset.taskSeedingStatus = status;
+        checkpointButton.dataset.taskSeedingSource = "sources-access-method-registry";
+        checkpointButton.dataset.taskSeedingTitle = `Data Sources access method registry: ${method.accessMethod}`;
+        checkpointButton.dataset.taskSeedingItemCount = String(method.sourceCount || 0);
+        checkpointButton.dataset.taskSeedingNote = `Operator marked the Data Sources access method registry row for ${method.accessMethod} as ${status}; non-secret access-method metadata only.`;
+        methodActions.append(checkpointButton);
+      }
+
+      const evidenceButton = document.createElement("button");
+      evidenceButton.className = "btn governance-action-btn source-access-method-registry-evidence-btn";
+      evidenceButton.type = "button";
+      evidenceButton.textContent = "Record Evidence";
+      evidenceButton.dataset.sourceAccessMethodRegistryEvidenceMethod = method.accessMethod;
+      methodActions.append(evidenceButton);
+
       const sources = document.createElement("div");
       sources.textContent = method.sources.slice(0, 4).map((source) => source.label).join(" | ") || "No sources";
       sources.style.color = "var(--text-muted)";
@@ -4267,7 +4328,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         sourceActions.append(row);
       }
 
-      body.append(methodTitle, setup, sources, sourceActions);
+      body.append(methodTitle, setup, methodActions, sources, sourceActions);
 
       const stats = document.createElement("div");
       stats.style.display = "flex";
@@ -5328,6 +5389,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindSourceAccessEvidenceActions(container, renderSources);
       bindSourceTaskSeedingCheckpointActions(container);
       bindSourceAccessMatrixTaskActions(container);
+      bindSourceAccessMethodRegistryActions(container, accessMethodRegistry);
       bindSourceAccessReviewTaskSnapshotActions(container, "sources");
       bindSourceEvidenceCoverageTaskSnapshotActions(container, "sources");
       bindSourceValidationWorkflowTaskSnapshotActions(container, "sources");
@@ -5891,6 +5953,48 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.fetchSourcesAccessMethodRegistry();
     await copyText(payload.markdown);
     return `Copied ${payload.summary.totalMethods} access method${payload.summary.totalMethods === 1 ? "" : "s"}`;
+  }
+
+  function getAccessMethodRegistryEvidenceStatus(method) {
+    if ((method.blocked || 0) > 0) return "blocked";
+    if ((method.reviewRequired || 0) > 0 || (method.review || 0) > 0) return "review";
+    return "validated";
+  }
+
+  function buildAccessMethodRegistryEvidenceDefault(method, status) {
+    if (status === "validated") {
+      return `Confirmed ${method.accessMethod} access method for ${method.sourceCount || 0} source(s) outside this app.`;
+    }
+    if (status === "blocked") {
+      return `${method.accessMethod} has blocked source access; credentials, certificates, or operator access must be resolved outside this app.`;
+    }
+    return `${method.accessMethod} needs operator review for ${method.reviewRequired || method.review || 0} source(s); access must be verified outside this app.`;
+  }
+
+  async function recordSourceAccessMethodRegistryEvidence(method) {
+    const sources = (method.sources || []).filter((source) => source.id);
+    if (!sources.length) return "No Sources";
+
+    const status = getAccessMethodRegistryEvidenceStatus(method);
+    const evidence = window.prompt(
+      `Enter non-secret method-level access evidence for ${method.title || method.accessMethod}.\n\nThis will create one evidence record per source in this method. Do not paste passwords, tokens, certificates, private keys, cookies, browser sessions, or command output.`,
+      buildAccessMethodRegistryEvidenceDefault(method, status)
+    );
+    if (evidence == null || !evidence.trim()) return "Cancelled";
+
+    const checkedAt = new Date().toISOString();
+    for (const source of sources) {
+      await api.createSourcesAccessValidationEvidence({
+        sourceId: source.id,
+        status,
+        accessMethod: method.accessMethod || source.accessMethod || "review-required",
+        evidence: `${evidence.trim()}\nMethod registry source: ${source.label || source.id}.`,
+        checkedAt
+      });
+    }
+
+    await renderSources();
+    return `Recorded ${sources.length} Evidence`;
   }
 
   async function copySourcesAccessValidationWorkflow() {

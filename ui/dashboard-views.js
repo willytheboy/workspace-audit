@@ -99,7 +99,7 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
  *     fetchSourcesAccessReviewQueue: () => Promise<import("./dashboard-types.js").DataSourcesAccessReviewQueuePayload>,
- *     createSourcesAccessReviewTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[] }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createSourcesAccessReviewTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createSourcesAccessTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot, dataSourceAccessTaskLedgerSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[] }>,
  *     fetchSourcesAccessTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessTaskLedgerSnapshotDiffPayload>,
  *     fetchSourcesAccessGate: () => Promise<import("./dashboard-types.js").DataSourcesAccessGatePayload>,
@@ -1118,6 +1118,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             renderTarget: "sources",
             note: `Operator marked the Data Sources inferred task item as ${status} from the Sources item checkpoint before task creation.`
           });
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {"governance" | "sources"} [defaultRenderTarget]
+   */
+  function bindSourceAccessReviewTaskSnapshotActions(container, defaultRenderTarget = "governance") {
+    container.querySelectorAll("[data-source-access-review-task-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemId = element.dataset.sourceAccessReviewTaskSnapshot || "";
+        const renderTarget = element.dataset.sourceAccessReviewTaskSnapshotRenderTarget || defaultRenderTarget;
+        if (!itemId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await createSourceAccessReviewTaskWithSnapshot(itemId, renderTarget === "sources" ? "sources" : "governance");
+          element.textContent = "Captured";
         } catch (error) {
           element.disabled = false;
           element.textContent = originalLabel;
@@ -2765,6 +2795,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
+    bindSourceAccessReviewTaskSnapshotActions(container, "governance");
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentPolicyCheckpointActions(container);
@@ -4278,6 +4309,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         button.dataset.taskSeedingItemCount = "1";
         checkpointActions.append(button);
       }
+      const trackSnapshotButton = document.createElement("button");
+      trackSnapshotButton.type = "button";
+      trackSnapshotButton.className = "btn governance-action-btn source-access-review-task-snapshot-btn";
+      trackSnapshotButton.textContent = "Track + Snapshot";
+      trackSnapshotButton.dataset.sourceAccessReviewTaskSnapshot = item.id || "";
+      trackSnapshotButton.dataset.sourceAccessReviewTaskSnapshotRenderTarget = "sources";
+      checkpointActions.append(trackSnapshotButton);
 
       body.append(itemTitle, action, validation, sourceCheckpoints, checkpointActions);
 
@@ -4856,6 +4894,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindDeploymentHealthActions(container);
       bindSourceAccessEvidenceActions(container, renderSources);
       bindSourceTaskSeedingCheckpointActions(container);
+      bindSourceAccessReviewTaskSnapshotActions(container, "sources");
       bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {
@@ -6105,6 +6144,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const result = await api.createSourcesAccessReviewTasks({ items });
     await renderGovernance();
     return `Created ${result.totals.created} Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function createSourceAccessReviewTaskWithSnapshot(itemId, renderTarget = "governance") {
+    const cachedQueue = renderTarget === "governance"
+      ? getFilteredGovernance()?.dataSourcesAccessReviewQueue
+      : null;
+    const queue = cachedQueue || await api.fetchSourcesAccessReviewQueue();
+    const item = (queue?.items || []).find((entry) => entry.id === itemId);
+    if (!item) throw new Error(`Source access review item not found: ${itemId}`);
+
+    const label = item.label || item.sourceId || itemId;
+    const result = await api.createSourcesAccessReviewTasks({
+      items: [item],
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Access Review Task Ledger Auto Capture: ${label}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    if (renderTarget === "sources") {
+      await renderSources();
+    } else {
+      await renderGovernance();
+    }
+    const taskLabel = `Created ${result.totals.created} Source Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function checkpointGovernanceDataSourcesAccessReviewTasks(status) {

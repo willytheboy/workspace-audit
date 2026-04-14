@@ -3356,7 +3356,16 @@ export function createGovernanceDeck(governance) {
           taskSeedingTitle: item.title || `Source access review: ${item.label || item.sourceId || "Source"}`,
           taskSeedingItemCount: "1"
         }
-      }))
+      })),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-review-task-snapshot-btn",
+        text: "Track + Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessReviewTaskSnapshot: item.id || "",
+          sourceAccessReviewTaskSnapshotRenderTarget: "governance"
+        }
+      })
     ])
   ]));
   const dataSourcesAccessValidationRunbookEntries = dataSourcesAccessValidationRunbookMethods.map((method) => createElement("div", {

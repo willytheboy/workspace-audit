@@ -2512,6 +2512,10 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        saveSnapshot: true,
+        snapshotTitle: "Fixture Source Access Review Task Ledger Auto Capture",
+        snapshotStatus: "all",
+        snapshotLimit: 5,
         items: [{
           id: "source-access-review:github-fixture",
           label: "GitHub Fixture"
@@ -2522,6 +2526,12 @@ export async function serverTest() {
     const repeatSeedSourceAccessTasksJson = await repeatSeedSourceAccessTasksResponse.json();
     assert.equal(repeatSeedSourceAccessTasksJson.totals.created, 0);
     assert.equal(repeatSeedSourceAccessTasksJson.totals.skipped, 1);
+    assert.equal(repeatSeedSourceAccessTasksJson.snapshotCaptured, true);
+    assert.equal(repeatSeedSourceAccessTasksJson.snapshot.title, "Fixture Source Access Review Task Ledger Auto Capture");
+    assert.equal(repeatSeedSourceAccessTasksJson.snapshot.statusFilter, "all");
+    assert.equal(repeatSeedSourceAccessTasksJson.snapshot.total, 1);
+    assert.equal(repeatSeedSourceAccessTasksJson.snapshot.openCount, 1);
+    assert.equal(repeatSeedSourceAccessTasksJson.dataSourceAccessTaskLedgerSnapshots.length, 1);
 
     const governanceAfterSourceAccessTasksResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterSourceAccessTasksResponse.status, 200);
@@ -2579,8 +2589,9 @@ export async function serverTest() {
     const sourcesAccessTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots`);
     assert.equal(sourcesAccessTaskLedgerSnapshotsResponse.status, 200);
     const sourcesAccessTaskLedgerSnapshotsJson = await sourcesAccessTaskLedgerSnapshotsResponse.json();
-    assert.equal(sourcesAccessTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(sourcesAccessTaskLedgerSnapshotsJson.length, 2);
     assert.equal(sourcesAccessTaskLedgerSnapshotsJson[0].title, "Fixture Source Access Task Ledger");
+    assert.equal(sourcesAccessTaskLedgerSnapshotsJson[1].title, "Fixture Source Access Review Task Ledger Auto Capture");
 
     const resolveSourceAccessTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedSourceAccessTasksJson.createdTasks[0].id}`, {
       method: "PATCH",
@@ -2595,10 +2606,11 @@ export async function serverTest() {
     assert.equal(governanceAfterSourceAccessTaskResolveJson.summary.dataSourcesAccessTaskCount, 1);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.summary.dataSourcesAccessOpenTaskCount, 0);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.summary.dataSourcesAccessClosedTaskCount, 1);
-    assert.equal(governanceAfterSourceAccessTaskResolveJson.summary.dataSourceAccessTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterSourceAccessTaskResolveJson.summary.dataSourceAccessTaskLedgerSnapshotCount, 2);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.dataSourcesAccessTasks[0].status, "resolved");
-    assert.equal(governanceAfterSourceAccessTaskResolveJson.dataSourceAccessTaskLedgerSnapshots.length, 1);
+    assert.equal(governanceAfterSourceAccessTaskResolveJson.dataSourceAccessTaskLedgerSnapshots.length, 2);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.dataSourceAccessTaskLedgerSnapshots[0].title, "Fixture Source Access Task Ledger");
+    assert.equal(governanceAfterSourceAccessTaskResolveJson.dataSourceAccessTaskLedgerSnapshots[1].title, "Fixture Source Access Review Task Ledger Auto Capture");
     assert.equal(governanceAfterSourceAccessTaskResolveJson.agentControlPlaneDecision.dataSourcesAccessTaskCount, 1);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.agentControlPlaneDecision.dataSourcesAccessOpenTaskCount, 0);
     assert.equal(governanceAfterSourceAccessTaskResolveJson.agentControlPlaneDecision.dataSourcesAccessClosedTaskCount, 1);
@@ -2614,6 +2626,7 @@ export async function serverTest() {
     assert.equal(sourcesAccessTaskLedgerClosedJson.items.length, 1);
     assert.equal(sourcesAccessTaskLedgerClosedJson.items[0].status, "resolved");
     assert.ok(governanceAfterSourceAccessTaskResolveJson.operationLog.some((operation) => operation.type === "data-source-access-task-ledger-snapshot-created"));
+    assert.ok(governanceAfterSourceAccessTaskResolveJson.operationLog.some((operation) => operation.type === "data-source-access-review-task-ledger-snapshot-auto-captured"));
 
     const sourcesAccessTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots/diff?snapshotId=latest`);
     assert.equal(sourcesAccessTaskLedgerSnapshotDiffResponse.status, 200);

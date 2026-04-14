@@ -1522,3 +1522,10 @@
 - [x] Add Governance handoff controls to copy sanitized next-runner work-order drafts.
 - [x] Preserve the app-owned broker boundary, no-free-chat rule, and no-secrets policy for Codex CLI and Claude CLI drafts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Follow-up Work-Order Run Queue
+
+- [x] Add a non-executing queue endpoint that converts a reviewed CLI bridge handoff draft into a normal Agent Work Order Run.
+- [x] Add Governance handoff controls to queue follow-up runs for Codex CLI or Claude CLI supervision without launching either CLI.
+- [x] Preserve duplicate protection, app-owned broker metadata, and no-secrets policy on queued runs.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

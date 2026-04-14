@@ -664,6 +664,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} handoffId
+   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string, limit?: number }} [payload]
+   * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
+   */
+  queueCliBridgeFollowUpWorkOrderRun(handoffId, payload = {}) {
+    return fetchJson(`/api/cli-bridge/handoffs/${encodeURIComponent(handoffId)}/work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */

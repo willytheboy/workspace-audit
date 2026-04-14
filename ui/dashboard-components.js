@@ -3071,6 +3071,19 @@ export function createGovernanceDeck(governance) {
                 ? "claude"
                 : "codex"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-work-order-run-btn",
+          text: "Queue Work-Order Run",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffWorkOrderRun: handoff.id || "",
+            cliBridgeHandoffWorkOrderRunner: handoff.targetRunner === "codex" || handoff.targetRunner === "claude"
+              ? handoff.targetRunner
+              : handoff.sourceRunner === "codex"
+                ? "claude"
+                : "codex"
+          }
         })
       ])
     ]))

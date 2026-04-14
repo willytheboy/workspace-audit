@@ -1988,6 +1988,22 @@ export async function serverTest() {
     assert.match(acceptedCliBridgeWorkOrderDraftJson.draft.prompt, /Codex completed the bounded fixture implementation slice/);
     assert.match(acceptedCliBridgeWorkOrderDraftJson.markdown, /# CLI Bridge Follow-up Work-Order Draft/);
 
+    const queueCliBridgeWorkOrderRunResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeHandoffJson.handoff.id}/work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        notes: "Fixture queued a CLI bridge follow-up work-order run."
+      })
+    });
+    assert.equal(queueCliBridgeWorkOrderRunResponse.status, 200);
+    const queueCliBridgeWorkOrderRunJson = await queueCliBridgeWorkOrderRunResponse.json();
+    assert.equal(queueCliBridgeWorkOrderRunJson.success, true);
+    assert.equal(queueCliBridgeWorkOrderRunJson.run.cliBridgeHandoffId, createCliBridgeHandoffJson.handoff.id);
+    assert.equal(queueCliBridgeWorkOrderRunJson.run.cliBridgeRunner, "claude");
+    assert.equal(queueCliBridgeWorkOrderRunJson.run.status, "queued");
+    assert.match(queueCliBridgeWorkOrderRunJson.run.notes, /Fixture queued/);
+
     const claudeCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=claude&limit=5`);
     assert.equal(claudeCliBridgeHandoffsResponse.status, 200);
     const claudeCliBridgeHandoffsJson = await claudeCliBridgeHandoffsResponse.json();
@@ -2075,6 +2091,7 @@ export async function serverTest() {
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-recorded"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-recorded"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-task-created"));
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-follow-up-work-order-run-queued"));
 
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
@@ -2584,7 +2601,7 @@ export async function serverTest() {
     assert.equal(diagnosticsAfterProfileJson.agentExecutionResultCheckpointCount, 8 + baselineRefreshRunIds.length);
     assert.equal(diagnosticsAfterProfileJson.agentWorkOrderSnapshotCount, 1);
     assert.equal(diagnosticsAfterProfileJson.agentExecutionSlaLedgerSnapshotCount, 1);
-    assert.equal(diagnosticsAfterProfileJson.agentWorkOrderRunCount, 6);
+    assert.equal(diagnosticsAfterProfileJson.agentWorkOrderRunCount, 7);
     assert.equal(diagnosticsAfterProfileJson.governanceExecutionViewCount, 4);
     assert.equal(diagnosticsAfterProfileJson.governanceExecutionPolicy.staleThresholdHours, 6);
 

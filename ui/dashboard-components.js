@@ -797,6 +797,30 @@ export function createDataSourcesSummarySnapshotItem(snapshot) {
         dataset: {
           sourceSummarySnapshotId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-summary-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceSummarySnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-summary-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceSummarySnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-summary-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceSummarySnapshotDriftAcceptId: snapshot.id
+        }
       })
     ])
   ]);

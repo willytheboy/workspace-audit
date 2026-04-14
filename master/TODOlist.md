@@ -1256,3 +1256,10 @@
 - [x] Convert source-access validation workflow drift reports into non-secret Governance review tasks with severity, score, summary deltas, and bounded drift fields.
 - [x] Accept intentional source-access validation workflow drift by saving a refreshed workflow snapshot as the current operator-approved baseline.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Summary Drift Checkpoints
+
+- [x] Add per-snapshot `Copy Drift`, `Track Drift`, and `Accept Drift` controls to Data Sources summary snapshot cards.
+- [x] Convert source-health summary drift reports into non-secret Data Sources review tasks with severity, score, summary deltas, and bounded drift fields.
+- [x] Accept intentional source-health summary drift by saving a refreshed Data Sources summary snapshot as the current operator-approved baseline.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

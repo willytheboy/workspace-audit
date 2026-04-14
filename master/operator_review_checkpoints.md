@@ -37,10 +37,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources access task-ledger drift checkpoints: saved source-access task ledger snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so source-access task drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 - Data Sources validation evidence drift checkpoints: saved source-access validation evidence snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so evidence drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 - Data Sources validation workflow drift checkpoints: saved source-access validation workflow snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so workflow drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
+- Data Sources summary drift checkpoints: saved source-health summary snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so source-health drift can become a non-secret Data Sources task or be accepted by saving a refreshed baseline.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources summary snapshot drift checkpoints so saved source health summaries can be tracked as follow-up tasks or accepted as intentional by refreshing the baseline.
+- Add Data Sources access matrix checkpoint controls so access-method/source readiness matrix rows can be confirmed, deferred, or converted into source-access tasks without storing secrets.
 
 ## Implementation Standard
 

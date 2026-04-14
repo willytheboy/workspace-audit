@@ -4944,6 +4944,81 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-source-summary-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceSummarySnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchSourcesSummarySnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-summary-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceSummarySnapshotDriftTaskId || "";
+        const snapshot = snapshots.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createDataSourcesSummaryDriftReviewTask(snapshot);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-summary-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceSummarySnapshotDriftAcceptId || "";
+        const snapshot = snapshots.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptDataSourcesSummarySnapshotDrift(snapshot);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -5947,6 +6022,60 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesSummarySnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+  }
+
+  function getDataSourcesSummaryDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildDataSourcesSummaryDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Data Sources health summary drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review source-health drift before the next ingestion or agent handoff."}`,
+      `Ready sources: ${snapshotSummary.ready ?? 0} -> ${liveSummary.ready ?? 0}; review sources: ${snapshotSummary.review ?? 0} -> ${liveSummary.review ?? 0}; blocked sources: ${snapshotSummary.blocked ?? 0} -> ${liveSummary.blocked ?? 0}.`,
+      "Secret policy: non-secret Data Sources health summary metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Data Sources health drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createDataSourcesSummaryDriftReviewTask(snapshot) {
+    const diff = await api.fetchSourcesSummarySnapshotDiff(snapshot.id);
+    const title = `Review Data Sources health summary drift: ${diff.snapshotTitle || snapshot.title || snapshot.id}`;
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title,
+      description: buildDataSourcesSummaryDriftTaskDescription(snapshot, diff),
+      priority: getDataSourcesSummaryDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderSources();
+    return "Created Data Sources summary drift review task";
+  }
+
+  async function acceptDataSourcesSummarySnapshotDrift(snapshot) {
+    const diff = await api.fetchSourcesSummarySnapshotDiff(snapshot.id);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshot.id;
+    await api.createSourcesSummarySnapshot({
+      title: `Accepted Data Sources summary drift as current baseline: ${sourceTitle}`.slice(0, 120)
+    });
+    await renderSources();
+    return "Accepted Data Sources summary drift as current baseline";
   }
 
   async function copyAgentWorkOrders() {

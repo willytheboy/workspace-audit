@@ -1291,3 +1291,10 @@
 - [x] Add item-level `Confirm` and `Defer` controls using the non-secret task-seeding checkpoint ledger.
 - [x] Add item-level `Track Workflow Task` controls that convert matching validation workflow blockers into source-access workflow tasks with a task-ledger auto-capture snapshot.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Deployment Health Checkpoints
+
+- [x] Add target-level `Confirm` and `Defer` controls to Sources deployment health cards using the non-secret task-seeding checkpoint ledger.
+- [x] Add target-level `Track Release Task` controls that convert deployment health status into Release Control tasks with a release task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret deployment metadata policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

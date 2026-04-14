@@ -5167,6 +5167,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       button.dataset.deploymentSmokeTargetLabel = target.label || target.host || target.url;
 
       action.append(provider, button);
+
+      for (const [status, label] of [["approved", "Confirm"], ["deferred", "Defer"]]) {
+        const checkpointButton = document.createElement("button");
+        checkpointButton.className = `btn governance-action-btn deployment-health-${status}-btn`;
+        checkpointButton.type = "button";
+        checkpointButton.textContent = label;
+        checkpointButton.dataset.sourceTaskSeedingCheckpoint = "true";
+        checkpointButton.dataset.taskSeedingBatchId = `sources-deployment-health:${target.id || target.url || target.label || "target"}`;
+        checkpointButton.dataset.taskSeedingStatus = status;
+        checkpointButton.dataset.taskSeedingSource = "sources-deployment-health";
+        checkpointButton.dataset.taskSeedingTitle = `Deployment health: ${target.label || target.host || target.url || "target"}`;
+        checkpointButton.dataset.taskSeedingItemCount = "1";
+        checkpointButton.dataset.taskSeedingNote = `Operator marked the deployment health target ${target.label || target.host || target.url || "target"} as ${status}; non-secret deployment metadata only.`;
+        action.append(checkpointButton);
+      }
+
+      const taskButton = document.createElement("button");
+      taskButton.className = "btn governance-action-btn deployment-health-release-task-btn";
+      taskButton.type = "button";
+      taskButton.textContent = "Track Release Task";
+      taskButton.dataset.deploymentHealthReleaseTaskTargetId = target.id || "";
+      action.append(taskButton);
+
       card.append(body, action);
       section.append(card);
     }
@@ -5488,6 +5511,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               ? `Fail ${result.smokeCheck.httpStatus}`
               : "Fail";
           await renderSources();
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-deployment-health-release-task-target-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const targetId = element.dataset.deploymentHealthReleaseTaskTargetId || "";
+        if (!targetId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createDeploymentHealthReleaseTask(targetId);
+          element.textContent = label;
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -6365,6 +6412,52 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.fetchDeploymentSmokeChecks();
     await copyText(payload.markdown);
     return `Copied ${payload.summary.total} smoke check${payload.summary.total === 1 ? "" : "s"}`;
+  }
+
+  async function createDeploymentHealthReleaseTask(targetId) {
+    const deploymentHealth = await api.fetchDeploymentHealth();
+    const target = (deploymentHealth.targets || []).find((item) => item.id === targetId);
+    if (!target) throw new Error(`Deployment health target not found: ${targetId}`);
+
+    const latestSmokeCheck = target.latestSmokeCheck || null;
+    const priority = latestSmokeCheck?.status === "fail" || target.sourceHealth === "blocked"
+      ? "high"
+      : target.protectedLikely
+        ? "medium"
+        : "low";
+    const label = `Review deployment health: ${target.label || target.host || target.url || target.id}`;
+    const action = {
+      id: `deployment-health:${target.id || target.host || target.url}`,
+      label,
+      status: "open",
+      priority,
+      description: [
+        `Review non-secret deployment target ${target.label || target.host || target.url || "target"}.`,
+        `Provider: ${target.provider || "deployment"}.`,
+        `Access method: ${target.accessMethod || "url-review"}.`,
+        `Protected/review likely: ${target.protectedLikely ? "yes" : "no"}.`,
+        latestSmokeCheck
+          ? `Latest smoke check: ${(latestSmokeCheck.status || "fail").toUpperCase()} HTTP ${latestSmokeCheck.httpStatus || "unreachable"} at ${latestSmokeCheck.checkedAt || "not recorded"}.`
+          : "Latest smoke check: not recorded.",
+        "Secret policy: store only non-secret deployment URL/status metadata. Do not store credentials, provider tokens, cookies, certificates, private keys, browser sessions, or response bodies."
+      ].join(" "),
+      commandHint: target.url ? `Use the Sources deployment-health Smoke Check action for ${target.url}.` : "Use the Sources deployment-health Smoke Check action."
+    };
+
+    const result = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: `Release Control Deployment Health Task Auto Capture: ${target.label || target.host || target.id}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderSources();
+    const created = result.totals.created || 0;
+    const skipped = result.totals.skipped || 0;
+    const taskLabel = created
+      ? `Created ${created} Release Task${created === 1 ? "" : "s"}`
+      : `Skipped ${skipped} Release Task${skipped === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function copySourcesAccessMatrix() {

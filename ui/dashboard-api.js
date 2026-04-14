@@ -157,6 +157,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string }} payload
+   * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, candidates: import("./dashboard-types.js").ConvergenceCandidate[], reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
+   */
+  proposeConvergenceOverlap(payload) {
+    return fetchJson("/api/convergence/proposals", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>}
    */
   fetchSources() {

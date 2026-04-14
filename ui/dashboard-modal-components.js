@@ -204,7 +204,7 @@ export function createScriptButton(script) {
 
 /**
  * @param {{ name: string, id: string, score: number, reasons: string[] }} similar
- * @param {{ reviewStatus?: string, reviewNote?: string }} [options]
+ * @param {{ reviewStatus?: string, reviewNote?: string, reviewSource?: string, generatedInsight?: string, assimilationRecommendation?: string }} [options]
  */
 export function createSimilarCard(similar, options = {}) {
   const reviewStatus = options.reviewStatus || "unreviewed";
@@ -259,6 +259,36 @@ export function createSimilarCard(similar, options = {}) {
           }
         })
       : null,
+    options.generatedInsight
+      ? createElement("div", {
+          text: `AI insight: ${options.generatedInsight}`,
+          style: {
+            marginTop: "0.5rem",
+            fontSize: "0.84rem",
+            color: "var(--text-muted)",
+            lineHeight: "1.4"
+          }
+        })
+      : null,
+    options.reviewSource === "operator-contributed-overlap"
+      ? createElement("div", {
+          className: "tags",
+          style: {
+            marginTop: "0.5rem"
+          }
+        }, [
+          createTag("Operator contributed", {
+            background: "var(--bg)",
+            color: "var(--primary)",
+            borderColor: "var(--primary)"
+          }),
+          createTag(`AI recommendation: ${(options.assimilationRecommendation || reviewStatus).replaceAll("-", " ")}`, {
+            background: "var(--bg)",
+            color: "var(--text-muted)",
+            borderColor: "var(--border)"
+          })
+        ])
+      : null,
     createElement("div", {
       className: "governance-actions",
       style: {
@@ -299,6 +329,104 @@ export function createSimilarCard(similar, options = {}) {
         dataset: {
           convergenceAction: "merge-candidate",
           convergenceTargetId: similar.id
+        }
+      })
+    ])
+  ]);
+}
+
+/**
+ * @param {{ id: string, name: string }} project
+ * @param {{ id: string, name: string, relPath?: string, category?: string, zone?: string }[]} projects
+ */
+export function createConvergenceProposalCard(project, projects) {
+  const targetOptions = projects
+    .filter((candidate) => candidate.id && candidate.id !== project.id)
+    .sort((left, right) => left.name.localeCompare(right.name));
+
+  return createElement("form", {
+    className: "similar-app-card convergence-proposal-card",
+    attrs: {
+      "data-convergence-proposal-form": "true"
+    },
+    style: {
+      borderStyle: "dashed"
+    }
+  }, [
+    createElement("div", {
+      text: "Contribute known overlap",
+      style: {
+        fontWeight: "900",
+        color: "var(--text)",
+        marginBottom: "0.35rem"
+      }
+    }),
+    createElement("div", {
+      text: "Nominate a project you know overlaps; the app will run non-secret due diligence and persist an AI-assisted recommendation.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.86rem",
+        lineHeight: "1.45",
+        marginBottom: "0.75rem"
+      }
+    }),
+    createElement("select", {
+      attrs: {
+        name: "targetId",
+        required: "true",
+        "aria-label": "Convergence overlap target project"
+      },
+      style: {
+        width: "100%",
+        marginBottom: "0.55rem"
+      }
+    }, [
+      createElement("option", {
+        text: targetOptions.length ? "Select overlapping project" : "No other projects available",
+        attrs: {
+          value: ""
+        }
+      }),
+      ...targetOptions.map((candidate) => createElement("option", {
+        text: `${candidate.name} (${candidate.category || candidate.zone || candidate.relPath || candidate.id})`,
+        attrs: {
+          value: candidate.id
+        }
+      }))
+    ]),
+    createElement("textarea", {
+      attrs: {
+        name: "operatorContext",
+        rows: "3",
+        placeholder: "Why do you know these overlap? Example: shared app builder module, duplicate agent orchestration, same target user, merge candidate."
+      },
+      style: {
+        width: "100%",
+        resize: "vertical",
+        marginBottom: "0.65rem"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions",
+      style: {
+        marginTop: "0"
+      }
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-proposal-submit-btn",
+        text: "Run Due Diligence",
+        attrs: {
+          type: "submit",
+          ...(targetOptions.length ? {} : { disabled: "true" })
+        }
+      }),
+      createElement("span", {
+        attrs: {
+          "data-convergence-proposal-status": "true"
+        },
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.82rem"
         }
       })
     ])

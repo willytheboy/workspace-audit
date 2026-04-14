@@ -68,6 +68,9 @@
  *   note: string,
  *   reviewer: string,
  *   source: string,
+ *   operatorContext?: string,
+ *   generatedInsight?: string,
+ *   assimilationRecommendation?: ConvergenceReviewStatus,
  *   createdAt: string,
  *   updatedAt: string,
  *   secretPolicy: string
@@ -85,6 +88,10 @@
  *   reviewNote: string,
  *   reviewedAt: string,
  *   reviewer: string,
+ *   reviewSource?: string,
+ *   operatorProposed?: boolean,
+ *   generatedInsight?: string,
+ *   assimilationRecommendation?: ConvergenceReviewStatus,
  *   secretPolicy: string
  * }} ConvergenceCandidate
  * @typedef {{

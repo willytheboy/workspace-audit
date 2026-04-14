@@ -2791,6 +2791,23 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(allCandidatesResponse.status, 200);
     const allCandidatesJson = await allCandidatesResponse.json();
     assert.equal(allCandidatesJson.candidates.some((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app"), true);
+
+    const operatorProposalResponse = await fetch(`${baseUrl}/api/convergence/proposals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        operatorContext: "The operator knows these apps share the same generated Vite/React app shell and should be reviewed for assimilation."
+      })
+    });
+    assert.equal(operatorProposalResponse.status, 200);
+    const operatorProposalJson = await operatorProposalResponse.json();
+    assert.equal(operatorProposalJson.success, true);
+    assert.equal(operatorProposalJson.review.source, "operator-contributed-overlap");
+    assert.match(operatorProposalJson.review.generatedInsight, /AI-assisted due diligence/);
+    assert.match(operatorProposalJson.review.note, /Operator context/);
+    assert.equal(operatorProposalJson.candidates.some((candidate) => candidate.operatorProposed === true), true);
   } finally {
     server.close();
     await once(server, "close");

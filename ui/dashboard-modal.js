@@ -2,6 +2,7 @@
 
 import { bindAppLaunchers, getColor } from "./dashboard-utils.js";
 import {
+  createConvergenceProposalCard,
   createMetricBarCard,
   createMetricValueCard,
   createScriptButton,
@@ -56,7 +57,8 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     fetchProjectProfileHistory: (projectId?: string) => Promise<PersistedProjectProfileHistory[]>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     fetchConvergenceCandidates: (filters?: { projectId?: string, status?: string, includeNotRelated?: boolean }) => Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>,
- *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>
+ *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>,
+ *     proposeConvergenceOverlap: (payload: { leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string }) => Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, candidates: ConvergenceCandidate[] }>
  *   }
  * }} options
  */
@@ -397,8 +399,9 @@ export function createDashboardModal({ getData, api }) {
     }
 
     const similarContainer = document.getElementById("modal-similar");
+    const proposalCard = createConvergenceProposalCard(project, getData().projects || []);
     if (workbenchLoading) {
-      similarContainer.replaceChildren(createWorkbenchEmptyState(
+      similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
         "Loading convergence review",
         "Active overlap candidates are being refreshed from the persisted review ledger."
       ));
@@ -417,34 +420,41 @@ export function createDashboardModal({ getData, api }) {
           return {
             similar,
             reviewStatus: candidate.reviewStatus || "unreviewed",
-            reviewNote: candidate.reviewNote || ""
+            reviewNote: candidate.reviewNote || "",
+            reviewSource: candidate.reviewSource || "",
+            generatedInsight: candidate.generatedInsight || "",
+            assimilationRecommendation: candidate.assimilationRecommendation || ""
           };
         })
         .filter((item) => item.similar.id && item.similar.id !== project.id);
 
       for (const item of activeSimilarCandidates) {
-        const { similar, reviewStatus, reviewNote } = item;
+        const { similar, reviewStatus, reviewNote, reviewSource, generatedInsight, assimilationRecommendation } = item;
         similarFragment.append(createSimilarCard(similar, {
           reviewStatus,
-          reviewNote
+          reviewNote,
+          reviewSource: reviewSource || "",
+          generatedInsight: generatedInsight || "",
+          assimilationRecommendation: assimilationRecommendation || ""
         }));
       }
       if (activeSimilarCandidates.length) {
-        similarContainer.replaceChildren(similarFragment);
+        similarContainer.replaceChildren(proposalCard, similarFragment);
         bindAppLaunchers(similarContainer, openModal);
         bindConvergenceReviewControls(similarContainer, project);
       } else {
-        similarContainer.replaceChildren(createWorkbenchEmptyState(
+        similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
           "No active convergence candidates",
           "Reviewed pairs marked Not Related are hidden from this workbench list. Use the persisted review ledger if you need to audit those decisions."
         ));
       }
     } else {
-      similarContainer.replaceChildren(createWorkbenchEmptyState(
+      similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
         "No strong convergence detected",
         "This project does not currently have a high-confidence overlap cluster in the portfolio."
       ));
     }
+    bindConvergenceProposalControls(similarContainer, project);
   }
 
   /**
@@ -486,6 +496,27 @@ export function createDashboardModal({ getData, api }) {
   }
 
   /**
+   * @param {HTMLElement} container
+   * @param {AuditProject} project
+   */
+  function bindConvergenceProposalControls(container, project) {
+    const form = container.querySelector("[data-convergence-proposal-form]");
+    if (!(form instanceof HTMLFormElement)) return;
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      void handleConvergenceProposal(project, form).catch((error) => {
+        const status = form.querySelector("[data-convergence-proposal-status]");
+        if (status instanceof HTMLElement) {
+          status.textContent = error instanceof Error ? error.message : "Convergence proposal failed.";
+        } else {
+          alert(error instanceof Error ? error.message : "Convergence proposal failed.");
+        }
+      });
+    });
+  }
+
+  /**
    * @param {AuditProject} project
    * @param {{ id: string, name: string, score: number, reasons: string[] }} similar
    * @param {string} status
@@ -516,6 +547,48 @@ export function createDashboardModal({ getData, api }) {
       ? (convergence.candidates || []).filter((candidate) => !isConvergenceCandidateForPair(candidate, project.id, similar.id))
       : convergence.candidates || [];
     renderWorkbench();
+  }
+
+  /**
+   * @param {AuditProject} project
+   * @param {HTMLFormElement} form
+   */
+  async function handleConvergenceProposal(project, form) {
+    const formData = new FormData(form);
+    const targetId = String(formData.get("targetId") || "").trim();
+    const operatorContext = String(formData.get("operatorContext") || "").trim();
+    if (!targetId) throw new Error("Select a project to compare.");
+
+    const button = form.querySelector("button[type='submit']");
+    const statusElement = form.querySelector("[data-convergence-proposal-status]");
+    if (button instanceof HTMLButtonElement) {
+      button.disabled = true;
+      button.textContent = "Running...";
+    }
+    if (statusElement instanceof HTMLElement) {
+      statusElement.textContent = "Running non-secret due diligence.";
+    }
+
+    try {
+      const result = await api.proposeConvergenceOverlap({
+        leftId: project.id,
+        rightId: targetId,
+        operatorContext,
+        reviewer: "operator"
+      });
+      if (!currentProject || currentProject.id !== project.id) return;
+      convergenceCandidates = result.candidates || (await api.fetchConvergenceCandidates({ projectId: project.id, status: "all", includeNotRelated: true })).candidates || [];
+      if (statusElement instanceof HTMLElement) {
+        statusElement.textContent = `Saved ${result.review.status.replaceAll("-", " ")} at ${result.review.score}%.`;
+      }
+      form.reset();
+      renderWorkbench();
+    } finally {
+      if (button instanceof HTMLButtonElement) {
+        button.disabled = false;
+        button.textContent = "Run Due Diligence";
+      }
+    }
   }
 
   /**

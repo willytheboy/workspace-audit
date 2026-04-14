@@ -1420,10 +1420,10 @@
 
 ## Next Convergence Operator-Contributed Overlaps
 
-- [ ] Add a user-supplied overlap proposal flow for projects the operator knows overlap.
-- [ ] Run due-diligence scoring against the proposed overlap using existing convergence evidence.
-- [ ] Persist AI-generated insight, assimilation recommendation, and operator context without storing secrets.
-- [ ] Add parser checks, docs, validation, relaunch, commit, and push.
+- [x] Add a user-supplied overlap proposal flow for projects the operator knows overlap.
+- [x] Run due-diligence scoring against the proposed overlap using existing convergence evidence.
+- [x] Persist AI-generated insight, assimilation recommendation, and operator context without storing secrets.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.
 
 ## Future Vibe Coder Operating Guide
 

@@ -1347,3 +1347,10 @@
 - [x] Persist task-row checkpoint decisions through non-secret decision-task metadata and lifecycle updates.
 - [x] Preserve the non-secret agent control-plane decision task metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Ledger Drift Item Checkpoints
+
+- [x] Add latest decision-task ledger drift field rows to Governance Control Plane decision task-ledger snapshot cards.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Agent Control Plane task metadata.
+- [x] Preserve the non-secret agent control-plane decision task ledger drift metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

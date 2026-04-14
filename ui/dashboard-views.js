@@ -118,6 +118,9 @@ function createEmptyTableRow(message) {
  *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
  *     saveGovernanceExecutionPolicy: (payload: { staleThresholdHours: number }) => Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>,
+ *     fetchAgentControlPlaneDecisionTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerPayload>,
+ *     createAgentControlPlaneDecisionTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>,
+ *     fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload>,
  *     bootstrapGovernance: (payload: { mode: "profiles" | "starter-pack", projectIds: string[] }) => Promise<unknown>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
@@ -703,6 +706,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), String(snapshot.reasonCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      agentControlPlaneDecisionTaskLedgerSnapshotDiff: governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff && matchesSearch([
+        "agent control plane decision task ledger snapshot drift",
+        governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff.snapshotTitle || "",
+        governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff.driftSeverity || "",
+        governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff.recommendedAction || "",
+        governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.agentControlPlaneDecisionTaskLedgerSnapshotDiff
+        : null,
       agentExecutionResultTaskLedgerSnapshots: filterAndSort(
         governance.agentExecutionResultTaskLedgerSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), String(snapshot.actionCount), snapshot.markdown || ""],
@@ -770,6 +783,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "agents") filtered.agentControlPlaneDecision = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneDecisionTaskLedgerSnapshots = [];
+      if (scope !== "agents") filtered.agentControlPlaneDecisionTaskLedgerSnapshotDiff = null;
       if (scope !== "agents" && scope !== "execution") filtered.agentExecutionResultTaskLedgerSnapshots = [];
       if (scope !== "agents") filtered.agentControlPlaneSnapshots = [];
       if (scope !== "release") filtered.releaseSummary = null;
@@ -2696,6 +2710,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Copying";
           await copyLatestAgentControlPlaneDecisionTaskLedgerSnapshotDrift();
           element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-control-plane-decision-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.controlPlaneDecisionTaskLedgerDriftItemField || "";
+        const decision = element.dataset.controlPlaneDecisionTaskLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateAgentControlPlaneDecisionTaskLedgerDriftItemCheckpoint(field, decision);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -6009,21 +6047,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
         api.fetchReleaseSummary(),
         api.fetchReleaseCheckpointDrift("latest"),
         api.fetchReleaseBuildGate(),
-        api.fetchReleaseTaskLedgerSnapshotDiff("latest")
+        api.fetchReleaseTaskLedgerSnapshotDiff("latest"),
+        api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
         releaseSummary,
         releaseCheckpointDrift,
         releaseBuildGate,
-        releaseTaskLedgerSnapshotDiff
+        releaseTaskLedgerSnapshotDiff,
+        agentControlPlaneDecisionTaskLedgerSnapshotDiff
       };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
@@ -6071,7 +6111,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (releaseBuildGate?.reasons || []).length
         + (releaseBuildGate?.actions || []).length
         + (releaseTaskLedgerSnapshotDiff ? 1 : 0)
-        + (releaseTaskLedgerSnapshotDiff?.driftItems || []).length;
+        + (releaseTaskLedgerSnapshotDiff?.driftItems || []).length
+        + (agentControlPlaneDecisionTaskLedgerSnapshotDiff ? 1 : 0)
+        + (agentControlPlaneDecisionTaskLedgerSnapshotDiff?.driftItems || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {
@@ -7540,6 +7582,49 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findAgentControlPlaneDecisionTaskLedgerDriftItem(field) {
+    const diff = governanceCache?.agentControlPlaneDecisionTaskLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getAgentControlPlaneDecisionTaskLedgerDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildAgentControlPlaneDecisionTaskLedgerDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Agent Control Plane decision task ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Agent Control Plane decision task ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Agent Control Plane decision task ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret agent control-plane decision task ledger drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function updateAgentControlPlaneDecisionTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findAgentControlPlaneDecisionTaskLedgerDriftItem(field);
+    if (!diff) throw new Error("Agent Control Plane decision task ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Agent Control Plane decision task ledger drift item not found: ${field}`);
+
+    const decision = getAgentControlPlaneDecisionTaskLedgerDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "agent-control-plane",
+      projectName: "Agent Control Plane",
+      title: `Decision task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildAgentControlPlaneDecisionTaskLedgerDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   function getAgentControlPlaneDecisionTaskCheckpointPatch(task, action) {

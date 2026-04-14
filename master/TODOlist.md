@@ -1375,3 +1375,10 @@
 - [x] Persist task-row checkpoint decisions through non-secret source-access task metadata and lifecycle updates.
 - [x] Preserve the non-secret source-access task metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Task Ledger Drift Item Checkpoints
+
+- [x] Add latest source-access task ledger drift field rows to Governance Data Sources access task-ledger snapshot cards.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Data Sources task metadata.
+- [x] Preserve the non-secret source-access task ledger drift metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

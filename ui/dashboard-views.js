@@ -696,6 +696,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      dataSourceAccessTaskLedgerSnapshotDiff: governance.dataSourceAccessTaskLedgerSnapshotDiff && matchesSearch([
+        "data sources access task ledger snapshot drift",
+        governance.dataSourceAccessTaskLedgerSnapshotDiff.snapshotTitle || "",
+        governance.dataSourceAccessTaskLedgerSnapshotDiff.driftSeverity || "",
+        governance.dataSourceAccessTaskLedgerSnapshotDiff.recommendedAction || "",
+        governance.dataSourceAccessTaskLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.dataSourceAccessTaskLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.dataSourceAccessTaskLedgerSnapshotDiff
+        : null,
       agentControlPlaneDecisionSnapshots: filterAndSort(
         governance.agentControlPlaneDecisionSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.decision || "", snapshot.recommendedAction || "", snapshot.baselineHealth || "", snapshot.baselineDriftSeverity || "", (snapshot.reasonCodes || []).join(" "), snapshot.markdown || ""],
@@ -816,6 +826,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "data-sources") filtered.dataSourceAccessValidationWorkflowSnapshotDiff = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessTasks = [];
       if (scope !== "data-sources") filtered.dataSourceAccessTaskLedgerSnapshots = [];
+      if (scope !== "data-sources") filtered.dataSourceAccessTaskLedgerSnapshotDiff = null;
       if (scope !== "readiness") filtered.agentReadinessMatrix = [];
       if (scope !== "readiness") filtered.agentPolicyCheckpoints = [];
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
@@ -1931,6 +1942,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Accepting";
           await acceptDataSourcesAccessTaskLedgerSnapshotDrift(snapshotId);
           element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.sourceAccessTaskLedgerDriftItemField || "";
+        const decision = element.dataset.sourceAccessTaskLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateDataSourcesAccessTaskLedgerDriftItemCheckpoint(field, decision);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -6130,7 +6165,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -6139,7 +6174,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchReleaseBuildGate(),
         api.fetchReleaseTaskLedgerSnapshotDiff("latest"),
         api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest"),
-        api.fetchAgentExecutionResultTaskLedgerSnapshotDiff("latest")
+        api.fetchAgentExecutionResultTaskLedgerSnapshotDiff("latest"),
+        api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
@@ -6148,7 +6184,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         releaseBuildGate,
         releaseTaskLedgerSnapshotDiff,
         agentControlPlaneDecisionTaskLedgerSnapshotDiff,
-        agentExecutionResultTaskLedgerSnapshotDiff
+        agentExecutionResultTaskLedgerSnapshotDiff,
+        dataSourceAccessTaskLedgerSnapshotDiff
       };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
@@ -6200,7 +6237,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (agentControlPlaneDecisionTaskLedgerSnapshotDiff ? 1 : 0)
         + (agentControlPlaneDecisionTaskLedgerSnapshotDiff?.driftItems || []).length
         + (agentExecutionResultTaskLedgerSnapshotDiff ? 1 : 0)
-        + (agentExecutionResultTaskLedgerSnapshotDiff?.driftItems || []).length;
+        + (agentExecutionResultTaskLedgerSnapshotDiff?.driftItems || []).length
+        + (dataSourceAccessTaskLedgerSnapshotDiff ? 1 : 0)
+        + (dataSourceAccessTaskLedgerSnapshotDiff?.driftItems || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {
@@ -8181,6 +8220,49 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findDataSourcesAccessTaskLedgerDriftItem(field) {
+    const diff = governanceCache?.dataSourceAccessTaskLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getDataSourcesAccessTaskLedgerDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildDataSourcesAccessTaskLedgerDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Data Sources access task ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Data Sources access task ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Data Sources access task ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret source-access task ledger drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function updateDataSourcesAccessTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findDataSourcesAccessTaskLedgerDriftItem(field);
+    if (!diff) throw new Error("Data Sources access task ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Data Sources access task ledger drift item not found: ${field}`);
+
+    const decision = getDataSourcesAccessTaskLedgerDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title: `Source-access task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildDataSourcesAccessTaskLedgerDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   function findDataSourcesAccessTaskLedgerSnapshot(snapshotId) {

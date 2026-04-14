@@ -1036,6 +1036,7 @@
  *   agentExecutionResultTaskLedgerSnapshotDiff?: AgentExecutionResultTaskLedgerSnapshotDiffPayload | null,
  *   agentWorkOrderSnapshots: PersistedAgentWorkOrderSnapshot[],
  *   dataSourceAccessTaskLedgerSnapshots: PersistedDataSourcesAccessTaskLedgerSnapshot[],
+ *   dataSourceAccessTaskLedgerSnapshotDiff?: DataSourcesAccessTaskLedgerSnapshotDiffPayload | null,
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],

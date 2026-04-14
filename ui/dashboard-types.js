@@ -1046,6 +1046,7 @@
  *   releaseBuildGate?: ReleaseBuildGatePayload | null,
  *   releaseControlTasks: PersistedTask[],
  *   releaseTaskLedgerSnapshots: PersistedReleaseTaskLedgerSnapshot[],
+ *   releaseTaskLedgerSnapshotDiff?: ReleaseTaskLedgerSnapshotDiffPayload | null,
  *   agentControlPlaneDecisionTasks: PersistedTask[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,

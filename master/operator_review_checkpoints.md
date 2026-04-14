@@ -48,10 +48,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Release Control saved checkpoint ledger checkpoints: saved release checkpoint rows now expose `Confirm`, `Defer`, and `Track Task` controls so checkpoint history can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
 - Release Control checkpoint drift field checkpoints: individual release checkpoint drift fields now expose `Confirm`, `Defer`, and `Track Task` controls so drift can be reviewed or converted into Release Control tasks without storing response bodies or secrets.
 - Release Control task ledger item checkpoints: individual release-control task rows now expose `Confirm`, `Defer`, and `Escalate` controls so task triage can be persisted through non-secret task metadata without storing response bodies or secrets.
+- Release Control task ledger drift item checkpoints: individual task-ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level drift can be persisted as non-secret Release Control tasks without storing response bodies or secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Release Control task ledger drift item checkpoints so individual task-ledger drift rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
+- Add Agent Control Plane decision task ledger item checkpoints so individual decision-task rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
 
 ## Implementation Standard
 

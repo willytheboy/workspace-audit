@@ -5932,6 +5932,158 @@ export function createGovernanceDeck(governance) {
       })
     ])
   ]));
+  const releaseTaskLedgerSnapshotDiff = governance.releaseTaskLedgerSnapshotDiff;
+  const releaseTaskLedgerSnapshotDriftItems = Array.isArray(releaseTaskLedgerSnapshotDiff?.driftItems)
+    ? releaseTaskLedgerSnapshotDiff.driftItems
+    : [];
+  const releaseTaskLedgerSnapshotDiffEntries = releaseTaskLedgerSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.6rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: releaseTaskLedgerSnapshotDiff.snapshotTitle || "No Release Control task ledger snapshot",
+                style: {
+                  fontWeight: "800",
+                  color: "var(--text)"
+                }
+              }),
+              createElement("div", {
+                text: releaseTaskLedgerSnapshotDiff.snapshotCreatedAt ? new Date(releaseTaskLedgerSnapshotDiff.snapshotCreatedAt).toLocaleString() : "No snapshot saved yet",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.3rem"
+                }
+              })
+            ]),
+            createTag((releaseTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: releaseTaskLedgerSnapshotDiff.driftSeverity === "high" || releaseTaskLedgerSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : releaseTaskLedgerSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: releaseTaskLedgerSnapshotDiff.recommendedAction || "Save a Release Control task ledger snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `${releaseTaskLedgerSnapshotDiff.driftScore || 0} drift score - ${releaseTaskLedgerSnapshotDriftItems.length} drift item(s)`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          releaseTaskLedgerSnapshotDriftItems.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem",
+                  padding: "0.7rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.85rem",
+                  background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+                }
+              }, [
+                createElement("div", {
+                  text: "Task ledger drift fields",
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.78rem",
+                    fontWeight: "800",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase"
+                  }
+                }),
+                ...releaseTaskLedgerSnapshotDriftItems.slice(0, 8).map((item) => createElement("div", {
+                  style: {
+                    display: "grid",
+                    gap: "0.5rem",
+                    padding: "0.65rem",
+                    border: "1px solid var(--border)",
+                    borderRadius: "0.75rem",
+                    background: "var(--surface)"
+                  }
+                }, [
+                  createElement("div", {
+                    text: `${item.label || item.field || "Release Control task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                    style: {
+                      color: "var(--text)",
+                      fontSize: "0.84rem",
+                      fontWeight: "700",
+                      lineHeight: "1.45"
+                    }
+                  }),
+                  createElement("div", {
+                    className: "governance-actions"
+                  }, [
+                    createElement("button", {
+                      className: "btn governance-action-btn release-task-ledger-drift-item-confirm-btn",
+                      text: "Confirm",
+                      attrs: { type: "button" },
+                      dataset: {
+                        releaseTaskLedgerDriftItemField: item.field || item.label || "",
+                        releaseTaskLedgerDriftItemDecision: "confirmed"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn release-task-ledger-drift-item-defer-btn",
+                      text: "Defer",
+                      attrs: { type: "button" },
+                      dataset: {
+                        releaseTaskLedgerDriftItemField: item.field || item.label || "",
+                        releaseTaskLedgerDriftItemDecision: "deferred"
+                      }
+                    }),
+                    createElement("button", {
+                      className: "btn governance-action-btn release-task-ledger-drift-item-escalate-btn",
+                      text: "Escalate",
+                      attrs: { type: "button" },
+                      dataset: {
+                        releaseTaskLedgerDriftItemField: item.field || item.label || "",
+                        releaseTaskLedgerDriftItemDecision: "escalated"
+                      }
+                    })
+                  ])
+                ])),
+                releaseTaskLedgerSnapshotDriftItems.length > 8
+                  ? createElement("div", {
+                      text: `${releaseTaskLedgerSnapshotDriftItems.length - 8} additional drift item(s).`,
+                      style: {
+                        color: "var(--text-muted)",
+                        fontSize: "0.8rem"
+                      }
+                    })
+                  : null
+              ])
+            : null
+        ])
+      ]
+    : [];
   const releaseTaskLedgerSnapshotEntries = (governance.releaseTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -6902,7 +7054,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Execution Result Task Ledger Snapshots", "Persisted non-secret execution-result task ledger handoffs.", agentExecutionResultTaskLedgerSnapshotEntries),
     createListSection("Release Control", "Live non-secret Git, deployment smoke, validation, and saved release checkpoint state.", releaseControlEntries),
     createListSection("Release Control Task Ledger", "Trackable Governance tasks created from Release Build Gate actions.", releaseControlTaskEntries),
-    createListSection("Release Control Task Ledger Snapshots", "Persisted non-secret Release Control task ledger handoffs.", releaseTaskLedgerSnapshotEntries),
+    createListSection("Release Control Task Ledger Snapshots", "Persisted non-secret Release Control task ledger handoffs.", [...releaseTaskLedgerSnapshotDiffEntries, ...releaseTaskLedgerSnapshotEntries]),
     createListSection("Data Sources Access Gate", "Ready/review/hold gate for source access before supervised ingestion and agent work.", dataSourcesAccessGateEntries),
     createListSection("Data Sources Access Review Queue", "Credential, certificate, SSH, and manual-access checks that can block supervised app-development ingestion.", dataSourcesAccessReviewQueueEntries),
     createListSection("Data Sources Access Validation Runbook", "Non-secret operator-side validation steps and command hints grouped by access method.", dataSourcesAccessValidationRunbookEntries),

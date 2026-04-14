@@ -93,6 +93,8 @@ function createEmptyTableRow(message) {
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
  *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
+ *     createReleaseTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>,
+ *     fetchReleaseTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").ReleaseTaskLedgerSnapshotDiffPayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
@@ -554,6 +556,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      releaseTaskLedgerSnapshotDiff: governance.releaseTaskLedgerSnapshotDiff && matchesSearch([
+        "release control task ledger snapshot drift",
+        governance.releaseTaskLedgerSnapshotDiff.snapshotTitle || "",
+        governance.releaseTaskLedgerSnapshotDiff.driftSeverity || "",
+        governance.releaseTaskLedgerSnapshotDiff.recommendedAction || "",
+        governance.releaseTaskLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.releaseTaskLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.releaseTaskLedgerSnapshotDiff
+        : null,
       agentControlPlaneDecisionTasks: filterAndSort(
         governance.agentControlPlaneDecisionTasks || [],
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.agentControlPlaneDecisionReasonCode || "", task.agentControlPlaneDecision || "", task.description || ""],
@@ -765,6 +777,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseBuildGate = null;
       if (scope !== "release") filtered.releaseControlTasks = [];
       if (scope !== "release") filtered.releaseTaskLedgerSnapshots = [];
+      if (scope !== "release") filtered.releaseTaskLedgerSnapshotDiff = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
@@ -2138,6 +2151,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Accepting";
           await acceptReleaseTaskLedgerSnapshotDrift(snapshotId);
           element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.releaseTaskLedgerDriftItemField || "";
+        const decision = element.dataset.releaseTaskLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateReleaseTaskLedgerDriftItemCheckpoint(field, decision);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -5948,19 +5985,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate] = await Promise.all([
+      const [governance, executionViews, executionPolicy, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
         api.fetchReleaseSummary(),
         api.fetchReleaseCheckpointDrift("latest"),
-        api.fetchReleaseBuildGate()
+        api.fetchReleaseBuildGate(),
+        api.fetchReleaseTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
         releaseSummary,
         releaseCheckpointDrift,
-        releaseBuildGate
+        releaseBuildGate,
+        releaseTaskLedgerSnapshotDiff
       };
       governanceExecutionViews = executionViews;
       renderGovernanceExecutionViewOptions();
@@ -6006,7 +6045,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (releaseCheckpointDrift?.driftItems || []).length
         + (releaseBuildGate ? 1 : 0)
         + (releaseBuildGate?.reasons || []).length
-        + (releaseBuildGate?.actions || []).length;
+        + (releaseBuildGate?.actions || []).length
+        + (releaseTaskLedgerSnapshotDiff ? 1 : 0)
+        + (releaseTaskLedgerSnapshotDiff?.driftItems || []).length;
 
       if (!itemCount) {
         updatePanelState("governance", {
@@ -6997,6 +7038,49 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   function findReleaseTaskLedgerSnapshot(snapshotId) {
     return (governanceCache?.releaseTaskLedgerSnapshots || [])
       .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function findReleaseTaskLedgerDriftItem(field) {
+    const diff = governanceCache?.releaseTaskLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getReleaseTaskLedgerDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildReleaseTaskLedgerDriftItemCheckpointDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Release Control task ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Release Control task ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Release Control task ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret release-control task ledger drift metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function updateReleaseTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findReleaseTaskLedgerDriftItem(field);
+    if (!diff) throw new Error("Release Control task ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Release Control task ledger drift item not found: ${field}`);
+
+    const decision = getReleaseTaskLedgerDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "release-control",
+      projectName: "Release Control",
+      title: `Release task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildReleaseTaskLedgerDriftItemCheckpointDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   function getReleaseTaskLedgerDriftTaskPriority(severity) {

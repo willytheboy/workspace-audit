@@ -1333,3 +1333,10 @@
 - [x] Persist task-row checkpoint decisions through non-secret task metadata and lifecycle updates.
 - [x] Preserve the non-secret release-control task metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Control Task Ledger Drift Item Checkpoints
+
+- [x] Add latest task-ledger drift field rows to Governance Release Control task-ledger snapshot cards.
+- [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Release Control task metadata.
+- [x] Preserve the non-secret release-control task ledger drift metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

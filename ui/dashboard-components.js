@@ -7647,6 +7647,37 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-sla-ledger-item-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionSlaLedgerItemId: item.id || "",
+          agentExecutionSlaLedgerItemDecision: "confirm"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-sla-ledger-item-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionSlaLedgerItemId: item.id || "",
+          agentExecutionSlaLedgerItemDecision: "defer"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn agent-execution-sla-ledger-item-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          agentExecutionSlaLedgerItemId: item.id || "",
+          agentExecutionSlaLedgerItemDecision: "escalate"
+        }
+      })
     ])
   ]));
 

@@ -1897,6 +1897,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindSlaLedgerItemActions(container) {
+    container.querySelectorAll("[data-agent-execution-sla-ledger-item-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemId = element.dataset.agentExecutionSlaLedgerItemId || "";
+        const decision = element.dataset.agentExecutionSlaLedgerItemDecision || "";
+        if (!itemId || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await createAgentExecutionSlaLedgerItemCheckpoint(itemId, decision);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindDataSourcesAccessTaskLedgerSnapshotActions(container) {
     container.querySelectorAll("[data-source-access-task-ledger-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -3626,6 +3655,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindGovernanceQuickActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
+    bindSlaLedgerItemActions(container);
     bindGovernanceTaskUpdateLedgerActions(container);
     bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
@@ -6354,6 +6384,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentReadinessMatrix.length
         + governance.agentWorkOrderSnapshots.length
         + (governance.agentExecutionSlaLedgerSnapshots || []).length
+        + (governance.agentExecutionSlaLedger || []).length
         + governance.agentWorkOrderRuns.length
         + governance.unprofiledProjects.length
         + (releaseSummary ? 1 : 0)
@@ -8224,6 +8255,42 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function copySlaBreachLedger() {
     const markdown = buildSlaBreachLedgerMarkdown();
     await copyText(markdown);
+  }
+
+  function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
+    if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildAgentExecutionSlaLedgerItemCheckpointDescription(decision, item) {
+    return [
+      `Operator ${decision.label.toLowerCase()} Agent Execution SLA breach ledger row ${item.id || "unknown"}.`,
+      `Run: ${item.title || "Agent Work Order Run"}.`,
+      `Project: ${item.projectName || item.projectId || "unassigned"}.`,
+      `Breach state: ${item.breachState || "open"}; run status: ${item.status || "queued"}; action: ${item.action || "breached"}.`,
+      `Breached: ${item.breachedAt || "not recorded"}; resolved: ${item.resolvedAt || "open"}; duration hours: ${item.durationHours || 0}.`,
+      `Escalations: ${item.escalationCount || 0}; resolutions: ${item.resolutionCount || 0}.`,
+      "Secret policy: non-secret agent execution SLA breach ledger metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createAgentExecutionSlaLedgerItemCheckpoint(itemId, action) {
+    const item = (governanceCache?.agentExecutionSlaLedger || [])
+      .find((candidate) => candidate.id === itemId);
+    if (!item) throw new Error(`Agent Execution SLA breach ledger row not found: ${itemId}`);
+
+    const decision = getAgentExecutionSlaLedgerItemCheckpointDecision(action);
+    await api.createTask({
+      projectId: item.projectId || "agent-execution-sla-ledger",
+      projectName: item.projectName || "Agent Execution SLA Ledger",
+      title: `SLA breach ledger ${decision.label.toLowerCase()}: ${item.title || item.id || itemId}`.slice(0, 140),
+      description: buildAgentExecutionSlaLedgerItemCheckpointDescription(decision, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   async function copyGovernanceDataSourcesAccessReviewQueue() {

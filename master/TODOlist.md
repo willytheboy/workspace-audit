@@ -1411,6 +1411,20 @@
 - [x] Persist audit drift checkpoint decisions as non-secret Governance tasks.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
 
+## Next Agent Execution SLA Breach Ledger Item Checkpoints
+
+- [x] Add SLA breach ledger row `Confirm`, `Defer`, and `Escalate` controls.
+- [x] Persist SLA breach ledger checkpoint decisions as non-secret tasks.
+- [x] Preserve the non-secret agent execution SLA breach ledger metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Convergence Operator-Contributed Overlaps
+
+- [ ] Add a user-supplied overlap proposal flow for projects the operator knows overlap.
+- [ ] Run due-diligence scoring against the proposed overlap using existing convergence evidence.
+- [ ] Persist AI-generated insight, assimilation recommendation, and operator context without storing secrets.
+- [ ] Add parser checks, docs, validation, relaunch, commit, and push.
+
 ## Future Vibe Coder Operating Guide
 
 - [x] Persist the vibe-coder guided operating cycle as a project objective.

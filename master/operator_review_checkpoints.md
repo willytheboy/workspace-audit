@@ -59,10 +59,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources validation workflow task ledger drift item checkpoints: workflow-task-specific source-access task ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level workflow task drift can be persisted as non-secret Data Sources tasks without storing response bodies or secrets.
 - Governance task update audit ledger item checkpoints: individual task update audit rows now expose `Confirm`, `Defer`, and `Escalate` controls so lifecycle audit rows can be persisted as non-secret Governance tasks without storing response bodies or secrets.
 - Governance task update audit ledger drift item checkpoints: individual task update audit ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level audit drift can be persisted as non-secret Governance tasks without storing response bodies or secrets.
+- Agent Execution SLA breach ledger item checkpoints: individual SLA breach ledger rows now expose `Confirm`, `Defer`, and `Escalate` controls so breach lifecycle audit rows can be persisted as non-secret tasks without storing response bodies or secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Agent Execution SLA breach ledger item checkpoints so individual SLA breach ledger rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
+- Promote the vibe-coder operating guide into the app UI after the current checkpoint consolidation pass is complete.
 
 ## Implementation Standard
 

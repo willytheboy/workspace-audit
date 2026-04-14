@@ -1546,6 +1546,55 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     textarea.remove();
   }
 
+  function buildVibeCoderOperatingGuideMarkdown() {
+    return [
+      "# Vibe Coder Operating Guide",
+      "",
+      "Purpose: use Workspace Audit Pro as the backbone for safe app debugging, implementation, validation, relaunch, and supervised agent build cycles.",
+      "",
+      "## Core Cycle",
+      "",
+      "1. Capture intent: convert the request into a scoped objective, success criteria, and non-goals.",
+      "2. Check source readiness: confirm repo path, Git access method, source health, and external-only passwords, certificates, SSH, VPN, or browser-session requirements.",
+      "3. Read the control plane: use Governance and Agent Control Plane to decide ready, review, or hold before execution.",
+      "4. Generate a work order: define target repo, files or modules in scope, expected changes, validation commands, acceptance criteria, and rollback plan.",
+      "5. Assign the execution engine: use Codex CLI for repository-aware coding and Claude CLI for complementary planning, review, or documentation when ready.",
+      "6. Execute in small slices: capture non-secret status, changed files, validation summaries, and blockers.",
+      "7. Debug systematically: reproduce, isolate, fix the smallest failing layer, rerun validation, then record what changed.",
+      "8. Validate before moving on: run syntax checks, tests, build checks, smoke checks, and work-order-specific commands.",
+      "9. Relaunch and inspect: restart the local app after each completed build cycle and record URL, PID, and smoke result.",
+      "10. Commit and checkpoint: commit only validated milestone changes and push when the build is clean.",
+      "11. Review and teach: explain what changed, why it matters, what passed, what remains risky, and what comes next.",
+      "",
+      "Secret policy: keep credentials, tokens, certificates, private keys, browser sessions, cookies, and raw command output out of Workspace Audit Pro."
+    ].join("\n");
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindVibeCoderGuideActions(container) {
+    container.querySelectorAll("[data-vibe-coder-guide-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(buildVibeCoderOperatingGuideMarkdown());
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
   /**
    * @param {import("./dashboard-types.js").PersistedAgentWorkOrderRun} run
    */
@@ -3653,6 +3702,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     );
     bindAppLaunchers(container, openModal);
     bindGovernanceQuickActions(container);
+    bindVibeCoderGuideActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
     bindSlaLedgerItemActions(container);

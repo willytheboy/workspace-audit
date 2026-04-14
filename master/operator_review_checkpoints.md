@@ -64,7 +64,7 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 
 ## Next Checkpoint Candidates
 
-- Promote the vibe-coder operating guide into the app UI after the current checkpoint consolidation pass is complete.
+- Add Codex CLI and Claude CLI work-order runner guidance once the first supervised CLI prototype is ready.
 
 ## Implementation Standard
 

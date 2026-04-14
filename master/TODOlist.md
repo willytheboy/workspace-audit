@@ -1429,5 +1429,12 @@
 
 - [x] Persist the vibe-coder guided operating cycle as a project objective.
 - [x] Add a durable step-by-step guide for debugging, building, validation, agent supervision, commit, and release cycles.
-- [ ] Promote the guide into the app UI after the current checkpoint consolidation milestones are complete.
+- [x] Promote the guide into the app UI after the current checkpoint consolidation milestones are complete.
 - [ ] Add Codex CLI and Claude CLI work-order runner guidance once the first supervised CLI prototype is ready.
+
+## Next Vibe Coder Operating Guide UI
+
+- [x] Add a Governance deck card for the safe app-building operating cycle.
+- [x] Add a copyable Markdown version of the operating guide.
+- [x] Preserve the no-secrets policy for agent and command-output handling.
+- [x] Add parser checks, validation, relaunch, commit, and push.

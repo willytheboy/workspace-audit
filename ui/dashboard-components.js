@@ -8008,10 +8008,106 @@ export function createGovernanceDeck(governance) {
               agentWorkOrderRunArchive: "false",
               agentWorkOrderRunId: run.id
             }
-          })
+      })
         : null
     ].flat())
   ]));
+  const vibeCoderGuideSteps = [
+    ["Capture intent", "Convert the request into a scoped objective, success criteria, and non-goals."],
+    ["Check source readiness", "Use Data Sources to confirm repo access, health, and any external-only passwords, certificates, SSH, VPN, or browser-session requirements."],
+    ["Read the control plane", "Use Governance and Agent Control Plane to decide ready, review, or hold before execution."],
+    ["Generate a work order", "Define target repo, files in scope, expected changes, validation commands, acceptance criteria, and rollback plan."],
+    ["Execute in small slices", "Run one implementation slice at a time and capture non-secret status, changed files, validation summaries, and blockers."],
+    ["Validate and relaunch", "Run checks, rebuild, relaunch locally, smoke-check the app, then commit and push only validated milestone changes."]
+  ];
+  const vibeCoderOperatingGuideEntries = [
+    createElement("div", {
+      className: "governance-gap-card vibe-coder-operating-guide-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Safe app-building cycle",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "A plain-language operating cycle for vibe coding with Workspace Audit Pro, Codex CLI, Claude CLI, and local validation gates.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag("operator guide", {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(13rem, 1fr))",
+          gap: "0.6rem"
+        }
+      }, vibeCoderGuideSteps.map(([label, detail], index) => createElement("div", {
+        style: {
+          padding: "0.7rem",
+          border: "1px solid var(--border)",
+          borderRadius: "0.85rem",
+          background: "var(--bg)"
+        }
+      }, [
+        createElement("div", {
+          text: `${index + 1}. ${label}`,
+          style: {
+            color: "var(--text)",
+            fontWeight: "900",
+            fontSize: "0.88rem"
+          }
+        }),
+        createElement("div", {
+          text: detail,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+            lineHeight: "1.45",
+            marginTop: "0.3rem"
+          }
+        })
+      ]))),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn vibe-coder-guide-copy-btn",
+          text: "Copy Guide",
+          attrs: { type: "button" },
+          dataset: {
+            vibeCoderGuideCopy: "true"
+          }
+        })
+      ])
+    ])
+  ];
 
   return createElement("div", {
     style: {
@@ -8028,6 +8124,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),
+    createListSection("Vibe Coder Operating Guide", "Step-by-step operating cycle for safe app debugging, build validation, local relaunch, and supervised agent work.", vibeCoderOperatingGuideEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

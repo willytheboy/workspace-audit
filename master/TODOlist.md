@@ -1312,3 +1312,10 @@
 - [x] Add `Track Evidence Task` controls that convert local smoke/bootstrap evidence into a Release Control task with a task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret local evidence policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Control Saved Checkpoint Ledger Checkpoints
+
+- [x] Add saved-checkpoint `Confirm` and `Defer` controls using the release checkpoint ledger.
+- [x] Add saved-checkpoint `Track Task` controls that convert individual checkpoint rows into Release Control tasks with a task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret checkpoint metadata policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

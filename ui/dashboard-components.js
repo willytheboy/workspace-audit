@@ -5738,7 +5738,37 @@ export function createGovernanceDeck(governance) {
                   lineHeight: "1.5"
                 }
               })
-            : null
+            : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn release-control-checkpoint-confirm-btn",
+              text: "Confirm",
+              attrs: { type: "button" },
+              dataset: {
+                releaseControlCheckpointDecisionId: checkpoint.id || "",
+                releaseControlCheckpointDecision: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-control-checkpoint-defer-btn",
+              text: "Defer",
+              attrs: { type: "button" },
+              dataset: {
+                releaseControlCheckpointDecisionId: checkpoint.id || "",
+                releaseControlCheckpointDecision: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn release-control-checkpoint-task-btn",
+              text: "Track Task",
+              attrs: { type: "button" },
+              dataset: {
+                releaseControlCheckpointTaskId: checkpoint.id || ""
+              }
+            })
+          ])
         ]))
       ]
     : [];

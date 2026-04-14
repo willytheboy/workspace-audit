@@ -2251,6 +2251,55 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-release-control-checkpoint-decision-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const checkpointId = element.dataset.releaseControlCheckpointDecisionId || "";
+        const checkpointDecision = element.dataset.releaseControlCheckpointDecision || "";
+        if (!checkpointId || !checkpointDecision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const label = await createReleaseControlCheckpointDecision(checkpointId, checkpointDecision);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-release-control-checkpoint-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const checkpointId = element.dataset.releaseControlCheckpointTaskId || "";
+        if (!checkpointId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createReleaseControlCheckpointTask(checkpointId);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-release-build-gate-tasks]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -6918,6 +6967,77 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const taskLabel = payload.totals.created
       ? `Created ${payload.totals.created} Evidence Task${payload.totals.created === 1 ? "" : "s"}`
       : `Skipped ${payload.totals.skipped} Evidence Task${payload.totals.skipped === 1 ? "" : "s"}`;
+    return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  function findReleaseControlCheckpoint(checkpointId) {
+    return (getFilteredGovernance()?.releaseSummary?.checkpoints || [])
+      .find((checkpoint) => checkpoint.id === checkpointId) || null;
+  }
+
+  function buildReleaseControlCheckpointDecisionNotes(decision, checkpoint) {
+    return [
+      `Operator ${decision} saved Release Control checkpoint ${checkpoint.id || checkpoint.title || "checkpoint"}.`,
+      `Checkpoint title: ${checkpoint.title || "Release Checkpoint"}.`,
+      `Checkpoint status: ${checkpoint.status || "review"}; branch: ${checkpoint.branch || "unknown"}; commit: ${checkpoint.commitShort || checkpoint.commit || "unknown"}.`,
+      `Deployment smoke: ${checkpoint.deploymentSmokeCheckPassCount || 0} pass / ${checkpoint.deploymentSmokeCheckFailCount || 0} fail / ${checkpoint.deploymentSmokeCheckCount || 0} total.`,
+      `Validation status: ${checkpoint.validationStatus || "scan-missing"}.`,
+      "Secret policy: non-secret release checkpoint metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function createReleaseControlCheckpointDecision(checkpointId, checkpointDecision) {
+    const checkpoint = findReleaseControlCheckpoint(checkpointId);
+    if (!checkpoint) throw new Error(`Release Control checkpoint not found: ${checkpointId}`);
+
+    const normalizedDecision = checkpointDecision === "confirmed" ? "confirmed" : "deferred";
+    const status = normalizedDecision === "confirmed" ? checkpoint.status || "review" : "review";
+    const created = await api.createReleaseCheckpoint({
+      title: `Release checkpoint ${normalizedDecision}: ${checkpoint.title || checkpoint.id}`,
+      status,
+      notes: buildReleaseControlCheckpointDecisionNotes(normalizedDecision, checkpoint)
+    });
+    await renderGovernance();
+    return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
+  }
+
+  async function createReleaseControlCheckpointTask(checkpointId) {
+    const checkpoint = findReleaseControlCheckpoint(checkpointId);
+    if (!checkpoint) throw new Error(`Release Control checkpoint not found: ${checkpointId}`);
+
+    const releaseBuildGate = getFilteredGovernance()?.releaseBuildGate || null;
+    const priority = checkpoint.status === "hold" || checkpoint.deploymentSmokeCheckFailCount > 0
+      ? "high"
+      : checkpoint.status === "review"
+        ? "medium"
+        : "low";
+    const action = {
+      id: `release-checkpoint:${checkpoint.id}`,
+      label: `Review release checkpoint: ${checkpoint.title || checkpoint.id}`,
+      status: "open",
+      priority,
+      description: [
+        `Review saved Release Control checkpoint ${checkpoint.id || checkpoint.title || "checkpoint"}.`,
+        `Checkpoint status: ${checkpoint.status || "review"}; branch: ${checkpoint.branch || "unknown"}; commit: ${checkpoint.commitShort || checkpoint.commit || "unknown"}.`,
+        `Deployment smoke: ${checkpoint.deploymentSmokeCheckPassCount || 0} pass / ${checkpoint.deploymentSmokeCheckFailCount || 0} fail / ${checkpoint.deploymentSmokeCheckCount || 0} total.`,
+        `Validation status: ${checkpoint.validationStatus || "scan-missing"}.`,
+        `Current gate decision: ${releaseBuildGate?.decision || "not-evaluated"}; risk score: ${releaseBuildGate?.riskScore || 0}.`,
+        "Secret policy: store only non-secret release checkpoint metadata. Do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" "),
+      commandHint: "Use Release Control Copy Release, Copy Gate, and checkpoint drift before changing release readiness."
+    };
+
+    const payload = await api.createReleaseBuildGateActionTasks({
+      actions: [action],
+      saveSnapshot: true,
+      snapshotTitle: `Release Control Checkpoint Task Auto Capture: ${checkpoint.title || checkpoint.id}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderGovernance();
+    const taskLabel = payload.totals.created
+      ? `Created ${payload.totals.created} Checkpoint Task${payload.totals.created === 1 ? "" : "s"}`
+      : `Skipped ${payload.totals.skipped} Checkpoint Task${payload.totals.skipped === 1 ? "" : "s"}`;
     return payload.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 

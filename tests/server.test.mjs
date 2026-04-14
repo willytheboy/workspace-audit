@@ -1883,6 +1883,25 @@ export async function serverTest() {
     assert.match(agentControlPlaneJson.markdown, /## Saved Handoffs/);
     assert.match(agentControlPlaneJson.markdown, /Gamma App/);
 
+    const cliBridgeContextResponse = await fetch(`${baseUrl}/api/cli-bridge/context?runner=codex&limit=5`);
+    assert.equal(cliBridgeContextResponse.status, 200);
+    const cliBridgeContextJson = await cliBridgeContextResponse.json();
+    assert.equal(cliBridgeContextJson.protocolVersion, "cli-bridge-context.v1");
+    assert.equal(cliBridgeContextJson.bridgeMode, "workspace-audit-work-order-broker");
+    assert.equal(cliBridgeContextJson.executionMode, "non-executing");
+    assert.equal(cliBridgeContextJson.runner, "codex");
+    assert.equal(cliBridgeContextJson.adapters.length, 1);
+    assert.equal(cliBridgeContextJson.adapters[0].id, "codex");
+    assert.match(cliBridgeContextJson.adapters[0].method, /Codex SDK/);
+    assert.equal(cliBridgeContextJson.workOrders.total, 1);
+    assert.equal(cliBridgeContextJson.executableWorkOrderCount, 1);
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.decision, "hold");
+    assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
+    assert.match(cliBridgeContextJson.secretPolicy, /Do not include passwords/);
+    assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
+    assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
+    assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

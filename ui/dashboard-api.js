@@ -639,6 +639,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "all" | "codex" | "claude", status?: string, limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeContextPayload>}
+   */
+  fetchCliBridgeContext(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/context", options));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").AgentControlPlaneBaselineStatusPayload>}
    */
   fetchAgentControlPlaneBaselineStatus() {

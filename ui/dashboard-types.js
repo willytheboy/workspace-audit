@@ -1127,6 +1127,50 @@
  *   markdown: string
  * }} AgentControlPlanePayload
  * @typedef {{
+ *   id: "codex" | "claude",
+ *   label: string,
+ *   method: string,
+ *   purpose: string,
+ *   commandPattern: string,
+ *   outputExpectation: string,
+ *   executionPolicy: string
+ * }} CliBridgeAdapter
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   bridgeMode: string,
+ *   executionMode: "non-executing",
+ *   runner: "all" | "codex" | "claude",
+ *   status: string,
+ *   limit: number,
+ *   bridgeDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: AgentControlPlaneDecisionReason[],
+ *   adapters: CliBridgeAdapter[],
+ *   workOrders: AgentWorkOrdersPayload,
+ *   executableWorkOrderCount: number,
+ *   controlPlaneDecision: {
+ *     decision: "ready" | "review" | "hold",
+ *     recommendedAction: string,
+ *     reasonCount: number,
+ *     baselineHealth: string,
+ *     baselineDriftSeverity: string,
+ *     releaseBuildGateDecision: string,
+ *     dataSourcesGateDecision: string,
+ *     activeRuns: number,
+ *     staleActiveRuns: number,
+ *     slaBreachedRuns: number
+ *   },
+ *   handoffContract: {
+ *     input: string[],
+ *     output: string[],
+ *     prohibited: string[]
+ *   },
+ *   validationLoop: string[],
+ *   markdown: string
+ * }} CliBridgeContextPayload
+ * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,
  *   message: string

@@ -1452,3 +1452,10 @@
 - [x] Define the app as the work-order broker and control plane instead of allowing uncontrolled agent-to-agent free chat.
 - [x] Document SDK-first, MCP-context, subprocess-fallback, no-secrets, and validation-loop integration rules.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Context API
+
+- [x] Add a non-executing `/api/cli-bridge/context` endpoint for future Codex CLI and Claude CLI adapters.
+- [x] Return sanitized work orders, bridge decision, runner adapter guidance, handoff contract, validation loop, and no-secrets policy.
+- [x] Add dashboard API/types and server/parser test coverage.
+- [x] Add validation, relaunch, commit, and push.

@@ -8131,6 +8131,13 @@ export function createGovernanceDeck(governance) {
             color: "var(--text-muted)"
           })
         : null,
+      run.latestCliBridgeReviewHandoffId
+        ? createTag(`CLI review ${run.latestCliBridgeReviewAction || "needs-review"} ${run.latestCliBridgeReviewStatus || ""}`.trim(), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: run.latestCliBridgeReviewStatus === "accepted" ? "var(--success)" : run.latestCliBridgeReviewStatus === "rejected" ? "var(--danger)" : "var(--warning)"
+          })
+        : null,
       run.archivedAt
         ? createTag("archived", {
             background: "var(--bg)",

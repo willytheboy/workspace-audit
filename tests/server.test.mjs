@@ -1967,6 +1967,9 @@ export async function serverTest() {
     assert.equal(acceptCliBridgeHandoffJson.success, true);
     assert.equal(acceptCliBridgeHandoffJson.handoff.status, "accepted");
     assert.equal(acceptCliBridgeHandoffJson.handoff.reviewAction, "accept");
+    assert.equal(acceptCliBridgeHandoffJson.linkedRun.id, createAgentWorkOrderRunJson.run.id);
+    assert.equal(acceptCliBridgeHandoffJson.linkedRun.latestCliBridgeReviewAction, "accept");
+    assert.equal(acceptCliBridgeHandoffJson.linkedRun.latestCliBridgeReviewStatus, "accepted");
     assert.equal(acceptCliBridgeHandoffJson.ledger.total, 1);
 
     const acceptedCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=all&status=accepted&limit=5`);
@@ -2064,6 +2067,9 @@ export async function serverTest() {
     assert.equal(escalateCliBridgeRunnerResultJson.success, true);
     assert.equal(escalateCliBridgeRunnerResultJson.handoff.status, "needs-review");
     assert.equal(escalateCliBridgeRunnerResultJson.handoff.reviewAction, "escalate");
+    assert.equal(escalateCliBridgeRunnerResultJson.linkedRun.id, createAgentWorkOrderRunJson.run.id);
+    assert.equal(escalateCliBridgeRunnerResultJson.linkedRun.latestCliBridgeReviewAction, "escalate");
+    assert.equal(escalateCliBridgeRunnerResultJson.linkedRun.latestCliBridgeReviewStatus, "needs-review");
     assert.equal(escalateCliBridgeRunnerResultJson.createdTask.cliBridgeHandoffId, createCliBridgeRunnerResultJson.handoff.id);
     assert.match(escalateCliBridgeRunnerResultJson.createdTask.secretPolicy, /Non-secret CLI bridge handoff review task/);
 
@@ -2097,9 +2103,12 @@ export async function serverTest() {
     const cliBridgeResultLinkedRun = governanceAfterCliBridgeRunnerResultJson.agentWorkOrderRuns.find((run) => run.id === createAgentWorkOrderRunJson.run.id);
     assert.equal(cliBridgeResultLinkedRun.latestCliBridgeResultHandoffId, createCliBridgeRunnerResultJson.handoff.id);
     assert.equal(cliBridgeResultLinkedRun.latestCliBridgeResultStatus, "changed");
+    assert.equal(cliBridgeResultLinkedRun.latestCliBridgeReviewAction, "escalate");
+    assert.equal(cliBridgeResultLinkedRun.latestCliBridgeReviewStatus, "needs-review");
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-recorded"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-linked-to-run"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-recorded"));
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-linked-to-run"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-review-task-created"));
     assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-follow-up-work-order-run-queued"));
 

@@ -1557,3 +1557,10 @@
 - [x] Surface latest CLI result status, runner, and result handoff id in the Agent Execution Queue.
 - [x] Add run-history and operation-log traceability for result intake.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Handoff Review Run Link
+
+- [x] Link accepted, rejected, escalated, and needs-review handoff decisions back onto their source Agent Work Order Run.
+- [x] Surface latest CLI review action and status in the Agent Execution Queue.
+- [x] Add run-history and operation-log traceability for handoff review decisions.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

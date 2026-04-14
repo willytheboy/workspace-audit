@@ -8108,6 +8108,139 @@ export function createGovernanceDeck(governance) {
       ])
     ])
   ];
+  const cliRunnerGateReasons = [];
+  const controlPlaneGateDecision = controlPlaneDecision?.decision || "not-evaluated";
+  if (!controlPlaneDecision) {
+    cliRunnerGateReasons.push({ severity: "hold", message: "Agent Control Plane decision is not loaded yet." });
+  }
+  if (dataSourcesAccessGateDecision !== "ready") {
+    cliRunnerGateReasons.push({ severity: dataSourcesAccessGateDecision === "hold" ? "hold" : "review", message: `Data Sources access gate is ${dataSourcesAccessGateDecision}.` });
+  }
+  if (controlPlaneGateDecision !== "ready") {
+    cliRunnerGateReasons.push({ severity: controlPlaneGateDecision === "hold" ? "hold" : "review", message: `Agent Control Plane decision is ${controlPlaneGateDecision}.` });
+  }
+  if (releaseBuildGateDecision !== "ready") {
+    cliRunnerGateReasons.push({ severity: releaseBuildGateDecision === "hold" ? "hold" : "review", message: `Release Build Gate is ${releaseBuildGateDecision}.` });
+  }
+  if ((executionMetrics.slaBreached || 0) > 0) {
+    cliRunnerGateReasons.push({ severity: "hold", message: `${executionMetrics.slaBreached} unresolved Agent Execution SLA breach(es) need review.` });
+  }
+  if ((executionMetrics.staleActive || 0) > 0) {
+    cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.staleActive} stale active Agent Execution run(s) should be cleared before unattended CLI work.` });
+  }
+  const cliRunnerGateDecision = cliRunnerGateReasons.some((reason) => reason.severity === "hold")
+    ? "hold"
+    : cliRunnerGateReasons.length
+      ? "review"
+      : "ready";
+  const cliRunnerGateColor = cliRunnerGateDecision === "ready"
+    ? "var(--success)"
+    : cliRunnerGateDecision === "hold"
+      ? "var(--danger)"
+      : "var(--warning)";
+  const cliRunnerReadinessEntries = [
+    createElement("div", {
+      className: "governance-gap-card cli-runner-readiness-gate-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Codex CLI / Claude CLI runner readiness",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "This gate keeps external agent execution guidance separate from actual CLI execution until source access, control-plane, release, and execution evidence are clean.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(cliRunnerGateDecision.toUpperCase(), {
+          background: "var(--bg)",
+          border: `1px solid ${cliRunnerGateColor}`,
+          color: cliRunnerGateColor
+        })
+      ]),
+      createElement("div", {
+        text: cliRunnerGateDecision === "ready"
+          ? "Ready for a supervised CLI runner prototype dry run. Keep commands bounded to work orders and preserve non-secret validation summaries only."
+          : "Do not start unattended CLI runner execution yet. Clear the listed gates first, then rerun the readiness check.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`Source ${dataSourcesAccessGateDecision}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: dataSourcesAccessGateDecision === "ready" ? "var(--success)" : dataSourcesAccessGateDecision === "hold" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(`Control ${controlPlaneGateDecision}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: controlPlaneGateDecision === "ready" ? "var(--success)" : controlPlaneGateDecision === "hold" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(`Release ${releaseBuildGateDecision}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: releaseBuildGateDecision === "ready" ? "var(--success)" : releaseBuildGateDecision === "hold" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(`SLA ${executionMetrics.slaBreached || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (executionMetrics.slaBreached || 0) ? "var(--danger)" : "var(--success)"
+        }),
+        createTag(`Stale ${executionMetrics.staleActive || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (executionMetrics.staleActive || 0) ? "var(--warning)" : "var(--success)"
+        })
+      ]),
+      cliRunnerGateReasons.length
+        ? createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.4rem",
+              padding: "0.7rem",
+              border: "1px solid var(--border)",
+              borderRadius: "0.85rem",
+              background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+            }
+          }, cliRunnerGateReasons.map((reason) => createElement("div", {
+            text: `${reason.severity.toUpperCase()}: ${reason.message}`,
+            style: {
+              color: reason.severity === "hold" ? "var(--danger)" : "var(--warning)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })))
+        : null
+    ])
+  ];
 
   return createElement("div", {
     style: {
@@ -8125,6 +8258,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),
     createListSection("Vibe Coder Operating Guide", "Step-by-step operating cycle for safe app debugging, build validation, local relaunch, and supervised agent work.", vibeCoderOperatingGuideEntries),
+    createListSection("CLI Runner Readiness Gate", "Readiness signal for a future supervised Codex CLI / Claude CLI work-order runner prototype.", cliRunnerReadinessEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

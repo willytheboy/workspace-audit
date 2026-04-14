@@ -1438,3 +1438,10 @@
 - [x] Add a copyable Markdown version of the operating guide.
 - [x] Preserve the no-secrets policy for agent and command-output handling.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Runner Readiness Gate
+
+- [x] Add a Governance readiness card for future Codex CLI / Claude CLI work-order runner dry runs.
+- [x] Block runner readiness when Data Sources, Agent Control Plane, Release Build Gate, stale execution, or SLA breach evidence is not clean.
+- [x] Keep the gate advisory-only and non-executing until the supervised CLI prototype is explicitly ready.
+- [x] Add parser checks, validation, relaunch, commit, and push.

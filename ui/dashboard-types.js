@@ -1102,6 +1102,7 @@
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
+ *   convergenceCandidates?: ConvergenceCandidatesPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

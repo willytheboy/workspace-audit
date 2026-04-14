@@ -471,6 +471,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (checkpoint) => [checkpoint.title || "", checkpoint.source || "", checkpoint.status || "", checkpoint.note || "", checkpoint.batchId || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ).filter(matchesTaskSeedingStatus),
+      convergenceCandidates: governance.convergenceCandidates
+        ? {
+            ...governance.convergenceCandidates,
+            candidates: filterAndSort(
+              governance.convergenceCandidates.candidates || [],
+              (candidate) => [candidate.leftName || "", candidate.rightName || "", candidate.reviewStatus || "", candidate.reviewSource || "", candidate.reviewNote || "", Array.isArray(candidate.reasons) ? candidate.reasons.join(" ") : "", candidate.generatedInsight || ""],
+              (left, right) => right.score - left.score || left.leftName.localeCompare(right.leftName)
+            )
+          }
+        : null,
       governanceTaskUpdateLedger: governance.governanceTaskUpdateLedger
         ? {
             ...governance.governanceTaskUpdateLedger,
@@ -859,6 +869,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "queue") filtered.queueSuppressions = [];
       if (scope !== "operations") filtered.operationLog = [];
       if (scope !== "operations") filtered.taskSeedingCheckpoints = [];
+      if (scope !== "convergence") filtered.convergenceCandidates = null;
       if (scope !== "runbook") filtered.workflowRunbook = [];
       if (scope !== "agents") filtered.agentSessions = [];
       if (scope !== "agents") filtered.agentControlPlaneBaselineStatus = null;
@@ -1613,6 +1624,37 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       "",
       "Secret policy: keep credentials, tokens, certificates, private keys, browser sessions, cookies, and raw command output out of Workspace Audit Pro."
     ].join("\n");
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindConvergenceReviewLedgerActions(container) {
+    container.querySelectorAll("[data-convergence-review-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.convergenceReviewLedgerCopy || "active";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const payload = await api.fetchConvergenceCandidates({
+            status: status === "active" ? undefined : status,
+            includeNotRelated: status === "all" || status === "not-related"
+          });
+          await copyText(payload.markdown);
+          element.textContent = `Copied ${payload.summary.total}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -4233,6 +4275,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindAgentPolicyCheckpointActions(container);
     bindAgentExecutionResultCheckpointActions(container);
     bindAgentWorkOrderRunActions(container);
+    bindConvergenceReviewLedgerActions(container);
   }
 
   function getFilteredGovernance() {
@@ -4272,6 +4315,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Action queue items: ${governanceCache?.summary.actionQueueItems ?? 0}`,
       `Suppressed queue items: ${governanceCache?.summary.suppressedQueueItems ?? 0}`,
       `Governance operation log entries: ${governanceCache?.summary.governanceOperationCount ?? 0}`,
+      `Convergence review ledger candidates: ${governanceCache?.convergenceCandidates?.summary.total ?? 0}`,
+      `Convergence hidden Not Related pairs: ${governanceCache?.convergenceCandidates?.summary.notRelated ?? 0}`,
       `Workflow runbook items: ${governanceCache?.summary.workflowRunbookItems ?? 0}`,
       `Agent sessions: ${governanceCache?.summary.agentSessionCount ?? 0}`,
       `Control plane snapshots: ${governanceCache?.summary.agentControlPlaneSnapshotCount ?? 0}`,
@@ -4327,6 +4372,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible action queue items: ${governance.actionQueue.length}`,
       `Visible suppressed queue items: ${governance.queueSuppressions.length}`,
       `Visible operation log entries: ${governance.operationLog.length}`,
+      `Visible convergence review ledger candidates: ${governance.convergenceCandidates?.candidates?.length || 0}`,
       `Visible task update audit rows: ${governance.governanceTaskUpdateLedger?.items?.length || 0}`,
       `Visible task update audit snapshot drift: ${governance.governanceTaskUpdateLedgerSnapshotDiff ? "yes" : "no"}`,
       `Visible workflow runbook items: ${governance.workflowRunbook.length}`,
@@ -6926,7 +6972,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -6940,10 +6986,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchAgentExecutionResultTaskLedgerSnapshotDiff("latest"),
         api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest"),
         api.fetchCliBridgeRunTraceSnapshotDiff("latest"),
-        api.fetchCliBridgeRunTraceSnapshotBaselineStatus()
+        api.fetchCliBridgeRunTraceSnapshotBaselineStatus(),
+        api.fetchConvergenceCandidates({ status: "all", includeNotRelated: true })
       ]);
       governanceCache = {
         ...governance,
+        convergenceCandidates,
         governanceTaskUpdateLedger,
         governanceTaskUpdateLedgerSnapshotDiff,
         releaseSummary,
@@ -6968,6 +7016,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.actionQueue.length
         + governance.queueSuppressions.length
         + governance.operationLog.length
+        + (convergenceCandidates ? 1 : 0)
+        + (convergenceCandidates?.candidates || []).length
         + (governanceTaskUpdateLedger?.items || []).length
         + (governanceTaskUpdateLedgerSnapshotDiff ? 1 : 0)
         + (governanceTaskUpdateLedgerSnapshotDiff?.driftItems || []).length

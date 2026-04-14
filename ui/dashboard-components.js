@@ -2261,6 +2261,222 @@ export function createGovernanceDeck(governance) {
       : null
     ]);
   });
+  const convergenceReviewLedger = governance.convergenceCandidates || null;
+  const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
+  const convergenceReviewSummary = convergenceReviewLedger?.summary || {
+    total: 0,
+    reviewed: 0,
+    unreviewed: 0,
+    confirmedOverlap: 0,
+    notRelated: 0,
+    needsReview: 0,
+    mergeCandidate: 0
+  };
+  const convergenceReviewLedgerEntries = convergenceReviewLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-review-ledger-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Convergence review ledger",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "Portfolio-level view of auto-detected overlaps, operator-contributed proposals, and hidden Not Related decisions.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(`${convergenceReviewSummary.total || 0} pair(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${convergenceReviewSummary.unreviewed || 0} unreviewed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceReviewSummary.unreviewed || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceReviewSummary.confirmedOverlap || 0} confirmed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        }),
+        createTag(`${convergenceReviewSummary.mergeCandidate || 0} merge`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        }),
+        createTag(`${convergenceReviewSummary.notRelated || 0} not related`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceReviewSummary.notRelated || 0) ? "var(--danger)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-review-ledger-copy-btn",
+          text: "Copy Active",
+          attrs: { type: "button" },
+          dataset: { convergenceReviewLedgerCopy: "active" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-review-ledger-copy-btn",
+          text: "Copy Not Related",
+          attrs: { type: "button" },
+          dataset: { convergenceReviewLedgerCopy: "not-related" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-review-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceReviewLedgerCopy: "all" }
+        })
+      ])
+    ]),
+    ...convergenceReviewCandidates.slice(0, 24).map((candidate) => {
+      const candidateReasons = Array.isArray(candidate.reasons) ? candidate.reasons : [];
+      const statusColor = candidate.reviewStatus === "not-related"
+        ? "var(--danger)"
+        : candidate.reviewStatus === "confirmed-overlap" || candidate.reviewStatus === "merge-candidate"
+          ? "var(--success)"
+          : "var(--warning)";
+      return createElement("div", {
+        className: "governance-gap-card convergence-review-ledger-item-card",
+        dataset: candidate.leftId ? { openAppId: encodeAppId(candidate.leftId) } : undefined,
+        title: candidate.leftId ? "Open left project workbench" : undefined,
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.6rem"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            alignItems: "flex-start"
+          }
+        }, [
+          createElement("div", {}, [
+            createElement("div", {
+              text: `${candidate.leftName} -> ${candidate.rightName}`,
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "0.96rem"
+              }
+            }),
+            createElement("div", {
+              text: candidateReasons.length ? candidateReasons.join(" | ") : "No reasons recorded.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45",
+                marginTop: "0.25rem"
+              }
+            })
+          ]),
+          createTag(`${candidate.score}%`, {
+            background: "var(--bg)",
+            border: "1px solid var(--primary)",
+            color: "var(--primary)"
+          })
+        ]),
+        createElement("div", {
+          className: "tags"
+        }, [
+          createTag((candidate.reviewStatus || "unreviewed").replaceAll("-", " "), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: statusColor
+          }),
+          candidate.operatorProposed
+            ? createTag("operator contributed", {
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                color: "var(--primary)"
+              })
+            : createTag("auto detected", {
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                color: "var(--text-muted)"
+              }),
+          candidate.reviewedAt
+            ? createTag(`reviewed ${new Date(candidate.reviewedAt).toLocaleString()}`, {
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                color: "var(--text-muted)"
+              })
+            : null
+        ]),
+        candidate.generatedInsight
+          ? createElement("div", {
+              text: `AI insight: ${candidate.generatedInsight}`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null,
+        candidate.reviewNote
+          ? createElement("div", {
+              text: candidate.reviewNote,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null,
+        createElement("div", {
+          className: "governance-actions"
+        }, [
+          candidate.leftId ? createElement("button", {
+            className: "btn governance-action-btn",
+            text: "Open Left",
+            attrs: { type: "button" },
+            dataset: { openAppId: encodeAppId(candidate.leftId) }
+          }) : null,
+          candidate.rightId ? createElement("button", {
+            className: "btn governance-action-btn",
+            text: "Open Right",
+            attrs: { type: "button" },
+            dataset: { openAppId: encodeAppId(candidate.rightId) }
+          }) : null
+        ])
+      ]);
+    })
+  ] : [];
   const taskSeedingCheckpointStatusOrder = ["approved", "deferred", "dismissed", "needs-review"];
   const taskSeedingCheckpointStatusLabels = {
     approved: "Approved",
@@ -9174,6 +9390,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),

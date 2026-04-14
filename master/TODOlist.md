@@ -1610,3 +1610,10 @@
 - [x] Keep hidden Not Related pairs auditable and restorable from the same convergence card actions.
 - [x] Refresh convergence-dependent findings after every review state change.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Governance Review Ledger
+
+- [x] Add a global Governance section for convergence candidates, operator proposals, and hidden Not Related decisions.
+- [x] Add copy controls for active, Not Related, and full convergence review ledgers.
+- [x] Add a Governance scope filter entry for Convergence Review.
+- [x] Add parser checks, validation, relaunch, commit, and push.

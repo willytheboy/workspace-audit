@@ -1340,3 +1340,10 @@
 - [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Release Control task metadata.
 - [x] Preserve the non-secret release-control task ledger drift metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Decision Task Ledger Item Checkpoints
+
+- [x] Add task-row `Confirm`, `Defer`, and `Escalate` controls to Agent Control Plane decision task ledger cards.
+- [x] Persist task-row checkpoint decisions through non-secret decision-task metadata and lifecycle updates.
+- [x] Preserve the non-secret agent control-plane decision task metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

@@ -1016,6 +1016,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-control-plane-decision-task-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.controlPlaneDecisionTaskCheckpointAction || "";
+        if (!taskId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateAgentControlPlaneDecisionTaskCheckpoint(taskId, action);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-agent-execution-result-task-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -7516,6 +7540,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function getAgentControlPlaneDecisionTaskCheckpointPatch(task, action) {
+    const checkpointStatus = action === "escalate" ? "escalated" : action === "defer" ? "deferred" : "confirmed";
+    const patch = {
+      agentControlPlaneDecisionTaskCheckpointStatus: checkpointStatus,
+      agentControlPlaneDecisionTaskCheckpointedAt: new Date().toISOString(),
+      agentControlPlaneDecisionTaskCheckpointNote: [
+        `Operator ${checkpointStatus} Agent Control Plane decision task ${task.title || task.id}.`,
+        `Decision reason: ${task.agentControlPlaneDecisionReasonCode || "control-plane-decision"}; decision ${task.agentControlPlaneDecision || "review"}.`,
+        "Secret policy: non-secret agent control-plane decision task metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" ")
+    };
+
+    if (action === "defer") {
+      patch.status = "deferred";
+    } else if (action === "escalate") {
+      patch.status = "blocked";
+      patch.priority = "high";
+    } else {
+      patch.status = "resolved";
+    }
+
+    return { checkpointStatus, patch };
+  }
+
+  async function updateAgentControlPlaneDecisionTaskCheckpoint(taskId, action) {
+    const task = (governanceCache?.agentControlPlaneDecisionTasks || []).find((item) => item.id === taskId);
+    if (!task) throw new Error(`Agent Control Plane decision task not found: ${taskId}`);
+
+    const { checkpointStatus, patch } = getAgentControlPlaneDecisionTaskCheckpointPatch(task, action);
+    const updated = await api.updateTask(taskId, patch);
+    await renderGovernance();
+    const nextTask = updated.task || patch;
+    if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
+    if (checkpointStatus === "deferred") return "Deferred";
+    return `Confirmed ${nextTask.status || "resolved"}`;
   }
 
   async function copyAgentExecutionResultTaskLedger() {

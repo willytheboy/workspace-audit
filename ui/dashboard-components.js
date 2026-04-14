@@ -4776,6 +4776,33 @@ export function createGovernanceDeck(governance) {
     createElement("div", {
       className: "governance-actions"
     }, [
+      createElement("button", {
+        className: "btn governance-action-btn control-plane-decision-task-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneDecisionTaskCheckpointAction: "confirm",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn control-plane-decision-task-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneDecisionTaskCheckpointAction: "defer",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn control-plane-decision-task-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          controlPlaneDecisionTaskCheckpointAction: "escalate",
+          taskId: task.id || ""
+        }
+      }),
       task.status !== "resolved"
         ? createElement("button", {
             className: "btn governance-action-btn control-plane-decision-task-resolve-btn",

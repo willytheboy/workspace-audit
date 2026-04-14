@@ -22,4 +22,4 @@ Create a copyable, non-secret Convergence Review Task ledger so operator-confirm
 - Passed `npm run build:vercel`.
 - Passed `git diff --check`.
 - Relaunched local app on port 3042 and smoke-tested the root page, `/api/convergence/task-ledger`, and dashboard bundle.
-- Pending: commit and push.
+- Committed and pushed as `c9f28ed Add convergence task ledger export`.

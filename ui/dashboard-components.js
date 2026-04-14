@@ -3189,10 +3189,35 @@ export function createGovernanceDeck(governance) {
         dataset: {
           cliBridgeRunTraceSnapshotCopyId: snapshot.id || ""
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-copy-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeRunTraceSnapshotDriftId: snapshot.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeRunTraceSnapshotDriftTaskId: snapshot.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: snapshot.runId ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+        dataset: {
+          cliBridgeRunTraceSnapshotDriftAcceptId: snapshot.id || ""
+        }
       })
     ])
   ]));
 
+  const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
     ? [
         createElement("div", {
@@ -3264,16 +3289,58 @@ export function createGovernanceDeck(governance) {
                 style: {
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0.35rem"
+                  gap: "0.45rem"
                 }
               }, governance.cliBridgeRunTraceSnapshotDiff.driftItems.slice(0, 6).map((item) => createElement("div", {
-                text: `${item.label || item.field}: ${item.before ?? ""} -> ${item.current ?? ""}`,
                 style: {
-                  color: "var(--text-muted)",
-                  fontSize: "0.84rem",
-                  lineHeight: "1.45"
+                  display: "grid",
+                  gap: "0.5rem",
+                  padding: "0.65rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.75rem",
+                  background: "var(--surface)"
                 }
-              })))
+              }, [
+                createElement("div", {
+                  text: `${item.label || item.field}: ${item.before ?? ""} -> ${item.current ?? ""}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.84rem",
+                    lineHeight: "1.45"
+                  }
+                }),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-item-confirm-btn",
+                    text: "Confirm",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunTraceSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunTraceSnapshotDriftItemDecision: "confirmed"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-item-defer-btn",
+                    text: "Defer",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunTraceSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunTraceSnapshotDriftItemDecision: "deferred"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-item-escalate-btn",
+                    text: "Escalate",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunTraceSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunTraceSnapshotDriftItemDecision: "escalated"
+                    }
+                  })
+                ])
+              ])))
             : createElement("div", {
                 text: "No live trace drift detected against the saved snapshot.",
                 style: {
@@ -3291,7 +3358,25 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeRunTraceSnapshotDiffCopy: "true"
               }
-            })
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-task-btn",
+              text: "Track Drift",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunTraceSnapshotDriftTaskId: cliBridgeRunTraceSnapshotDiffActionId
+              }
+            }),
+            governance.cliBridgeRunTraceSnapshotDiff.runId
+              ? createElement("button", {
+                  className: "btn governance-action-btn cli-bridge-run-trace-snapshot-drift-accept-btn",
+                  text: "Accept Drift",
+                  attrs: { type: "button" },
+                  dataset: {
+                    cliBridgeRunTraceSnapshotDriftAcceptId: cliBridgeRunTraceSnapshotDiffActionId
+                  }
+                })
+              : null
           ])
         ])
       ]

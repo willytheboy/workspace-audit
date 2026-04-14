@@ -3895,6 +3895,102 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunTraceSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchCliBridgeRunTraceSnapshotDiff(snapshotId);
+          await copyText(diff.markdown || "");
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunTraceSnapshotDriftTaskId || "latest";
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createCliBridgeRunTraceSnapshotDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunTraceSnapshotDriftAcceptId || "latest";
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptCliBridgeRunTraceSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.cliBridgeRunTraceSnapshotDriftItemField || "";
+        const decision = element.dataset.cliBridgeRunTraceSnapshotDriftItemDecision || "confirmed";
+        if (!field) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const label = await updateCliBridgeRunTraceSnapshotDriftItemCheckpoint(field, decision);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-runner-result-run-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -7248,6 +7344,122 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findCliBridgeRunTraceSnapshot(snapshotId) {
+    const snapshots = Array.isArray(governanceCache?.cliBridgeRunTraceSnapshots)
+      ? governanceCache.cliBridgeRunTraceSnapshots
+      : [];
+    if (snapshotId === "latest") {
+      return [...snapshots].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] || null;
+    }
+    return snapshots.find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getCliBridgeRunTraceSnapshotDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium" || severity === "missing-snapshot") return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeRunTraceSnapshotDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review CLI bridge run trace drift from snapshot ${diff.snapshotTitle || snapshot?.title || diff.snapshotId || "latest snapshot"}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot?.id || "missing"}.`,
+      `Run ID: ${diff.runId || snapshot?.runId || "missing"}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review CLI bridge run trace drift before accepting the live trace as the new baseline."}`,
+      `Trace decision: ${snapshotSummary.traceDecision || "missing"} -> ${liveSummary.traceDecision || "missing"}.`,
+      `Run status: ${snapshotSummary.runStatus || "missing"} -> ${liveSummary.runStatus || "missing"}.`,
+      `Related handoffs: ${snapshotSummary.relatedHandoffCount ?? 0} -> ${liveSummary.relatedHandoffCount ?? 0}.`,
+      "Secret policy: non-secret CLI bridge run trace drift metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "CLI bridge trace drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createCliBridgeRunTraceSnapshotDriftReviewTask(snapshotId) {
+    const snapshot = findCliBridgeRunTraceSnapshot(snapshotId);
+    const diff = await api.fetchCliBridgeRunTraceSnapshotDiff(snapshotId || "latest");
+    const title = `Review CLI bridge run trace drift: ${diff.snapshotTitle || snapshot?.title || diff.snapshotId || "latest snapshot"}`;
+    await api.createTask({
+      projectId: snapshot?.projectId || "cli-bridge",
+      projectName: snapshot?.projectName || "CLI Bridge",
+      title: title.slice(0, 140),
+      description: buildCliBridgeRunTraceSnapshotDriftTaskDescription(snapshot, diff),
+      priority: getCliBridgeRunTraceSnapshotDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created CLI bridge run trace drift review task";
+  }
+
+  async function acceptCliBridgeRunTraceSnapshotDrift(snapshotId) {
+    const snapshot = findCliBridgeRunTraceSnapshot(snapshotId);
+    const diff = await api.fetchCliBridgeRunTraceSnapshotDiff(snapshotId || "latest");
+    const runId = diff.runId || snapshot?.runId || "";
+    if (!runId) throw new Error("Cannot accept CLI bridge run trace drift without a source run id.");
+
+    const sourceTitle = diff.snapshotTitle || snapshot?.title || snapshotId || "latest snapshot";
+    await api.createCliBridgeRunTraceSnapshot(runId, {
+      title: `Accepted CLI bridge run trace drift as current baseline: ${sourceTitle}`.slice(0, 120)
+    });
+    await renderGovernance();
+    return "Accepted CLI bridge run trace drift as current baseline";
+  }
+
+  function findCliBridgeRunTraceSnapshotDriftItem(field) {
+    const diff = governanceCache?.cliBridgeRunTraceSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getCliBridgeRunTraceSnapshotDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildCliBridgeRunTraceSnapshotDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "CLI bridge run trace drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} CLI bridge run trace drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest CLI bridge run trace snapshot"}.`,
+      `Run ID: ${diff?.runId || "missing"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret CLI bridge run trace drift metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ].join(" ");
+  }
+
+  async function updateCliBridgeRunTraceSnapshotDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findCliBridgeRunTraceSnapshotDriftItem(field);
+    if (!diff) throw new Error("CLI bridge run trace snapshot drift is not loaded.");
+    if (!item) throw new Error(`CLI bridge run trace drift item not found: ${field}`);
+
+    const decision = getCliBridgeRunTraceSnapshotDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "cli-bridge",
+      projectName: "CLI Bridge",
+      title: `CLI trace drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildCliBridgeRunTraceSnapshotDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   function getGovernanceTaskUpdateLedgerCheckpointDecision(action) {

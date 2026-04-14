@@ -1242,3 +1242,10 @@
 - [x] Convert source-access task ledger drift reports into non-secret Governance review tasks with severity, score, summary deltas, and bounded drift fields.
 - [x] Accept intentional source-access task ledger drift by saving a refreshed ledger snapshot as the current operator-approved baseline.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Validation Evidence Drift Checkpoints
+
+- [x] Add per-snapshot `Copy Drift`, `Track Drift`, and `Accept Drift` controls to Data Sources validation evidence snapshot cards.
+- [x] Convert source-access validation evidence drift reports into non-secret Governance review tasks with severity, score, summary deltas, and bounded drift fields.
+- [x] Accept intentional source-access validation evidence drift by saving a refreshed evidence snapshot as the current operator-approved baseline.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

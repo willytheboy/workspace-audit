@@ -3797,6 +3797,30 @@ export function createGovernanceDeck(governance) {
         dataset: {
           sourceAccessValidationEvidenceSnapshotId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-validation-evidence-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationEvidenceSnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-validation-evidence-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationEvidenceSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-validation-evidence-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationEvidenceSnapshotDriftAcceptId: snapshot.id
+        }
       })
     ])
   ]));

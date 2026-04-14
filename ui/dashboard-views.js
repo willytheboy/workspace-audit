@@ -1741,6 +1741,79 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-source-access-validation-evidence-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationEvidenceSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchSourcesAccessValidationEvidenceSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-validation-evidence-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationEvidenceSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createDataSourcesAccessValidationEvidenceDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-validation-evidence-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationEvidenceSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptDataSourcesAccessValidationEvidenceSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -6496,6 +6569,75 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesAccessValidationEvidenceSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findDataSourcesAccessValidationEvidenceSnapshot(snapshotId) {
+    return (governanceCache?.dataSourceAccessValidationEvidenceSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getDataSourcesAccessValidationEvidenceDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildDataSourcesAccessValidationEvidenceDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Data Sources access validation evidence drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review source-access validation evidence drift before the next ingestion or agent handoff."}`,
+      `Validated evidence: ${snapshotSummary.validated ?? 0} -> ${liveSummary.validated ?? 0}; blocked evidence: ${snapshotSummary.blocked ?? 0} -> ${liveSummary.blocked ?? 0}; total evidence: ${snapshotSummary.total ?? 0} -> ${liveSummary.total ?? 0}.`,
+      "Secret policy: non-secret Data Sources access validation evidence metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Data Sources access validation evidence drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createDataSourcesAccessValidationEvidenceDriftReviewTask(snapshotId) {
+    const snapshot = findDataSourcesAccessValidationEvidenceSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access validation evidence snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessValidationEvidenceSnapshotDiff(snapshotId);
+    const title = `Review Data Sources access validation evidence drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title,
+      description: buildDataSourcesAccessValidationEvidenceDriftTaskDescription(snapshot, diff),
+      priority: getDataSourcesAccessValidationEvidenceDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created Data Sources access validation evidence drift review task";
+  }
+
+  async function acceptDataSourcesAccessValidationEvidenceSnapshotDrift(snapshotId) {
+    const snapshot = findDataSourcesAccessValidationEvidenceSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access validation evidence snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessValidationEvidenceSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.createSourcesAccessValidationEvidenceSnapshot({
+      title: `Accepted Data Sources access validation evidence drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      status: snapshot.statusFilter || "all",
+      sourceId: snapshot.sourceId || "",
+      accessMethod: snapshot.accessMethod || "",
+      limit: snapshot.limit || 100
+    });
+    await renderGovernance();
+    return "Accepted Data Sources access validation evidence drift as current baseline";
   }
 
   async function saveAgentWorkOrderSnapshot() {

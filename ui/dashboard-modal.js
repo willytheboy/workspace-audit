@@ -2,6 +2,7 @@
 
 import { bindAppLaunchers, getColor } from "./dashboard-utils.js";
 import {
+  createConvergenceFilterCard,
   createConvergenceProposalCard,
   createMetricBarCard,
   createMetricValueCard,
@@ -91,6 +92,8 @@ export function createDashboardModal({ getData, api }) {
   let profileHistory = [];
   /** @type {ConvergenceCandidate[]} */
   let convergenceCandidates = [];
+  /** @type {"active" | "needs-review" | "not-related" | "all"} */
+  let convergenceFilter = "active";
 
   const overlay = /** @type {HTMLElement} */ (document.getElementById("app-modal"));
   const tabButtons = /** @type {NodeListOf<HTMLButtonElement>} */ (overlay.querySelectorAll("[data-workbench-tab]"));
@@ -400,6 +403,74 @@ export function createDashboardModal({ getData, api }) {
   }
 
   /**
+   * @param {ConvergenceCandidate[]} candidates
+   */
+  function getConvergenceFilterCounts(candidates) {
+    return {
+      active: candidates.filter((candidate) => candidate.reviewStatus !== "not-related").length,
+      needsReview: candidates.filter((candidate) => ["needs-review", "unreviewed"].includes(candidate.reviewStatus || "unreviewed")).length,
+      notRelated: candidates.filter((candidate) => candidate.reviewStatus === "not-related").length,
+      all: candidates.length
+    };
+  }
+
+  /**
+   * @param {ConvergenceCandidate[]} candidates
+   */
+  function filterConvergenceCandidates(candidates) {
+    if (convergenceFilter === "all") return candidates;
+    if (convergenceFilter === "not-related") {
+      return candidates.filter((candidate) => candidate.reviewStatus === "not-related");
+    }
+    if (convergenceFilter === "needs-review") {
+      return candidates.filter((candidate) => ["needs-review", "unreviewed"].includes(candidate.reviewStatus || "unreviewed"));
+    }
+    return candidates.filter((candidate) => candidate.reviewStatus !== "not-related");
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindConvergenceFilterControls(container) {
+    container.querySelectorAll("[data-convergence-filter]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const nextFilter = element.dataset.convergenceFilter || "active";
+        if (!["active", "needs-review", "not-related", "all"].includes(nextFilter)) return;
+        convergenceFilter = /** @type {"active" | "needs-review" | "not-related" | "all"} */ (nextFilter);
+        renderWorkbench();
+      });
+    });
+  }
+
+  function getConvergenceEmptyState() {
+    if (convergenceFilter === "not-related") {
+      return {
+        title: "No hidden Not Related candidates",
+        message: "Pairs you mark Not Related will appear here for audit and can be restored by selecting Confirm, Needs Review, or Merge."
+      };
+    }
+    if (convergenceFilter === "needs-review") {
+      return {
+        title: "No pending convergence reviews",
+        message: "Auto-detected and operator-contributed pairs that still need classification will appear here."
+      };
+    }
+    if (convergenceFilter === "all") {
+      return {
+        title: "No convergence candidates",
+        message: "No auto-detected or operator-contributed convergence pairs are available for this project."
+      };
+    }
+    return {
+      title: "No active convergence candidates",
+      message: "Reviewed pairs marked Not Related are hidden from Active. Use the Not Related filter to audit or restore them."
+    };
+  }
+
+  /**
    * @param {AuditProject} project
    */
   function renderOverview(project) {
@@ -457,15 +528,18 @@ export function createDashboardModal({ getData, api }) {
     const similarContainer = document.getElementById("modal-similar");
     const proposalCard = createConvergenceProposalCard(project, getData().projects || []);
     const mergedConvergenceCandidates = getMergedConvergenceCandidates(project);
+    const filterCard = createConvergenceFilterCard({
+      activeFilter: convergenceFilter,
+      counts: getConvergenceFilterCounts(mergedConvergenceCandidates)
+    });
     if (workbenchLoading) {
-      similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
+      similarContainer.replaceChildren(proposalCard, filterCard, createWorkbenchEmptyState(
         "Loading convergence review",
         "Active overlap candidates are being refreshed from the persisted review ledger."
       ));
     } else if (mergedConvergenceCandidates.length || project.similarApps?.length) {
       const similarFragment = document.createDocumentFragment();
-      const activeSimilarCandidates = mergedConvergenceCandidates
-        .filter((candidate) => candidate.reviewStatus !== "not-related")
+      const visibleSimilarCandidates = filterConvergenceCandidates(mergedConvergenceCandidates)
         .map((candidate) => {
           const isLeftProject = candidate.leftId === project.id;
           const similar = {
@@ -485,7 +559,7 @@ export function createDashboardModal({ getData, api }) {
         })
         .filter((item) => item.similar.id && item.similar.id !== project.id);
 
-      for (const item of activeSimilarCandidates) {
+      for (const item of visibleSimilarCandidates) {
         const { similar, reviewStatus, reviewNote, reviewSource, generatedInsight, assimilationRecommendation } = item;
         similarFragment.append(createSimilarCard(similar, {
           reviewStatus,
@@ -495,22 +569,24 @@ export function createDashboardModal({ getData, api }) {
           assimilationRecommendation: assimilationRecommendation || ""
         }));
       }
-      if (activeSimilarCandidates.length) {
-        similarContainer.replaceChildren(proposalCard, similarFragment);
+      if (visibleSimilarCandidates.length) {
+        similarContainer.replaceChildren(proposalCard, filterCard, similarFragment);
         bindAppLaunchers(similarContainer, openModal);
         bindConvergenceReviewControls(similarContainer, project);
       } else {
-        similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
-          "No active convergence candidates",
-          "Reviewed pairs marked Not Related are hidden from this workbench list. Auto-detected pairs and operator proposals stay available unless the operator removes them."
+        const emptyState = getConvergenceEmptyState();
+        similarContainer.replaceChildren(proposalCard, filterCard, createWorkbenchEmptyState(
+          emptyState.title,
+          emptyState.message
         ));
       }
     } else {
-      similarContainer.replaceChildren(proposalCard, createWorkbenchEmptyState(
+      similarContainer.replaceChildren(proposalCard, filterCard, createWorkbenchEmptyState(
         "No strong convergence detected",
         "This project does not currently have a high-confidence overlap cluster in the portfolio."
       ));
     }
+    bindConvergenceFilterControls(similarContainer);
     bindConvergenceProposalControls(similarContainer, project);
   }
 
@@ -595,9 +671,9 @@ export function createDashboardModal({ getData, api }) {
     if (status === "not-related") {
       removeConvergenceCandidate(project.id, similar.id);
       renderWorkbench();
-      await api.refreshFindings();
-      findings = await api.fetchFindings(project.id);
     }
+    await api.refreshFindings();
+    findings = await api.fetchFindings(project.id);
     const convergence = await api.fetchConvergenceCandidates({ projectId: project.id, status: "all", includeNotRelated: true });
     if (!currentProject || currentProject.id !== project.id) return;
     convergenceCandidates = convergence.candidates || [];
@@ -1443,6 +1519,8 @@ export function createDashboardModal({ getData, api }) {
     milestones = [];
     projectProfile = null;
     profileHistory = [];
+    convergenceCandidates = [];
+    convergenceFilter = "active";
     terminal.textContent = "";
     overlay.classList.add("active");
     renderWorkbench();

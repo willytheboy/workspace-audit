@@ -203,6 +203,59 @@ export function createScriptButton(script) {
 }
 
 /**
+ * @param {{
+ *   activeFilter: string,
+ *   counts: {
+ *     active: number,
+ *     needsReview: number,
+ *     notRelated: number,
+ *     all: number
+ *   }
+ * }} config
+ */
+export function createConvergenceFilterCard({ activeFilter, counts }) {
+  const filters = [
+    { id: "active", label: "Active", count: counts.active },
+    { id: "needs-review", label: "Needs Review", count: counts.needsReview },
+    { id: "not-related", label: "Not Related", count: counts.notRelated },
+    { id: "all", label: "All", count: counts.all }
+  ];
+
+  return createElement("div", {
+    className: "similar-app-card convergence-filter-card"
+  }, [
+    createElement("div", {
+      text: "Review visibility",
+      style: {
+        fontWeight: "900",
+        color: "var(--text)",
+        marginBottom: "0.35rem"
+      }
+    }),
+    createElement("div", {
+      text: "Switch between active auto-detected candidates, review queue items, hidden Not Related decisions, and the full convergence ledger.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.86rem",
+        lineHeight: "1.45",
+        marginBottom: "0.75rem"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions",
+      style: {
+        marginTop: "0"
+      }
+    }, filters.map((filter) => createElement("button", {
+      className: `btn governance-action-btn${activeFilter === filter.id ? " btn-primary" : ""}`,
+      text: `${filter.label} (${filter.count})`,
+      attrs: { type: "button" },
+      dataset: { convergenceFilter: filter.id }
+    })))
+  ]);
+}
+
+/**
  * @param {{ name: string, id: string, score: number, reasons: string[] }} similar
  * @param {{ reviewStatus?: string, reviewNote?: string, reviewSource?: string, generatedInsight?: string, assimilationRecommendation?: string }} [options]
  */

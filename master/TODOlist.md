@@ -1603,3 +1603,10 @@
 - [x] Keep operator-contributed overlaps in the same workbench with AI due diligence and review actions.
 - [x] Preserve Not Related decisions as hidden tombstones so rejected auto-detected pairs do not reappear.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Review Visibility Filters
+
+- [x] Add project workbench filters for Active, Needs Review, Not Related, and All convergence candidates.
+- [x] Keep hidden Not Related pairs auditable and restorable from the same convergence card actions.
+- [x] Refresh convergence-dependent findings after every review state change.
+- [x] Add parser checks, validation, relaunch, commit, and push.

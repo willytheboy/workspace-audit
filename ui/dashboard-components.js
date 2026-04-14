@@ -874,6 +874,30 @@ export function createDataSourcesAccessValidationWorkflowSnapshotItem(snapshot) 
         dataset: {
           sourceAccessValidationWorkflowSnapshotId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftAcceptId: snapshot.id
+        }
       })
     ])
   ]);
@@ -3935,7 +3959,43 @@ export function createGovernanceDeck(governance) {
         fontSize: "0.84rem",
         lineHeight: "1.45"
       }
-    })
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn data-source-access-validation-workflow-snapshot-drift-accept-btn",
+        text: "Accept Drift",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessValidationWorkflowSnapshotDriftAcceptId: snapshot.id
+        }
+      })
+    ])
   ]));
   const dataSourceAccessValidationWorkflowSnapshotDiff = governance.dataSourceAccessValidationWorkflowSnapshotDiff;
   const dataSourceAccessValidationWorkflowSnapshotDiffEntries = dataSourceAccessValidationWorkflowSnapshotDiff

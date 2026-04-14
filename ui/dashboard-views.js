@@ -3002,6 +3002,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
+    bindDataSourcesAccessValidationWorkflowSnapshotActions(container, governanceCache?.dataSourceAccessValidationWorkflowSnapshots || []);
     bindSourceAccessReviewTaskSnapshotActions(container, "governance");
     bindSourceEvidenceCoverageTaskSnapshotActions(container, "governance");
     bindSourceValidationWorkflowTaskSnapshotActions(container, "governance");
@@ -4949,7 +4950,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    * @param {HTMLElement} container
    * @param {import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[]} snapshots
    */
-  function bindDataSourcesAccessValidationWorkflowSnapshotActions(container, snapshots) {
+  function bindDataSourcesAccessValidationWorkflowSnapshotActions(container, snapshots = []) {
+    const snapshotList = snapshots.length ? snapshots : (governanceCache?.dataSourceAccessValidationWorkflowSnapshots || []);
     container.querySelectorAll("[data-source-access-validation-workflow-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -4957,7 +4959,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         event.stopPropagation();
 
         const snapshotId = element.dataset.sourceAccessValidationWorkflowSnapshotId || "";
-        const snapshot = snapshots.find((item) => item.id === snapshotId);
+        const snapshot = snapshotList.find((item) => item.id === snapshotId);
         if (!snapshot) return;
 
         const originalLabel = element.textContent || "";
@@ -4965,6 +4967,79 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Copied";
           await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-validation-workflow-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationWorkflowSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchSourcesAccessValidationWorkflowSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-validation-workflow-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationWorkflowSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createDataSourcesAccessValidationWorkflowDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-validation-workflow-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessValidationWorkflowSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptDataSourcesAccessValidationWorkflowSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -6638,6 +6713,71 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     });
     await renderGovernance();
     return "Accepted Data Sources access validation evidence drift as current baseline";
+  }
+
+  function findDataSourcesAccessValidationWorkflowSnapshot(snapshotId) {
+    return (governanceCache?.dataSourceAccessValidationWorkflowSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getDataSourcesAccessValidationWorkflowDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildDataSourcesAccessValidationWorkflowDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Data Sources access validation workflow drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review source-access validation workflow drift before the next ingestion or agent handoff."}`,
+      `Ready workflow: ${snapshotSummary.ready ?? 0} -> ${liveSummary.ready ?? 0}; blocked workflow: ${snapshotSummary.blocked ?? 0} -> ${liveSummary.blocked ?? 0}; missing evidence: ${snapshotSummary.missingEvidence ?? 0} -> ${liveSummary.missingEvidence ?? 0}.`,
+      "Secret policy: non-secret Data Sources access validation workflow metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Data Sources access validation workflow drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createDataSourcesAccessValidationWorkflowDriftReviewTask(snapshotId) {
+    const snapshot = findDataSourcesAccessValidationWorkflowSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access validation workflow snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessValidationWorkflowSnapshotDiff(snapshotId);
+    const title = `Review Data Sources access validation workflow drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title,
+      description: buildDataSourcesAccessValidationWorkflowDriftTaskDescription(snapshot, diff),
+      priority: getDataSourcesAccessValidationWorkflowDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created Data Sources access validation workflow drift review task";
+  }
+
+  async function acceptDataSourcesAccessValidationWorkflowSnapshotDrift(snapshotId) {
+    const snapshot = findDataSourcesAccessValidationWorkflowSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access validation workflow snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessValidationWorkflowSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.createSourcesAccessValidationWorkflowSnapshot({
+      title: `Accepted Data Sources access validation workflow drift as current baseline: ${sourceTitle}`.slice(0, 120)
+    });
+    await renderGovernance();
+    return "Accepted Data Sources access validation workflow drift as current baseline";
   }
 
   async function saveAgentWorkOrderSnapshot() {

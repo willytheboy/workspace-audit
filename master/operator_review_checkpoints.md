@@ -36,10 +36,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources validation workflow per-item task snapshots: individual validation workflow blockers now expose `Track + Snapshot` in Sources and Governance so one workflow item can become a task and source-access task-ledger baseline without seeding the whole batch.
 - Data Sources access task-ledger drift checkpoints: saved source-access task ledger snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so source-access task drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 - Data Sources validation evidence drift checkpoints: saved source-access validation evidence snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so evidence drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
+- Data Sources validation workflow drift checkpoints: saved source-access validation workflow snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so workflow drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources validation workflow snapshot drift checkpoints so saved workflow snapshots can be tracked as follow-up tasks or accepted as intentional by refreshing the baseline.
+- Add Data Sources summary snapshot drift checkpoints so saved source health summaries can be tracked as follow-up tasks or accepted as intentional by refreshing the baseline.
 
 ## Implementation Standard
 

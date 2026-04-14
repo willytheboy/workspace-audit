@@ -3115,6 +3115,45 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(operatorProposalJson.review.generatedInsight, /AI-assisted due diligence/);
     assert.match(operatorProposalJson.review.note, /Operator context/);
     assert.equal(operatorProposalJson.candidates.some((candidate) => candidate.operatorProposed === true), true);
+
+    const convergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairIds: [operatorProposalJson.review.pairId]
+      })
+    });
+    assert.equal(convergenceTaskResponse.status, 200);
+    const convergenceTaskJson = await convergenceTaskResponse.json();
+    assert.equal(convergenceTaskJson.success, true);
+    assert.equal(convergenceTaskJson.totals.requested, 1);
+    assert.equal(convergenceTaskJson.totals.created, 1);
+    assert.equal(convergenceTaskJson.totals.skipped, 0);
+    assert.equal(convergenceTaskJson.createdTasks[0].convergencePairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceTaskJson.createdTasks[0].convergenceReviewStatus, operatorProposalJson.review.status);
+    assert.equal(convergenceTaskJson.createdTasks[0].secretPolicy, "non-secret-convergence-review-evidence-only");
+    assert.match(convergenceTaskJson.createdTasks[0].description, /Do not store passwords/);
+
+    const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairIds: [operatorProposalJson.review.pairId]
+      })
+    });
+    assert.equal(repeatConvergenceTaskResponse.status, 200);
+    const repeatConvergenceTaskJson = await repeatConvergenceTaskResponse.json();
+    assert.equal(repeatConvergenceTaskJson.totals.created, 0);
+    assert.equal(repeatConvergenceTaskJson.totals.skipped, 1);
+    assert.match(repeatConvergenceTaskJson.skipped[0].reason, /already exists/);
+
+    const governanceAfterConvergenceTasksResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterConvergenceTasksResponse.status, 200);
+    const governanceAfterConvergenceTasksJson = await governanceAfterConvergenceTasksResponse.json();
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceOpenTaskCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
   } finally {
     server.close();
     await once(server, "close");

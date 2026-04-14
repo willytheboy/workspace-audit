@@ -1464,6 +1464,8 @@ export function createGovernanceSummaryGrid(governance) {
   const openDecisionTaskCount = summary.agentControlPlaneDecisionOpenTaskCount || 0;
   const executionResultTaskCount = summary.agentExecutionResultTaskCount || 0;
   const openExecutionResultTaskCount = summary.agentExecutionResultOpenTaskCount || 0;
+  const convergenceTaskCount = summary.convergenceTaskCount || 0;
+  const openConvergenceTaskCount = summary.convergenceOpenTaskCount || 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1672,6 +1674,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Execution Tasks",
       value: `${openExecutionResultTaskCount}/${executionResultTaskCount}`,
       detail: "Follow-up tasks created from deferred execution-result gate checkpoints"
+    }),
+    createKpiCard({
+      accentColor: openConvergenceTaskCount ? "var(--warning)" : convergenceTaskCount ? "var(--success)" : "var(--primary)",
+      label: "Convergence Tasks",
+      value: `${openConvergenceTaskCount}/${convergenceTaskCount}`,
+      detail: "Open review tasks created from confirmed, merge, or needs-review overlap pairs"
     }),
     createKpiCard({
       accentColor: "var(--success)",
@@ -2461,6 +2469,12 @@ export function createGovernanceDeck(governance) {
         createElement("div", {
           className: "governance-actions"
         }, [
+          candidate.reviewStatus !== "not-related" ? createElement("button", {
+            className: "btn governance-action-btn convergence-review-task-btn",
+            text: "Track Task",
+            attrs: { type: "button" },
+            dataset: { convergenceReviewTaskPairId: candidate.pairId || "" }
+          }) : null,
           candidate.leftId ? createElement("button", {
             className: "btn governance-action-btn",
             text: "Open Left",
@@ -2477,6 +2491,105 @@ export function createGovernanceDeck(governance) {
       ]);
     })
   ] : [];
+  const convergenceTaskEntries = (governance.convergenceTasks || []).map((task) => createElement("div", {
+    className: "governance-gap-card convergence-review-task-card",
+    dataset: task.convergenceLeftId ? { openAppId: encodeAppId(task.convergenceLeftId) } : undefined,
+    title: task.convergenceLeftId ? "Open left project workbench" : undefined,
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: task.title || "Convergence review task",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.convergencePairId || "convergence-pair"} | status ${(task.convergenceReviewStatus || "needs-review").toUpperCase()} | score ${task.convergenceScore || 0}%`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "flex",
+          gap: "0.35rem",
+          flexWrap: "wrap",
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag((task.priority || "normal").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag((task.status || "open").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase()) ? "var(--success)" : "var(--warning)"
+        })
+      ])
+    ]),
+    createElement("div", {
+      text: task.description ? String(task.description).split("\n")[0] : "Track convergence review evidence without storing credentials, keys, certificates, cookies, or browser sessions.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(task.convergenceOperatorProposed ? "operator proposed" : "auto detected", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: task.convergenceOperatorProposed ? "var(--primary)" : "var(--text-muted)"
+      }),
+      createTag(task.convergenceRecommendation || "needs-review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(task.secretPolicy || "non-secret-convergence-review-evidence-only", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      task.convergenceLeftId ? createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Open Left",
+        attrs: { type: "button" },
+        dataset: { openAppId: encodeAppId(task.convergenceLeftId) }
+      }) : null,
+      task.convergenceRightId ? createElement("button", {
+        className: "btn governance-action-btn",
+        text: "Open Right",
+        attrs: { type: "button" },
+        dataset: { openAppId: encodeAppId(task.convergenceRightId) }
+      }) : null
+    ])
+  ]));
   const taskSeedingCheckpointStatusOrder = ["approved", "deferred", "dismissed", "needs-review"];
   const taskSeedingCheckpointStatusLabels = {
     approved: "Approved",
@@ -9391,6 +9504,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
+    createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),
     createListSection("Task Update Audit Ledger", "Recent non-secret Governance task lifecycle update operations with operator checkpoints.", governanceTaskUpdateLedgerEntries),
     createListSection("Task Update Audit Ledger Snapshots", "Persisted non-secret Governance task update audit ledger handoffs.", [...governanceTaskUpdateLedgerSnapshotDiffEntries, ...governanceTaskUpdateLedgerSnapshotEntries]),

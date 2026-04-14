@@ -1617,3 +1617,10 @@
 - [x] Add copy controls for active, Not Related, and full convergence review ledgers.
 - [x] Add a Governance scope filter entry for Convergence Review.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Seeding
+
+- [x] Add a non-secret `/api/convergence/tasks` endpoint for creating tracked tasks from convergence review pairs.
+- [x] Add duplicate protection so repeated task seeding skips existing open convergence tasks.
+- [x] Add Governance controls to track individual convergence candidates as tasks and show the resulting task ledger cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -1578,3 +1578,9 @@
 - [x] Add Agent Execution Queue `Save CLI Trace` controls and a Governance snapshot list with copy actions.
 - [x] Surface snapshot counts in Governance summary, diagnostics, search/report output, and recent activity.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Snapshot Drift
+
+- [x] Add a latest-snapshot drift API comparing saved CLI bridge run traces with live trace state.
+- [x] Surface trace drift in Governance execution scope with copyable Markdown.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

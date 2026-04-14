@@ -3193,6 +3193,110 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-run-trace-snapshot-drift-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.75rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: `Trace drift: ${governance.cliBridgeRunTraceSnapshotDiff.snapshotTitle || governance.cliBridgeRunTraceSnapshotDiff.snapshotId || "latest snapshot"}`,
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: governance.cliBridgeRunTraceSnapshotDiff.recommendedAction || "Save a CLI bridge run trace snapshot before comparing drift.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag(governance.cliBridgeRunTraceSnapshotDiff.driftSeverity || "missing-snapshot", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: governance.cliBridgeRunTraceSnapshotDiff.driftSeverity === "high" || governance.cliBridgeRunTraceSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : governance.cliBridgeRunTraceSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(`score ${governance.cliBridgeRunTraceSnapshotDiff.driftScore || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: governance.cliBridgeRunTraceSnapshotDiff.hasDrift ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`${(governance.cliBridgeRunTraceSnapshotDiff.driftItems || []).length} item(s)`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (governance.cliBridgeRunTraceSnapshotDiff.driftItems || []).length ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`run ${governance.cliBridgeRunTraceSnapshotDiff.runId || "unknown"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--primary)"
+            })
+          ]),
+          governance.cliBridgeRunTraceSnapshotDiff.driftItems?.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.35rem"
+                }
+              }, governance.cliBridgeRunTraceSnapshotDiff.driftItems.slice(0, 6).map((item) => createElement("div", {
+                text: `${item.label || item.field}: ${item.before ?? ""} -> ${item.current ?? ""}`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  lineHeight: "1.45"
+                }
+              })))
+            : createElement("div", {
+                text: "No live trace drift detected against the saved snapshot.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem"
+                }
+              }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-run-trace-snapshot-diff-copy-btn",
+              text: "Copy Trace Drift",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunTraceSnapshotDiffCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   /**
    * @param {import("./dashboard-types.js").GovernanceAgentReadinessItem} item
    */
@@ -8875,6 +8979,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
+    createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

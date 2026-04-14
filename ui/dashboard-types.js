@@ -1128,6 +1128,7 @@
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
+ *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -1364,6 +1365,22 @@
  *   trace: CliBridgeRunTracePayload,
  *   createdAt: string
  * }} PersistedCliBridgeRunTraceSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "ready" | "missing-snapshot",
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   runId: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: { traceDecision: string, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
+ *   snapshotSummary: { traceDecision: string, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
+ *   markdown: string
+ * }} CliBridgeRunTraceSnapshotDiffPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

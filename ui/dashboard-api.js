@@ -692,6 +692,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
+   */
+  fetchCliBridgeRunTraceSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/cli-bridge/run-trace-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {string} runId
    * @param {{ title?: string }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot, cliBridgeRunTraceSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[], governanceOperationCount: number }>}

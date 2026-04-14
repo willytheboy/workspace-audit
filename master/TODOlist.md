@@ -1354,3 +1354,10 @@
 - [x] Add per-drift-item `Confirm`, `Defer`, and `Escalate` controls that persist non-secret Agent Control Plane task metadata.
 - [x] Preserve the non-secret agent control-plane decision task ledger drift metadata policy for checkpoint notes.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Agent Execution Result Follow-up Task Ledger Item Checkpoints
+
+- [x] Add task-row `Confirm`, `Defer`, and `Escalate` controls to Agent Execution Result follow-up task cards.
+- [x] Persist task-row checkpoint decisions through non-secret execution-result task metadata and lifecycle updates.
+- [x] Preserve the non-secret agent execution-result follow-up task metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

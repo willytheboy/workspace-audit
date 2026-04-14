@@ -267,6 +267,9 @@
  *   validationSummary: string,
  *   nextAction: string,
  *   notes: string,
+ *   resultStatus?: string,
+ *   handoffRecommendation?: "codex" | "claude" | "operator" | "workspace-audit",
+ *   blockers?: string[],
  *   secretPolicy: string,
  *   createdAt: string,
  *   updatedAt: string

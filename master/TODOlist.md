@@ -1487,3 +1487,10 @@
 - [x] Generate sanitized work-order prompts, expected output schemas, runner display commands, and validation loops.
 - [x] Add Governance copy controls for Codex and Claude dry-run contracts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Result Intake
+
+- [x] Add a non-secret runner-result intake endpoint for manual Codex CLI and Claude CLI dry-run outputs.
+- [x] Convert runner summaries into app-owned CLI bridge handoff ledger records.
+- [x] Preserve operator review before accepting results or creating follow-up work orders.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

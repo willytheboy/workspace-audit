@@ -1969,6 +1969,37 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].sourceRunner, "codex");
     assert.ok(governanceAfterCliBridgeHandoffJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-recorded"));
 
+    const createCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-results`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        workOrderRunId: createAgentWorkOrderRunJson.run.id,
+        status: "changed",
+        summary: "Claude reviewed the bounded fixture result and recommends operator acceptance after validation.",
+        changedFiles: ["src/index.js"],
+        validationResults: "Fixture validation passed after runner review.",
+        blockers: [],
+        handoffRecommendation: "operator",
+        nextAction: "Operator should review and accept or request a follow-up work order."
+      })
+    });
+    assert.equal(createCliBridgeRunnerResultResponse.status, 200);
+    const createCliBridgeRunnerResultJson = await createCliBridgeRunnerResultResponse.json();
+    assert.equal(createCliBridgeRunnerResultJson.success, true);
+    assert.equal(createCliBridgeRunnerResultJson.handoff.sourceRunner, "claude");
+    assert.equal(createCliBridgeRunnerResultJson.handoff.targetRunner, "operator");
+    assert.equal(createCliBridgeRunnerResultJson.handoff.resultStatus, "changed");
+    assert.equal(createCliBridgeRunnerResultJson.handoff.handoffRecommendation, "operator");
+    assert.equal(createCliBridgeRunnerResultJson.ledger.total, 2);
+    assert.ok(createCliBridgeRunnerResultJson.ledger.markdown.includes("runner-result:changed"));
+
+    const governanceAfterCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeRunnerResultResponse.status, 200);
+    const governanceAfterCliBridgeRunnerResultJson = await governanceAfterCliBridgeRunnerResultResponse.json();
+    assert.equal(governanceAfterCliBridgeRunnerResultJson.summary.cliBridgeHandoffCount, 2);
+    assert.ok(governanceAfterCliBridgeRunnerResultJson.operationLog.some((operation) => operation.type === "cli-bridge-runner-result-recorded"));
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

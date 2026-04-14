@@ -1263,3 +1263,10 @@
 - [x] Convert source-health summary drift reports into non-secret Data Sources review tasks with severity, score, summary deltas, and bounded drift fields.
 - [x] Accept intentional source-health summary drift by saving a refreshed Data Sources summary snapshot as the current operator-approved baseline.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Matrix Checkpoints
+
+- [x] Add method-row `Confirm` and `Defer` controls to the Data Sources access matrix deck using the non-secret task-seeding checkpoint ledger.
+- [x] Add method-row `Track Tasks` controls that convert matching access-review queue items into source-access review tasks with a task-ledger auto-capture snapshot.
+- [x] Preserve the non-secret access-method metadata policy for checkpoint notes and task conversion.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

@@ -38,10 +38,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Data Sources validation evidence drift checkpoints: saved source-access validation evidence snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so evidence drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 - Data Sources validation workflow drift checkpoints: saved source-access validation workflow snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so workflow drift can become a non-secret Governance task or be accepted by saving a refreshed baseline.
 - Data Sources summary drift checkpoints: saved source-health summary snapshots now expose `Copy Drift`, `Track Drift`, and `Accept Drift` controls so source-health drift can become a non-secret Data Sources task or be accepted by saving a refreshed baseline.
+- Data Sources access matrix checkpoints: access-method matrix rows now expose `Confirm`, `Defer`, and `Track Tasks` controls so inferred source-access readiness can be operator-reviewed or converted into source-access review tasks without storing secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources access matrix checkpoint controls so access-method/source readiness matrix rows can be confirmed, deferred, or converted into source-access tasks without storing secrets.
+- Add Data Sources access method registry checkpoint controls so method-level source access classifications can be confirmed, deferred, or turned into validation evidence without storing secrets.
 
 ## Implementation Standard
 

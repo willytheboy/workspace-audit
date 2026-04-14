@@ -1104,6 +1104,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         const title = element.dataset.taskSeedingTitle || "Data Sources generated task item";
         const source = element.dataset.taskSeedingSource || "sources";
         const itemCount = Number(element.dataset.taskSeedingItemCount || 1);
+        const note = element.dataset.taskSeedingNote || `Operator marked the Data Sources inferred task item as ${status} from the Sources item checkpoint before task creation.`;
         if (!batchId) return;
 
         const originalLabel = element.textContent || "";
@@ -1117,8 +1118,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             source,
             itemCount,
             renderTarget: "sources",
-            note: `Operator marked the Data Sources inferred task item as ${status} from the Sources item checkpoint before task creation.`
+            note
           });
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
+  function bindSourceAccessMatrixTaskActions(container) {
+    container.querySelectorAll("[data-source-access-matrix-task-access-method]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const accessMethod = element.dataset.sourceAccessMatrixTaskAccessMethod || "";
+        if (!accessMethod) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          const label = await createSourceAccessMatrixTasks(accessMethod);
+          element.textContent = label;
         } catch (error) {
           element.disabled = false;
           element.textContent = originalLabel;
@@ -4085,6 +4114,33 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         stats.append(statLine);
       }
 
+      const actions = document.createElement("div");
+      actions.className = "governance-actions source-access-matrix-checkpoints";
+      actions.style.marginTop = "0.75rem";
+
+      for (const [status, label] of [["approved", "Confirm"], ["deferred", "Defer"]]) {
+        const checkpointButton = document.createElement("button");
+        checkpointButton.className = `btn governance-action-btn source-access-matrix-${status}-btn`;
+        checkpointButton.type = "button";
+        checkpointButton.textContent = label;
+        checkpointButton.dataset.sourceTaskSeedingCheckpoint = "true";
+        checkpointButton.dataset.taskSeedingBatchId = `sources-access-matrix:${method.accessMethod}`;
+        checkpointButton.dataset.taskSeedingStatus = status;
+        checkpointButton.dataset.taskSeedingSource = "sources-access-matrix";
+        checkpointButton.dataset.taskSeedingTitle = `Data Sources access matrix: ${method.accessMethod}`;
+        checkpointButton.dataset.taskSeedingItemCount = String(method.total || 0);
+        checkpointButton.dataset.taskSeedingNote = `Operator marked the Data Sources access matrix row for ${method.accessMethod} as ${status} before task creation; non-secret access-method metadata only.`;
+        actions.append(checkpointButton);
+      }
+
+      const trackButton = document.createElement("button");
+      trackButton.className = "btn governance-action-btn source-access-matrix-task-btn";
+      trackButton.type = "button";
+      trackButton.textContent = "Track Tasks";
+      trackButton.dataset.sourceAccessMatrixTaskAccessMethod = method.accessMethod;
+      actions.append(trackButton);
+
+      body.append(actions);
       card.append(body, stats);
       section.append(card);
     }
@@ -5271,6 +5327,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindDeploymentHealthActions(container);
       bindSourceAccessEvidenceActions(container, renderSources);
       bindSourceTaskSeedingCheckpointActions(container);
+      bindSourceAccessMatrixTaskActions(container);
       bindSourceAccessReviewTaskSnapshotActions(container, "sources");
       bindSourceEvidenceCoverageTaskSnapshotActions(container, "sources");
       bindSourceValidationWorkflowTaskSnapshotActions(container, "sources");
@@ -6626,6 +6683,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       await renderGovernance();
     }
     const taskLabel = `Created ${result.totals.created} Source Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
+  }
+
+  async function createSourceAccessMatrixTasks(accessMethod) {
+    const queue = await api.fetchSourcesAccessReviewQueue();
+    const items = (queue?.items || []).filter((item) => item.accessMethod === accessMethod);
+    if (!items.length) return "No Matrix Tasks";
+
+    const result = await api.createSourcesAccessReviewTasks({
+      items,
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Access Matrix Task Ledger Auto Capture: ${accessMethod}`.slice(0, 120),
+      snapshotStatus: "all",
+      snapshotLimit: 100
+    });
+    await renderSources();
+    const created = result.totals.created || 0;
+    const skipped = result.totals.skipped || 0;
+    const taskLabel = created
+      ? `Created ${created} Matrix Task${created === 1 ? "" : "s"}`
+      : `Skipped ${skipped} Matrix Task${skipped === 1 ? "" : "s"}`;
     return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 

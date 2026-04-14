@@ -1473,3 +1473,10 @@
 - [x] Add `GET` and `POST /api/cli-bridge/handoffs` with runner filtering and Markdown ledger output.
 - [x] Add dashboard API/types, parser checks, and server test coverage.
 - [x] Add validation, relaunch, commit, and push.
+
+## Next CLI Bridge Handoff Ledger Deck
+
+- [x] Surface the app-owned CLI bridge handoff mailbox in the Governance deck.
+- [x] Add copyable non-secret handoff ledger Markdown for operator review.
+- [x] Show recent Codex, Claude, operator, and Workspace Audit handoff records with status, project, run, and next action metadata.
+- [x] Add parser checks, validation, relaunch, commit, and push.

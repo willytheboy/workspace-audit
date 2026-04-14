@@ -1941,6 +1941,14 @@ export async function serverTest() {
     assert.equal(claudeCliBridgeHandoffsJson.items[0].targetRunner, "claude");
     assert.match(claudeCliBridgeHandoffsJson.markdown, /Codex implementation handoff for Claude review/);
 
+    const governanceAfterCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeHandoffResponse.status, 200);
+    const governanceAfterCliBridgeHandoffJson = await governanceAfterCliBridgeHandoffResponse.json();
+    assert.equal(governanceAfterCliBridgeHandoffJson.summary.cliBridgeHandoffCount, 1);
+    assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs.length, 1);
+    assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].sourceRunner, "codex");
+    assert.ok(governanceAfterCliBridgeHandoffJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-recorded"));
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

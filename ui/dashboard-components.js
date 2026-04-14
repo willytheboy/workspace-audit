@@ -2815,6 +2815,150 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const cliBridgeHandoffLedgerEntries = [
+    createElement("div", {
+      className: "governance-gap-card cli-bridge-handoff-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "App-owned CLI handoff mailbox",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "Non-secret handoffs between Codex CLI, Claude CLI, Workspace Audit Pro, and the operator. This ledger records communication without direct agent-to-agent free chat.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(`${governance.summary.cliBridgeHandoffCount || 0} handoff(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-ledger-copy-btn",
+          text: "Copy Handoff Ledger",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffLedgerCopy: "true"
+          }
+        })
+      ])
+    ]),
+    ...(governance.cliBridgeHandoffs || []).map((handoff) => createElement("div", {
+      className: "governance-gap-card cli-bridge-handoff-ledger-item-card",
+      dataset: handoff.projectId ? { openAppId: encodeAppId(handoff.projectId) } : undefined,
+      title: handoff.projectId ? "Open project workbench" : undefined,
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.6rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem"
+          }
+        }, [
+          createElement("div", {
+            text: handoff.title || "CLI Bridge Handoff",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${handoff.sourceRunner || "operator"} -> ${handoff.targetRunner || "operator"} | ${handoff.projectName || handoff.projectId || "Portfolio"} | ${new Date(handoff.updatedAt || handoff.createdAt).toLocaleString()}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(handoff.status || "needs-review", {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: handoff.status === "accepted" ? "var(--success)" : handoff.status === "rejected" ? "var(--danger)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: handoff.summary || "No handoff summary recorded.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(handoff.resultType || "handoff", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        handoff.workOrderRunId
+          ? createTag(`run ${handoff.workOrderRunId}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--primary)"
+            })
+          : null,
+        createTag(`${(handoff.changedFiles || []).length} changed file(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (handoff.changedFiles || []).length ? "var(--warning)" : "var(--text-muted)"
+        })
+      ]),
+      handoff.nextAction
+        ? createElement("div", {
+            text: `Next action: ${handoff.nextAction}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        : null
+    ]))
+  ];
+
   /**
    * @param {import("./dashboard-types.js").GovernanceAgentReadinessItem} item
    */
@@ -8395,6 +8539,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Vibe Coder Operating Guide", "Step-by-step operating cycle for safe app debugging, build validation, local relaunch, and supervised agent work.", vibeCoderOperatingGuideEntries),
     createListSection("CLI Runner Readiness Gate", "Readiness signal for a future supervised Codex CLI / Claude CLI work-order runner prototype.", cliRunnerReadinessEntries),
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
+    createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

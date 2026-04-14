@@ -667,7 +667,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @param {{ runner?: "all" | "codex" | "claude", status?: "all" | "proposed" | "accepted" | "rejected" | "needs-review", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>}
    */
   fetchCliBridgeHandoffs(options = {}) {

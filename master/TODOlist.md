@@ -1508,3 +1508,10 @@
 - [x] Route captured summaries through the non-secret runner-result intake endpoint.
 - [x] Preserve operator review before accepting or escalating captured results.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Review Queue UX
+
+- [x] Add CLI bridge handoff status filtering to the ledger API.
+- [x] Add review queue, accepted, rejected, needs-review, and escalated counters to Governance.
+- [x] Prioritize needs-review and proposed handoffs above accepted and rejected history.
+- [x] Add filtered ledger copy controls, parser checks, server coverage, validation, relaunch, commit, and push.

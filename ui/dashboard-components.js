@@ -2858,6 +2858,35 @@ export function createGovernanceDeck(governance) {
         })
       ]),
       createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`Review queue ${governance.summary.cliBridgeHandoffReviewQueueCount || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (governance.summary.cliBridgeHandoffReviewQueueCount || 0) ? "var(--warning)" : "var(--success)"
+        }),
+        createTag(`Needs review ${governance.summary.cliBridgeHandoffNeedsReviewCount || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (governance.summary.cliBridgeHandoffNeedsReviewCount || 0) ? "var(--warning)" : "var(--success)"
+        }),
+        createTag(`Accepted ${governance.summary.cliBridgeHandoffAcceptedCount || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        }),
+        createTag(`Rejected ${governance.summary.cliBridgeHandoffRejectedCount || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (governance.summary.cliBridgeHandoffRejectedCount || 0) ? "var(--danger)" : "var(--text-muted)"
+        }),
+        createTag(`Escalated ${governance.summary.cliBridgeHandoffEscalatedCount || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (governance.summary.cliBridgeHandoffEscalatedCount || 0) ? "var(--danger)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
         className: "governance-actions"
       }, [
         createElement("button", {
@@ -2865,7 +2894,35 @@ export function createGovernanceDeck(governance) {
           text: "Copy Handoff Ledger",
           attrs: { type: "button" },
           dataset: {
-            cliBridgeHandoffLedgerCopy: "true"
+            cliBridgeHandoffLedgerCopy: "true",
+            cliBridgeHandoffLedgerStatus: "all"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-ledger-copy-btn",
+          text: "Copy Needs Review",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffLedgerCopy: "true",
+            cliBridgeHandoffLedgerStatus: "needs-review"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-ledger-copy-btn",
+          text: "Copy Accepted",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffLedgerCopy: "true",
+            cliBridgeHandoffLedgerStatus: "accepted"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-handoff-ledger-copy-btn",
+          text: "Copy Rejected",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeHandoffLedgerCopy: "true",
+            cliBridgeHandoffLedgerStatus: "rejected"
           }
         }),
         createElement("button", {

@@ -53,10 +53,11 @@ Purpose: keep AI-generated control-center classifications useful without treatin
 - Agent Control Plane decision task ledger drift item checkpoints: individual decision-task ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level drift can be persisted as non-secret Agent Control Plane tasks without storing response bodies or secrets.
 - Agent Execution Result follow-up task ledger item checkpoints: individual execution-result follow-up task rows now expose `Confirm`, `Defer`, and `Escalate` controls so task triage can be persisted through non-secret execution-result task metadata without storing response bodies or secrets.
 - Agent Execution Result task ledger drift item checkpoints: individual execution-result task ledger drift rows now expose `Confirm`, `Defer`, and `Escalate` controls so field-level drift can be persisted as non-secret Agent Execution Result tasks without storing response bodies or secrets.
+- Data Sources access task ledger item checkpoints: individual source-access task rows now expose `Confirm`, `Defer`, and `Escalate` controls so task triage can be persisted through non-secret source-access task metadata without storing response bodies or secrets.
 
 ## Next Checkpoint Candidates
 
-- Add Data Sources access task ledger item checkpoints so individual source-access task rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
+- Add Data Sources access task ledger drift item checkpoints so individual source-access task drift rows can be confirmed, deferred, or escalated without storing response bodies or secrets.
 
 ## Implementation Standard
 

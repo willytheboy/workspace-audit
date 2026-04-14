@@ -4216,6 +4216,33 @@ export function createGovernanceDeck(governance) {
     createElement("div", {
       className: "governance-actions"
     }, [
+      createElement("button", {
+        className: "btn governance-action-btn source-access-task-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessTaskCheckpointAction: "confirm",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-task-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessTaskCheckpointAction: "defer",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn source-access-task-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          sourceAccessTaskCheckpointAction: "escalate",
+          taskId: task.id || ""
+        }
+      }),
       task.status !== "resolved"
         ? createElement("button", {
             className: "btn governance-action-btn source-access-task-resolve-btn",

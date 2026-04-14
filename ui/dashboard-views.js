@@ -1008,6 +1008,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-source-access-task-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.sourceAccessTaskCheckpointAction || "";
+        if (!taskId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateDataSourcesAccessTaskCheckpoint(taskId, action);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-task-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8114,6 +8138,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const markdown = buildGovernanceDataSourcesAccessTaskLedgerMarkdown();
     await copyText(markdown);
     return `Copied ${getFilteredGovernance()?.dataSourcesAccessTasks?.length || 0} Task${(getFilteredGovernance()?.dataSourcesAccessTasks?.length || 0) === 1 ? "" : "s"}`;
+  }
+
+  function getDataSourcesAccessTaskCheckpointPatch(task, action) {
+    const checkpointStatus = action === "escalate" ? "escalated" : action === "defer" ? "deferred" : "confirmed";
+    const patch = {
+      sourceAccessTaskCheckpointStatus: checkpointStatus,
+      sourceAccessTaskCheckpointedAt: new Date().toISOString(),
+      sourceAccessTaskCheckpointNote: [
+        `Operator ${checkpointStatus} Data Sources access task ${task.title || task.id}.`,
+        `Source: ${task.sourceLabel || task.sourceId || "unknown source"}; method ${task.accessMethod || "review-required"}; evidence ${task.coverageStatus || task.lastSourceAccessValidationEvidenceStatus || task.latestEvidenceStatus || "not-recorded"}.`,
+        "Secret policy: non-secret source-access task metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" ")
+    };
+
+    if (action === "defer") {
+      patch.status = "deferred";
+    } else if (action === "escalate") {
+      patch.status = "blocked";
+      patch.priority = "high";
+    } else {
+      patch.status = "resolved";
+    }
+
+    return { checkpointStatus, patch };
+  }
+
+  async function updateDataSourcesAccessTaskCheckpoint(taskId, action) {
+    const task = (governanceCache?.dataSourcesAccessTasks || []).find((item) => item.id === taskId);
+    if (!task) throw new Error(`Data Sources access task not found: ${taskId}`);
+
+    const { checkpointStatus, patch } = getDataSourcesAccessTaskCheckpointPatch(task, action);
+    const updated = await api.updateTask(taskId, patch);
+    await renderGovernance();
+    const nextTask = updated.task || patch;
+    if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
+    if (checkpointStatus === "deferred") return "Deferred";
+    return `Confirmed ${nextTask.status || "resolved"}`;
   }
 
   async function copyLatestDataSourcesAccessTaskLedgerSnapshotDrift() {

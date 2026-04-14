@@ -2679,6 +2679,9 @@ export function createGovernanceDeck(governance) {
   ]))
   ];
   const convergenceTaskLedgerSnapshotDiff = governance.convergenceTaskLedgerSnapshotDiff || null;
+  const convergenceTaskLedgerDriftItems = Array.isArray(convergenceTaskLedgerSnapshotDiff?.driftItems)
+    ? convergenceTaskLedgerSnapshotDiff.driftItems
+    : [];
   const convergenceTaskLedgerSnapshotDiffEntries = convergenceTaskLedgerSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-task-ledger-drift-card",
@@ -2729,6 +2732,98 @@ export function createGovernanceDeck(governance) {
           lineHeight: "1.5"
         }
       }),
+      createElement("div", {
+        text: `${convergenceTaskLedgerSnapshotDiff.driftScore || 0} drift score | ${convergenceTaskLedgerDriftItems.length} drift item(s)`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      convergenceTaskLedgerDriftItems.length
+        ? createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.45rem",
+              padding: "0.7rem",
+              border: "1px solid var(--border)",
+              borderRadius: "0.85rem",
+              background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+            }
+          }, [
+            createElement("div", {
+              text: "Convergence task ledger drift fields",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.78rem",
+                fontWeight: "800",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }
+            }),
+            ...convergenceTaskLedgerDriftItems.slice(0, 8).map((item) => createElement("div", {
+              style: {
+                display: "grid",
+                gap: "0.5rem",
+                padding: "0.65rem",
+                border: "1px solid var(--border)",
+                borderRadius: "0.75rem",
+                background: "var(--surface)"
+              }
+            }, [
+              createElement("div", {
+                text: `${item.label || item.field || "Convergence task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                style: {
+                  color: "var(--text)",
+                  fontSize: "0.84rem",
+                  fontWeight: "700",
+                  lineHeight: "1.45"
+                }
+              }),
+              createElement("div", {
+                className: "governance-actions"
+              }, [
+                createElement("button", {
+                  className: "btn governance-action-btn convergence-task-ledger-drift-item-confirm-btn",
+                  text: "Confirm",
+                  attrs: { type: "button" },
+                  dataset: {
+                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
+                    convergenceTaskLedgerDriftItemDecision: "confirmed"
+                  }
+                }),
+                createElement("button", {
+                  className: "btn governance-action-btn convergence-task-ledger-drift-item-defer-btn",
+                  text: "Defer",
+                  attrs: { type: "button" },
+                  dataset: {
+                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
+                    convergenceTaskLedgerDriftItemDecision: "deferred"
+                  }
+                }),
+                createElement("button", {
+                  className: "btn governance-action-btn convergence-task-ledger-drift-item-escalate-btn",
+                  text: "Escalate",
+                  attrs: { type: "button" },
+                  dataset: {
+                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
+                    convergenceTaskLedgerDriftItemDecision: "escalated"
+                  }
+                })
+              ])
+            ])),
+            convergenceTaskLedgerDriftItems.length > 8
+              ? createElement("div", {
+                  text: `${convergenceTaskLedgerDriftItems.length - 8} additional drift item(s).`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.8rem"
+                  }
+                })
+              : null
+          ])
+        : null,
       createElement("div", {
         className: "governance-actions"
       }, [

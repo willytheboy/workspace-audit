@@ -1645,3 +1645,10 @@
 - [x] Surface save snapshot, copy latest drift, copy snapshot, and copy per-snapshot drift controls in Governance.
 - [x] Add snapshot count and drift state to the Governance convergence scope.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Ledger Drift Item Checkpoints
+
+- [x] Surface individual Convergence Review task-ledger drift fields in Governance.
+- [x] Add Confirm, Defer, and Escalate controls for each visible drift item.
+- [x] Convert drift item decisions into non-secret convergence-control tasks through the existing task API.
+- [x] Add parser checks, validation, relaunch, commit, and push.

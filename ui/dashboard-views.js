@@ -1825,6 +1825,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-convergence-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.convergenceTaskLedgerDriftItemField || "";
+        const decision = element.dataset.convergenceTaskLedgerDriftItemDecision || "";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateConvergenceTaskLedgerDriftItemCheckpoint(field, decision);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-convergence-review-task-pair-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -9083,6 +9107,49 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
     if (checkpointStatus === "deferred") return "Deferred";
     return `Confirmed ${nextTask.status || "resolved"}`;
+  }
+
+  function findConvergenceTaskLedgerDriftItem(field) {
+    const diff = governanceCache?.convergenceTaskLedgerSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getConvergenceTaskLedgerDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildConvergenceTaskLedgerDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "Convergence Review task ledger drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} Convergence Review task ledger drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Convergence Review task ledger snapshot"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret convergence review task ledger drift metadata only; do not store credentials, repository tokens, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+    ].join(" ");
+  }
+
+  async function updateConvergenceTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findConvergenceTaskLedgerDriftItem(field);
+    if (!diff) throw new Error("Convergence Review task ledger snapshot drift is not loaded.");
+    if (!item) throw new Error(`Convergence Review task ledger drift item not found: ${field}`);
+
+    const decision = getConvergenceTaskLedgerDriftItemDecision(checkpointDecision);
+    await api.createTask({
+      projectId: "convergence-control",
+      projectName: "Convergence Review",
+      title: `Convergence task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildConvergenceTaskLedgerDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   async function copyAgentExecutionResultTaskLedger() {

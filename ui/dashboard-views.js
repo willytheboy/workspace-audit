@@ -1189,6 +1189,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   /**
+   * @param {HTMLElement} container
+   * @param {"governance" | "sources"} [defaultRenderTarget]
+   */
+  function bindSourceValidationWorkflowTaskSnapshotActions(container, defaultRenderTarget = "governance") {
+    container.querySelectorAll("[data-source-validation-workflow-task-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemId = element.dataset.sourceValidationWorkflowTaskSnapshot || "";
+        const renderTarget = element.dataset.sourceValidationWorkflowTaskSnapshotRenderTarget || defaultRenderTarget;
+        if (!itemId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Capturing";
+          await createSourceValidationWorkflowTaskWithSnapshot(itemId, renderTarget === "sources" ? "sources" : "governance");
+          element.textContent = "Captured";
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+  }
+
+  /**
    * @param {string} value
    */
   async function copyText(value) {
@@ -2828,6 +2858,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);
     bindSourceAccessReviewTaskSnapshotActions(container, "governance");
     bindSourceEvidenceCoverageTaskSnapshotActions(container, "governance");
+    bindSourceValidationWorkflowTaskSnapshotActions(container, "governance");
     bindReleaseControlActions(container);
     bindControlPlaneSnapshotActions(container);
     bindAgentPolicyCheckpointActions(container);
@@ -4136,7 +4167,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       blockers.style.fontSize = "0.78rem";
       blockers.style.marginTop = "0.25rem";
 
-      body.append(itemTitle, action, blockers);
+      const workflowActions = document.createElement("div");
+      workflowActions.className = "governance-actions source-validation-workflow-item-actions";
+      workflowActions.style.marginTop = "0.65rem";
+      const trackSnapshotButton = document.createElement("button");
+      trackSnapshotButton.type = "button";
+      trackSnapshotButton.className = "btn governance-action-btn source-validation-workflow-task-snapshot-btn";
+      trackSnapshotButton.textContent = "Track + Snapshot";
+      trackSnapshotButton.dataset.sourceValidationWorkflowTaskSnapshot = item.id || "";
+      trackSnapshotButton.dataset.sourceValidationWorkflowTaskSnapshotRenderTarget = "sources";
+      workflowActions.append(trackSnapshotButton);
+
+      body.append(itemTitle, action, blockers, workflowActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -4935,6 +4977,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       bindSourceTaskSeedingCheckpointActions(container);
       bindSourceAccessReviewTaskSnapshotActions(container, "sources");
       bindSourceEvidenceCoverageTaskSnapshotActions(container, "sources");
+      bindSourceValidationWorkflowTaskSnapshotActions(container, "sources");
       bindDataSourcesAccessValidationWorkflowSnapshotActions(container, workflowSnapshots || []);
       bindDataSourcesSummarySnapshotActions(container, snapshots || []);
     } catch (error) {
@@ -5590,6 +5633,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return result.snapshotCaptured
       ? `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"} + Snapshot`
       : `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
+  }
+
+  async function createSourceValidationWorkflowTaskWithSnapshot(itemId, renderTarget = "governance") {
+    const cachedWorkflow = renderTarget === "governance"
+      ? getFilteredGovernance()?.dataSourcesAccessValidationWorkflow
+      : null;
+    const workflow = cachedWorkflow || await api.fetchSourcesAccessValidationWorkflow();
+    const item = (workflow?.items || []).find((entry) => entry.id === itemId);
+    if (!item) throw new Error(`Source validation workflow item not found: ${itemId}`);
+
+    const label = item.label || item.sourceId || itemId;
+    const result = await api.createSourcesAccessValidationWorkflowTasks({
+      items: [item],
+      saveSnapshot: true,
+      snapshotTitle: `Data Sources Validation Workflow Task Ledger Auto Capture: ${label}`.slice(0, 120),
+      snapshotStatus: "open",
+      snapshotLimit: 100
+    });
+    if (renderTarget === "sources") {
+      await renderSources();
+    } else {
+      await renderGovernance();
+    }
+    const taskLabel = `Created ${result.totals.created} Workflow Task${result.totals.created === 1 ? "" : "s"}`;
+    return result.snapshotCaptured ? `${taskLabel} + Snapshot` : taskLabel;
   }
 
   async function copySourcesAccessChecklist() {

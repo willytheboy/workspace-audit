@@ -3115,6 +3115,9 @@ export function createGovernanceDeck(governance) {
   const dataSourcesAccessValidationRunbookMethods = Array.isArray(dataSourcesAccessValidationRunbook?.methods)
     ? dataSourcesAccessValidationRunbook.methods
     : [];
+  const dataSourcesAccessValidationWorkflowItems = Array.isArray(governance.dataSourcesAccessValidationWorkflow?.items)
+    ? governance.dataSourcesAccessValidationWorkflow.items
+    : [];
   const dataSourceAccessValidationEvidence = Array.isArray(governance.dataSourceAccessValidationEvidence)
     ? governance.dataSourceAccessValidationEvidence
     : [];
@@ -3234,6 +3237,91 @@ export function createGovernanceDeck(governance) {
         ])
       ]
     : [];
+  const dataSourcesAccessValidationWorkflowEntries = dataSourcesAccessValidationWorkflowItems.map((item) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: item.label || item.sourceId || "Source validation workflow",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${item.stage || "review"} • ${item.accessMethod || "review-required"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "flex",
+          gap: "0.35rem",
+          flexWrap: "wrap",
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag(String(item.status || "pending").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: item.status === "blocked" ? "var(--danger)" : item.status === "ready" ? "var(--success)" : "var(--warning)"
+        }),
+        createTag(String(item.priority || "medium").toUpperCase(), {
+          border: "1px solid var(--border)",
+          background: "var(--bg)",
+          color: item.priority === "high" ? "var(--danger)" : item.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+        })
+      ])
+    ]),
+    createElement("div", {
+      text: item.action || "Track the source access validation workflow without storing secrets.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    Array.isArray(item.blockerTypes) && item.blockerTypes.length
+      ? createElement("div", {
+          text: `Blockers: ${item.blockerTypes.join(", ")}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      : null,
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn source-validation-workflow-task-snapshot-btn",
+        text: "Track + Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          sourceValidationWorkflowTaskSnapshot: item.id || "",
+          sourceValidationWorkflowTaskSnapshotRenderTarget: "governance"
+        }
+      })
+    ])
+  ]));
   const dataSourcesAccessReviewQueueEntries = dataSourcesAccessReviewQueueItems.map((item) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -6529,6 +6617,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Data Sources Access Validation Evidence", "Recorded non-secret proof that source-access checks were completed outside this app.", dataSourceAccessValidationEvidenceEntries),
     createListSection("Data Sources Access Validation Evidence Snapshots", "Persisted non-secret source-access validation evidence handoffs.", dataSourceAccessValidationEvidenceSnapshotEntries),
     createListSection("Data Sources Access Validation Evidence Snapshot Drift", "Latest saved evidence snapshot compared with the current non-secret evidence ledger.", dataSourceAccessValidationEvidenceSnapshotDiffEntries),
+    createListSection("Data Sources Access Validation Workflow", "Pending, blocked, and ready source-access workflow blockers before task seeding.", dataSourcesAccessValidationWorkflowEntries),
     createListSection("Data Sources Access Validation Workflow Snapshots", "Persisted non-secret source-access validation workflow handoffs.", dataSourceAccessValidationWorkflowSnapshotEntries),
     createListSection("Data Sources Access Validation Workflow Snapshot Drift", "Latest saved workflow snapshot compared with the current source-access validation workflow.", dataSourceAccessValidationWorkflowSnapshotDiffEntries),
     createListSection("Data Sources Access Validation Workflow Tasks", "Workflow-seeded source-access tasks with their validation stage, evidence state, and lifecycle controls.", dataSourcesAccessValidationWorkflowTaskEntries),

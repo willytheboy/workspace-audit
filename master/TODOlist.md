@@ -1480,3 +1480,10 @@
 - [x] Add copyable non-secret handoff ledger Markdown for operator review.
 - [x] Show recent Codex, Claude, operator, and Workspace Audit handoff records with status, project, run, and next action metadata.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Contract
+
+- [x] Add a non-executing runner dry-run endpoint for Codex CLI and Claude CLI command envelopes.
+- [x] Generate sanitized work-order prompts, expected output schemas, runner display commands, and validation loops.
+- [x] Add Governance copy controls for Codex and Claude dry-run contracts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

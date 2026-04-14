@@ -8516,6 +8516,22 @@ export function createGovernanceDeck(governance) {
           dataset: {
             cliBridgeContextRunner: "all"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-dry-run-copy-btn",
+          text: "Copy Codex Dry Run",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerDryRun: "codex"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-dry-run-copy-btn",
+          text: "Copy Claude Dry Run",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerDryRun: "claude"
+          }
         })
       ])
     ])

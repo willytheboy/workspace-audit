@@ -1225,6 +1225,26 @@ export async function serverTest() {
     assert.equal(createAgentWorkOrderRunJson.run.history.length, 1);
     assert.equal(createAgentWorkOrderRunJson.run.history[0].status, "queued");
 
+    const codexCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=codex&runId=${createAgentWorkOrderRunJson.run.id}`);
+    assert.equal(codexCliBridgeDryRunResponse.status, 200);
+    const codexCliBridgeDryRunJson = await codexCliBridgeDryRunResponse.json();
+    assert.equal(codexCliBridgeDryRunJson.protocolVersion, "cli-bridge-runner-dry-run.v1");
+    assert.equal(codexCliBridgeDryRunJson.executionMode, "non-executing");
+    assert.equal(codexCliBridgeDryRunJson.runner, "codex");
+    assert.equal(codexCliBridgeDryRunJson.selectedWorkOrder.id, createAgentWorkOrderRunJson.run.id);
+    assert.equal(codexCliBridgeDryRunJson.commandEnvelope.adapterId, "codex");
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
+    assert.match(codexCliBridgeDryRunJson.markdown, /# CLI Bridge Runner Dry Run/);
+    assert.match(codexCliBridgeDryRunJson.markdown, /Do not use or request secrets/);
+
+    const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
+    assert.equal(claudeCliBridgeDryRunResponse.status, 200);
+    const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();
+    assert.equal(claudeCliBridgeDryRunJson.runner, "claude");
+    assert.equal(claudeCliBridgeDryRunJson.commandEnvelope.adapterId, "claude");
+    assert.match(claudeCliBridgeDryRunJson.commandEnvelope.displayCommand, /claude -p/);
+    assert.match(claudeCliBridgeDryRunJson.expectedOutputSchema.handoffRecommendation, /codex/);
+
     const updateAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

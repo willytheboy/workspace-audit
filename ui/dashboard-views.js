@@ -1622,6 +1622,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.cliBridgeRunnerDryRun || "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Preparing";
+          const payload = await api.fetchCliBridgeRunnerDryRun({ runner, limit: 24 });
+          await copyText(payload.markdown);
+          element.textContent = payload.dryRunDecision === "ready" ? "Copied Ready" : `Copied ${payload.dryRunDecision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-handoff-ledger-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

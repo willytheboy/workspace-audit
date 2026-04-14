@@ -647,6 +647,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>}
+   */
+  fetchCliBridgeRunnerDryRun(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run", options));
+  },
+
+  /**
    * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>}
    */

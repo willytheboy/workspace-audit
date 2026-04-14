@@ -1202,6 +1202,56 @@
  *   markdown: string
  * }} CliBridgeContextPayload
  * @typedef {{
+ *   sourceType: string,
+ *   id: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   relPath: string,
+ *   title: string,
+ *   objective: string,
+ *   readinessScore: number,
+ *   readinessStatus: string,
+ *   blockers: string[],
+ *   agentPolicyId: string,
+ *   agentPolicyCheckpointStatus: string,
+ *   agentRole: string,
+ *   runtime: string,
+ *   isolationMode: string,
+ *   skillBundle: string[],
+ *   hookPolicy: string[],
+ *   validationCommands: string[],
+ *   secretPolicy: string,
+ *   notes: string
+ * }} CliBridgeRunnerWorkOrderContract
+ * @typedef {{
+ *   adapterId: "codex" | "claude",
+ *   label: string,
+ *   displayCommand: string,
+ *   commandPattern: string,
+ *   promptMode: string,
+ *   workingDirectory: string,
+ *   invocationPolicy: string,
+ *   prompt: string
+ * }} CliBridgeRunnerCommandEnvelope
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   bridgeMode: string,
+ *   executionMode: "non-executing",
+ *   runner: "codex" | "claude",
+ *   requestedRunId: string,
+ *   dryRunDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: AgentControlPlaneDecisionReason[],
+ *   contextDecision: "ready" | "review" | "hold",
+ *   selectedWorkOrder: CliBridgeRunnerWorkOrderContract,
+ *   commandEnvelope: CliBridgeRunnerCommandEnvelope,
+ *   expectedOutputSchema: Record<string, string>,
+ *   validationLoop: string[],
+ *   markdown: string
+ * }} CliBridgeRunnerDryRunPayload
+ * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,
  *   message: string

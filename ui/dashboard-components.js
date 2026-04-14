@@ -2491,7 +2491,55 @@ export function createGovernanceDeck(governance) {
       ]);
     })
   ] : [];
-  const convergenceTaskEntries = (governance.convergenceTasks || []).map((task) => createElement("div", {
+  const convergenceTaskSummary = governance.summary || {};
+  const convergenceTaskEntries = [
+    createElement("div", {
+      className: "governance-gap-card convergence-review-task-ledger-control-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Convergence task ledger export",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900"
+        }
+      }),
+      createElement("div", {
+        text: `${convergenceTaskSummary.convergenceOpenTaskCount || 0} open / ${convergenceTaskSummary.convergenceTaskCount || 0} total. Copy a non-secret task handoff for operator review or future CLI runner assimilation.`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerCopy: "closed" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerCopy: "all" }
+        })
+      ])
+    ]),
+    ...(governance.convergenceTasks || []).map((task) => createElement("div", {
     className: "governance-gap-card convergence-review-task-card",
     dataset: task.convergenceLeftId ? { openAppId: encodeAppId(task.convergenceLeftId) } : undefined,
     title: task.convergenceLeftId ? "Open left project workbench" : undefined,
@@ -2616,7 +2664,8 @@ export function createGovernanceDeck(governance) {
         dataset: { openAppId: encodeAppId(task.convergenceRightId) }
       }) : null
     ])
-  ]));
+  ]))
+  ];
   const taskSeedingCheckpointStatusOrder = ["approved", "deferred", "dismissed", "needs-review"];
   const taskSeedingCheckpointStatusLabels = {
     approved: "Approved",

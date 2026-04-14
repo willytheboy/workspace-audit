@@ -112,6 +112,52 @@
  * }} ConvergenceCandidatesPayload
  * @typedef {{
  *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   convergencePairId: string,
+ *   convergenceLeftId: string,
+ *   convergenceRightId: string,
+ *   convergenceLeftName: string,
+ *   convergenceRightName: string,
+ *   convergenceReviewId: string,
+ *   convergenceReviewStatus: ConvergenceReviewStatus | "unreviewed",
+ *   convergenceScore: number,
+ *   convergenceRecommendation: ConvergenceReviewStatus | "unreviewed",
+ *   convergenceOperatorProposed: boolean,
+ *   convergenceTaskCheckpointStatus?: string,
+ *   convergenceTaskCheckpointedAt?: string,
+ *   convergenceTaskCheckpointNote?: string,
+ *   description: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} ConvergenceTaskLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number,
+ *     pairCount: number,
+ *     operatorProposed: number,
+ *     reviewStatusCounts: Record<string, number>
+ *   },
+ *   items: ConvergenceTaskLedgerItem[],
+ *   markdown: string
+ * }} ConvergenceTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
  *   projectId?: string,
  *   projectName?: string,
  *   title: string,

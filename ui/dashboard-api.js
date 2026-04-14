@@ -181,6 +181,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceTaskLedgerPayload>}
+   */
+  fetchConvergenceTaskLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/task-ledger", { status }));
+  },
+
+  /**
    * @returns {Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>}
    */
   fetchSources() {

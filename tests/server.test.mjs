@@ -3147,6 +3147,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(repeatConvergenceTaskJson.totals.skipped, 1);
     assert.match(repeatConvergenceTaskJson.skipped[0].reason, /already exists/);
 
+    const convergenceTaskLedgerResponse = await fetch(`${baseUrl}/api/convergence/task-ledger`);
+    assert.equal(convergenceTaskLedgerResponse.status, 200);
+    const convergenceTaskLedgerJson = await convergenceTaskLedgerResponse.json();
+    assert.equal(convergenceTaskLedgerJson.summary.total, 1);
+    assert.equal(convergenceTaskLedgerJson.summary.open, 1);
+    assert.equal(convergenceTaskLedgerJson.summary.pairCount, 1);
+    assert.equal(convergenceTaskLedgerJson.items[0].convergencePairId, operatorProposalJson.review.pairId);
+    assert.match(convergenceTaskLedgerJson.markdown, /# Convergence Review Task Ledger/);
+    assert.match(convergenceTaskLedgerJson.secretPolicy, /Non-secret convergence review task metadata only/);
+
     const governanceAfterConvergenceTasksResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterConvergenceTasksResponse.status, 200);
     const governanceAfterConvergenceTasksJson = await governanceAfterConvergenceTasksResponse.json();

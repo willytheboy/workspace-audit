@@ -1631,3 +1631,10 @@
 - [x] Persist non-secret convergence task checkpoint metadata through the existing task update flow.
 - [x] Keep Confirm resolved, Defer deferred, and Escalate blocked/high-priority behavior aligned with other task ledgers.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Ledger Export
+
+- [x] Add a non-secret `/api/convergence/task-ledger` endpoint with all/open/closed filtering.
+- [x] Add Governance controls to copy Convergence Review Task ledgers for operator or future CLI-runner handoff.
+- [x] Include pair count, priority split, operator-proposed count, checkpoint metadata, and no-secrets policy in the ledger payload.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

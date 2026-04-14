@@ -1043,6 +1043,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-source-validation-workflow-task-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.sourceValidationWorkflowTaskCheckpointAction || "";
+        if (!taskId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          element.textContent = await updateDataSourcesAccessValidationWorkflowTaskCheckpoint(taskId, action);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-control-plane-decision-task-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8208,6 +8232,44 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Data Sources access task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getDataSourcesAccessTaskCheckpointPatch(task, action);
+    const updated = await api.updateTask(taskId, patch);
+    await renderGovernance();
+    const nextTask = updated.task || patch;
+    if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
+    if (checkpointStatus === "deferred") return "Deferred";
+    return `Confirmed ${nextTask.status || "resolved"}`;
+  }
+
+  function getDataSourcesAccessValidationWorkflowTaskCheckpointPatch(task, action) {
+    const checkpointStatus = action === "escalate" ? "escalated" : action === "defer" ? "deferred" : "confirmed";
+    const patch = {
+      sourceAccessValidationWorkflowTaskCheckpointStatus: checkpointStatus,
+      sourceAccessValidationWorkflowTaskCheckpointedAt: new Date().toISOString(),
+      sourceAccessValidationWorkflowTaskCheckpointNote: [
+        `Operator ${checkpointStatus} Data Sources access validation workflow task ${task.title || task.id}.`,
+        `Source: ${task.sourceLabel || task.sourceId || "unknown source"}; workflow ${task.workflowStage || "validation"} / ${task.workflowStatus || "pending"}; method ${task.accessMethod || "review-required"}; evidence ${task.latestEvidenceStatus || task.coverageStatus || "missing"}.`,
+        "Secret policy: non-secret source-access validation workflow task metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" ")
+    };
+
+    if (action === "defer") {
+      patch.status = "deferred";
+    } else if (action === "escalate") {
+      patch.status = "blocked";
+      patch.priority = "high";
+    } else {
+      patch.status = "resolved";
+    }
+
+    return { checkpointStatus, patch };
+  }
+
+  async function updateDataSourcesAccessValidationWorkflowTaskCheckpoint(taskId, action) {
+    const task = (governanceCache?.dataSourcesAccessTasks || [])
+      .find((item) => item.id === taskId && item.sourceAccessValidationWorkflowId);
+    if (!task) throw new Error(`Data Sources access validation workflow task not found: ${taskId}`);
+
+    const { checkpointStatus, patch } = getDataSourcesAccessValidationWorkflowTaskCheckpointPatch(task, action);
     const updated = await api.updateTask(taskId, patch);
     await renderGovernance();
     const nextTask = updated.task || patch;

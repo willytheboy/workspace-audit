@@ -5899,6 +5899,37 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn release-control-task-confirm-btn",
+        text: "Confirm",
+        attrs: { type: "button" },
+        dataset: {
+          releaseControlTaskCheckpointAction: "confirm",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn release-control-task-defer-btn",
+        text: "Defer",
+        attrs: { type: "button" },
+        dataset: {
+          releaseControlTaskCheckpointAction: "defer",
+          taskId: task.id || ""
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn release-control-task-escalate-btn",
+        text: "Escalate",
+        attrs: { type: "button" },
+        dataset: {
+          releaseControlTaskCheckpointAction: "escalate",
+          taskId: task.id || ""
+        }
+      })
     ])
   ]));
   const releaseTaskLedgerSnapshotEntries = (governance.releaseTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {

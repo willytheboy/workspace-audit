@@ -1036,6 +1036,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-release-control-task-checkpoint-action]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const action = element.dataset.releaseControlTaskCheckpointAction || "";
+        if (!taskId || !action) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          const label = await updateReleaseControlTaskCheckpoint(taskId, action);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     bindSourceAccessEvidenceActions(container, renderGovernance);
   }
 
@@ -6914,6 +6939,43 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const markdown = buildGovernanceReleaseTaskLedgerMarkdown();
     await copyText(markdown);
     return `Copied ${getFilteredGovernance()?.releaseControlTasks?.length || 0} Release Task${(getFilteredGovernance()?.releaseControlTasks?.length || 0) === 1 ? "" : "s"}`;
+  }
+
+  function findReleaseControlTask(taskId) {
+    return (getFilteredGovernance()?.releaseControlTasks || [])
+      .find((task) => task.id === taskId) || null;
+  }
+
+  async function updateReleaseControlTaskCheckpoint(taskId, action) {
+    const task = findReleaseControlTask(taskId);
+    if (!task) throw new Error(`Release Control task not found: ${taskId}`);
+
+    const checkpointStatus = action === "escalate" ? "escalated" : action === "defer" ? "deferred" : "confirmed";
+    const patch = {
+      releaseControlTaskCheckpointStatus: checkpointStatus,
+      releaseControlTaskCheckpointedAt: new Date().toISOString(),
+      releaseControlTaskCheckpointNote: [
+        `Operator ${checkpointStatus} Release Control task ${task.id || task.title || "task"}.`,
+        `Release action: ${task.releaseBuildGateActionId || "release-control"}; gate decision: ${task.releaseBuildGateDecision || "review"}; risk score: ${task.releaseBuildGateRiskScore || 0}.`,
+        "Secret policy: non-secret release-control task metadata only; do not store response bodies, credentials, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
+      ].join(" ")
+    };
+
+    if (action === "defer") {
+      patch.status = "deferred";
+    } else if (action === "escalate") {
+      patch.status = "blocked";
+      patch.priority = "high";
+    } else {
+      patch.status = task.status === "deferred" ? "open" : task.status || "open";
+    }
+
+    const updated = await api.updateTask(taskId, patch);
+    await renderGovernance();
+    const nextTask = updated.task || patch;
+    if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
+    if (checkpointStatus === "deferred") return "Deferred";
+    return `Confirmed ${nextTask.status || "open"}`;
   }
 
   async function saveReleaseTaskLedgerSnapshot() {

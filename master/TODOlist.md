@@ -1326,3 +1326,10 @@
 - [x] Add per-field `Track Task` controls that convert individual drift fields into Release Control tasks with a task-ledger auto-capture snapshot.
 - [x] Preserve the non-secret drift metadata policy for checkpoint notes and task conversion.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Release Control Task Ledger Item Checkpoints
+
+- [x] Add task-row `Confirm`, `Defer`, and `Escalate` controls to Release Control task ledger cards.
+- [x] Persist task-row checkpoint decisions through non-secret task metadata and lifecycle updates.
+- [x] Preserve the non-secret release-control task metadata policy for checkpoint notes.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

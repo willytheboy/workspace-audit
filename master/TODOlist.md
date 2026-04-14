@@ -1235,3 +1235,10 @@
 - [x] Add a Governance Data Sources validation workflow item section with per-item `Track + Snapshot` controls.
 - [x] Reuse the existing validation workflow task auto-capture API for individual workflow blockers.
 - [x] Add parser checks, docs, validation, relaunch, commit, and push.
+
+## Next Data Sources Access Task Ledger Drift Checkpoints
+
+- [x] Add per-snapshot `Copy Drift`, `Track Drift`, and `Accept Drift` controls to Data Sources access task ledger snapshot cards.
+- [x] Convert source-access task ledger drift reports into non-secret Governance review tasks with severity, score, summary deltas, and bounded drift fields.
+- [x] Accept intentional source-access task ledger drift by saving a refreshed ledger snapshot as the current operator-approved baseline.
+- [x] Add parser checks, docs, validation, relaunch, commit, and push.

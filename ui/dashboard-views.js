@@ -1610,6 +1610,79 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-source-access-task-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessTaskLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchSourcesAccessTaskLedgerSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-task-ledger-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessTaskLedgerSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createDataSourcesAccessTaskLedgerDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-source-access-task-ledger-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.sourceAccessTaskLedgerSnapshotDriftAcceptId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptDataSourcesAccessTaskLedgerSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -6350,6 +6423,73 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findDataSourcesAccessTaskLedgerSnapshot(snapshotId) {
+    return (governanceCache?.dataSourceAccessTaskLedgerSnapshots || [])
+      .find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getDataSourcesAccessTaskLedgerDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildDataSourcesAccessTaskLedgerDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review Data Sources access task ledger drift from snapshot ${diff.snapshotTitle || snapshot.title || snapshot.id}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot.id}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review source-access task ledger drift before the next ingestion or agent handoff."}`,
+      `Open tasks: ${snapshotSummary.open ?? 0} -> ${liveSummary.open ?? 0}; total tasks: ${snapshotSummary.total ?? 0} -> ${liveSummary.total ?? 0}.`,
+      "Secret policy: non-secret Data Sources access task ledger metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, or command output."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        lines.push(`- ${item.label || item.field || "Data Sources access task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createDataSourcesAccessTaskLedgerDriftReviewTask(snapshotId) {
+    const snapshot = findDataSourcesAccessTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessTaskLedgerSnapshotDiff(snapshotId);
+    const title = `Review Data Sources access task ledger drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`;
+    await api.createTask({
+      projectId: "data-sources",
+      projectName: "Data Sources",
+      title,
+      description: buildDataSourcesAccessTaskLedgerDriftTaskDescription(snapshot, diff),
+      priority: getDataSourcesAccessTaskLedgerDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created Data Sources access task ledger drift review task";
+  }
+
+  async function acceptDataSourcesAccessTaskLedgerSnapshotDrift(snapshotId) {
+    const snapshot = findDataSourcesAccessTaskLedgerSnapshot(snapshotId);
+    if (!snapshot) throw new Error(`Data Sources access task ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchSourcesAccessTaskLedgerSnapshotDiff(snapshotId);
+    const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
+    await api.createSourcesAccessTaskLedgerSnapshot({
+      title: `Accepted Data Sources access task ledger drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      status: snapshot.statusFilter || "all",
+      limit: snapshot.limit || 100
+    });
+    await renderGovernance();
+    return "Accepted Data Sources access task ledger drift as current baseline";
   }
 
   async function copyLatestDataSourcesAccessValidationEvidenceSnapshotDrift() {

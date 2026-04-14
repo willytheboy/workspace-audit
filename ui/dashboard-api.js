@@ -685,6 +685,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[]>}
+   */
+  fetchCliBridgeRunTraceSnapshots() {
+    return fetchJson("/api/cli-bridge/run-trace-snapshots");
+  },
+
+  /**
+   * @param {string} runId
+   * @param {{ title?: string }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot, cliBridgeRunTraceSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[], governanceOperationCount: number }>}
+   */
+  createCliBridgeRunTraceSnapshot(runId, payload = {}) {
+    return fetchJson(`/api/cli-bridge/runs/${encodeURIComponent(runId)}/trace-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */

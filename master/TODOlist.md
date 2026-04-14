@@ -1571,3 +1571,10 @@
 - [x] Include linked run metadata, related handoffs, result intake, review decisions, and run history in copyable Markdown.
 - [x] Add Agent Execution Queue `Copy CLI Trace` controls for CLI-linked runs.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Snapshots
+
+- [x] Add persisted non-secret CLI bridge run trace snapshots for selected Agent Work Order Runs.
+- [x] Add Agent Execution Queue `Save CLI Trace` controls and a Governance snapshot list with copy actions.
+- [x] Surface snapshot counts in Governance summary, diagnostics, search/report output, and recent activity.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

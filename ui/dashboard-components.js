@@ -1692,6 +1692,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: `${executionMetrics.staleActive} stale after ${executionMetrics.staleThresholdHours}h | ${executionMetrics.slaBreached || 0} SLA breached | ${executionMetrics.failureRate}% failure rate | ${executionMetrics.archived || 0} archived`
     }),
     createKpiCard({
+      accentColor: (summary.cliBridgeRunTraceSnapshotCount || 0) ? "var(--success)" : "var(--primary)",
+      label: "CLI Trace Snapshots",
+      value: String(summary.cliBridgeRunTraceSnapshotCount || 0),
+      detail: "Saved non-secret trace packs from CLI-linked Agent Execution runs"
+    }),
+    createKpiCard({
       accentColor: "var(--primary)",
       label: "Profile History",
       value: String(governance.profileHistory.length),
@@ -3097,6 +3103,95 @@ export function createGovernanceDeck(governance) {
       ])
     ]))
   ];
+
+  const cliBridgeRunTraceSnapshotEntries = (governance.cliBridgeRunTraceSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card cli-bridge-run-trace-snapshot-card",
+    dataset: snapshot.projectId ? { openAppId: encodeAppId(snapshot.projectId) } : undefined,
+    title: snapshot.projectId ? "Open project workbench" : undefined,
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: snapshot.title || "CLI Bridge Run Trace",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.projectName || snapshot.projectId || "Portfolio"} | ${new Date(snapshot.createdAt).toLocaleString()}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(snapshot.traceDecision || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.traceDecision === "ready" ? "var(--success)" : snapshot.traceDecision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(`run ${snapshot.runId || "unknown"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--primary)"
+      }),
+      createTag(`${snapshot.relatedHandoffCount || 0} handoff(s)`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.relatedHandoffCount || 0) ? "var(--success)" : "var(--warning)"
+      }),
+      snapshot.latestCliBridgeResultHandoffId
+        ? createTag(`result ${snapshot.latestCliBridgeResultHandoffId}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          })
+        : null,
+      snapshot.latestCliBridgeReviewHandoffId
+        ? createTag(`review ${snapshot.latestCliBridgeReviewHandoffId}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          })
+        : null
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-run-trace-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeRunTraceSnapshotCopyId: snapshot.id || ""
+        }
+      })
+    ])
+  ]));
 
   /**
    * @param {import("./dashboard-types.js").GovernanceAgentReadinessItem} item
@@ -8255,6 +8350,16 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      run.cliBridgeHandoffId || run.latestCliBridgeResultHandoffId || run.latestCliBridgeReviewHandoffId
+        ? createElement("button", {
+            className: "btn governance-action-btn cli-bridge-run-trace-snapshot-btn",
+            text: "Save CLI Trace",
+            attrs: { type: "button" },
+            dataset: {
+              cliBridgeRunTraceSnapshotRunId: run.id
+            }
+          })
+        : null,
       run.cliBridgeHandoffId
         ? createElement("button", {
             className: "btn governance-action-btn cli-bridge-runner-result-run-capture-btn",
@@ -8769,6 +8874,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Runner Readiness Gate", "Readiness signal for a future supervised Codex CLI / Claude CLI work-order runner prototype.", cliRunnerReadinessEntries),
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
+    createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),
     createListSection("Control Plane Decision Gate", "Ready/review/hold gate for supervised app-development build passes.", agentControlPlaneDecisionEntries),

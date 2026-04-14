@@ -2123,6 +2123,36 @@ export async function serverTest() {
     assert.match(cliBridgeRunTraceJson.markdown, /# CLI Bridge Run Trace/);
     assert.match(cliBridgeRunTraceJson.markdown, /CLI bridge handoff review recorded/);
 
+    const cliBridgeRunTraceSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runs/${createAgentWorkOrderRunJson.run.id}/trace-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture CLI bridge run trace"
+      })
+    });
+    assert.equal(cliBridgeRunTraceSnapshotResponse.status, 200);
+    const cliBridgeRunTraceSnapshotJson = await cliBridgeRunTraceSnapshotResponse.json();
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.title, "Fixture CLI bridge run trace");
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.runId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.traceDecision, "ready");
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.relatedHandoffCount, cliBridgeRunTraceJson.relatedHandoffCount);
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.secretPolicy, cliBridgeRunTraceJson.secretPolicy);
+    assert.match(cliBridgeRunTraceSnapshotJson.snapshot.markdown, /# CLI Bridge Run Trace/);
+    assert.ok(cliBridgeRunTraceSnapshotJson.cliBridgeRunTraceSnapshots.some((snapshot) => snapshot.id === cliBridgeRunTraceSnapshotJson.snapshot.id));
+
+    const cliBridgeRunTraceSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/run-trace-snapshots`);
+    assert.equal(cliBridgeRunTraceSnapshotsResponse.status, 200);
+    const cliBridgeRunTraceSnapshotsJson = await cliBridgeRunTraceSnapshotsResponse.json();
+    assert.equal(cliBridgeRunTraceSnapshotsJson.length, 1);
+    assert.equal(cliBridgeRunTraceSnapshotsJson[0].runId, createAgentWorkOrderRunJson.run.id);
+
+    const governanceAfterCliBridgeRunTraceSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeRunTraceSnapshotResponse.status, 200);
+    const governanceAfterCliBridgeRunTraceSnapshotJson = await governanceAfterCliBridgeRunTraceSnapshotResponse.json();
+    assert.equal(governanceAfterCliBridgeRunTraceSnapshotJson.summary.cliBridgeRunTraceSnapshotCount, 1);
+    assert.equal(governanceAfterCliBridgeRunTraceSnapshotJson.cliBridgeRunTraceSnapshots[0].id, cliBridgeRunTraceSnapshotJson.snapshot.id);
+    assert.ok(governanceAfterCliBridgeRunTraceSnapshotJson.operationLog.some((operation) => operation.type === "cli-bridge-run-trace-snapshot-created"));
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

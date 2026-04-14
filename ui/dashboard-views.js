@@ -142,6 +142,8 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeFollowUpWorkOrderDraft: (handoffId: string, options?: { runner?: "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>,
  *     queueCliBridgeFollowUpWorkOrderRun: (handoffId: string, payload?: { runner?: "codex" | "claude", status?: string, notes?: string, limit?: number }) => Promise<unknown>,
  *     fetchCliBridgeRunTrace: (runId: string) => Promise<import("./dashboard-types.js").CliBridgeRunTracePayload>,
+ *     fetchCliBridgeRunTraceSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[]>,
+ *     createCliBridgeRunTraceSnapshot: (runId: string, payload?: { title?: string }) => Promise<unknown>,
  *     fetchCliBridgeHandoffs: (options?: { runner?: "all" | "codex" | "claude", status?: "all" | "proposed" | "accepted" | "rejected" | "needs-review", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>,
  *     createCliBridgeRunnerResult: (payload: { runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }) => Promise<unknown>,
  *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }) => Promise<unknown>
@@ -794,6 +796,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.resolvedCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      cliBridgeRunTraceSnapshots: filterAndSort(
+        governance.cliBridgeRunTraceSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       agentWorkOrderRuns: filterAndSort(
         governance.agentWorkOrderRuns,
         (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.history.map((event) => event.note).join(" ")],
@@ -859,6 +866,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "readiness") filtered.agentPolicyCheckpoints = [];
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
+      if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "sla-ledger") filtered.agentExecutionSlaLedger = [];
       if (scope !== "sla-ledger") filtered.agentExecutionSlaLedgerSnapshots = [];
       if (scope !== "decisions") filtered.decisions = [];
@@ -3802,6 +3810,56 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-run-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.cliBridgeRunTraceSnapshotRunId || "";
+        if (!runId) return;
+        const run = governanceCache?.agentWorkOrderRuns.find((item) => item.id === runId);
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createCliBridgeRunTraceSnapshot(runId, {
+            title: `CLI bridge run trace: ${run?.title || runId}`
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          element.disabled = false;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-copy-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunTraceSnapshotCopyId || "";
+        const snapshot = governanceCache?.cliBridgeRunTraceSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown || snapshot.trace?.markdown || "");
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-runner-result-run-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -4125,6 +4183,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible readiness items: ${governance.agentReadinessMatrix.length}`,
       `Visible work order snapshots: ${governance.agentWorkOrderSnapshots.length}`,
       `Visible SLA ledger snapshots: ${(governance.agentExecutionSlaLedgerSnapshots || []).length}`,
+      `Visible CLI bridge run trace snapshots: ${(governance.cliBridgeRunTraceSnapshots || []).length}`,
       `Visible agent execution runs: ${governance.agentWorkOrderRuns.length}`,
       `Visible activity items: ${governance.recentActivity.length}`,
       `Visible registry entries: ${governance.profiles.length}`,
@@ -4210,6 +4269,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Agent policy executable work orders: ${governanceCache?.summary.agentPolicyExecutableCount ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
       `- Work order snapshots: ${governanceCache?.summary.agentWorkOrderSnapshotCount ?? 0}`,
       `- SLA ledger snapshots: ${governanceCache?.summary.agentExecutionSlaLedgerSnapshotCount ?? 0}`,
+      `- CLI bridge run trace snapshots: ${governanceCache?.summary.cliBridgeRunTraceSnapshotCount ?? 0}`,
       `- Agent execution runs: ${governanceCache?.summary.activeAgentWorkOrderRunCount ?? 0}/${governanceCache?.summary.agentWorkOrderRunCount ?? 0}`,
       `- Agent execution SLA ledger records: ${governanceCache?.summary.agentExecutionSlaLedgerCount ?? 0}`,
       `- Agent execution health: ${executionMetrics?.completionRate ?? 0}% complete | ${executionMetrics?.staleActive ?? 0} stale active after ${staleThresholdHours}h | ${executionMetrics?.slaBreached ?? 0} SLA breached | ${executionMetrics?.slaResolved ?? 0} SLA resolved | ${executionMetrics?.slaAverageResolutionHours ?? 0}h avg SLA resolution | ${executionMetrics?.failureRate ?? 0}% failure rate | ${executionMetrics?.archived ?? 0} archived`,
@@ -4617,6 +4677,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible agent execution runs.");
+    }
+
+    lines.push("", "## CLI Bridge Run Trace Snapshots");
+    if ((governance.cliBridgeRunTraceSnapshots || []).length) {
+      for (const snapshot of governance.cliBridgeRunTraceSnapshots) {
+        lines.push(`- ${snapshot.title || "CLI Bridge Run Trace"}: ${snapshot.traceDecision || "review"} for ${snapshot.projectName || snapshot.projectId || "Portfolio"}`);
+        lines.push(`  Run: ${snapshot.runId || "unknown"} | Related handoffs: ${snapshot.relatedHandoffCount || 0}`);
+        lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge run trace snapshots.");
     }
 
     lines.push("", "## SLA Breach Ledger");
@@ -6719,6 +6790,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentReadinessMatrix.length
         + governance.agentWorkOrderSnapshots.length
         + (governance.agentExecutionSlaLedgerSnapshots || []).length
+        + (governance.cliBridgeRunTraceSnapshots || []).length
         + (governance.agentExecutionSlaLedger || []).length
         + governance.agentWorkOrderRuns.length
         + governance.unprofiledProjects.length

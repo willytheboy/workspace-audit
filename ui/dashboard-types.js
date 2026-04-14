@@ -1021,6 +1021,7 @@
  *     cliBridgeHandoffNeedsReviewCount: number,
  *     cliBridgeHandoffReviewQueueCount: number,
  *     cliBridgeHandoffEscalatedCount: number,
+ *     cliBridgeRunTraceSnapshotCount: number,
  *     governanceExecutionViewCount: number,
  *     archivedAgentWorkOrderRunCount: number,
  *     activeAgentWorkOrderRunCount: number,
@@ -1126,6 +1127,7 @@
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
+ *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -1347,6 +1349,21 @@
  *   relatedHandoffCount: number,
  *   markdown: string
  * }} CliBridgeRunTracePayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runId: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   traceDecision: "ready" | "review" | "hold",
+ *   relatedHandoffCount: number,
+ *   latestCliBridgeResultHandoffId?: string,
+ *   latestCliBridgeReviewHandoffId?: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   trace: CliBridgeRunTracePayload,
+ *   createdAt: string
+ * }} PersistedCliBridgeRunTraceSnapshot
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

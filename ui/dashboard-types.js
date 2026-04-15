@@ -130,6 +130,33 @@
  *   },
  *   markdown: string
  * }} ConvergenceDueDiligencePackPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   pairId: string,
+ *   candidate: ConvergenceCandidate,
+ *   leftProject: AuditProject | Record<string, unknown>,
+ *   rightProject: AuditProject | Record<string, unknown>,
+ *   relatedTasks: Array<Record<string, unknown>>,
+ *   sharedFrameworks: string[],
+ *   sharedLanguages: string[],
+ *   sharedScripts: string[],
+ *   validationTargets: string[],
+ *   phases: Array<{ title: string, detail: string }>,
+ *   risks: string[],
+ *   recommendedPath: string,
+ *   secretPolicy: string,
+ *   summary: {
+ *     score: number,
+ *     reviewStatus: string,
+ *     relatedTaskCount: number,
+ *     sharedFrameworkCount: number,
+ *     sharedLanguageCount: number,
+ *     sharedScriptCount: number,
+ *     validationTargetCount: number,
+ *     riskCount: number
+ *   },
+ *   markdown: string
+ * }} ConvergenceAssimilationBlueprintPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

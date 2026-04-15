@@ -161,6 +161,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} pairId
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationBlueprintPayload>}
+   */
+  fetchConvergenceAssimilationBlueprint(pairId) {
+    return fetchJson(withQuery("/api/convergence/assimilation-blueprint", { pairId }));
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

@@ -1701,3 +1701,10 @@
 - [x] Surface operator-contributed overlap proposals in Governance with due diligence, task state, and direct triage controls.
 - [x] Keep Not Related actions out of the active queue while preserving suppressed proposal audit export.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Blueprint Packs
+
+- [x] Add a non-secret Convergence Assimilation Blueprint API for individual overlap pairs.
+- [x] Include review status, reuse signals, build phases, validation targets, risks, and no-secrets policy.
+- [x] Add Governance `Copy Blueprint` actions beside due diligence packs for ledger and operator queue cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

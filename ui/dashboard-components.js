@@ -2518,6 +2518,12 @@ export function createGovernanceDeck(governance) {
             text: "Copy Pack",
             attrs: { type: "button" },
             dataset: { convergenceDueDiligencePairId: item.pairId || "" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-blueprint-copy-btn",
+            text: "Copy Blueprint",
+            attrs: { type: "button" },
+            dataset: { convergenceAssimilationBlueprintPairId: item.pairId || "" }
           })
         ])
       ]);
@@ -2723,6 +2729,12 @@ export function createGovernanceDeck(governance) {
             text: "Copy Pack",
             attrs: { type: "button" },
             dataset: { convergenceDueDiligencePairId: candidate.pairId || "" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-blueprint-copy-btn",
+            text: "Copy Blueprint",
+            attrs: { type: "button" },
+            dataset: { convergenceAssimilationBlueprintPairId: candidate.pairId || "" }
           }),
           candidate.leftId ? createElement("button", {
             className: "btn governance-action-btn",

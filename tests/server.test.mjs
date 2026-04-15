@@ -3296,6 +3296,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceDueDiligencePackJson.markdown, /# Convergence Candidate Due Diligence Pack/);
     assert.match(convergenceDueDiligencePackJson.markdown, /AI insight/);
     assert.match(convergenceDueDiligencePackJson.secretPolicy, /Non-secret convergence due diligence metadata only/);
+
+    const convergenceAssimilationBlueprintResponse = await fetch(`${baseUrl}/api/convergence/assimilation-blueprint?pairId=${encodeURIComponent(operatorProposalJson.review.pairId)}`);
+    assert.equal(convergenceAssimilationBlueprintResponse.status, 200);
+    const convergenceAssimilationBlueprintJson = await convergenceAssimilationBlueprintResponse.json();
+    assert.equal(convergenceAssimilationBlueprintJson.pairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceAssimilationBlueprintJson.summary.relatedTaskCount, 1);
+    assert.equal(convergenceAssimilationBlueprintJson.phases.length, 5);
+    assert.match(convergenceAssimilationBlueprintJson.markdown, /# Convergence Assimilation Blueprint/);
+    assert.match(convergenceAssimilationBlueprintJson.markdown, /No-Secrets Boundary/);
+    assert.match(convergenceAssimilationBlueprintJson.secretPolicy, /Non-secret convergence assimilation planning metadata only/);
   } finally {
     server.close();
     await once(server, "close");

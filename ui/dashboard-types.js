@@ -243,6 +243,26 @@
  *   createdAt: string,
  *   updatedAt: string
  * }} ConvergenceAssimilationRunResultRecord
+ * @typedef { "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled" } ConvergenceAssimilationResultLedgerStatus
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: ConvergenceAssimilationResultLedgerStatus,
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     passed: number,
+ *     failed: number,
+ *     blocked: number,
+ *     needsReview: number,
+ *     cancelled: number,
+ *     codex: number,
+ *     claude: number,
+ *     pairCount: number
+ *   },
+ *   results: ConvergenceAssimilationRunResultRecord[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationResultLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1462,6 +1482,7 @@
  *   convergenceCandidates?: ConvergenceCandidatesPayload | null,
  *   convergenceOperatorProposalQueue?: ConvergenceOperatorProposalQueuePayload | null,
  *   convergenceAssimilationRunLedger?: ConvergenceAssimilationRunLedgerPayload | null,
+ *   convergenceAssimilationResultLedger?: ConvergenceAssimilationResultLedgerPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

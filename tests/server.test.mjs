@@ -3226,6 +3226,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunResultJson.run.convergenceAssimilationValidationSummary, "Fixture validation passed.");
     assert.ok(convergenceAssimilationRunResultJson.governanceOperationCount >= 1);
 
+    const convergenceAssimilationResultLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-result-ledger?status=passed`);
+    assert.equal(convergenceAssimilationResultLedgerResponse.status, 200);
+    const convergenceAssimilationResultLedgerJson = await convergenceAssimilationResultLedgerResponse.json();
+    assert.equal(convergenceAssimilationResultLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationResultLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationResultLedgerJson.summary.passed, 1);
+    assert.equal(convergenceAssimilationResultLedgerJson.summary.pairCount, 1);
+    assert.equal(convergenceAssimilationResultLedgerJson.results[0].runId, queueConvergenceAssimilationRunJson.run.id);
+    assert.match(convergenceAssimilationResultLedgerJson.markdown, /# Convergence Assimilation Result Ledger/);
+    assert.match(convergenceAssimilationResultLedgerJson.secretPolicy, /Non-secret convergence assimilation result metadata only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -201,6 +201,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationResultLedgerPayload>}
+   */
+  fetchConvergenceAssimilationResultLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-result-ledger", { status }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

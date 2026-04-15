@@ -1743,3 +1743,10 @@
 - [x] Persist result status, summary, changed files, validation summary, blockers, and next action on linked runs.
 - [x] Add Governance `Record Result` controls on convergence assimilation run cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Result Ledger
+
+- [x] Add a non-secret convergence assimilation result ledger API with status filters.
+- [x] Include result counts, runner split, pair count, summaries, validation notes, changed files, and blockers in Markdown.
+- [x] Surface result ledger cards and copy controls in the Governance convergence scope.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

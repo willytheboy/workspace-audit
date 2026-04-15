@@ -51,6 +51,8 @@
  *     openSettings: () => void,
  *     focusSearch: () => void,
  *     exportCsv: () => void,
+ *     exportJson: () => void,
+ *     exportMarkdown: () => void,
  *     exportGovernanceReport: () => Promise<void>,
  *     copyGovernanceSummary: () => Promise<void>,
  *     copyGovernanceTaskUpdateLedger: () => Promise<void>,
@@ -429,6 +431,22 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["export", "csv", "download"],
         run: () => handlers.exportCsv()
+      },
+      {
+        id: "export-json",
+        label: "Export inventory JSON",
+        description: "Export the current filtered portfolio with runtime surfaces, findings signals, and similarity metadata as JSON.",
+        category: "Actions",
+        keywords: ["export", "json", "download", "portfolio", "inventory"],
+        run: () => handlers.exportJson()
+      },
+      {
+        id: "export-markdown",
+        label: "Export inventory Markdown",
+        description: "Export the current filtered portfolio as a readable Markdown executive summary.",
+        category: "Actions",
+        keywords: ["export", "markdown", "md", "executive", "summary", "portfolio"],
+        run: () => handlers.exportMarkdown()
       },
       {
         id: "export-governance-report",

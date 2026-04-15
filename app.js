@@ -692,6 +692,8 @@ const actionRegistry = createDashboardActionRegistry({
     openSettings: () => settingsModal.open(),
     focusSearch,
     exportCsv: () => views.exportCsv(),
+    exportJson: () => views.exportJson(),
+    exportMarkdown: () => views.exportMarkdown(),
     exportGovernanceReport,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
@@ -893,6 +895,14 @@ function bindEventListeners() {
 
   document.getElementById("export-csv").addEventListener("click", () => {
     views.exportCsv();
+  });
+
+  document.getElementById("export-json").addEventListener("click", () => {
+    views.exportJson();
+  });
+
+  document.getElementById("export-markdown").addEventListener("click", () => {
+    views.exportMarkdown();
   });
 
   bindAsyncButton(

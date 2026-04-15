@@ -10421,13 +10421,122 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     anchor.click();
   }
 
-  function exportGovernanceReport() {
-    const markdown = buildGovernanceReportMarkdown();
-    const blob = new Blob([markdown], { type: "text/markdown" });
+  /**
+   * @param {string} filename
+   * @param {string} type
+   * @param {string} content
+   */
+  function downloadTextFile(filename, type, content) {
+    const blob = new Blob([content], { type });
     const anchor = document.createElement("a");
     anchor.href = URL.createObjectURL(blob);
-    anchor.download = "workspace-governance-report.md";
+    anchor.download = filename;
     anchor.click();
+  }
+
+  function buildInventoryExportPayload() {
+    const apps = filterAndSort();
+    return {
+      exportedAt: new Date().toISOString(),
+      generatedAt: data.generatedAt || "",
+      rootDir: data.rootDir || "",
+      filters: {
+        search: state.search,
+        zone: state.zone,
+        category: state.category,
+        showArchived: state.showArchived,
+        sortKey: state.sortKey,
+        sortDir: state.sortDir
+      },
+      summary: {
+        totalVisible: apps.length,
+        totalApps: data.summary?.totalApps || 0,
+        avgQuality: data.summary?.avgQuality || 0,
+        totalSource: data.summary?.totalSource || 0,
+        totalTests: data.summary?.totalTests || 0
+      },
+      projects: apps.map((project) => ({
+        id: project.id,
+        name: project.name,
+        relPath: project.relPath,
+        zone: project.zone,
+        category: project.category,
+        description: project.description,
+        qualityScore: project.qualityScore,
+        readinessScore: project.readinessScore,
+        testingScore: project.testingScore,
+        sourceFiles: project.sourceFiles,
+        sourceLines: project.sourceLines,
+        testFiles: project.testFiles,
+        docsFiles: project.docsFiles,
+        frameworks: project.frameworks,
+        languages: project.languages,
+        scripts: project.scripts || [],
+        runtimeSurfaceCount: project.runtimeSurfaceCount || 0,
+        launchCommands: project.launchCommands || [],
+        warnings: project.warnings || [],
+        similarApps: project.similarApps || []
+      }))
+    };
+  }
+
+  function exportJson() {
+    downloadTextFile(
+      "workspace-pro-export.json",
+      "application/json",
+      JSON.stringify(buildInventoryExportPayload(), null, 2)
+    );
+  }
+
+  function exportMarkdown() {
+    const payload = buildInventoryExportPayload();
+    const lines = [
+      "# Workspace Portfolio Export",
+      "",
+      `- Exported: ${payload.exportedAt}`,
+      `- Snapshot: ${payload.generatedAt || "unknown"}`,
+      `- Visible projects: ${payload.summary.totalVisible}`,
+      `- Total projects: ${payload.summary.totalApps}`,
+      `- Average health: ${payload.summary.avgQuality}`,
+      `- Source files: ${payload.summary.totalSource}`,
+      `- Test files: ${payload.summary.totalTests}`,
+      "",
+      "## Filters",
+      "",
+      `- Search: ${payload.filters.search || "none"}`,
+      `- Zone: ${payload.filters.zone}`,
+      `- Category: ${payload.filters.category}`,
+      `- Archived visible: ${payload.filters.showArchived ? "yes" : "no"}`,
+      `- Sort: ${payload.filters.sortKey} ${payload.filters.sortDir}`,
+      "",
+      "## Projects",
+      ""
+    ];
+
+    for (const project of payload.projects) {
+      lines.push(`### ${project.name}`);
+      lines.push("");
+      lines.push(`- Path: ${project.relPath}`);
+      lines.push(`- Zone: ${project.zone}`);
+      lines.push(`- Category: ${project.category}`);
+      lines.push(`- Health: ${project.qualityScore}`);
+      lines.push(`- Readiness: ${project.readinessScore}`);
+      lines.push(`- Source files: ${project.sourceFiles}`);
+      lines.push(`- Test files: ${project.testFiles}`);
+      lines.push(`- Runtime surfaces: ${project.runtimeSurfaceCount}`);
+      lines.push(`- Stack: ${project.frameworks.length ? project.frameworks.join(", ") : "not detected"}`);
+      if (project.warnings.length) {
+        lines.push(`- Warnings: ${project.warnings.map((warning) => warning.message).join(" | ")}`);
+      }
+      lines.push("");
+    }
+
+    downloadTextFile("workspace-pro-export.md", "text/markdown", lines.join("\n"));
+  }
+
+  function exportGovernanceReport() {
+    const markdown = buildGovernanceReportMarkdown();
+    downloadTextFile("workspace-governance-report.md", "text/markdown", markdown);
   }
 
   async function copyGovernanceSummary() {
@@ -12811,6 +12920,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveGovernanceTaskUpdateLedgerSnapshot,
     copyLatestGovernanceTaskUpdateLedgerSnapshotDrift,
     exportCsv,
+    exportJson,
+    exportMarkdown,
     bootstrapGovernance,
     executeVisibleGovernanceQueue,
     exportGovernanceReport,

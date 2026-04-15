@@ -2197,3 +2197,10 @@
 - [x] Add fuzzy scoring across labels, descriptions, IDs, paths, stack, zone, and category metadata.
 - [x] Prioritize project matches when the query resembles a project name or path.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Inventory JSON And Markdown Exports
+
+- [x] Add toolbar actions for JSON and Markdown portfolio exports alongside CSV.
+- [x] Export the current filtered project set with runtime surfaces, launch commands, warnings, and similarity metadata in JSON.
+- [x] Export a readable Markdown portfolio summary for executive review and agent handoff context.
+- [x] Add command palette actions, parser checks, validation, relaunch, commit, and push.

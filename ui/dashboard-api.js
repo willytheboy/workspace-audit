@@ -201,6 +201,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} runId
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
+   */
+  fetchConvergenceAssimilationRunTracePack(runId) {
+    return fetchJson(`/api/convergence/assimilation-runs/${encodeURIComponent(runId)}/trace-pack`);
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

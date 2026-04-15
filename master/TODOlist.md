@@ -1729,3 +1729,10 @@
 - [x] Surface queued Codex and Claude convergence assimilation runs in the Governance convergence scope.
 - [x] Add copy controls for all, open, and closed convergence assimilation run ledgers.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Run Trace Pack
+
+- [x] Add a non-secret run trace pack API for convergence assimilation Agent Work Order runs.
+- [x] Include run, pair, blueprint, draft, validation command, related task, and trace decision metadata.
+- [x] Add Governance `Copy Trace Pack` controls to queued convergence assimilation runs.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

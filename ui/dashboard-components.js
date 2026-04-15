@@ -2961,6 +2961,14 @@ export function createGovernanceDeck(governance) {
           border: "1px solid var(--border)",
           color: "var(--text-muted)"
         })
+      ]),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-run-trace-copy-btn",
+          text: "Copy Trace Pack",
+          attrs: run.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+          dataset: { convergenceAssimilationRunTraceId: run.id || "" }
+        })
       ])
     ]))
   ] : [];

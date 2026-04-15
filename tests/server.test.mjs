@@ -3191,6 +3191,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunLedgerJson.markdown, /# Convergence Assimilation Run Ledger/);
     assert.match(convergenceAssimilationRunLedgerJson.secretPolicy, /Non-secret convergence assimilation run metadata only/);
 
+    const convergenceAssimilationRunTracePackResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/trace-pack`);
+    assert.equal(convergenceAssimilationRunTracePackResponse.status, 200);
+    const convergenceAssimilationRunTracePackJson = await convergenceAssimilationRunTracePackResponse.json();
+    assert.equal(convergenceAssimilationRunTracePackJson.runId, queueConvergenceAssimilationRunJson.run.id);
+    assert.equal(convergenceAssimilationRunTracePackJson.pairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceAssimilationRunTracePackJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunTracePackJson.relatedTaskCount, 1);
+    assert.match(convergenceAssimilationRunTracePackJson.protocolVersion, /convergence-assimilation-run-trace-pack/);
+    assert.match(convergenceAssimilationRunTracePackJson.markdown, /# Convergence Assimilation Run Trace Pack/);
+    assert.match(convergenceAssimilationRunTracePackJson.secretPolicy, /Non-secret convergence assimilation run trace metadata only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

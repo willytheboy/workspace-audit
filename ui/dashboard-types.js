@@ -204,6 +204,26 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   executionMode: string,
+ *   runId: string,
+ *   pairId: string,
+ *   runner: string,
+ *   traceDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: Array<{ severity: string, code: string, message: string }>,
+ *   run: PersistedAgentWorkOrderRun,
+ *   blueprint: ConvergenceAssimilationBlueprintPayload,
+ *   draft: object,
+ *   candidate: ConvergenceCandidate,
+ *   relatedTasks: PersistedTask[],
+ *   relatedTaskCount: number,
+ *   validationCommands: string[],
+ *   markdown: string
+ * }} ConvergenceAssimilationRunTracePackPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

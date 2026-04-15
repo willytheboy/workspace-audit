@@ -3513,6 +3513,55 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftSeverity, "none");
     assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift/);
 
+    const createCodexConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "codex",
+        stages: [launchStackActionTaskStages[0]]
+      })
+    });
+    assert.equal(createCodexConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);
+    const createCodexConvergenceAssimilationRunnerLaunchStackActionTasksJson = await createCodexConvergenceAssimilationRunnerLaunchStackActionTasksResponse.json();
+    assert.equal(createCodexConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.created, 1);
+
+    const driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/diff?snapshotId=latest&runner=all&status=open`);
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.status, 200);
+    const driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson = await driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.hasDrift, true);
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftItems.some((item) => item.field === "total"), true);
+
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "all",
+        status: "open",
+        field: "total",
+        decision: "escalated",
+        note: "Fixture drift checkpoint for launch stack action task ledger totals."
+      })
+    });
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson = await convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.decision, "escalated");
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.task.sourceType, "convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-checkpoint");
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.task.secretPolicy, "non-secret-convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-only");
+
+    const checkpointedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/diff?snapshotId=latest&runner=all&status=open`);
+    assert.equal(checkpointedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.status, 200);
+    const checkpointedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson = await checkpointedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(checkpointedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftItems.find((item) => item.field === "total")?.checkpointDecision, "escalated");
+
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger?status=open`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson = await convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.escalated, 1);
+    assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger Drift Checkpoint Ledger/);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3951,6 +4000,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-execution-packet-snapshot-refreshed"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-upserted"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

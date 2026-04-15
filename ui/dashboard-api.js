@@ -645,6 +645,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  checkpointConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDrift(payload) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

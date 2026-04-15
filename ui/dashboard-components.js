@@ -5128,6 +5128,146 @@ export function createGovernanceDeck(governance) {
           fontSize: "0.84rem",
           lineHeight: "1.45"
         }
+      }),
+      item.checkpointDecision ? createTag(`${item.checkpointDecision} / ${item.checkpointStatus || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.checkpointDecision === "confirmed" ? "var(--success)" : item.checkpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      }) : null,
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-btn",
+          text: "Confirm",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftSnapshotId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftRunner: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.runner || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftStatus: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.status || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision: "confirmed"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-btn",
+          text: "Defer",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftSnapshotId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftRunner: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.runner || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftStatus: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.status || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision: "deferred"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-btn",
+          text: "Escalate",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftSnapshotId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftRunner: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.runner || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftStatus: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.status || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision: "escalated"
+          }
+        })
+      ])
+    ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger || null;
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary = convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0
+  };
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerEntries = convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Launch stack action task ledger drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "850"
+        }
+      }),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.visible || 0} visible | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.open || 0} open | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.closed || 0} closed | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.escalated || 0} escalated`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger.items || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.45rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftLabel || "Launch stack action task ledger drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotTitle || item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotId || "Snapshot not recorded"} | ${item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerRunner || "all"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `${item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftBefore || "missing"} -> ${item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(`${item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision || "deferred"} / ${item.status || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
       })
     ]))
   ] : [];
@@ -13029,6 +13169,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots", "Persisted launch stack action task baselines for repeatable runner remediation handoffs.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift", "Latest saved launch stack action task ledger compared with the current live remediation task state.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Drift Checkpoints", "Operator decisions made against launch stack action task ledger drift before runner remediation handoff reuse.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

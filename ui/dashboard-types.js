@@ -790,11 +790,27 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number, checkpointTaskId?: string, checkpointDecision?: string, checkpointStatus?: string, checkpointedAt?: string }>,
  *   liveSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, codexCount: number, claudeCount: number, highCount: number, mediumCount: number, lowCount: number, normalCount: number } | null,
  *   snapshotSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, codexCount: number, claudeCount: number, highCount: number, mediumCount: number, lowCount: number, normalCount: number } | null,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -2045,6 +2061,7 @@
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

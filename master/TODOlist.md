@@ -2016,3 +2016,10 @@
 - [x] Compare task totals, open/closed counts, runner split, and priority split.
 - [x] Surface Governance drift cards and copy controls for latest and per-snapshot drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for launch stack action task ledger snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner/status scope, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Surface checkpoint state on drift cards plus a copyable checkpoint ledger in Governance.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

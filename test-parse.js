@@ -17,7 +17,8 @@ const storeSource = fs.readFileSync(path.join(__dirname, "lib", "workspace-audit
 const appSource = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
 const testsSource = [
   fs.readFileSync(path.join(__dirname, "tests", "run-tests.mjs"), "utf8"),
-  fs.readFileSync(path.join(__dirname, "tests", "server.test.mjs"), "utf8")
+  fs.readFileSync(path.join(__dirname, "tests", "server.test.mjs"), "utf8"),
+  fs.readFileSync(path.join(__dirname, "tests", "governance-bootstrap.test.mjs"), "utf8")
 ].join("\n");
 
 function readBootstrappedPayload(markup) {
@@ -209,6 +210,7 @@ try {
   console.log("Governance snapshot batch queue:", dashboardComponentsSource.includes("work-order-snapshot-queue-btn") && dashboardViewsSource.includes("createAgentWorkOrderRunsFromSnapshot") && dashboardApiSource.includes("/api/agent-work-order-runs/batch") ? "Present" : "Missing");
   console.log("Governance agent policy checkpoints:", dashboardComponentsSource.includes("Agent Policy Checkpoints") && dashboardComponentsSource.includes("agent-policy-checkpoint-approve-btn") && dashboardViewsSource.includes("bindAgentPolicyCheckpointActions") && dashboardApiSource.includes("/api/agent-policy-checkpoints") && dashboardTypesSource.includes("AgentPolicyCheckpoint") && serverSource.includes("agent-policy-checkpoint-recorded") && testsSource.includes("Fixture approved generated managed-agent policy") ? "Present" : "Missing");
   console.log("Governance bootstrap actions:", html.includes('id="seed-governance-profiles-btn"') && html.includes('id="seed-governance-starter-packs-btn"') ? "Present" : "Missing");
+  console.log("Governance bootstrap milestone seeding:", serverSource.includes("createBootstrapMilestone") && serverSource.includes("Coverage target:") && serverSource.includes("Runtime target:") && testsSource.includes("createdMilestones") ? "Present" : "Missing");
   console.log("Governance queue bulk actions:", html.includes('id="execute-governance-queue-btn"') && html.includes('id="suppress-governance-queue-btn"') ? "Present" : "Missing");
   console.log("Governance gap actions:", dashboardComponentsSource.includes('governanceAction: "create-profile"') && dashboardComponentsSource.includes('governanceAction: "create-task"') ? "Present" : "Missing");
   console.log("Governance queue scope:", /<option value="queue">Action Queue<\/option>/.test(html) ? "Present" : "Missing");

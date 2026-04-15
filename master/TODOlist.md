@@ -2169,3 +2169,10 @@
 - [x] De-duplicate high-overlap convergence findings so a pair emits one actionable finding.
 - [x] Disambiguate same-name convergence pairs with project path labels to avoid self-reference confusion.
 - [x] Add regression coverage for duplicate display names, parser checks, server validation, static preview build, relaunch, commit, and push.
+
+## Next Governance Starter Pack Memory Seeding
+
+- [x] Extend governance starter packs with a decision note so the Memory tab is no longer empty after onboarding.
+- [x] Extend governance starter packs with scan-derived milestones that include test coverage and runtime detection targets.
+- [x] Include note and milestone totals in bootstrap and queue execution responses.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

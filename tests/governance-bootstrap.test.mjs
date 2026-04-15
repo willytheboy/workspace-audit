@@ -21,6 +21,8 @@ export async function governanceBootstrapTest() {
     assert.equal(initialGovernanceResponse.status, 200);
     const initialGovernanceJson = await initialGovernanceResponse.json();
     assert.equal(initialGovernanceJson.summary.profileCount, 0);
+    assert.equal(initialGovernanceJson.summary.pendingMilestones, 0);
+    assert.equal(initialGovernanceJson.summary.decisionNotes, 0);
     assert.equal(initialGovernanceJson.unprofiledProjects.length, 1);
     assert.equal(initialGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(initialGovernanceJson.summary.governanceOperationCount, 0);
@@ -45,6 +47,8 @@ export async function governanceBootstrapTest() {
     assert.equal(seedProfilesJson.totals.profiles, 1);
     assert.equal(seedProfilesJson.totals.tasks, 0);
     assert.equal(seedProfilesJson.totals.workflows, 0);
+    assert.equal(seedProfilesJson.totals.notes, 0);
+    assert.equal(seedProfilesJson.totals.milestones, 0);
     assert.equal(seedProfilesJson.profileHistoryEntries.length, 1);
 
     const profileHistoryResponse = await fetch(`${baseUrl}/api/project-profile-history?projectId=alpha-app`);
@@ -85,6 +89,8 @@ export async function governanceBootstrapTest() {
     assert.equal(executeQueueJson.success, true);
     assert.equal(executeQueueJson.totals.tasks, 1);
     assert.equal(executeQueueJson.totals.workflows, 1);
+    assert.equal(executeQueueJson.totals.notes, 0);
+    assert.equal(executeQueueJson.totals.milestones, 0);
 
     const starterPackResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
       method: "POST",
@@ -100,6 +106,10 @@ export async function governanceBootstrapTest() {
     assert.equal(starterPackJson.totals.profiles, 0);
     assert.equal(starterPackJson.totals.tasks, 0);
     assert.equal(starterPackJson.totals.workflows, 0);
+    assert.equal(starterPackJson.totals.notes, 1);
+    assert.equal(starterPackJson.totals.milestones, 1);
+    assert.match(starterPackJson.createdMilestones[0].detail, /Coverage target:/);
+    assert.match(starterPackJson.createdMilestones[0].detail, /Runtime target:/);
 
     const starterPackRepeatResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
       method: "POST",
@@ -114,6 +124,8 @@ export async function governanceBootstrapTest() {
     assert.equal(starterPackRepeatJson.totals.profiles, 0);
     assert.equal(starterPackRepeatJson.totals.tasks, 0);
     assert.equal(starterPackRepeatJson.totals.workflows, 0);
+    assert.equal(starterPackRepeatJson.totals.notes, 0);
+    assert.equal(starterPackRepeatJson.totals.milestones, 0);
 
     const finalGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(finalGovernanceResponse.status, 200);
@@ -121,6 +133,8 @@ export async function governanceBootstrapTest() {
     assert.equal(finalGovernanceJson.summary.profileCount, 1);
     assert.equal(finalGovernanceJson.summary.openTasks, 1);
     assert.equal(finalGovernanceJson.summary.activeWorkflows, 1);
+    assert.equal(finalGovernanceJson.summary.pendingMilestones, 1);
+    assert.equal(finalGovernanceJson.summary.decisionNotes, 1);
     assert.equal(finalGovernanceJson.profileHistory.length, 1);
     assert.equal(finalGovernanceJson.unprofiledProjects.length, 0);
     assert.equal(finalGovernanceJson.summary.actionQueueItems, 1);

@@ -545,6 +545,9 @@ export function createDashboardModal({ getData, api }) {
           const similar = {
             id: isLeftProject ? candidate.rightId : candidate.leftId,
             name: isLeftProject ? candidate.rightName : candidate.leftName,
+            label: isLeftProject
+              ? candidate.rightLabel || candidate.rightName
+              : candidate.leftLabel || candidate.leftName,
             score: candidate.score,
             reasons: candidate.reasons
           };
@@ -610,6 +613,9 @@ export function createDashboardModal({ getData, api }) {
             similar = {
               id: isLeftProject ? candidate.rightId : candidate.leftId,
               name: isLeftProject ? candidate.rightName : candidate.leftName,
+              label: isLeftProject
+                ? candidate.rightLabel || candidate.rightName
+                : candidate.leftLabel || candidate.leftName,
               score: candidate.score,
               reasons: candidate.reasons
             };

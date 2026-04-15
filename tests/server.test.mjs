@@ -3017,7 +3017,7 @@ export async function convergenceReviewSuppressionTest() {
   const betaDir = join(workspaceRoot, "beta-app");
   await mkdir(join(betaDir, "src"), { recursive: true });
   await writeFile(join(betaDir, "package.json"), JSON.stringify({
-    name: "beta-app",
+    name: "alpha-app",
     description: "Beta app for convergence testing",
     scripts: {
       dev: "vite",
@@ -3066,6 +3066,21 @@ export async function convergenceReviewSuppressionTest() {
     const activePair = activeCandidatesJson.candidates.find((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app");
     assert.ok(activePair);
     assert.notEqual(activePair.reviewStatus, "not-related");
+    assert.equal(activePair.leftName, activePair.rightName);
+    assert.notEqual(activePair.leftLabel, activePair.rightLabel);
+    assert.match(activePair.leftLabel, /\[/);
+    assert.match(activePair.rightLabel, /\[/);
+
+    const findingsRefreshResponse = await fetch(`${baseUrl}/api/findings/refresh`, {
+      method: "POST"
+    });
+    assert.equal(findingsRefreshResponse.status, 200);
+    const findingsRefreshJson = await findingsRefreshResponse.json();
+    const convergenceFindings = findingsRefreshJson.findings.filter((finding) => finding.title === "High overlap candidate");
+    assert.equal(convergenceFindings.length, 1);
+    assert.equal(convergenceFindings[0].convergencePairId, "alpha-app__converges_with__beta-app");
+    assert.doesNotMatch(convergenceFindings[0].detail, /^Alpha App overlaps strongly with Alpha App/);
+    assert.match(convergenceFindings[0].detail, /Alpha App \[alpha-app\] overlaps strongly with Alpha App \[beta-app\]/);
 
     const createReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
       method: "POST",

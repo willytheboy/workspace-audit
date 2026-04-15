@@ -1718,6 +1718,8 @@ export function createGovernanceSummaryGrid(governance) {
  * @param {GovernancePayload} governance
  */
 export function createGovernanceDeck(governance) {
+  const summary = governance.summary || {};
+
   /**
    * @param {import("./dashboard-types.js").GovernanceActivity[]} items
    */
@@ -2406,7 +2408,7 @@ export function createGovernanceDeck(governance) {
         }, [
           createElement("div", {}, [
             createElement("div", {
-              text: `${item.leftName || item.leftId} -> ${item.rightName || item.rightId}`,
+              text: `${item.leftLabel || item.leftName || item.leftId} -> ${item.rightLabel || item.rightName || item.rightId}`,
               style: {
                 color: "var(--text)",
                 fontWeight: "900",
@@ -2656,6 +2658,8 @@ export function createGovernanceDeck(governance) {
     ]),
     ...convergenceReviewCandidates.slice(0, 24).map((candidate) => {
       const candidateReasons = Array.isArray(candidate.reasons) ? candidate.reasons : [];
+      const leftLabel = candidate.leftLabel || candidate.leftName || candidate.leftId;
+      const rightLabel = candidate.rightLabel || candidate.rightName || candidate.rightId;
       const statusColor = candidate.reviewStatus === "not-related"
         ? "var(--danger)"
         : candidate.reviewStatus === "confirmed-overlap" || candidate.reviewStatus === "merge-candidate"
@@ -2681,7 +2685,7 @@ export function createGovernanceDeck(governance) {
         }, [
           createElement("div", {}, [
             createElement("div", {
-              text: `${candidate.leftName} -> ${candidate.rightName}`,
+              text: `${leftLabel} -> ${rightLabel}`,
               style: {
                 color: "var(--text)",
                 fontWeight: "900",

@@ -2162,3 +2162,10 @@
 - [x] Store runner filter, status filter, counts, Markdown, and captured task items.
 - [x] Surface Governance save and copy controls for result follow-up task ledger snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Stability And Convergence De-Duplication
+
+- [x] Fix the Governance panel render crash caused by an undefined `summary` reference.
+- [x] De-duplicate high-overlap convergence findings so a pair emits one actionable finding.
+- [x] Disambiguate same-name convergence pairs with project path labels to avoid self-reference confusion.
+- [x] Add regression coverage for duplicate display names, parser checks, server validation, static preview build, relaunch, commit, and push.

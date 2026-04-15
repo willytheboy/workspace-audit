@@ -256,11 +256,12 @@ export function createConvergenceFilterCard({ activeFilter, counts }) {
 }
 
 /**
- * @param {{ name: string, id: string, score: number, reasons: string[] }} similar
+ * @param {{ name: string, label?: string, id: string, score: number, reasons: string[] }} similar
  * @param {{ reviewStatus?: string, reviewNote?: string, reviewSource?: string, generatedInsight?: string, assimilationRecommendation?: string }} [options]
  */
 export function createSimilarCard(similar, options = {}) {
   const reviewStatus = options.reviewStatus || "unreviewed";
+  const displayName = similar.label || similar.name;
   const reviewColor = reviewStatus === "not-related"
     ? "var(--danger)"
     : reviewStatus === "confirmed-overlap" || reviewStatus === "merge-candidate"
@@ -279,7 +280,7 @@ export function createSimilarCard(similar, options = {}) {
       }
     }, [
       createElement("strong", {
-        text: similar.name,
+        text: displayName,
         style: { fontSize: "1.1rem" }
       }),
       createTag(`${similar.score}% overlap`, {
@@ -293,6 +294,16 @@ export function createSimilarCard(similar, options = {}) {
         borderColor: reviewColor
       })
     ]),
+    displayName !== similar.id
+      ? createElement("div", {
+          text: similar.id,
+          style: {
+            fontSize: "0.78rem",
+            color: "var(--text-muted)",
+            marginBottom: "0.4rem"
+          }
+        })
+      : null,
     createElement("div", {
       text: similar.reasons.join(" • "),
       style: {

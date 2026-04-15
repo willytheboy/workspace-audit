@@ -3746,6 +3746,29 @@ export async function convergenceReviewSuppressionTest() {
     const blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson = await blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.json();
     assert.equal(blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson.task.status, "blocked");
 
+    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        status: "all",
+        title: "Fixture Remediation Result Follow-Up Task Ledger"
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson = await createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.snapshot.title, "Fixture Remediation Result Follow-Up Task Ledger");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.snapshot.runner, "claude");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.snapshot.visibleCount, 1);
+    assert.match(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.snapshot.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger/);
+
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsJson = await convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsJson[0].title, "Fixture Remediation Result Follow-Up Task Ledger");
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -679,6 +679,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot[]>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots() {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot[] }>}
+   */
+  createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

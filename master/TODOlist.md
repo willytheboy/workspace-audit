@@ -2155,3 +2155,10 @@
 - [x] Reuse the task lifecycle API so changes remain auditable in Governance task update history.
 - [x] Validate open and closed ledger counts after resolved, reopened, and blocked transitions.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger Snapshots
+
+- [x] Add persisted snapshots for remediation result follow-up task ledgers.
+- [x] Store runner filter, status filter, counts, Markdown, and captured task items.
+- [x] Surface Governance save and copy controls for result follow-up task ledger snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

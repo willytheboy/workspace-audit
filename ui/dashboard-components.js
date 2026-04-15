@@ -4784,6 +4784,7 @@ export function createGovernanceDeck(governance) {
     normal: 0
   };
   const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerItems = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger?.items || [];
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots = governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots || [];
   const convergenceAssimilationRunnerLaunchStackActionTaskLedger = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger || null;
   const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary = convergenceAssimilationRunnerLaunchStackActionTaskLedger?.summary || {
     total: 0,
@@ -5553,6 +5554,15 @@ export function createGovernanceDeck(governance) {
             convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerRunner: "claude",
             convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerStatus: "open"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshot-save-btn",
+          text: "Save Ledger Snapshot",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotRunner: "all",
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotStatus: "all"
+          }
         })
       ])
     ]),
@@ -5620,6 +5630,72 @@ export function createGovernanceDeck(governance) {
       ])
     ]))
   ] : [];
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotEntries = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots.slice(0, 8).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.5rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Result Follow-Up Task Ledger Snapshot",
+          style: {
+            color: "var(--text)",
+            fontWeight: "850"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.runner || "all"} | ${snapshot.statusFilter || "all"} | ${snapshot.openCount || 0} open | ${snapshot.closedCount || 0} closed`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.28rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(`${snapshot.visibleCount || 0} captured`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.openCount ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(`${snapshot.blockedCount || 0} blocked`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.blockedCount ? "var(--danger)" : "var(--text-muted)"
+      }),
+      createTag(`${snapshot.needsReviewCount || 0} review`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.needsReviewCount ? "var(--warning)" : "var(--text-muted)"
+      }),
+      createTag(snapshot.createdAt ? new Date(snapshot.createdAt).toLocaleString() : "saved", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      })
+    ]),
+    createElement("button", {
+      className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshot-copy-btn",
+      text: "Copy Snapshot",
+      attrs: { type: "button" },
+      dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotId: snapshot.id }
+    })
+  ]));
   const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff = governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff || null;
   const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffEntries = convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff ? [
     createElement("div", {
@@ -14303,6 +14379,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Ledger", "Queued Codex and Claude launch stack remediation handoffs tracked as supervised agent work-order runs.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Ledger", "Non-secret Codex and Claude remediation outcomes captured after supervised work-order runs.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger", "Trackable Governance tasks created from blocked, failed, or needs-review remediation outcomes.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger Snapshots", "Persisted remediation result follow-up task baselines for later drift comparison.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshots", "Persisted Codex and Claude remediation pack baselines for later launch stack drift comparison.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift", "Latest saved launch stack remediation pack compared with current live runner remediation state.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Drift Checkpoints", "Operator decisions made against launch stack remediation pack drift before runner handoff reuse.", convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerEntries),

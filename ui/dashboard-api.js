@@ -631,6 +631,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[] }>}
+   */
+  refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @param {{ runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload>}

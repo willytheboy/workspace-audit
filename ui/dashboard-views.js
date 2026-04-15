@@ -146,6 +146,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedger: (options?: { runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[] }>,
+ *     refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff: (snapshotId?: string, options?: { runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload>,
  *     checkpointConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDrift: (payload: { snapshotId?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerPayload>,
@@ -3399,6 +3400,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const diff = await api.fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff(snapshotId || "latest");
           await copyText(diff.markdown);
           element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshId || "latest";
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshRunner || "all";
+        const status = element.dataset.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshStatus || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          const response = await api.refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot({
+            snapshotId,
+            runner: runner === "codex" || runner === "claude" ? runner : "all",
+            status: status === "open" || status === "closed" ? status : "all",
+            title: `Accepted ${runner || "all"} Launch Stack Action Task Ledger Baseline`
+          });
+          await renderGovernance();
+          element.textContent = response.snapshot?.id ? "Accepted Drift" : "Refreshed";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

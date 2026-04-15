@@ -5103,6 +5103,16 @@ export function createGovernanceDeck(governance) {
           text: "Copy Latest Drift",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDriftId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-refresh-btn",
+          text: "Accept Drift",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshRunner: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.runner || "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotRefreshStatus: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.status || "all"
+          }
         })
       ])
     ]),

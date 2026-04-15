@@ -2029,3 +2029,10 @@
 - [x] Feed launch stack action task ledger snapshot drift into the overall runner launch stack status.
 - [x] Feed unresolved and escalated action-task ledger drift checkpoints into the stack-level ready/review/hold decision.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Refresh
+
+- [x] Add an explicit refresh API that saves the current live launch stack action task ledger as the latest baseline.
+- [x] Surface an `Accept Drift` control on the Governance launch stack action task ledger drift card.
+- [x] Preserve the previous snapshot id for audit history while inserting the refreshed snapshot at the top of the snapshot ledger.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

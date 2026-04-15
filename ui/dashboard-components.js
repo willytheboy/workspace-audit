@@ -2475,6 +2475,12 @@ export function createGovernanceDeck(governance) {
             attrs: { type: "button" },
             dataset: { convergenceReviewTaskPairId: candidate.pairId || "" }
           }) : null,
+          createElement("button", {
+            className: "btn governance-action-btn convergence-due-diligence-pack-copy-btn",
+            text: "Copy Pack",
+            attrs: { type: "button" },
+            dataset: { convergenceDueDiligencePairId: candidate.pairId || "" }
+          }),
           candidate.leftId ? createElement("button", {
             className: "btn governance-action-btn",
             text: "Open Left",

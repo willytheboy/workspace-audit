@@ -3268,6 +3268,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceTaskLedgerDriftCheckpointLedgerJson.items[0].field, convergenceTaskDriftItem.field);
     assert.match(convergenceTaskLedgerDriftCheckpointLedgerJson.markdown, /# Convergence Review Task Ledger Drift Checkpoints/);
     assert.match(convergenceTaskLedgerDriftCheckpointLedgerJson.secretPolicy, /Non-secret convergence review task ledger drift metadata only/);
+
+    const convergenceDueDiligencePackResponse = await fetch(`${baseUrl}/api/convergence/due-diligence-pack?pairId=${encodeURIComponent(operatorProposalJson.review.pairId)}`);
+    assert.equal(convergenceDueDiligencePackResponse.status, 200);
+    const convergenceDueDiligencePackJson = await convergenceDueDiligencePackResponse.json();
+    assert.equal(convergenceDueDiligencePackJson.pairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceDueDiligencePackJson.summary.relatedTaskCount, 1);
+    assert.equal(convergenceDueDiligencePackJson.summary.relatedDriftCheckpointCount, 1);
+    assert.match(convergenceDueDiligencePackJson.markdown, /# Convergence Candidate Due Diligence Pack/);
+    assert.match(convergenceDueDiligencePackJson.markdown, /AI insight/);
+    assert.match(convergenceDueDiligencePackJson.secretPolicy, /Non-secret convergence due diligence metadata only/);
   } finally {
     server.close();
     await once(server, "close");

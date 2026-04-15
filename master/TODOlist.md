@@ -1687,3 +1687,10 @@
 - [x] Reuse the existing snapshot API with a clear accepted-baseline title, all-status filter, and standard limit.
 - [x] Keep the action adjacent to drift and checkpoint ledger controls for post-review workflow continuity.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Candidate Due Diligence Pack
+
+- [x] Add a non-secret due diligence pack API for individual convergence candidates.
+- [x] Include candidate evidence, AI insight, operator note, project snapshot, related tasks, related drift checkpoints, and recommended next action.
+- [x] Add a Governance `Copy Pack` action on each convergence candidate card.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

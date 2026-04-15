@@ -111,6 +111,26 @@
  *   markdown: string
  * }} ConvergenceCandidatesPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   pairId: string,
+ *   candidate: ConvergenceCandidate,
+ *   leftProject: AuditProject | Record<string, unknown>,
+ *   rightProject: AuditProject | Record<string, unknown>,
+ *   relatedTasks: Array<Record<string, unknown>>,
+ *   relatedDriftCheckpoints: Array<Record<string, unknown>>,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   summary: {
+ *     relatedTaskCount: number,
+ *     openTaskCount: number,
+ *     blockedTaskCount: number,
+ *     relatedDriftCheckpointCount: number,
+ *     score: number,
+ *     reviewStatus: string
+ *   },
+ *   markdown: string
+ * }} ConvergenceDueDiligencePackPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   status: string,

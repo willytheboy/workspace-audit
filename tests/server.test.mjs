@@ -3597,6 +3597,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(checkpointedLaunchExecutionPacketDrift.checkpointDecision, "confirmed");
     assert.equal(checkpointedLaunchExecutionPacketDrift.checkpointStatus, "resolved");
 
+    const convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-drift-checkpoint-ledger?status=closed`);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson = await convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.items[0].convergenceAssimilationRunnerLaunchExecutionPacketDriftField, launchExecutionPacketCheckpointField);
+    assert.match(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet Drift Checkpoint Ledger/);
+
     const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

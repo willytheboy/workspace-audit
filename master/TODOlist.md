@@ -1967,3 +1967,10 @@
 - [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
 - [x] Show checkpoint state on launch execution packet drift cards and rehydrate decisions into drift payloads.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Execution Packet Drift Checkpoint Ledger
+
+- [x] Add a non-secret checkpoint ledger API for launch execution packet drift decisions.
+- [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
+- [x] Surface checkpoint ledger cards and copy controls in Governance.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

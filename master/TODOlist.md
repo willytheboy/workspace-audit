@@ -1953,3 +1953,10 @@
 - [x] Store packet decision/status, preflight count, command count, replay count, Markdown, and full packet payload.
 - [x] Surface Governance save and copy controls for launch execution packet snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Execution Packet Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved launch execution packets with the live runner-start handoff.
+- [x] Compare launch decision/status, execution mode, preflight count, command count, replay count, recommended action, and Markdown changes.
+- [x] Add Governance copy controls and drift cards for latest/per-snapshot launch execution packet drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

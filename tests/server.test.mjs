@@ -3442,6 +3442,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsJson[0].title, "Fixture Claude Launch Execution Packet");
 
+    const convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots/diff?snapshotId=latest&runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson = await convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.driftItems.length, 0);
+    assert.match(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet Snapshot Drift/);
+
     const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

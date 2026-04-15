@@ -4726,6 +4726,18 @@ export function createGovernanceDeck(governance) {
     review: 0,
     hold: 0
   };
+  const convergenceAssimilationRunnerLaunchStackRemediationPack = governance.convergenceAssimilationRunnerLaunchStackRemediationPack || null;
+  const convergenceAssimilationRunnerLaunchStackRemediationPackSummary = convergenceAssimilationRunnerLaunchStackRemediationPack?.summary || {
+    totalStages: 0,
+    readyStages: 0,
+    reviewStages: 0,
+    holdStages: 0,
+    nonReadyStages: 0,
+    openTasks: 0,
+    highPriorityTasks: 0,
+    openCheckpoints: 0,
+    openEscalatedCheckpoints: 0
+  };
   const convergenceAssimilationRunnerLaunchStackActionTaskLedger = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger || null;
   const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary = convergenceAssimilationRunnerLaunchStackActionTaskLedger?.summary || {
     total: 0,
@@ -4804,6 +4816,18 @@ export function createGovernanceDeck(governance) {
           dataset: { convergenceAssimilationRunnerLaunchStackStatusRunner: "claude" }
         }),
         createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-copy-btn",
+          text: "Copy Codex Remediation",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-copy-btn",
+          text: "Copy Claude Remediation",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackRunner: "claude" }
+        }),
+        createElement("button", {
           className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-tasks-btn",
           text: "Track Codex Tasks",
           attrs: { type: "button" },
@@ -4862,6 +4886,102 @@ export function createGovernanceDeck(governance) {
           convergenceAssimilationRunnerLaunchStackStageTaskId: stage.id || ""
         }
       }) : null
+    ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchStackRemediationPackEntries = convergenceAssimilationRunnerLaunchStackRemediationPack ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-pack-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Launch stack remediation pack",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchStackRemediationPack.recommendedAction || "Copy this non-secret pack into a supervised runner session before remediation.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationRunnerLaunchStackRemediationPack.decision || "review", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchStackRemediationPack.decision === "ready" ? "var(--success)" : convergenceAssimilationRunnerLaunchStackRemediationPack.decision === "hold" ? "var(--danger)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchStackRemediationPack.runner || "codex"} | ${convergenceAssimilationRunnerLaunchStackRemediationPackSummary.nonReadyStages || 0} non-ready stages | ${convergenceAssimilationRunnerLaunchStackRemediationPackSummary.openTasks || 0} open tasks | ${convergenceAssimilationRunnerLaunchStackRemediationPackSummary.openEscalatedCheckpoints || 0} escalated checkpoints`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-copy-btn",
+          text: "Copy Codex Pack",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-copy-btn",
+          text: "Copy Claude Pack",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackRunner: "claude" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchStackRemediationPack.nonReadyStages || []).slice(0, 8).map((stage) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-stage-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.38rem"
+      }
+    }, [
+      createElement("div", {
+        text: stage.title || stage.id || "Launch stack remediation stage",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: stage.action || "Review before runner start.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(stage.status || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: stage.status === "hold" ? "var(--danger)" : "var(--warning)"
+      })
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries = convergenceAssimilationRunnerLaunchStackActionTaskLedger ? [
@@ -13208,6 +13328,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Execution Packet Snapshot Drift", "Latest saved runner-start handoff compared with current live launch execution packet.", convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Execution Packet Drift Checkpoints", "Operator decisions made against launch execution packet drift before CLI handoff reuse.", convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack", "Copyable Codex and Claude remediation handoff for non-ready stack stages, open tasks, and unresolved checkpoint drift.", convergenceAssimilationRunnerLaunchStackRemediationPackEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots", "Persisted launch stack action task baselines for repeatable runner remediation handoffs.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift", "Latest saved launch stack action task ledger compared with the current live remediation task state.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries),

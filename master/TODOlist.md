@@ -2043,3 +2043,10 @@
 - [x] Track open escalated checkpoint counts separately from historical escalations.
 - [x] Let resolved checkpoint tasks release the action-task ledger checkpoint stage from hold back to ready.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack
+
+- [x] Add a non-secret Codex/Claude launch stack remediation pack API.
+- [x] Bundle non-ready launch stack stages, open runner action tasks, and unresolved action-task ledger drift checkpoints.
+- [x] Surface Governance copy controls and remediation stage cards for supervised CLI handoff preparation.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

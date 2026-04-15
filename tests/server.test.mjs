@@ -3570,6 +3570,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson.stages.some((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints"), true);
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints")?.status, "hold");
 
+    const convergenceAssimilationRunnerLaunchStackRemediationPackResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationPackJson = await convergenceAssimilationRunnerLaunchStackRemediationPackResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackJson.protocolVersion, "convergence-assimilation-runner-launch-stack-remediation-pack.v1");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackJson.decision, "hold");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackJson.summary.openCheckpoints, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackJson.summary.openEscalatedCheckpoints, 1);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack/);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /Open escalated checkpoints: 1/);
+
     const refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

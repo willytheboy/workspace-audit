@@ -723,6 +723,29 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackStatusPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   decision: "ready" | "review" | "hold",
+ *   summary: {
+ *     totalStages: number,
+ *     readyStages: number,
+ *     reviewStages: number,
+ *     holdStages: number,
+ *     nonReadyStages: number,
+ *     openTasks: number,
+ *     highPriorityTasks: number,
+ *     openCheckpoints: number,
+ *     openEscalatedCheckpoints: number
+ *   },
+ *   nonReadyStages: ConvergenceAssimilationRunnerLaunchStackStatusPayload["stages"],
+ *   openTasks: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload["items"],
+ *   openCheckpoints: PersistedTask[],
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload
+ * @typedef {{
  *   success: true,
  *   requested: number,
  *   createdTasks: PersistedTask[],
@@ -806,7 +829,8 @@
  *     closed: number,
  *     confirmed: number,
  *     deferred: number,
- *     escalated: number
+ *     escalated: number,
+ *     openEscalated: number
  *   },
  *   items: PersistedTask[],
  *   secretPolicy: string,
@@ -2059,6 +2083,7 @@
  *   convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff?: ConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload | null,

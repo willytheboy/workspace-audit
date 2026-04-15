@@ -4541,7 +4541,20 @@ export function createGovernanceDeck(governance) {
           fontSize: "0.84rem",
           lineHeight: "1.45"
         }
-      })
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-execution-packet-snapshot-refresh-btn",
+          text: "Refresh Snapshot",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchExecutionPacketSnapshotRefreshId: convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchExecutionPacketSnapshotRefreshRunner: convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff.runner || "codex"
+          }
+        })
+      ])
     ]),
     ...(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launch-execution-packet-snapshot-drift-item-card",

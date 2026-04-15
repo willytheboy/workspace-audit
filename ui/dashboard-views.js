@@ -137,6 +137,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchExecutionPacket: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchExecutionPacketPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchExecutionPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot, convergenceAssimilationRunnerLaunchExecutionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[] }>,
+ *     refreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot, convergenceAssimilationRunnerLaunchExecutionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff: (snapshotId?: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffPayload>,
  *     checkpointConvergenceAssimilationRunnerLaunchExecutionPacketDrift: (payload: { snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload>,
@@ -3018,6 +3019,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Copied";
           await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-execution-packet-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchExecutionPacketSnapshotRefreshId || "latest";
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchExecutionPacketSnapshotRefreshRunner || "codex";
+        const normalizedRunner = runner === "claude" ? "claude" : "codex";
+        const title = (window.prompt("Optional refreshed launch execution packet snapshot title", `Refreshed Convergence Assimilation ${normalizedRunner} Launch Execution Packet`) || "").trim();
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          const response = await api.refreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot({
+            snapshotId,
+            runner: normalizedRunner,
+            title
+          });
+          await renderGovernance();
+          element.textContent = `Refreshed ${response.snapshot.launchDecision}`;
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

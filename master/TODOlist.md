@@ -1974,3 +1974,10 @@
 - [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
 - [x] Surface checkpoint ledger cards and copy controls in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Execution Packet Snapshot Refresh
+
+- [x] Add an explicit refresh API that saves the current live launch execution packet as the latest snapshot baseline.
+- [x] Preserve the previous snapshot id for audit history while adding the refreshed snapshot to the snapshot list.
+- [x] Surface a Governance refresh control on launch execution packet snapshot drift cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -3411,6 +3411,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.protocolVersion, /convergence-assimilation-runner-launch-control-board/);
     assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.markdown, /# Convergence Assimilation Runner Launch Control Board/);
 
+    const convergenceAssimilationRunnerLaunchExecutionPacketResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchExecutionPacketJson = await convergenceAssimilationRunnerLaunchExecutionPacketResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketJson.runner, "claude");
+    assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.protocolVersion, /convergence-assimilation-runner-launch-execution-packet/);
+    assert.ok(convergenceAssimilationRunnerLaunchExecutionPacketJson.preflightChecks.length >= 5);
+    assert.ok(convergenceAssimilationRunnerLaunchExecutionPacketJson.commandQueueDraft.commands.length >= 6);
+    assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet/);
+    assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.secretPolicy, /Non-secret convergence assimilation runner launch execution packet only/);
+
     const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

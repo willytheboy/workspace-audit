@@ -5586,7 +5586,38 @@ export function createGovernanceDeck(governance) {
           fontSize: "0.82rem",
           lineHeight: "1.45"
         }
-      })
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskId: task.id,
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskId: task.id,
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskId: task.id,
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskStatus: "blocked"
+          }
+        })
+      ])
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff = governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff || null;

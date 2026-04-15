@@ -2148,3 +2148,10 @@
 - [x] Summarize visible, open, closed, runner split, result status split, and priority split.
 - [x] Surface Governance ledger cards and Copy All/Open Codex/Open Claude controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Lifecycle
+
+- [x] Add Resolve, Reopen, and Block controls to remediation result follow-up task cards.
+- [x] Reuse the task lifecycle API so changes remain auditable in Governance task update history.
+- [x] Validate open and closed ledger counts after resolved, reopened, and blocked transitions.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -3558,6 +3558,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskId || "";
+        const status = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerTaskStatus || "";
+        if (!taskId || !status) return;
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          await api.updateTask(taskId, { status });
+          await renderGovernance();
+          element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-runner]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

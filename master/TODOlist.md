@@ -2023,3 +2023,9 @@
 - [x] Persist checkpoint tasks with snapshot id, runner/status scope, drift field, before/current values, decision, note, and no-secrets policy.
 - [x] Surface checkpoint state on drift cards plus a copyable checkpoint ledger in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Task Ledger Gate
+
+- [x] Feed launch stack action task ledger snapshot drift into the overall runner launch stack status.
+- [x] Feed unresolved and escalated action-task ledger drift checkpoints into the stack-level ready/review/hold decision.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

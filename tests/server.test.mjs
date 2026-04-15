@@ -3562,6 +3562,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.escalated, 1);
     assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger Drift Checkpoint Ledger/);
 
+    const convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-status?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson = await convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson.stages.some((stage) => stage.id === "launch-stack-action-task-ledger-snapshot-drift"), true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson.stages.some((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints"), true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints")?.status, "hold");
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

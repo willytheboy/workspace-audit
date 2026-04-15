@@ -230,6 +230,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} resultId
+   * @param {{ decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>}
+   */
+  checkpointConvergenceAssimilationResult(resultId, payload) {
+    return fetchJson(`/api/convergence/assimilation-results/${encodeURIComponent(resultId)}/checkpoint`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

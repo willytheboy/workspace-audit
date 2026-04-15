@@ -3125,7 +3125,36 @@ export function createGovernanceDeck(governance) {
           fontSize: "0.82rem",
           lineHeight: "1.45"
         }
-      }) : null
+      }) : null,
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-btn",
+          text: "Confirm",
+          attrs: result.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+          dataset: {
+            convergenceAssimilationResultCheckpointId: result.id || "",
+            convergenceAssimilationResultCheckpointDecision: "confirmed"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-btn",
+          text: "Defer",
+          attrs: result.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+          dataset: {
+            convergenceAssimilationResultCheckpointId: result.id || "",
+            convergenceAssimilationResultCheckpointDecision: "deferred"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-btn",
+          text: "Escalate",
+          attrs: result.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+          dataset: {
+            convergenceAssimilationResultCheckpointId: result.id || "",
+            convergenceAssimilationResultCheckpointDecision: "escalated"
+          }
+        })
+      ])
     ]))
   ] : [];
   const convergenceTaskSummary = governance.summary || {};

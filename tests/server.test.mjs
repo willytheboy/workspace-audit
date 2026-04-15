@@ -3237,6 +3237,24 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationResultLedgerJson.markdown, /# Convergence Assimilation Result Ledger/);
     assert.match(convergenceAssimilationResultLedgerJson.secretPolicy, /Non-secret convergence assimilation result metadata only/);
 
+    const convergenceAssimilationResultCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-results/${encodeURIComponent(convergenceAssimilationRunResultJson.result.id)}/checkpoint`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        decision: "confirmed",
+        note: "Fixture checkpoint accepted."
+      })
+    });
+    assert.equal(convergenceAssimilationResultCheckpointResponse.status, 200);
+    const convergenceAssimilationResultCheckpointJson = await convergenceAssimilationResultCheckpointResponse.json();
+    assert.equal(convergenceAssimilationResultCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationResultCheckpointJson.mode, "created");
+    assert.equal(convergenceAssimilationResultCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationResultCheckpointJson.task.convergenceAssimilationRunResultId, convergenceAssimilationRunResultJson.result.id);
+    assert.equal(convergenceAssimilationResultCheckpointJson.task.convergenceAssimilationResultCheckpointDecision, "confirmed");
+    assert.equal(convergenceAssimilationResultCheckpointJson.task.status, "resolved");
+    assert.match(convergenceAssimilationResultCheckpointJson.task.secretPolicy, /non-secret-convergence-assimilation-result-checkpoint-only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

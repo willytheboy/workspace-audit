@@ -1750,3 +1750,10 @@
 - [x] Include result counts, runner split, pair count, summaries, validation notes, changed files, and blockers in Markdown.
 - [x] Surface result ledger cards and copy controls in the Governance convergence scope.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Result Checkpoints
+
+- [x] Add server-side Confirm, Defer, and Escalate checkpoints for convergence assimilation results.
+- [x] Upsert checkpoint tasks with result id, run id, pair id, runner result status, checkpoint decision, and no-secrets policy.
+- [x] Add Governance result-card checkpoint controls for operator review.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

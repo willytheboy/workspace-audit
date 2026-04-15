@@ -234,6 +234,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationOperatorPlaybookPayload>}
+   */
+  fetchConvergenceAssimilationOperatorPlaybook() {
+    return fetchJson("/api/convergence/assimilation-operator-playbook");
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

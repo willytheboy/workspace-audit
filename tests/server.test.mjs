@@ -3288,6 +3288,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationCliHandoffContractJson.markdown, /# Convergence Assimilation CLI Handoff Contract/);
     assert.match(convergenceAssimilationCliHandoffContractJson.secretPolicy, /Non-secret convergence assimilation CLI handoff contract only/);
 
+    const convergenceAssimilationOperatorPlaybookResponse = await fetch(`${baseUrl}/api/convergence/assimilation-operator-playbook`);
+    assert.equal(convergenceAssimilationOperatorPlaybookResponse.status, 200);
+    const convergenceAssimilationOperatorPlaybookJson = await convergenceAssimilationOperatorPlaybookResponse.json();
+    assert.equal(convergenceAssimilationOperatorPlaybookJson.readinessGateDecision, "ready");
+    assert.ok(convergenceAssimilationOperatorPlaybookJson.steps.length >= 7);
+    assert.match(convergenceAssimilationOperatorPlaybookJson.protocolVersion, /convergence-assimilation-operator-playbook/);
+    assert.match(convergenceAssimilationOperatorPlaybookJson.markdown, /# Convergence Assimilation Operator Playbook/);
+    assert.match(convergenceAssimilationOperatorPlaybookJson.secretPolicy, /Non-secret convergence assimilation operator playbook only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

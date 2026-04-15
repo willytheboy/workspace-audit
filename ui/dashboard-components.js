@@ -3339,6 +3339,12 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Contract",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationCliContractRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-operator-playbook-copy-btn",
+          text: "Copy Playbook",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationOperatorPlaybookCopy: "true" }
         })
       ])
     ]),

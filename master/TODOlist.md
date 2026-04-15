@@ -1778,3 +1778,10 @@
 - [x] Include readiness gate state, execution mode, no-secrets policy, and expected result schema.
 - [x] Add Governance copy controls for Codex and Claude contracts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Operator Playbook
+
+- [x] Add a non-secret operator playbook API for the convergence assimilation cycle.
+- [x] Encode the vibe-coder workflow from readiness gate to contract, trace pack, execution, validation, result intake, and checkpoints.
+- [x] Add a Governance copy control beside the readiness gate and CLI contracts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

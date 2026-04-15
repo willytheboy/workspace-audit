@@ -319,6 +319,17 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationCliHandoffContractPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   audience: string,
+ *   readinessGateDecision: "ready" | "review" | "hold",
+ *   steps: Array<{ title: string, detail: string }>,
+ *   guardrails: string[],
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationOperatorPlaybookPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

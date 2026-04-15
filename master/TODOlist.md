@@ -2106,3 +2106,10 @@
 - [x] Convert remediation pack stages, tasks, and checkpoints into ordered work items and runner prompts.
 - [x] Surface Governance copy controls for Codex and Claude remediation work-order drafts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Queue
+
+- [x] Add a duplicate-safe queue API for non-executing Codex/Claude launch stack remediation work orders.
+- [x] Persist queued remediation work orders as supervised agent work-order runs with runner, work-item, validation, and secret-policy metadata.
+- [x] Surface Governance queue controls next to the remediation work-order draft copy controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

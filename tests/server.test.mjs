@@ -3595,6 +3595,28 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Draft/);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.secretPolicy, /Non-secret convergence assimilation runner launch stack remediation work-order draft only/);
 
+    const queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ runner: "claude" })
+    });
+    assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.status, 200);
+    const queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson = await queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.json();
+    assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.success, true);
+    assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.convergenceAssimilationRunnerLaunchStackRemediationRunner, "claude");
+    assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.convergenceAssimilationRunnerLaunchStackRemediationBridgeMode, "runner-remediation-work-order-draft");
+    assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.convergenceAssimilationRunnerLaunchStackRemediationWorkItemCount >= 1, true);
+
+    const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ runner: "claude" })
+    });
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.status, 200);
+    const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson = await duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.json();
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run, null);
+    assert.match(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.skippedRun.reason, /already exists/);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

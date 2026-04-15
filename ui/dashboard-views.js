@@ -3357,6 +3357,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-work-order-run-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunRunner || "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Queueing";
+          const result = await api.queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun({
+            runner: runner === "claude" ? "claude" : "codex"
+          });
+          await renderGovernance();
+          element.textContent = result.run ? "Work-Order Queued" : "Already Queued";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-runner]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

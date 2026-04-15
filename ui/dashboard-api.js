@@ -608,6 +608,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string }} [payload]
+   * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
+   */
+  queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

@@ -5064,6 +5064,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Draft",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-run-btn",
+          text: "Queue Codex Work-Order",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-run-btn",
+          text: "Queue Claude Work-Order",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunRunner: "claude" }
         })
       ])
     ]),

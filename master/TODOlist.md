@@ -1827,3 +1827,10 @@
 - [x] Convert the current session packet and readiness state into operator-supervised queue steps.
 - [x] Add Governance copy controls for Codex and Claude queue drafts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Result Replay Checklist
+
+- [x] Add a non-secret runner result replay checklist API for Codex and Claude.
+- [x] Guide safe conversion of CLI output into result intake, validation summaries, blockers, checkpoints, and packet snapshots.
+- [x] Add Governance copy controls for Codex and Claude replay checklists.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

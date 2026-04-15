@@ -3393,6 +3393,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Queue",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerCommandQueueRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-result-replay-copy-btn",
+          text: "Copy Codex Replay",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerResultReplayRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-result-replay-copy-btn",
+          text: "Copy Claude Replay",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerResultReplayRunner: "claude" }
         })
       ])
     ]),

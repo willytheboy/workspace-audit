@@ -312,6 +312,16 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerResultReplayChecklistPayload>}
+   */
+  fetchConvergenceAssimilationRunnerResultReplayChecklist(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-result-replay-checklist", {
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

@@ -414,6 +414,24 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerCommandQueueDraftPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   evidence: string,
+ *   appAction: string
+ * }} ConvergenceAssimilationRunnerResultReplayChecklistItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   readinessDecision: "ready" | "review" | "hold",
+ *   resultSummary: ConvergenceAssimilationResultLedgerPayload["summary"],
+ *   checkpointSummary: ConvergenceAssimilationResultCheckpointLedgerPayload["summary"],
+ *   items: ConvergenceAssimilationRunnerResultReplayChecklistItem[],
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerResultReplayChecklistPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

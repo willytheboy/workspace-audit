@@ -375,6 +375,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launchpad-gate-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

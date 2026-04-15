@@ -117,6 +117,8 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerCommandQueueDraft: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerCommandQueueDraftPayload>,
  *     fetchConvergenceAssimilationRunnerResultReplayChecklist: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerResultReplayChecklistPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchpadGate: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchpadGatePayload>,
+ *     fetchConvergenceAssimilationRunnerLaunchpadGateSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[]>,
+ *     createConvergenceAssimilationRunnerLaunchpadGateSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot, convergenceAssimilationRunnerLaunchpadGateSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[] }>,
  *     fetchConvergenceAssimilationRunTracePack: (runId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>,
  *     recordConvergenceAssimilationRunResult: (runId: string, payload: { status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string }) => Promise<{ success: true, result: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunResults: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     checkpointConvergenceAssimilationResult: (resultId: string, payload: { decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>,
@@ -717,6 +719,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.readinessDecision || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      convergenceAssimilationRunnerLaunchpadGateSnapshots: filterAndSort(
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.decision || "", snapshot.readinessDecision || "", snapshot.packetDriftSeverity || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       convergenceAssimilationSessionPacketSnapshotDiff: governance.convergenceAssimilationSessionPacketSnapshotDiff && matchesSearch([
         "convergence assimilation session packet snapshot drift",
         governance.convergenceAssimilationSessionPacketSnapshotDiff.snapshotTitle || "",
@@ -1001,6 +1008,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "convergence") filtered.convergenceAssimilationResultCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationReadinessGate = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketSnapshots = [];
+      if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchpadGateSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketDriftCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceTasks = [];
@@ -2265,6 +2273,57 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = `Copied ${payload.decision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launchpad-gate-save-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchpadGateSaveRunner || "codex";
+        const normalizedRunner = runner === "claude" ? "claude" : "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const response = await api.createConvergenceAssimilationRunnerLaunchpadGateSnapshot({
+            runner: normalizedRunner,
+            title: `Convergence Assimilation ${normalizedRunner} Launchpad Gate`
+          });
+          await renderGovernance();
+          element.textContent = `Saved ${response.snapshot.decision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launchpad-gate-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchpadGateSnapshotId || "";
+        const snapshot = governanceCache?.convergenceAssimilationRunnerLaunchpadGateSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -8095,6 +8154,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceAssimilationReadinessGate ? 1 : 0)
         + (convergenceAssimilationReadinessGate?.reasons || []).length
         + (governance.convergenceAssimilationSessionPacketSnapshots || []).length
+        + (governance.convergenceAssimilationRunnerLaunchpadGateSnapshots || []).length
         + (convergenceAssimilationSessionPacketSnapshotDiff ? 1 : 0)
         + (convergenceAssimilationSessionPacketSnapshotDiff?.driftItems || []).length
         + (convergenceAssimilationSessionPacketDriftCheckpointLedger ? 1 : 0)

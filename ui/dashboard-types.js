@@ -445,6 +445,25 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchpadGatePayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runner: "codex" | "claude",
+ *   protocolVersion: string,
+ *   gateGeneratedAt: string,
+ *   decision: "ready" | "review" | "hold",
+ *   readinessDecision: "ready" | "review" | "hold",
+ *   reasonCount: number,
+ *   packetDriftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   packetDriftScore: number,
+ *   openDriftCheckpointCount: number,
+ *   escalatedDriftCheckpointCount: number,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   gate: ConvergenceAssimilationRunnerLaunchpadGatePayload,
+ *   createdAt: string
+ * }} PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1656,6 +1675,7 @@
  *     convergenceOpenTaskCount: number,
  *     convergenceClosedTaskCount: number,
  *     convergenceAssimilationSessionPacketSnapshotCount: number,
+ *     convergenceAssimilationRunnerLaunchpadGateSnapshotCount: number,
  *     convergenceTaskLedgerSnapshotCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
@@ -1676,6 +1696,7 @@
  *   convergenceAssimilationResultCheckpointLedger?: ConvergenceAssimilationResultCheckpointLedgerPayload | null,
  *   convergenceAssimilationReadinessGate?: ConvergenceAssimilationReadinessGatePayload | null,
  *   convergenceAssimilationSessionPacketSnapshots: PersistedConvergenceAssimilationSessionPacketSnapshot[],
+ *   convergenceAssimilationRunnerLaunchpadGateSnapshots: PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[],
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,
  *   convergenceAssimilationSessionPacketDriftCheckpointLedger?: ConvergenceAssimilationSessionPacketDriftCheckpointLedgerPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],

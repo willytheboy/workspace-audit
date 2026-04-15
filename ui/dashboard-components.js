@@ -3417,6 +3417,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Launch Gate",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchpadGateRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launchpad-gate-save-btn",
+          text: "Save Codex Launch Gate",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchpadGateSaveRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launchpad-gate-save-btn",
+          text: "Save Claude Launch Gate",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchpadGateSaveRunner: "claude" }
         })
       ])
     ]),
@@ -3504,6 +3516,72 @@ export function createGovernanceDeck(governance) {
         text: "Copy Drift",
         attrs: { type: "button" },
         dataset: { convergenceAssimilationSessionPacketSnapshotDriftId: snapshot.id }
+      })
+    ])
+  ]));
+  const convergenceAssimilationRunnerLaunchpadGateSnapshotEntries = (governance.convergenceAssimilationRunnerLaunchpadGateSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-assimilation-runner-launchpad-gate-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.65rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Convergence Assimilation Runner Launchpad Gate",
+          style: {
+            color: "var(--text)",
+            fontWeight: "850"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} | ${snapshot.runner || "codex"} | ${snapshot.protocolVersion || "launchpad-gate"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.28rem"
+          }
+        })
+      ]),
+      createTag(snapshot.decision || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.decision === "ready" ? "var(--success)" : snapshot.decision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.reasonCount || 0} reason(s) | readiness ${snapshot.readinessDecision || "review"} | packet drift ${snapshot.packetDriftSeverity || "missing-snapshot"} (${snapshot.packetDriftScore || 0}) | ${snapshot.openDriftCheckpointCount || 0} open drift checkpoint(s)`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      text: snapshot.recommendedAction || "Review this launchpad gate before runner execution.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launchpad-gate-snapshot-copy-btn",
+        text: "Copy Launch Gate",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationRunnerLaunchpadGateSnapshotId: snapshot.id }
       })
     ])
   ]));
@@ -11177,6 +11255,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Result Checkpoints", "Operator decisions on captured assimilation results before follow-up implementation.", convergenceAssimilationResultCheckpointEntries),
     createListSection("Convergence Assimilation Readiness Gate", "Ready/review/hold gate for continuing supervised convergence implementation.", convergenceAssimilationReadinessEntries),
     createListSection("Convergence Assimilation Session Packet Snapshots", "Persisted non-secret Codex and Claude session packets for auditable CLI handoffs.", convergenceAssimilationSessionPacketSnapshotEntries),
+    createListSection("Convergence Assimilation Runner Launchpad Gate Snapshots", "Persisted non-secret launchpad gate decisions for repeatable Codex and Claude execution handoffs.", convergenceAssimilationRunnerLaunchpadGateSnapshotEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),
     createListSection("Convergence Assimilation Session Packet Drift Checkpoints", "Operator decisions made against session packet drift before refreshing CLI handoffs.", convergenceAssimilationSessionPacketDriftCheckpointLedgerEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),

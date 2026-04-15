@@ -1841,3 +1841,10 @@
 - [x] Combine readiness gate, latest packet drift, and packet drift checkpoint state into one launch decision.
 - [x] Add Governance copy controls for Codex and Claude launch gates.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launchpad Gate Snapshots
+
+- [x] Add non-secret saved runner launchpad gate snapshots for Codex and Claude.
+- [x] Persist runner, launch decision, readiness state, packet drift, checkpoint counts, recommended action, Markdown, and full gate payload.
+- [x] Add Governance save and copy controls for persisted launchpad gate snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

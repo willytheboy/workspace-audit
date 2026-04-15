@@ -3389,6 +3389,18 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchpadGateSnapshotDiffJson.driftItems.length, 0);
     assert.match(convergenceAssimilationRunnerLaunchpadGateSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launchpad Gate Snapshot Drift/);
 
+    const convergenceAssimilationRunnerLaunchAuthorizationPackResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack?runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackJson = await convergenceAssimilationRunnerLaunchAuthorizationPackResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackJson.runner, "codex");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackJson.decision, "ready");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackJson.authorizationStatus, "authorized-for-one-bounded-run");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackJson.launchpadGateSnapshotDrift.hasSnapshot, true);
+    assert.ok(convergenceAssimilationRunnerLaunchAuthorizationPackJson.commandQueueDraft.commands.length >= 6);
+    assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.protocolVersion, /convergence-assimilation-runner-launch-authorization-pack/);
+    assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.markdown, /# Convergence Assimilation Runner Launch Authorization Pack/);
+    assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.secretPolicy, /Non-secret convergence assimilation runner launch authorization pack only/);
+
     const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
     const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();

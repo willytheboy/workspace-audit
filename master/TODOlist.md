@@ -1869,3 +1869,10 @@
 - [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
 - [x] Surface checkpoint ledger cards and copy controls in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Authorization Pack
+
+- [x] Add a non-secret Codex/Claude launch authorization pack API.
+- [x] Bundle launchpad gate, launchpad snapshot drift, launch drift checkpoint ledger, session packet, command queue, and replay checklist.
+- [x] Add Governance copy controls for Codex and Claude launch authorization packs.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

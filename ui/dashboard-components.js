@@ -3453,6 +3453,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Open Launch Checkpoints",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-copy-btn",
+          text: "Copy Codex Launch Pack",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-copy-btn",
+          text: "Copy Claude Launch Pack",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackRunner: "claude" }
         })
       ])
     ]),

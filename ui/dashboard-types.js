@@ -496,6 +496,22 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   decision: "ready" | "review" | "hold",
+ *   authorizationStatus: "authorized-for-one-bounded-run" | "review-required" | "blocked",
+ *   launchpadGate: ConvergenceAssimilationRunnerLaunchpadGatePayload,
+ *   launchpadGateSnapshotDrift: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload,
+ *   launchpadGateDriftCheckpointLedger: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload,
+ *   sessionPacket: ConvergenceAssimilationSessionPacketPayload,
+ *   commandQueueDraft: ConvergenceAssimilationRunnerCommandQueueDraftPayload,
+ *   resultReplayChecklist: ConvergenceAssimilationRunnerResultReplayChecklistPayload,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchAuthorizationPackPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

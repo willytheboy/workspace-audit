@@ -5222,7 +5222,38 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: item.convergenceAssimilationRunnerLaunchStackRemediationPackDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationRunnerLaunchStackRemediationPackDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
-      })
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointTaskStatus: "blocked"
+          }
+        })
+      ])
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries = (governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || []).map((snapshot) => createElement("div", {

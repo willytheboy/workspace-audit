@@ -2078,3 +2078,10 @@
 - [x] Summarize total, visible, open, closed, confirmed, deferred, escalated, and open escalated counts.
 - [x] Surface Governance ledger cards with checkpoint snapshot, runner, field, before/current values, and decision state.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Checkpoint Lifecycle
+
+- [x] Add direct Resolve, Reopen, and Block controls to remediation pack drift checkpoint cards.
+- [x] Reuse the task lifecycle API so checkpoint status updates remain auditable through Governance operations.
+- [x] Validate open/closed ledger counts after blocked, reopened, and resolved checkpoint transitions.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

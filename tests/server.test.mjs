@@ -3700,6 +3700,46 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(checkpointedRemediationPackDriftItem?.checkpointDecision, "confirmed");
     assert.equal(checkpointedRemediationPackDriftItem?.checkpointStatus, "resolved");
 
+    const blockRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked" })
+    });
+    assert.equal(blockRemediationPackDriftCheckpointResponse.status, 200);
+    const blockRemediationPackDriftCheckpointJson = await blockRemediationPackDriftCheckpointResponse.json();
+    assert.equal(blockRemediationPackDriftCheckpointJson.task.status, "blocked");
+
+    const openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-ledger?status=open`);
+    assert.equal(openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.status, 200);
+    const openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson = await openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.json();
+    assert.equal(openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.open, 1);
+    assert.equal(openConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.closed, 0);
+
+    const reopenRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "open" })
+    });
+    assert.equal(reopenRemediationPackDriftCheckpointResponse.status, 200);
+    const reopenRemediationPackDriftCheckpointJson = await reopenRemediationPackDriftCheckpointResponse.json();
+    assert.equal(reopenRemediationPackDriftCheckpointJson.task.status, "open");
+
+    const resolveRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "resolved" })
+    });
+    assert.equal(resolveRemediationPackDriftCheckpointResponse.status, 200);
+    const resolveRemediationPackDriftCheckpointJson = await resolveRemediationPackDriftCheckpointResponse.json();
+    assert.equal(resolveRemediationPackDriftCheckpointJson.task.status, "resolved");
+
+    const resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-ledger?status=closed`);
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.status, 200);
+    const resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson = await resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.json();
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.closed, 1);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

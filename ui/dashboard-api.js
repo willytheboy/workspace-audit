@@ -578,6 +578,16 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackStatusPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackStatus(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-status", {
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

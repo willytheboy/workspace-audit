@@ -1981,3 +1981,10 @@
 - [x] Preserve the previous snapshot id for audit history while adding the refreshed snapshot to the snapshot list.
 - [x] Surface a Governance refresh control on launch execution packet snapshot drift cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Status
+
+- [x] Add a non-secret launch stack status API for Codex and Claude.
+- [x] Roll up session packet drift, launchpad gate, authorization pack drift, control board state, execution packet drift, and checkpoint ledgers.
+- [x] Surface a Governance launch stack board with ready/review/hold stage cards and copy controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

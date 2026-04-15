@@ -710,6 +710,17 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   decision: "ready" | "review" | "hold",
+ *   summary: { total: number, ready: number, review: number, hold: number },
+ *   stages: Array<{ id: string, title: string, status: "ready" | "review" | "hold", detail: string, action: string }>,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackStatusPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1955,6 +1966,7 @@
  *   convergenceAssimilationRunnerLaunchExecutionPacketSnapshots: PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[],
  *   convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff?: ConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

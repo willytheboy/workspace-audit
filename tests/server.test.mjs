@@ -3421,6 +3421,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet/);
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.secretPolicy, /Non-secret convergence assimilation runner launch execution packet only/);
 
+    const convergenceAssimilationRunnerLaunchStackStatusResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-status?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackStatusJson = await convergenceAssimilationRunnerLaunchStackStatusResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusJson.runner, "claude");
+    assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.protocolVersion, /convergence-assimilation-runner-launch-stack-status/);
+    assert.ok(["ready", "review", "hold"].includes(convergenceAssimilationRunnerLaunchStackStatusJson.decision));
+    assert.ok(convergenceAssimilationRunnerLaunchStackStatusJson.stages.length >= 8);
+    assert.ok(convergenceAssimilationRunnerLaunchStackStatusJson.summary.total >= 8);
+    assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.markdown, /# Convergence Assimilation Runner Launch Stack Status/);
+    assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.secretPolicy, /Non-secret convergence assimilation runner launch stack status only/);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

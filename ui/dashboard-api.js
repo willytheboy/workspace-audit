@@ -629,6 +629,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  checkpointConvergenceAssimilationRunnerLaunchStackRemediationPackDrift(payload) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
    */

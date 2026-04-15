@@ -3657,6 +3657,41 @@ export async function convergenceReviewSuppressionTest() {
     const convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson = await convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse.json();
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints")?.status, "ready");
 
+    const driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
+    const driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasDrift, true);
+    const remediationPackDriftItem = driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftItems.find((item) => item.field === "openEscalatedCheckpoints");
+    assert.ok(remediationPackDriftItem);
+
+    const convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        field: "openEscalatedCheckpoints",
+        decision: "confirmed",
+        note: "Fixture remediation pack drift accepted after action task ledger checkpoint resolution."
+      })
+    });
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson = await convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.mode, "created");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.sourceType, "convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-drift-checkpoint");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.convergenceAssimilationRunnerLaunchStackRemediationPackDriftField, "openEscalatedCheckpoints");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.secretPolicy, "non-secret-convergence-assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-only");
+
+    const checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
+    assert.equal(checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
+    const checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();
+    const checkpointedRemediationPackDriftItem = checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftItems.find((item) => item.field === "openEscalatedCheckpoints");
+    assert.equal(checkpointedRemediationPackDriftItem?.checkpointDecision, "confirmed");
+    assert.equal(checkpointedRemediationPackDriftItem?.checkpointStatus, "resolved");
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

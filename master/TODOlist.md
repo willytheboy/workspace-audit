@@ -2064,3 +2064,10 @@
 - [x] Compare decision rank, stage counts, task counts, checkpoint counts, and recommended action changes.
 - [x] Surface Governance copy controls and drift cards for latest/per-snapshot remediation pack drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for remediation pack snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Surface checkpoint state on remediation pack drift cards in Governance.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

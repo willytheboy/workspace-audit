@@ -2057,3 +2057,10 @@
 - [x] Store decision, stage/task/checkpoint counts, Markdown, and full non-secret pack payload.
 - [x] Surface Governance save and copy controls for remediation pack snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved remediation pack snapshots with the live runner pack.
+- [x] Compare decision rank, stage counts, task counts, checkpoint counts, and recommended action changes.
+- [x] Surface Governance copy controls and drift cards for latest/per-snapshot remediation pack drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

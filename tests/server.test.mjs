@@ -3603,6 +3603,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsJson[0].title, "Fixture Claude Launch Stack Remediation Pack");
 
+    const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.snapshotId, createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.id);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasDrift, false);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftSeverity, "none");
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift/);
+
     const refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

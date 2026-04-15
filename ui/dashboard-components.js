@@ -4957,6 +4957,15 @@ export function createGovernanceDeck(governance) {
           text: "Save Pack Snapshot",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotRunner: convergenceAssimilationRunnerLaunchStackRemediationPack.runner || "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-drift-btn",
+          text: "Copy Latest Drift",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftId: "latest",
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftRunner: convergenceAssimilationRunnerLaunchStackRemediationPack.runner || "codex"
+          }
         })
       ])
     ]),
@@ -4987,6 +4996,95 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: stage.status === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff = governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff || null;
+  const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffEntries = convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-drift-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.hasSnapshot ? (convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.snapshotTitle || "Latest launch stack remediation pack snapshot") : "No launch stack remediation pack snapshot",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.recommendedAction || "Save a remediation pack snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftSeverity || "missing-snapshot", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftSeverity === "high" ? "var(--danger)" : convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftScore || 0} drift score | ${(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftItems || []).length} drift item(s) | ${convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.runner || "codex"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-drift-btn",
+          text: "Copy Drift",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftId: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftRunner: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.runner || "codex"
+          }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-pack-drift-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.35rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.label || item.field || "Launch stack remediation drift",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
       })
     ]))
   ] : [];
@@ -5046,6 +5144,15 @@ export function createGovernanceDeck(governance) {
         text: "Copy Snapshot",
         attrs: { type: "button" },
         dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotId: snapshot.id }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftId: snapshot.id,
+          convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftRunner: snapshot.runner || "codex"
+        }
       })
     ])
   ]));
@@ -13395,6 +13502,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack", "Copyable Codex and Claude remediation handoff for non-ready stack stages, open tasks, and unresolved checkpoint drift.", convergenceAssimilationRunnerLaunchStackRemediationPackEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshots", "Persisted Codex and Claude remediation pack baselines for later launch stack drift comparison.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift", "Latest saved launch stack remediation pack compared with current live runner remediation state.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots", "Persisted launch stack action task baselines for repeatable runner remediation handoffs.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift", "Latest saved launch stack action task ledger compared with the current live remediation task state.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries),

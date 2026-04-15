@@ -766,6 +766,22 @@
  *   createdAt: string
  * }} PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot
  * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   runner: "codex" | "claude",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: Record<string, unknown> | null,
+ *   snapshotSummary: Record<string, unknown> | null,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload
+ * @typedef {{
  *   success: true,
  *   requested: number,
  *   createdTasks: PersistedTask[],
@@ -2105,6 +2121,7 @@
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
+ *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload | null,

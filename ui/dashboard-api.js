@@ -617,6 +617,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff", {
+      snapshotId,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
    */

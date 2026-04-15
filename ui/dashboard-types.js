@@ -330,6 +330,20 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationOperatorPlaybookPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   readinessGate: ConvergenceAssimilationReadinessGatePayload,
+ *   operatorPlaybook: ConvergenceAssimilationOperatorPlaybookPayload,
+ *   cliHandoffContract: ConvergenceAssimilationCliHandoffContractPayload,
+ *   runLedger: ConvergenceAssimilationRunLedgerPayload,
+ *   resultLedger: ConvergenceAssimilationResultLedgerPayload,
+ *   resultCheckpointLedger: ConvergenceAssimilationResultCheckpointLedgerPayload,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationSessionPacketPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

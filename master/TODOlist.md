@@ -1785,3 +1785,10 @@
 - [x] Encode the vibe-coder workflow from readiness gate to contract, trace pack, execution, validation, result intake, and checkpoints.
 - [x] Add a Governance copy control beside the readiness gate and CLI contracts.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Session Packet
+
+- [x] Add a non-secret session packet API for Codex and Claude convergence build sessions.
+- [x] Bundle readiness gate, operator playbook, CLI contract, run ledger, result ledger, and checkpoint ledger.
+- [x] Add Governance copy controls for Codex and Claude session packets.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

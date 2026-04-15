@@ -3345,6 +3345,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Playbook",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationOperatorPlaybookCopy: "true" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-copy-btn",
+          text: "Copy Codex Packet",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-copy-btn",
+          text: "Copy Claude Packet",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketRunner: "claude" }
         })
       ])
     ]),

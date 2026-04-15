@@ -1876,3 +1876,10 @@
 - [x] Bundle launchpad gate, launchpad snapshot drift, launch drift checkpoint ledger, session packet, command queue, and replay checklist.
 - [x] Add Governance copy controls for Codex and Claude launch authorization packs.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Authorization Pack Snapshots
+
+- [x] Add non-secret saved launch authorization pack snapshots for Codex and Claude.
+- [x] Persist authorization status, launchpad decision, readiness decision, drift state, checkpoint counts, recommended action, Markdown, and full pack payload.
+- [x] Add Governance save and copy controls for persisted launch authorization pack snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

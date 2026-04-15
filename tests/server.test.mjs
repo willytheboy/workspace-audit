@@ -3401,6 +3401,30 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.markdown, /# Convergence Assimilation Runner Launch Authorization Pack/);
     assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.secretPolicy, /Non-secret convergence assimilation runner launch authorization pack only/);
 
+    const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Codex Launch Authorization Pack",
+        runner: "codex"
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson = await createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.title, "Fixture Codex Launch Authorization Pack");
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.decision, "ready");
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.authorizationStatus, "authorized-for-one-bounded-run");
+    assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.pack.decision, "ready");
+    assert.match(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.snapshot.markdown, /# Convergence Assimilation Runner Launch Authorization Pack/);
+
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsJson = await convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsJson[0].title, "Fixture Codex Launch Authorization Pack");
+
     const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
     const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();
@@ -3568,15 +3592,18 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskLedgerSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationSessionPacketSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchpadGateSnapshotCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationSessionPacketSnapshots[0].title, "Fixture Codex Session Packet");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchpadGateSnapshots[0].title, "Fixture Codex Launchpad Gate");
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots[0].title, "Fixture Codex Launch Authorization Pack");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-session-packet-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-drift-checkpoint-upserted"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-snapshot-created"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

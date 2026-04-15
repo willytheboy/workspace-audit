@@ -512,6 +512,26 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchAuthorizationPackPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runner: "codex" | "claude",
+ *   protocolVersion: string,
+ *   packGeneratedAt: string,
+ *   decision: "ready" | "review" | "hold",
+ *   authorizationStatus: "authorized-for-one-bounded-run" | "review-required" | "blocked",
+ *   launchpadDecision: "ready" | "review" | "hold",
+ *   readinessDecision: "ready" | "review" | "hold",
+ *   launchpadSnapshotDriftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   launchpadSnapshotDriftScore: number,
+ *   openLaunchpadDriftCheckpointCount: number,
+ *   escalatedLaunchpadDriftCheckpointCount: number,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   pack: ConvergenceAssimilationRunnerLaunchAuthorizationPackPayload,
+ *   createdAt: string
+ * }} PersistedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1724,6 +1744,7 @@
  *     convergenceClosedTaskCount: number,
  *     convergenceAssimilationSessionPacketSnapshotCount: number,
  *     convergenceAssimilationRunnerLaunchpadGateSnapshotCount: number,
+ *     convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount: number,
  *     convergenceTaskLedgerSnapshotCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
@@ -1745,6 +1766,7 @@
  *   convergenceAssimilationReadinessGate?: ConvergenceAssimilationReadinessGatePayload | null,
  *   convergenceAssimilationSessionPacketSnapshots: PersistedConvergenceAssimilationSessionPacketSnapshot[],
  *   convergenceAssimilationRunnerLaunchpadGateSnapshots: PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[],
+ *   convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

@@ -3422,6 +3422,31 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchpadGateSnapshotDriftJson.driftSeverity, "high");
     assert.ok(convergenceAssimilationRunnerLaunchpadGateSnapshotDriftJson.driftItems.some((item) => item.field === "decision"));
 
+    const convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: "decision",
+        decision: "confirmed",
+        note: "Fixture launchpad gate drift accepted."
+      })
+    });
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson = await convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson.task.convergenceAssimilationRunnerLaunchpadGateDriftField, "decision");
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson.task.status, "resolved");
+
+    const convergenceAssimilationRunnerLaunchpadGateCheckpointedDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateCheckpointedDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchpadGateCheckpointedDriftJson = await convergenceAssimilationRunnerLaunchpadGateCheckpointedDriftResponse.json();
+    const checkpointedLaunchDecisionDrift = convergenceAssimilationRunnerLaunchpadGateCheckpointedDriftJson.driftItems.find((item) => item.field === "decision");
+    assert.equal(checkpointedLaunchDecisionDrift.checkpointDecision, "confirmed");
+    assert.equal(checkpointedLaunchDecisionDrift.checkpointStatus, "resolved");
+
     const convergenceAssimilationSessionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3530,6 +3555,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-session-packet-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-snapshot-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-drift-checkpoint-upserted"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

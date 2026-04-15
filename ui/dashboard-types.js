@@ -475,7 +475,7 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number, checkpointTaskId?: string, checkpointDecision?: string, checkpointStatus?: string, checkpointedAt?: string }>,
  *   liveSummary: { decision: string, readinessDecision: string, reasonCount: number, packetDriftSeverity: string, packetDriftScore: number, openDriftCheckpointCount: number, escalatedDriftCheckpointCount: number, recommendedAction: string } | null,
  *   snapshotSummary: { decision: string, readinessDecision: string, reasonCount: number, packetDriftSeverity: string, packetDriftScore: number, openDriftCheckpointCount: number, escalatedDriftCheckpointCount: number, recommendedAction: string } | null,
  *   markdown: string

@@ -1855,3 +1855,10 @@
 - [x] Compare launch decision, readiness decision, reason counts, packet drift severity/score, checkpoint counts, recommended action, and Markdown changes.
 - [x] Add Governance copy controls and drift cards for latest/per-snapshot launchpad gate drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launchpad Gate Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for launchpad gate snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Show checkpoint state on launchpad gate drift cards and rehydrate decisions into drift payloads.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

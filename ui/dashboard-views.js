@@ -120,6 +120,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchpadGateSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchpadGateSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot, convergenceAssimilationRunnerLaunchpadGateSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff: (snapshotId?: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload>,
+ *     checkpointConvergenceAssimilationRunnerLaunchpadGateDrift: (payload: { snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunTracePack: (runId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>,
  *     recordConvergenceAssimilationRunResult: (runId: string, payload: { status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string }) => Promise<{ success: true, result: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunResults: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     checkpointConvergenceAssimilationResult: (resultId: string, payload: { decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>,
@@ -2386,6 +2387,40 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const diff = await api.fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff(snapshotId);
           await copyText(diff.markdown);
           element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launchpad-gate-drift-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchpadGateDriftSnapshotId || "latest";
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchpadGateDriftRunner || "codex";
+        const field = element.dataset.convergenceAssimilationRunnerLaunchpadGateDriftField || "";
+        const decision = element.dataset.convergenceAssimilationRunnerLaunchpadGateDriftDecision || "deferred";
+        if (!field) return;
+        const note = (window.prompt(`Optional non-secret launchpad gate drift checkpoint note for ${decision}`, "") || "").trim();
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const response = await api.checkpointConvergenceAssimilationRunnerLaunchpadGateDrift({
+            snapshotId,
+            runner: runner === "claude" ? "claude" : "codex",
+            field,
+            decision: decision === "confirmed" || decision === "escalated" ? decision : "deferred",
+            note
+          });
+          await renderGovernance();
+          element.textContent = response.mode === "updated" ? "Updated" : "Created";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

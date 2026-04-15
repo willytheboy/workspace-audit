@@ -61,6 +61,9 @@ export async function governanceBootstrapTest() {
     assert.equal(seedProfilesJson.totals.notes, 0);
     assert.equal(seedProfilesJson.totals.milestones, 0);
     assert.equal(seedProfilesJson.profileHistoryEntries.length, 1);
+    assert.ok(seedProfilesJson.createdProfiles[0].testCoverageTarget);
+    assert.ok(seedProfilesJson.createdProfiles[0].runtimeTarget);
+    assert.match(seedProfilesJson.createdProfiles[0].testCoverageTarget.rationale, /detected test file/);
 
     const profileHistoryResponse = await fetch(`${baseUrl}/api/project-profile-history?projectId=alpha-app`);
     assert.equal(profileHistoryResponse.status, 200);
@@ -147,6 +150,11 @@ export async function governanceBootstrapTest() {
     assert.equal(finalGovernanceJson.summary.profileCount, 1);
     assert.equal(finalGovernanceJson.summary.governanceScopeProfileCoveragePercent, 100);
     assert.equal(finalGovernanceJson.summary.governanceScopeProfileGapCount, 0);
+    assert.equal(finalGovernanceJson.summary.governanceProfileTargetCount, 1);
+    assert.equal(finalGovernanceJson.profileTargets.length, 1);
+    assert.equal(finalGovernanceJson.profileTargets[0].projectId, "alpha-app");
+    assert.ok(finalGovernanceJson.profileTargets[0].targetTestFiles >= 1);
+    assert.ok(["met", "missing", "needs-growth"].includes(finalGovernanceJson.profileTargets[0].testStatus));
     assert.equal(finalGovernanceJson.summary.openTasks, 1);
     assert.equal(finalGovernanceJson.summary.activeWorkflows, 1);
     assert.equal(finalGovernanceJson.summary.pendingMilestones, 1);
@@ -162,6 +170,17 @@ export async function governanceBootstrapTest() {
     assert.equal(finalGovernanceJson.workflowRunbook[0].phase, "planning");
     assert.ok(finalGovernanceJson.workflowRunbook[0].blockers.includes("owner missing"));
     assert.equal(finalGovernanceJson.actionQueue[0].kind, "owner-gap");
+
+    const refreshProfileTargetsResponse = await fetch(`${baseUrl}/api/governance/profile-targets/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    assert.equal(refreshProfileTargetsResponse.status, 200);
+    const refreshProfileTargetsJson = await refreshProfileTargetsResponse.json();
+    assert.equal(refreshProfileTargetsJson.success, true);
+    assert.equal(refreshProfileTargetsJson.totals.refreshed, 1);
+    assert.equal(refreshProfileTargetsJson.refreshedProfiles[0].projectId, "alpha-app");
 
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
@@ -187,7 +206,7 @@ export async function governanceBootstrapTest() {
     const suppressedGovernanceJson = await suppressedGovernanceResponse.json();
     assert.equal(suppressedGovernanceJson.summary.actionQueueItems, 0);
     assert.equal(suppressedGovernanceJson.summary.suppressedQueueItems, 1);
-    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 5);
+    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 6);
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
@@ -208,7 +227,7 @@ export async function governanceBootstrapTest() {
     const restoredGovernanceJson = await restoredGovernanceResponse.json();
     assert.equal(restoredGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(restoredGovernanceJson.summary.suppressedQueueItems, 0);
-    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 6);
+    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 7);
     assert.equal(restoredGovernanceJson.actionQueue.length, 1);
     assert.equal(restoredGovernanceJson.operationLog[0].type, "queue-restore");
   } finally {

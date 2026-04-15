@@ -575,6 +575,12 @@ async function seedGovernanceStarterPacks() {
   await views.bootstrapGovernance("starter-pack");
 }
 
+async function refreshGovernanceProfileTargets() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.refreshGovernanceProfileTargets();
+}
+
 async function executeGovernanceQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -751,6 +757,7 @@ const actionRegistry = createDashboardActionRegistry({
     saveSlaLedgerSnapshot,
     seedGovernanceProfiles,
     seedGovernanceStarterPacks,
+    refreshGovernanceProfileTargets,
     executeGovernanceQueue,
     suppressGovernanceQueue,
     startQueuedAgentWorkOrderRuns,
@@ -1059,6 +1066,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-starter-packs-btn")),
     "Seeding...",
     () => seedGovernanceStarterPacks()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("refresh-governance-profile-targets-btn")),
+    "Refreshing...",
+    () => refreshGovernanceProfileTargets()
   );
 
   bindAsyncButton(

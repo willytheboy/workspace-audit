@@ -1622,6 +1622,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: `${summary.governanceScopeProfileGapCount || 0} scoped app-dev gaps; ${summary.governanceScopeExcludedProjectCount || 0} non-target projects excluded`
     }),
     createKpiCard({
+      accentColor: (summary.governanceProfileTestTargetMissingCount || 0) || (summary.governanceProfileTestTargetNeedsGrowthCount || 0) ? "var(--warning)" : "var(--success)",
+      label: "Test Targets",
+      value: `${summary.governanceProfileTestTargetMetCount || 0}/${summary.governanceProfileTargetCount || 0}`,
+      detail: `${summary.governanceProfileTestTargetMissingCount || 0} missing, ${summary.governanceProfileTestTargetNeedsGrowthCount || 0} need growth, ${summary.governanceProfileMissingTestFileCount || 0} target test files outstanding`
+    }),
+    createKpiCard({
       accentColor: "var(--warning)",
       label: "Governance Gaps",
       value: String(summary.governanceScopeProfileGapCount ?? governance.unprofiledProjects.length),
@@ -2088,6 +2094,75 @@ export function createGovernanceDeck(governance) {
       })
     ]);
   });
+
+  const profileTargetEntries = (governance.profileTargets || []).map((item) => createElement("div", {
+    className: "governance-gap-card",
+    dataset: { openAppId: encodeAppId(item.projectId) },
+    title: "Open project workbench",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: item.projectName,
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `Tests ${item.currentTestFiles}/${item.targetTestFiles} target • ${item.missingTestFiles} missing • runtime ${item.runtimeStatus}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          text: item.action,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createElement("div", {
+        className: "tags",
+        style: {
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag(item.testStatus || "missing", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: item.testStatus === "met" ? "var(--success)" : "var(--warning)"
+        }),
+        createTag(`scope ${item.scopeScore || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ])
+    ])
+  ]));
 
   const gapEntries = governance.unprofiledProjects.map((project) => createElement("div", {
     className: "governance-gap-card",
@@ -14582,6 +14657,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Execution Queue", "Queued and in-flight Agent Work Order runs with validation outcomes.", agentWorkOrderRunEntries),
     createListSection("Governance Gaps", "App-development scoped projects that still have no saved governance profile.", gapEntries),
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
+    createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),
     createListSection("Milestone Focus", "Upcoming or unresolved milestones that still need attention.", milestoneEntries),

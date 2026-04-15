@@ -1926,6 +1926,17 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<{ success: true, refreshedProfiles: Array<{ projectId: string, projectName: string, testCoverageTarget: Record<string, unknown>, runtimeTarget: Record<string, unknown> }>, skippedProfiles: Array<{ projectId: string, projectName: string, reason: string }>, totals: { refreshed: number, skipped: number }, projectProfiles: import("./dashboard-types.js").PersistedProjectProfile[] }>}
+   */
+  refreshGovernanceProfileTargets() {
+    return fetchJson("/api/governance/profile-targets/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+  },
+
+  /**
    * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
    */
   executeGovernanceQueue(payload) {

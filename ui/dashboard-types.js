@@ -1522,6 +1522,34 @@
  *   updatedAt: string
  * }} PersistedMilestone
  * @typedef {{
+ *   qualityScore: number,
+ *   readinessScore: number,
+ *   sourceFiles: number,
+ *   testFiles: number,
+ *   runtimeSurfaceCount: number,
+ *   launchCommandCount: number,
+ *   scriptCount: number,
+ *   category: string,
+ *   zone: string,
+ *   relPath: string,
+ *   capturedAt: string
+ * }} GovernanceProfileScanBaseline
+ * @typedef {{
+ *   currentTestFiles: number,
+ *   sourceFiles: number,
+ *   targetTestFiles: number,
+ *   missingTestFiles: number,
+ *   status: "met" | "needs-growth" | "missing",
+ *   rationale: string
+ * }} GovernanceProfileTestCoverageTarget
+ * @typedef {{
+ *   scriptCount: number,
+ *   runtimeSurfaceCount: number,
+ *   launchCommandCount: number,
+ *   status: "detected" | "missing",
+ *   rationale: string
+ * }} GovernanceProfileRuntimeTarget
+ * @typedef {{
  *   id: string,
  *   projectId: string,
  *   projectName: string,
@@ -1531,6 +1559,9 @@
  *   tier: string,
  *   targetState: string,
  *   summary?: string,
+ *   scanBaseline?: GovernanceProfileScanBaseline | null,
+ *   testCoverageTarget?: GovernanceProfileTestCoverageTarget | null,
+ *   runtimeTarget?: GovernanceProfileRuntimeTarget | null,
  *   createdAt: string,
  *   updatedAt: string
  * }} PersistedProjectProfile
@@ -1670,6 +1701,25 @@
  *   excludedDomains: string[],
  *   sample: Array<{ id: string, name: string, relPath: string, category: string, zone: string, score: number, reasons: string[] }>
  * }} GovernanceProfileCoverage
+ * @typedef {{
+ *   id: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   owner: string,
+ *   tier: string,
+ *   targetState: string,
+ *   scopeScore: number,
+ *   scopeReasons: string[],
+ *   testCoverageTarget: GovernanceProfileTestCoverageTarget,
+ *   runtimeTarget: GovernanceProfileRuntimeTarget,
+ *   testStatus: "met" | "needs-growth" | "missing",
+ *   runtimeStatus: "detected" | "missing",
+ *   missingTestFiles: number,
+ *   targetTestFiles: number,
+ *   currentTestFiles: number,
+ *   sourceFiles: number,
+ *   action: string
+ * }} GovernanceProfileTarget
  * @typedef {{
  *   id: string,
  *   projectId: string,
@@ -2145,6 +2195,12 @@
  *     governanceScopeProfileGapCount: number,
  *     governanceScopeProfileCoveragePercent: number,
  *     governanceScopeExcludedProjectCount: number,
+ *     governanceProfileTargetCount: number,
+ *     governanceProfileTestTargetMetCount: number,
+ *     governanceProfileTestTargetMissingCount: number,
+ *     governanceProfileTestTargetNeedsGrowthCount: number,
+ *     governanceProfileRuntimeTargetMissingCount: number,
+ *     governanceProfileMissingTestFileCount: number,
  *     actionQueueItems: number,
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
@@ -2292,6 +2348,7 @@
   *   decisions: PersistedNote[],
   *   profiles: PersistedProjectProfile[],
   *   profileCoverage: GovernanceProfileCoverage,
+  *   profileTargets: GovernanceProfileTarget[],
   *   profileHistory: PersistedProjectProfileHistory[],
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],

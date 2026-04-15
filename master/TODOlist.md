@@ -2225,3 +2225,10 @@
 - [x] Confirm scoped profile coverage reached 8/8 target projects.
 - [x] Confirm scoped gap count dropped to 0 while non-target projects remain excluded.
 - [x] Record the operational milestone and keep the app running for monitoring.
+
+## Next Governance Profile Test And Runtime Targets
+
+- [x] Store scan-derived test coverage and runtime launch targets on Governance profiles.
+- [x] Add a refresh endpoint and UI action to update targets for scoped app-development profiles.
+- [x] Surface profile target KPIs and a Governance Profile Targets deck.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

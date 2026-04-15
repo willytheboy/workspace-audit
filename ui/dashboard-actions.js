@@ -110,6 +110,7 @@
  *     saveSlaLedgerSnapshot: () => Promise<void>,
  *     seedGovernanceProfiles: () => Promise<void>,
  *     seedGovernanceStarterPacks: () => Promise<void>,
+ *     refreshGovernanceProfileTargets: () => Promise<void>,
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
@@ -927,6 +928,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "bootstrap", "tasks", "workflows", "starter pack"],
         run: () => handlers.seedGovernanceStarterPacks()
+      },
+      {
+        id: "refresh-governance-profile-targets",
+        label: "Refresh governance profile targets",
+        description: "Refresh scan-derived test coverage and runtime targets for scoped app-development profiles.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "refresh"],
+        run: () => handlers.refreshGovernanceProfileTargets()
       },
       {
         id: "execute-governance-queue",

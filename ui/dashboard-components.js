@@ -4397,6 +4397,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Packet",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchExecutionPacketRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-execution-packet-save-btn",
+          text: "Save Codex Snapshot",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchExecutionPacketSaveRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-execution-packet-save-btn",
+          text: "Save Claude Snapshot",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchExecutionPacketSaveRunner: "claude" }
         })
       ])
     ]),
@@ -4430,6 +4442,44 @@ export function createGovernanceDeck(governance) {
       })
     ]))
   ] : [];
+  const convergenceAssimilationRunnerLaunchExecutionPacketSnapshotEntries = (governance.convergenceAssimilationRunnerLaunchExecutionPacketSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-assimilation-runner-launch-execution-packet-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.5rem"
+    }
+  }, [
+    createElement("div", {
+      text: snapshot.title || "Convergence Assimilation Runner Launch Execution Packet",
+      style: {
+        color: "var(--text)",
+        fontWeight: "800"
+      }
+    }),
+    createElement("div", {
+      text: `${snapshot.runner || "codex"} | ${snapshot.launchDecision || "review"} | ${snapshot.launchStatus || "review-required"} | ${snapshot.preflightCheckCount || 0} check(s) | ${snapshot.commandCount || 0} command(s)`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      text: snapshot.recommendedAction || "Review this launch execution packet before runner start.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("button", {
+      className: "btn governance-action-btn convergence-assimilation-runner-launch-execution-packet-snapshot-copy-btn",
+      text: "Copy Snapshot",
+      attrs: { type: "button" },
+      dataset: { convergenceAssimilationRunnerLaunchExecutionPacketSnapshotId: snapshot.id || "" }
+    })
+  ]));
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launchpad-gate-snapshot-drift-card",
@@ -12321,6 +12371,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Control Board Snapshot Drift", "Latest saved launch control board compared with current runner-start state.", convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Control Board Drift Checkpoints", "Operator decisions made against launch control board drift before runner launch.", convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Execution Packet", "Copyable runner-start handoff combining launch board, authorization, command queue, replay checklist, and drift decisions.", convergenceAssimilationRunnerLaunchExecutionPacketEntries),
+    createListSection("Convergence Assimilation Runner Launch Execution Packet Snapshots", "Persisted runner-start handoffs for auditable Codex and Claude launch baselines.", convergenceAssimilationRunnerLaunchExecutionPacketSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

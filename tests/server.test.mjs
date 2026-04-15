@@ -3421,6 +3421,27 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet/);
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketJson.secretPolicy, /Non-secret convergence assimilation runner launch execution packet only/);
 
+    const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        title: "Fixture Claude Launch Execution Packet"
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson = await createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.snapshot.title, "Fixture Claude Launch Execution Packet");
+    assert.equal(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.snapshot.runner, "claude");
+    assert.match(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.snapshot.markdown, /# Convergence Assimilation Runner Launch Execution Packet/);
+
+    const convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsJson = await convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotsJson[0].title, "Fixture Claude Launch Execution Packet");
+
     const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3739,12 +3760,14 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchpadGateSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchControlBoardSnapshotCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchExecutionPacketSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationSessionPacketSnapshots[0].title, "Fixture Codex Session Packet");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchpadGateSnapshots[0].title, "Fixture Codex Launchpad Gate");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots[0].title, "Fixture Codex Launch Authorization Pack");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchControlBoardSnapshots[0].title, "Fixture Codex Launch Control Board");
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchExecutionPacketSnapshots[0].title, "Fixture Claude Launch Execution Packet");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-session-packet-snapshot-created"));
@@ -3754,6 +3777,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-control-board-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-control-board-drift-checkpoint-upserted"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-execution-packet-snapshot-created"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

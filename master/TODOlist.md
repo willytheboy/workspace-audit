@@ -1946,3 +1946,10 @@
 - [x] Bundle launch control board, authorization pack, command queue draft, replay checklist, and drift checkpoint ledgers.
 - [x] Surface Governance copy controls and preflight cards for the packet.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Execution Packet Snapshots
+
+- [x] Add persisted launch execution packet snapshots for Codex and Claude.
+- [x] Store packet decision/status, preflight count, command count, replay count, Markdown, and full packet payload.
+- [x] Surface Governance save and copy controls for launch execution packet snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

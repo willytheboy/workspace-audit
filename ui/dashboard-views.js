@@ -101,6 +101,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceOperatorProposalQueue: (status?: import("./dashboard-types.js").ConvergenceOperatorProposalQueueStatus) => Promise<import("./dashboard-types.js").ConvergenceOperatorProposalQueuePayload>,
  *     fetchConvergenceAssimilationBlueprint: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationBlueprintPayload>,
  *     fetchConvergenceAssimilationWorkOrderDraft: (pairId: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload>,
+ *     queueConvergenceAssimilationWorkOrderRun: (payload: { pairId: string, runner?: "codex" | "claude", status?: string, notes?: string }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>,
  *     createConvergenceReviewTasks: (payload?: { pairIds?: string[], pairId?: string, candidates?: import("./dashboard-types.js").ConvergenceCandidate[], status?: "confirmed-overlap" | "needs-review" | "merge-candidate" | "actionable" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ pairId: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>,
@@ -2065,6 +2066,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(draft.markdown);
           element.textContent = runner === "claude" ? "Claude Draft Copied" : "Codex Draft Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-work-order-run-pair-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const pairId = element.dataset.convergenceAssimilationWorkOrderRunPairId || "";
+        const runner = element.dataset.convergenceAssimilationWorkOrderRunRunner || "codex";
+        if (!pairId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Queueing";
+          const result = await api.queueConvergenceAssimilationWorkOrderRun({
+            pairId,
+            runner: runner === "claude" ? "claude" : "codex"
+          });
+          await renderGovernance();
+          element.textContent = result.run ? "Run Queued" : "Already Queued";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

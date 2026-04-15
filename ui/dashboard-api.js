@@ -181,6 +181,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ pairId: string, runner?: "codex" | "claude", status?: string, notes?: string }} payload
+   * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
+   */
+  queueConvergenceAssimilationWorkOrderRun(payload) {
+    return fetchJson("/api/convergence/assimilation-work-order-run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

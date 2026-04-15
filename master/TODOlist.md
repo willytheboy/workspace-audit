@@ -1715,3 +1715,10 @@
 - [x] Build runner-specific prompts from blueprint phases, validation targets, risks, and no-secrets policy.
 - [x] Add Governance `Copy Codex Draft` and `Copy Claude Draft` actions beside convergence blueprint controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Work-Order Run Queue
+
+- [x] Add a duplicate-safe API to queue convergence assimilation drafts into Agent Work Order runs.
+- [x] Preserve runner, pair id, draft decision, recommended path, validation commands, and no-secrets policy on queued runs.
+- [x] Add Governance `Queue Codex Run` and `Queue Claude Run` controls beside draft copy actions.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -3152,6 +3152,35 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(trackedOperatorProposalQueueJson.items[0].pairId, operatorProposalJson.review.pairId);
     assert.equal(trackedOperatorProposalQueueJson.items[0].openTaskCount, 1);
 
+    const queueConvergenceAssimilationRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairId: operatorProposalJson.review.pairId,
+        runner: "claude"
+      })
+    });
+    assert.equal(queueConvergenceAssimilationRunResponse.status, 200);
+    const queueConvergenceAssimilationRunJson = await queueConvergenceAssimilationRunResponse.json();
+    assert.equal(queueConvergenceAssimilationRunJson.success, true);
+    assert.equal(queueConvergenceAssimilationRunJson.run.convergencePairId, operatorProposalJson.review.pairId);
+    assert.equal(queueConvergenceAssimilationRunJson.run.convergenceAssimilationRunner, "claude");
+    assert.equal(queueConvergenceAssimilationRunJson.run.runtime, "claude-cli-convergence-assimilation");
+    assert.match(queueConvergenceAssimilationRunJson.draft.markdown, /# Convergence Assimilation Work-Order Draft/);
+
+    const duplicateConvergenceAssimilationRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairId: operatorProposalJson.review.pairId,
+        runner: "claude"
+      })
+    });
+    assert.equal(duplicateConvergenceAssimilationRunResponse.status, 200);
+    const duplicateConvergenceAssimilationRunJson = await duplicateConvergenceAssimilationRunResponse.json();
+    assert.equal(duplicateConvergenceAssimilationRunJson.run, null);
+    assert.match(duplicateConvergenceAssimilationRunJson.skippedRun.reason, /already exists/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

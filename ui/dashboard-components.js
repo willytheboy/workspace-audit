@@ -2542,6 +2542,24 @@ export function createGovernanceDeck(governance) {
               convergenceAssimilationWorkOrderPairId: item.pairId || "",
               convergenceAssimilationWorkOrderRunner: "claude"
             }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-run-btn",
+            text: "Queue Codex Run",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderRunPairId: item.pairId || "",
+              convergenceAssimilationWorkOrderRunRunner: "codex"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-run-btn",
+            text: "Queue Claude Run",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderRunPairId: item.pairId || "",
+              convergenceAssimilationWorkOrderRunRunner: "claude"
+            }
           })
         ])
       ]);
@@ -2770,6 +2788,24 @@ export function createGovernanceDeck(governance) {
             dataset: {
               convergenceAssimilationWorkOrderPairId: candidate.pairId || "",
               convergenceAssimilationWorkOrderRunner: "claude"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-run-btn",
+            text: "Queue Codex Run",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderRunPairId: candidate.pairId || "",
+              convergenceAssimilationWorkOrderRunRunner: "codex"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-run-btn",
+            text: "Queue Claude Run",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderRunPairId: candidate.pairId || "",
+              convergenceAssimilationWorkOrderRunRunner: "claude"
             }
           }),
           candidate.leftId ? createElement("button", {

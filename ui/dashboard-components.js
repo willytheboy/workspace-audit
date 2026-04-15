@@ -5389,6 +5389,12 @@ export function createGovernanceDeck(governance) {
           text: "Copy Blocked",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerStatus: "blocked" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-tasks-btn",
+          text: "Track Result Tasks",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksStatus: "all" }
         })
       ])
     ]),

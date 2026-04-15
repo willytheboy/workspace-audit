@@ -3658,6 +3658,50 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.results[0].runId, queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.id);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Ledger/);
 
+    const blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-runs/${encodeURIComponent(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.id)}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "blocked",
+        summary: "Non-secret fixture remediation blocker captured.",
+        validationSummary: "Fixture remediation validation blocked.",
+        blockers: ["Fixture blocker"],
+        nextAction: "Create result follow-up task."
+      })
+    });
+    assert.equal(blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse.status, 200);
+    const blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson = await blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse.json();
+    assert.equal(blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.success, true);
+    assert.equal(blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.result.status, "blocked");
+
+    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked", runner: "claude" })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson = await createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.requested, 1);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.created, 1);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.skipped, 0);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].sourceType, "convergence-assimilation-runner-launch-stack-remediation-work-order-result");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].sourceId, blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.result.id);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].runner, "claude");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].convergenceAssimilationRunnerLaunchStackRemediationResultStatus, "blocked");
+    assert.match(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].secretPolicy, /Non-secret convergence assimilation runner launch stack remediation result follow-up task only/);
+
+    const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked", runner: "claude" })
+    });
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.status, 200);
+    const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson = await duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.json();
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.requested, 1);
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.created, 0);
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.skipped, 1);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

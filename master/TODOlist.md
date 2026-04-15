@@ -2134,3 +2134,10 @@
 - [x] Summarize visible, passed, failed, blocked, needs-review, cancelled, Codex, Claude, and total work-item counts.
 - [x] Surface Governance result ledger cards and Copy All/Passed/Blocked controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Tasks
+
+- [x] Add a duplicate-safe task creation API for actionable remediation work-order results.
+- [x] Convert blocked, failed, and needs-review remediation outcomes into Governance follow-up tasks.
+- [x] Surface Governance task creation controls from the remediation result ledger.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

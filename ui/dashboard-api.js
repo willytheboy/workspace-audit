@@ -655,6 +655,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, status: string, runner: string, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

@@ -148,6 +148,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger: (options?: { status?: "all" | "open" | "closed" | "active" | "archived", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload>,
  *     recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult: (runId: string, payload: { status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string }) => Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger: (options?: { status?: "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload>,
+ *     createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks: (payload?: { status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, status: string, runner: string, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
  *     refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
@@ -3483,6 +3484,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = `Copied ${status}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-work-order-result-tasks-status]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksStatus || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const payload = await api.createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks({
+            status: ["failed", "blocked", "needs-review"].includes(status) ? /** @type {"failed" | "blocked" | "needs-review"} */ (status) : "all",
+            runner: "all"
+          });
+          await renderGovernance();
+          element.textContent = payload.totals.created ? `Created ${payload.totals.created}` : "Already Tracked";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

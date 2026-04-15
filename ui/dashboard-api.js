@@ -600,6 +600,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedger(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-action-task-ledger", {
+      runner: options.runner,
+      status: options.status,
+      limit: options.limit
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

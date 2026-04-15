@@ -3468,6 +3468,19 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.created, 0);
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.skipped, 1);
 
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger?runner=claude&status=open`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson = await convergenceAssimilationRunnerLaunchStackActionTaskLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.status, "open");
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.summary.open, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.summary.claude, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.items[0].stageId, launchStackActionTaskStages[0].id);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.items[0].runner, "claude");
+    assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger/);
+    assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.secretPolicy, /Non-secret convergence assimilation runner launch stack action task metadata only/);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

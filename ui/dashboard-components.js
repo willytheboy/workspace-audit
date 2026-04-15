@@ -4725,6 +4725,19 @@ export function createGovernanceDeck(governance) {
     review: 0,
     hold: 0
   };
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedger = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger || null;
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary = convergenceAssimilationRunnerLaunchStackActionTaskLedger?.summary || {
+    total: 0,
+    open: 0,
+    closed: 0,
+    visible: 0,
+    codex: 0,
+    claude: 0,
+    high: 0,
+    medium: 0,
+    low: 0,
+    normal: 0
+  };
   const convergenceAssimilationRunnerLaunchStackStatusEntries = convergenceAssimilationRunnerLaunchStackStatus ? [
     createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launch-stack-status-card",
@@ -4848,6 +4861,117 @@ export function createGovernanceDeck(governance) {
           convergenceAssimilationRunnerLaunchStackStageTaskId: stage.id || ""
         }
       }) : null
+    ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries = convergenceAssimilationRunnerLaunchStackActionTaskLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Launch stack action task ledger",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: `${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.open || 0} open | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.closed || 0} closed | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.codex || 0} codex | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.claude || 0} claude`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.visible || 0} visible`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary.open ? "var(--warning)" : "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-copy-btn",
+          text: "Copy All Tasks",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerRunner: "all",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerStatus: "all"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-copy-btn",
+          text: "Copy Open Codex",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerRunner: "codex",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-copy-btn",
+          text: "Copy Open Claude",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerRunner: "claude",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerStatus: "open"
+          }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchStackActionTaskLedger.items || []).slice(0, 10).map((task) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.38rem"
+      }
+    }, [
+      createElement("div", {
+        text: task.title || "Launch stack action task",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${task.runner || "codex"} | ${task.stageTitle || task.stageId || "stage"} | ${task.stageStatus || "review"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: task.stageAction || "Review this launch stack stage before runner start.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.82rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(task.status || "open", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: task.status === "resolved" || task.status === "closed" ? "var(--success)" : task.status === "blocked" ? "var(--danger)" : "var(--warning)"
+      })
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
@@ -12745,6 +12869,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Execution Packet Snapshot Drift", "Latest saved runner-start handoff compared with current live launch execution packet.", convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Execution Packet Drift Checkpoints", "Operator decisions made against launch execution packet drift before CLI handoff reuse.", convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

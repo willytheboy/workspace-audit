@@ -729,6 +729,34 @@
  *   totals: { requested: number, created: number, skipped: number },
  *   tasks: PersistedTask[]
  * }} ConvergenceAssimilationRunnerLaunchStackActionTasksPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   runner: "all" | "codex" | "claude",
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   summary: { total: number, open: number, closed: number, visible: number, codex: number, claude: number, high: number, medium: number, low: number, normal: number },
+ *   items: Array<{
+ *     id: string,
+ *     title: string,
+ *     status: string,
+ *     priority: string,
+ *     projectId: string,
+ *     projectName: string,
+ *     runner: "codex" | "claude",
+ *     decision: string,
+ *     stageId: string,
+ *     stageTitle: string,
+ *     stageStatus: string,
+ *     stageDetail: string,
+ *     stageAction: string,
+ *     description: string,
+ *     secretPolicy: string,
+ *     createdAt: string,
+ *     updatedAt: string
+ *   }>,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1975,6 +2003,7 @@
  *   convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff?: ConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

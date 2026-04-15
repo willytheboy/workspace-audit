@@ -1995,3 +1995,10 @@
 - [x] Persist runner-specific stage tasks with launch stack decision, stage status, action detail, and no-secrets policy.
 - [x] Surface Governance controls to seed all non-ready stack tasks or track one stage at a time.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger
+
+- [x] Add a non-secret ledger API for launch stack action tasks with runner and status filters.
+- [x] Summarize open, closed, runner, and priority counts with Markdown export.
+- [x] Surface Governance ledger cards and copy controls for all/open Codex/Claude task slices.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

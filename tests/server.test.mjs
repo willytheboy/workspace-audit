@@ -3522,6 +3522,32 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.hasDrift, true);
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.driftSeverity, "high");
     assert.ok(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.driftItems.some((item) => item.field === "launchDecision" || item.field === "launchStatus" || item.field === "authorizationStatus"));
+    const launchControlBoardCheckpointField = convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.driftItems.find((item) => item.field === "launchDecision" || item.field === "launchStatus" || item.field === "authorizationStatus")?.field || "launchDecision";
+
+    const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: launchControlBoardCheckpointField,
+        decision: "confirmed",
+        note: "Fixture launch control board drift accepted."
+      })
+    });
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson = await convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson.task.convergenceAssimilationRunnerLaunchControlBoardDriftField, launchControlBoardCheckpointField);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson.task.status, "resolved");
+
+    const convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftJson = await convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftResponse.json();
+    const checkpointedLaunchControlBoardDrift = convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftJson.driftItems.find((item) => item.field === launchControlBoardCheckpointField);
+    assert.equal(checkpointedLaunchControlBoardDrift.checkpointDecision, "confirmed");
+    assert.equal(checkpointedLaunchControlBoardDrift.checkpointStatus, "resolved");
     const launchAuthorizationPackCheckpointField = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.find((item) => item.field === "decision" || item.field === "authorizationStatus")?.field || "decision";
 
     const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {
@@ -3708,6 +3734,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-control-board-snapshot-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-control-board-drift-checkpoint-upserted"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

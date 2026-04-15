@@ -1925,3 +1925,10 @@
 - [x] Compare launch decision/status, authorization status, pack decision, checkpoint counts, recommended action, and Markdown changes.
 - [x] Add Governance copy controls and drift cards for latest/per-snapshot launch control board drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Control Board Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for launch control board snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Show checkpoint state on launch control board drift cards and rehydrate decisions into drift payloads.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

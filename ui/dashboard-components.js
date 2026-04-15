@@ -4193,8 +4193,50 @@ export function createGovernanceDeck(governance) {
           fontSize: "0.84rem",
           lineHeight: "1.45"
         }
-      })
-    ]))
+      }),
+      item.checkpointDecision ? createTag(`${item.checkpointDecision} / ${item.checkpointStatus || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.checkpointDecision === "confirmed" ? "var(--success)" : item.checkpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      }) : null,
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-drift-checkpoint-btn",
+          text: "Confirm",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchControlBoardDriftSnapshotId: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchControlBoardDriftRunner: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.runner || "codex",
+            convergenceAssimilationRunnerLaunchControlBoardDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchControlBoardDriftDecision: "confirmed"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-drift-checkpoint-btn",
+          text: "Defer",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchControlBoardDriftSnapshotId: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchControlBoardDriftRunner: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.runner || "codex",
+            convergenceAssimilationRunnerLaunchControlBoardDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchControlBoardDriftDecision: "deferred"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-drift-checkpoint-btn",
+          text: "Escalate",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchControlBoardDriftSnapshotId: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchControlBoardDriftRunner: convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff.runner || "codex",
+            convergenceAssimilationRunnerLaunchControlBoardDriftField: item.field || "",
+            convergenceAssimilationRunnerLaunchControlBoardDriftDecision: "escalated"
+          }
+        })
+      ])
+    ].filter(Boolean)))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {

@@ -2960,14 +2960,38 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: "var(--text-muted)"
-        })
+        }),
+        run.convergenceAssimilationResultStatus ? createTag(`result: ${run.convergenceAssimilationResultStatus}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: run.convergenceAssimilationResultStatus === "passed" ? "var(--success)" : "var(--warning)"
+        }) : null,
+        run.convergenceAssimilationResultAt ? createTag(`result ${new Date(run.convergenceAssimilationResultAt).toLocaleString()}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }) : null
       ]),
+      run.convergenceAssimilationResultSummary ? createElement("div", {
+        text: `Latest result: ${run.convergenceAssimilationResultSummary}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.82rem",
+          lineHeight: "1.45"
+        }
+      }) : null,
       createElement("div", { className: "governance-actions" }, [
         createElement("button", {
           className: "btn governance-action-btn convergence-assimilation-run-trace-copy-btn",
           text: "Copy Trace Pack",
           attrs: run.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
           dataset: { convergenceAssimilationRunTraceId: run.id || "" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-run-result-btn",
+          text: "Record Result",
+          attrs: run.id ? { type: "button" } : { type: "button", disabled: "disabled", "aria-disabled": "true" },
+          dataset: { convergenceAssimilationRunResultId: run.id || "" }
         })
       ])
     ]))

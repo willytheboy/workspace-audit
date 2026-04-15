@@ -224,6 +224,25 @@
  *   validationCommands: string[],
  *   markdown: string
  * }} ConvergenceAssimilationRunTracePackPayload
+ * @typedef { "passed" | "failed" | "blocked" | "needs-review" | "cancelled" } ConvergenceAssimilationRunResultStatus
+ * @typedef {{
+ *   id: string,
+ *   runId: string,
+ *   pairId: string,
+ *   runner: "codex" | "claude",
+ *   projectId: string,
+ *   projectName: string,
+ *   status: ConvergenceAssimilationRunResultStatus,
+ *   summary: string,
+ *   changedFiles: string[],
+ *   validationSummary: string,
+ *   blockers: string[],
+ *   nextAction: string,
+ *   notes: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} ConvergenceAssimilationRunResultRecord
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -573,6 +592,14 @@
  *   convergenceAssimilationDraftDecision?: "ready" | "review" | "hold",
  *   convergenceAssimilationRunner?: "codex" | "claude",
  *   convergenceAssimilationRecommendedPath?: string,
+ *   latestConvergenceAssimilationResultId?: string,
+ *   convergenceAssimilationResultStatus?: ConvergenceAssimilationRunResultStatus,
+ *   convergenceAssimilationResultSummary?: string,
+ *   convergenceAssimilationResultAt?: string,
+ *   convergenceAssimilationChangedFiles?: string[],
+ *   convergenceAssimilationValidationSummary?: string,
+ *   convergenceAssimilationBlockers?: string[],
+ *   convergenceAssimilationNextAction?: string,
  *   latestCliBridgeResultHandoffId?: string,
  *   latestCliBridgeResultStatus?: string,
  *   latestCliBridgeResultRunner?: "codex" | "claude",

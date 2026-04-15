@@ -1736,3 +1736,10 @@
 - [x] Include run, pair, blueprint, draft, validation command, related task, and trace decision metadata.
 - [x] Add Governance `Copy Trace Pack` controls to queued convergence assimilation runs.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Result Intake
+
+- [x] Add a non-secret convergence assimilation run result intake API.
+- [x] Persist result status, summary, changed files, validation summary, blockers, and next action on linked runs.
+- [x] Add Governance `Record Result` controls on convergence assimilation run cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

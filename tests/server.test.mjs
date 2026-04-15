@@ -3202,6 +3202,30 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunTracePackJson.markdown, /# Convergence Assimilation Run Trace Pack/);
     assert.match(convergenceAssimilationRunTracePackJson.secretPolicy, /Non-secret convergence assimilation run trace metadata only/);
 
+    const convergenceAssimilationRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "passed",
+        summary: "Non-secret fixture result captured.",
+        changedFiles: ["src/shared.js"],
+        validationSummary: "Fixture validation passed.",
+        nextAction: "Review result checkpoint."
+      })
+    });
+    assert.equal(convergenceAssimilationRunResultResponse.status, 200);
+    const convergenceAssimilationRunResultJson = await convergenceAssimilationRunResultResponse.json();
+    assert.equal(convergenceAssimilationRunResultJson.success, true);
+    assert.equal(convergenceAssimilationRunResultJson.result.runId, queueConvergenceAssimilationRunJson.run.id);
+    assert.equal(convergenceAssimilationRunResultJson.result.pairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceAssimilationRunResultJson.result.status, "passed");
+    assert.equal(convergenceAssimilationRunResultJson.result.changedFiles[0], "src/shared.js");
+    assert.match(convergenceAssimilationRunResultJson.result.secretPolicy, /Non-secret convergence assimilation run result metadata only/);
+    assert.equal(convergenceAssimilationRunResultJson.run.convergenceAssimilationResultStatus, "passed");
+    assert.equal(convergenceAssimilationRunResultJson.run.status, "passed");
+    assert.equal(convergenceAssimilationRunResultJson.run.convergenceAssimilationValidationSummary, "Fixture validation passed.");
+    assert.ok(convergenceAssimilationRunResultJson.governanceOperationCount >= 1);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

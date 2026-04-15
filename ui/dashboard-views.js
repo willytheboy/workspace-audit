@@ -1267,7 +1267,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ),
       unprofiledProjects: filterAndSort(
         governance.unprofiledProjects,
-        (project) => [project.name || "", project.category || "", project.zone || "", project.relPath || "", String(project.qualityScore), String(project.findingCount)],
+        (project) => [project.name || "", project.category || "", project.zone || "", project.relPath || "", project.governanceScope || "", String(project.governanceScopeScore || ""), (project.governanceScopeReasons || []).join(" "), String(project.qualityScore), String(project.findingCount)],
         (left, right) => {
           const findingDelta = right.findingCount - left.findingCount;
           if (findingDelta) return findingDelta;
@@ -7256,6 +7256,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Agent execution SLA: stale after ${staleThresholdHours} hour(s) for ${governanceExecutionPolicy.staleStatuses.join(", ")}`,
       `Show archived execution runs: ${showArchivedExecution ? "yes" : "no"}`,
       `Profile history snapshots: ${governance.profileHistory.length}`,
+      `Scoped profile coverage: ${governanceCache?.summary.governanceScopeProfileCoveragePercent ?? 0}% (${governanceCache?.summary.governanceScopeProfileCount ?? 0}/${governanceCache?.summary.governanceScopeProjectCount ?? 0})`,
+      `Scoped governance gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? governance.unprofiledProjects.length}`,
+      `Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `Visible governance gaps: ${governance.unprofiledProjects.length}`,
       `Visible action queue items: ${governance.actionQueue.length}`,
       `Visible suppressed queue items: ${governance.queueSuppressions.length}`,
@@ -7338,6 +7341,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Pending milestones: ${governanceCache?.summary.pendingMilestones ?? 0}`,
       `- Decision notes: ${governanceCache?.summary.decisionNotes ?? 0}`,
       `- Project profiles: ${governanceCache?.summary.profileCount ?? 0}`,
+      `- App-development profile coverage: ${governanceCache?.summary.governanceScopeProfileCoveragePercent ?? 0}% (${governanceCache?.summary.governanceScopeProfileCount ?? 0}/${governanceCache?.summary.governanceScopeProjectCount ?? 0})`,
+      `- App-development profile gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? 0}`,
+      `- Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `- Action queue items: ${governanceCache?.summary.actionQueueItems ?? 0}`,
       `- Suppressed queue items: ${governanceCache?.summary.suppressedQueueItems ?? 0}`,
       `- Governance operation log entries: ${governanceCache?.summary.governanceOperationCount ?? 0}`,
@@ -7866,8 +7872,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     lines.push("", "## Governance Gaps");
     if (governance.unprofiledProjects.length) {
       for (const project of governance.unprofiledProjects) {
-        lines.push(`- ${project.name}: ${project.category} | ${project.zone} | health ${project.qualityScore} | open findings ${project.findingCount}`);
+        lines.push(`- ${project.name}: ${project.category} | ${project.zone} | health ${project.qualityScore} | app-dev scope ${project.governanceScopeScore || 0} | open findings ${project.findingCount}`);
         lines.push(`  Path: ${project.relPath}`);
+        if (project.governanceScopeReasons?.length) {
+          lines.push(`  Scope evidence: ${project.governanceScopeReasons.slice(0, 4).join(", ")}`);
+        }
       }
     } else {
       lines.push("- No visible unprofiled projects.");

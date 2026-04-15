@@ -2211,3 +2211,10 @@
 - [x] Distinguish approved source-access checkpoints from missing non-secret validation evidence in queue summaries and markdown.
 - [x] Surface evidence status in the Data Sources and Governance review queue cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next App-Development Governance Profile Scope
+
+- [x] Add an explicit app-development scope classifier for AI/agent, control-plane, tooling, builder, and integration projects.
+- [x] Exclude non-target business, content, media, finance, POS, CRM, recipe, and hospitality apps from Governance profile-gap onboarding.
+- [x] Add scoped profile coverage counts and gap totals to Governance summaries, reports, and KPI cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

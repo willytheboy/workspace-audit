@@ -1613,13 +1613,19 @@ export function createGovernanceSummaryGrid(governance) {
       accentColor: "var(--primary)",
       label: "Project Profiles",
       value: String(summary.profileCount),
-      detail: `${summary.ownedProfiles} assigned owners in the governance registry`
+      detail: `${summary.ownedProfiles} assigned owners; ${summary.governanceScopeProfileCount || 0}/${summary.governanceScopeProjectCount || 0} scoped app-dev projects profiled`
+    }),
+    createKpiCard({
+      accentColor: (summary.governanceScopeProfileGapCount || 0) ? "var(--warning)" : "var(--success)",
+      label: "Profile Coverage",
+      value: `${summary.governanceScopeProfileCoveragePercent || 0}%`,
+      detail: `${summary.governanceScopeProfileGapCount || 0} scoped app-dev gaps; ${summary.governanceScopeExcludedProjectCount || 0} non-target projects excluded`
     }),
     createKpiCard({
       accentColor: "var(--warning)",
       label: "Governance Gaps",
-      value: String(governance.unprofiledProjects.length),
-      detail: "Visible high-signal projects without a saved governance profile"
+      value: String(summary.governanceScopeProfileGapCount ?? governance.unprofiledProjects.length),
+      detail: "App-development scoped projects without a saved governance profile"
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -2108,7 +2114,7 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("div", {
-        text: `${project.category} • ${project.zone} • health ${project.qualityScore}`,
+        text: `${project.category} • ${project.zone} • health ${project.qualityScore} • app-dev scope ${project.governanceScopeScore || 0}`,
         style: {
           color: "var(--text-muted)",
           fontSize: "0.84rem",
@@ -2120,6 +2126,14 @@ export function createGovernanceDeck(governance) {
         style: {
           color: "var(--text-muted)",
           fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `Scope evidence: ${(project.governanceScopeReasons || []).slice(0, 3).join(", ") || "app-development target"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.8rem",
           lineHeight: "1.45"
         }
       })
@@ -14566,7 +14580,7 @@ export function createGovernanceDeck(governance) {
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),
     createListSection("SLA Ledger Snapshots", "Persisted SLA Breach Ledger exports for external audit handoffs.", agentExecutionSlaLedgerSnapshotEntries),
     createListSection("Agent Execution Queue", "Queued and in-flight Agent Work Order runs with validation outcomes.", agentWorkOrderRunEntries),
-    createListSection("Governance Gaps", "Important projects that still have no saved governance profile.", gapEntries),
+    createListSection("Governance Gaps", "App-development scoped projects that still have no saved governance profile.", gapEntries),
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),

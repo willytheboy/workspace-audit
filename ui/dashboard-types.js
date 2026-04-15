@@ -1653,8 +1653,23 @@
  *   zone: string,
  *   category: string,
  *   qualityScore: number,
- *   findingCount: number
+ *   findingCount: number,
+ *   governanceScope: string,
+ *   governanceScopeScore: number,
+ *   governanceScopeReasons: string[]
  * }} GovernanceGapProject
+ * @typedef {{
+ *   scope: "app-development",
+ *   totalProjects: number,
+ *   scopedProjects: number,
+ *   scopedProfiledProjects: number,
+ *   scopedUnprofiledProjects: number,
+ *   scopedCoveragePercent: number,
+ *   excludedProjects: number,
+ *   criteria: string[],
+ *   excludedDomains: string[],
+ *   sample: Array<{ id: string, name: string, relPath: string, category: string, zone: string, score: number, reasons: string[] }>
+ * }} GovernanceProfileCoverage
  * @typedef {{
  *   id: string,
  *   projectId: string,
@@ -2124,6 +2139,12 @@
  *     trackedProjects: number,
  *     profileCount: number,
  *     ownedProfiles: number,
+ *     governanceProfileScope: string,
+ *     governanceScopeProjectCount: number,
+ *     governanceScopeProfileCount: number,
+ *     governanceScopeProfileGapCount: number,
+ *     governanceScopeProfileCoveragePercent: number,
+ *     governanceScopeExcludedProjectCount: number,
  *     actionQueueItems: number,
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
@@ -2265,12 +2286,13 @@
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
  *   },
- *   recentActivity: GovernanceActivity[],
- *   workflowFocus: PersistedWorkflow[],
+  *   recentActivity: GovernanceActivity[],
+  *   workflowFocus: PersistedWorkflow[],
   *   milestoneFocus: PersistedMilestone[],
   *   decisions: PersistedNote[],
   *   profiles: PersistedProjectProfile[],
- *   profileHistory: PersistedProjectProfileHistory[],
+  *   profileCoverage: GovernanceProfileCoverage,
+  *   profileHistory: PersistedProjectProfileHistory[],
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],

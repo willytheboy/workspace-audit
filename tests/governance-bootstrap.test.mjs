@@ -21,9 +21,19 @@ export async function governanceBootstrapTest() {
     assert.equal(initialGovernanceResponse.status, 200);
     const initialGovernanceJson = await initialGovernanceResponse.json();
     assert.equal(initialGovernanceJson.summary.profileCount, 0);
+    assert.equal(initialGovernanceJson.summary.governanceProfileScope, "app-development");
+    assert.equal(initialGovernanceJson.summary.governanceScopeProjectCount, 1);
+    assert.equal(initialGovernanceJson.summary.governanceScopeProfileCount, 0);
+    assert.equal(initialGovernanceJson.summary.governanceScopeProfileGapCount, 1);
+    assert.equal(initialGovernanceJson.summary.governanceScopeProfileCoveragePercent, 0);
     assert.equal(initialGovernanceJson.summary.pendingMilestones, 0);
     assert.equal(initialGovernanceJson.summary.decisionNotes, 0);
     assert.equal(initialGovernanceJson.unprofiledProjects.length, 1);
+    assert.equal(initialGovernanceJson.unprofiledProjects[0].governanceScope, "app-development");
+    assert.ok(initialGovernanceJson.unprofiledProjects[0].governanceScopeScore >= 45);
+    assert.ok(initialGovernanceJson.unprofiledProjects[0].governanceScopeReasons.length > 0);
+    assert.equal(initialGovernanceJson.profileCoverage.scopedProjects, 1);
+    assert.equal(initialGovernanceJson.profileCoverage.scopedUnprofiledProjects, 1);
     assert.equal(initialGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(initialGovernanceJson.summary.governanceOperationCount, 0);
     assert.equal(initialGovernanceJson.summary.workflowRunbookItems, 0);
@@ -32,6 +42,7 @@ export async function governanceBootstrapTest() {
     assert.equal(initialGovernanceJson.workflowRunbook.length, 0);
     assert.equal(initialGovernanceJson.actionQueue[0].kind, "profile-gap");
     assert.equal(initialGovernanceJson.actionQueue[0].actionType, "create-starter-pack");
+    assert.match(initialGovernanceJson.actionQueue[0].detail, /app-dev scope/);
 
     const seedProfilesResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
       method: "POST",
@@ -61,6 +72,9 @@ export async function governanceBootstrapTest() {
     assert.equal(postProfileGovernanceResponse.status, 200);
     const postProfileGovernanceJson = await postProfileGovernanceResponse.json();
     assert.equal(postProfileGovernanceJson.summary.profileCount, 1);
+    assert.equal(postProfileGovernanceJson.summary.governanceScopeProfileCount, 1);
+    assert.equal(postProfileGovernanceJson.summary.governanceScopeProfileGapCount, 0);
+    assert.equal(postProfileGovernanceJson.summary.governanceScopeProfileCoveragePercent, 100);
     assert.equal(postProfileGovernanceJson.summary.actionQueueItems, 3);
     assert.equal(postProfileGovernanceJson.summary.governanceOperationCount, 1);
     assert.equal(postProfileGovernanceJson.summary.workflowRunbookItems, 0);
@@ -131,6 +145,8 @@ export async function governanceBootstrapTest() {
     assert.equal(finalGovernanceResponse.status, 200);
     const finalGovernanceJson = await finalGovernanceResponse.json();
     assert.equal(finalGovernanceJson.summary.profileCount, 1);
+    assert.equal(finalGovernanceJson.summary.governanceScopeProfileCoveragePercent, 100);
+    assert.equal(finalGovernanceJson.summary.governanceScopeProfileGapCount, 0);
     assert.equal(finalGovernanceJson.summary.openTasks, 1);
     assert.equal(finalGovernanceJson.summary.activeWorkflows, 1);
     assert.equal(finalGovernanceJson.summary.pendingMilestones, 1);

@@ -2071,3 +2071,10 @@
 - [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
 - [x] Surface checkpoint state on remediation pack drift cards in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Drift Checkpoint Ledger
+
+- [x] Add a copyable all/open/closed ledger for remediation pack drift checkpoint decisions.
+- [x] Summarize total, visible, open, closed, confirmed, deferred, escalated, and open escalated counts.
+- [x] Surface Governance ledger cards with checkpoint snapshot, runner, field, before/current values, and decision state.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

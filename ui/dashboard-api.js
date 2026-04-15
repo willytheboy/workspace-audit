@@ -641,6 +641,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
    */

@@ -782,6 +782,23 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number,
+ *     openEscalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload
+ * @typedef {{
  *   success: true,
  *   requested: number,
  *   createdTasks: PersistedTask[],
@@ -2122,6 +2139,7 @@
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload | null,

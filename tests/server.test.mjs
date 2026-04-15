@@ -3685,6 +3685,14 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.convergenceAssimilationRunnerLaunchStackRemediationPackDriftField, "openEscalatedCheckpoints");
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.secretPolicy, "non-secret-convergence-assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-only");
 
+    const convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-drift-checkpoint-ledger?status=closed`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson = await convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.closed, 1);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack Drift Checkpoint Ledger/);
+
     const checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
     assert.equal(checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
     const checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await checkpointedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();

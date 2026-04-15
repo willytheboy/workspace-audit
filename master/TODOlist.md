@@ -2099,3 +2099,10 @@
 - [x] Feed remediation pack drift checkpoint ledger state into the runner launch stack status.
 - [x] Add an internal recursion guard so remediation pack generation can compute live packs without self-referencing the stack gate.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Draft
+
+- [x] Add a non-executing Codex/Claude remediation work-order draft API.
+- [x] Convert remediation pack stages, tasks, and checkpoints into ordered work items and runner prompts.
+- [x] Surface Governance copy controls for Codex and Claude remediation work-order drafts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

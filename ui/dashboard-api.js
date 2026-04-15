@@ -598,6 +598,16 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-draft", {
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

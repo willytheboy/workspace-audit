@@ -746,6 +746,25 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   bridgeMode: string,
+ *   executionMode: "non-executing",
+ *   runner: "codex" | "claude",
+ *   runnerLabel: string,
+ *   draftDecision: "ready" | "review" | "hold",
+ *   remediationPackDecision: "ready" | "review" | "hold",
+ *   remediationPackSummary: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload["summary"],
+ *   remediationPack: { protocolVersion: string, generatedAt: string, runner: "codex" | "claude", decision: "ready" | "review" | "hold", recommendedAction: string },
+ *   workItems: Array<{ id: string, sourceType: string, sourceId: string, priority: string, status: string, title: string, detail: string, action: string }>,
+ *   validationCommands: string[],
+ *   acceptanceCriteria: string[],
+ *   recommendedAction: string,
+ *   draft: { title: string, prompt: string },
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   runner: "codex" | "claude",
@@ -2137,6 +2156,7 @@
  *   convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload | null,

@@ -3583,6 +3583,18 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack/);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /Open escalated checkpoints: 1/);
 
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-draft?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson = await convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.protocolVersion, "convergence-assimilation-runner-launch-stack-remediation-work-order-draft.v1");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.executionMode, "non-executing");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.remediationPackDecision, "hold");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.workItems.length >= 1, true);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.draft.prompt, /Claude CLI/);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Draft/);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.secretPolicy, /Non-secret convergence assimilation runner launch stack remediation work-order draft only/);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

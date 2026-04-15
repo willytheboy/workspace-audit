@@ -2232,3 +2232,10 @@
 - [x] Add a refresh endpoint and UI action to update targets for scoped app-development profiles.
 - [x] Surface profile target KPIs and a Governance Profile Targets deck.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Seeding
+
+- [x] Create deduplicated Governance tasks from profile test coverage and runtime target gaps.
+- [x] Add toolbar and command-palette actions for seeding visible profile target tasks.
+- [x] Surface profile target task status and missing task counts in Governance cards, summaries, and reports.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

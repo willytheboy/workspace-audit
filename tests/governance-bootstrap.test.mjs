@@ -182,6 +182,56 @@ export async function governanceBootstrapTest() {
     assert.equal(refreshProfileTargetsJson.totals.refreshed, 1);
     assert.equal(refreshProfileTargetsJson.refreshedProfiles[0].projectId, "alpha-app");
 
+    const undercoveredProfileResponse = await fetch(`${baseUrl}/api/project-profiles`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        owner: "",
+        status: "active",
+        lifecycle: "active",
+        tier: "important",
+        targetState: "stabilize",
+        summary: "Fixture profile target task seeding state.",
+        testCoverageTarget: {
+          currentTestFiles: 0,
+          sourceFiles: 24,
+          targetTestFiles: 2,
+          missingTestFiles: 2,
+          status: "missing",
+          rationale: "Fixture target gap."
+        },
+        runtimeTarget: {
+          scriptCount: 2,
+          runtimeSurfaceCount: 1,
+          launchCommandCount: 2,
+          status: "detected",
+          rationale: "Fixture runtime ready."
+        }
+      })
+    });
+    assert.equal(undercoveredProfileResponse.status, 200);
+
+    const seedProfileTargetTasksResponse = await fetch(`${baseUrl}/api/governance/profile-targets/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    assert.equal(seedProfileTargetTasksResponse.status, 200);
+    const seedProfileTargetTasksJson = await seedProfileTargetTasksResponse.json();
+    assert.equal(seedProfileTargetTasksJson.success, true);
+    assert.equal(seedProfileTargetTasksJson.totals.created, 1);
+    assert.equal(seedProfileTargetTasksJson.createdTasks[0].governanceProfileTargetKind, "test-coverage");
+    assert.equal(seedProfileTargetTasksJson.createdTasks[0].governanceProfileTargetTaskKey, "alpha-app:test-coverage");
+
+    const profileTargetGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(profileTargetGovernanceResponse.status, 200);
+    const profileTargetGovernanceJson = await profileTargetGovernanceResponse.json();
+    assert.equal(profileTargetGovernanceJson.summary.governanceProfileTargetOpenTaskCount, 1);
+    assert.equal(profileTargetGovernanceJson.summary.governanceProfileTargetMissingTaskCount, 0);
+    assert.equal(profileTargetGovernanceJson.profileTargets[0].testTaskStatus, "open");
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -206,7 +256,7 @@ export async function governanceBootstrapTest() {
     const suppressedGovernanceJson = await suppressedGovernanceResponse.json();
     assert.equal(suppressedGovernanceJson.summary.actionQueueItems, 0);
     assert.equal(suppressedGovernanceJson.summary.suppressedQueueItems, 1);
-    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 6);
+    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 7);
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
@@ -227,7 +277,7 @@ export async function governanceBootstrapTest() {
     const restoredGovernanceJson = await restoredGovernanceResponse.json();
     assert.equal(restoredGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(restoredGovernanceJson.summary.suppressedQueueItems, 0);
-    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 7);
+    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 8);
     assert.equal(restoredGovernanceJson.actionQueue.length, 1);
     assert.equal(restoredGovernanceJson.operationLog[0].type, "queue-restore");
   } finally {

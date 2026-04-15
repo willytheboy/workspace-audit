@@ -581,6 +581,12 @@ async function refreshGovernanceProfileTargets() {
   await views.refreshGovernanceProfileTargets();
 }
 
+async function seedGovernanceProfileTargetTasks() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.seedGovernanceProfileTargetTasks();
+}
+
 async function executeGovernanceQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -758,6 +764,7 @@ const actionRegistry = createDashboardActionRegistry({
     seedGovernanceProfiles,
     seedGovernanceStarterPacks,
     refreshGovernanceProfileTargets,
+    seedGovernanceProfileTargetTasks,
     executeGovernanceQueue,
     suppressGovernanceQueue,
     startQueuedAgentWorkOrderRuns,
@@ -1072,6 +1079,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("refresh-governance-profile-targets-btn")),
     "Refreshing...",
     () => refreshGovernanceProfileTargets()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-profile-target-tasks-btn")),
+    "Seeding...",
+    () => seedGovernanceProfileTargetTasks()
   );
 
   bindAsyncButton(

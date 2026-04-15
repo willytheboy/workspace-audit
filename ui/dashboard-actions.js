@@ -111,6 +111,7 @@
  *     seedGovernanceProfiles: () => Promise<void>,
  *     seedGovernanceStarterPacks: () => Promise<void>,
  *     refreshGovernanceProfileTargets: () => Promise<void>,
+ *     seedGovernanceProfileTargetTasks: () => Promise<void>,
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
@@ -936,6 +937,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "refresh"],
         run: () => handlers.refreshGovernanceProfileTargets()
+      },
+      {
+        id: "seed-governance-profile-target-tasks",
+        label: "Seed governance profile target tasks",
+        description: "Create deduplicated Governance tasks for visible profile test coverage and runtime target gaps.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "seed"],
+        run: () => handlers.seedGovernanceProfileTargetTasks()
       },
       {
         id: "execute-governance-queue",

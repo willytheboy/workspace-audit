@@ -1625,7 +1625,7 @@ export function createGovernanceSummaryGrid(governance) {
       accentColor: (summary.governanceProfileTestTargetMissingCount || 0) || (summary.governanceProfileTestTargetNeedsGrowthCount || 0) ? "var(--warning)" : "var(--success)",
       label: "Test Targets",
       value: `${summary.governanceProfileTestTargetMetCount || 0}/${summary.governanceProfileTargetCount || 0}`,
-      detail: `${summary.governanceProfileTestTargetMissingCount || 0} missing, ${summary.governanceProfileTestTargetNeedsGrowthCount || 0} need growth, ${summary.governanceProfileMissingTestFileCount || 0} target test files outstanding`
+      detail: `${summary.governanceProfileTestTargetMissingCount || 0} missing, ${summary.governanceProfileTestTargetNeedsGrowthCount || 0} need growth, ${summary.governanceProfileMissingTestFileCount || 0} target test files outstanding, ${summary.governanceProfileTargetMissingTaskCount || 0} target tasks missing`
     }),
     createKpiCard({
       accentColor: "var(--warning)",
@@ -2128,7 +2128,7 @@ export function createGovernanceDeck(governance) {
           }
         }),
         createElement("div", {
-          text: `Tests ${item.currentTestFiles}/${item.targetTestFiles} target • ${item.missingTestFiles} missing • runtime ${item.runtimeStatus}`,
+          text: `Tests ${item.currentTestFiles}/${item.targetTestFiles} target • ${item.missingTestFiles} missing • runtime ${item.runtimeStatus} • tasks ${item.taskMissingCount ? `${item.taskMissingCount} missing` : "tracked"}`,
           style: {
             color: "var(--text-muted)",
             fontSize: "0.84rem",
@@ -2159,6 +2159,11 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: "var(--text-muted)"
+        }),
+        createTag(item.testTaskStatus || (item.testTaskMissing ? "test task missing" : "test task ok"), {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: item.testTaskMissing ? "var(--warning)" : "var(--text-muted)"
         })
       ])
     ])

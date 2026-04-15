@@ -2169,6 +2169,67 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const profileTargetTaskEntries = (governance.profileTargetTasks || []).map((task) => createElement("div", {
+    className: "governance-gap-card",
+    dataset: { openAppId: encodeAppId(task.projectId) },
+    title: "Open project workbench",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: task.title,
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${task.projectName || task.projectId || "Portfolio"} • ${task.governanceProfileTargetKind || "target"} • missing tests ${task.governanceProfileMissingTestFiles || 0}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createElement("div", {
+        className: "tags",
+        style: {
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag(task.status || "open", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: task.status === "open" ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(task.priority || "medium", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: task.priority === "high" ? "var(--danger)" : "var(--text-muted)"
+        })
+      ])
+    ])
+  ]));
+
   const gapEntries = governance.unprofiledProjects.map((project) => createElement("div", {
     className: "governance-gap-card",
     dataset: { openAppId: encodeAppId(project.id) },
@@ -14663,6 +14724,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Governance Gaps", "App-development scoped projects that still have no saved governance profile.", gapEntries),
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
+    createListSection("Governance Profile Target Tasks", "Deduplicated task ledger for profile test coverage and runtime target gaps.", profileTargetTaskEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),
     createListSection("Milestone Focus", "Upcoming or unresolved milestones that still need attention.", milestoneEntries),

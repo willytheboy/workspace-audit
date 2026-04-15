@@ -587,6 +587,12 @@ async function seedGovernanceProfileTargetTasks() {
   await views.seedGovernanceProfileTargetTasks();
 }
 
+async function copyGovernanceProfileTargetTaskLedger() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.copyGovernanceProfileTargetTaskLedger();
+}
+
 async function executeGovernanceQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -765,6 +771,7 @@ const actionRegistry = createDashboardActionRegistry({
     seedGovernanceStarterPacks,
     refreshGovernanceProfileTargets,
     seedGovernanceProfileTargetTasks,
+    copyGovernanceProfileTargetTaskLedger,
     executeGovernanceQueue,
     suppressGovernanceQueue,
     startQueuedAgentWorkOrderRuns,
@@ -1085,6 +1092,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("seed-governance-profile-target-tasks-btn")),
     "Seeding...",
     () => seedGovernanceProfileTargetTasks()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-profile-target-task-ledger-btn")),
+    "Copying...",
+    () => copyGovernanceProfileTargetTaskLedger()
   );
 
   bindAsyncButton(

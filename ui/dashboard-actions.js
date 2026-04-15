@@ -112,6 +112,7 @@
  *     seedGovernanceStarterPacks: () => Promise<void>,
  *     refreshGovernanceProfileTargets: () => Promise<void>,
  *     seedGovernanceProfileTargetTasks: () => Promise<void>,
+ *     copyGovernanceProfileTargetTaskLedger: () => Promise<void>,
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
@@ -945,6 +946,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "seed"],
         run: () => handlers.seedGovernanceProfileTargetTasks()
+      },
+      {
+        id: "copy-governance-profile-target-task-ledger",
+        label: "Copy profile target task ledger",
+        description: "Copy the non-secret ledger of Governance tasks created from profile test and runtime target gaps.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "copy"],
+        run: () => handlers.copyGovernanceProfileTargetTaskLedger()
       },
       {
         id: "execute-governance-queue",

@@ -1949,6 +1949,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<{ summary: Record<string, number | string>, items: import("./dashboard-types.js").PersistedTask[], markdown: string, secretPolicy: string, generatedAt: string }>}
+   */
+  fetchGovernanceProfileTargetTaskLedger(status = "all") {
+    return fetchJson(`/api/governance/profile-target-task-ledger?status=${encodeURIComponent(status)}`);
+  },
+
+  /**
    * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
    */
   executeGovernanceQueue(payload) {

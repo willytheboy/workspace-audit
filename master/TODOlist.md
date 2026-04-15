@@ -2239,3 +2239,10 @@
 - [x] Add toolbar and command-palette actions for seeding visible profile target tasks.
 - [x] Surface profile target task status and missing task counts in Governance cards, summaries, and reports.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger
+
+- [x] Add a copyable API ledger for Governance profile target tasks with open, closed, kind, project, and missing-test summaries.
+- [x] Surface profile target task rows in Governance registry filtering and reports.
+- [x] Add toolbar and command-palette copy actions for the target task ledger.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

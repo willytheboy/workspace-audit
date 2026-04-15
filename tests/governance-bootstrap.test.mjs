@@ -230,7 +230,17 @@ export async function governanceBootstrapTest() {
     const profileTargetGovernanceJson = await profileTargetGovernanceResponse.json();
     assert.equal(profileTargetGovernanceJson.summary.governanceProfileTargetOpenTaskCount, 1);
     assert.equal(profileTargetGovernanceJson.summary.governanceProfileTargetMissingTaskCount, 0);
+    assert.equal(profileTargetGovernanceJson.profileTargetTasks.length, 1);
     assert.equal(profileTargetGovernanceJson.profileTargets[0].testTaskStatus, "open");
+
+    const profileTargetTaskLedgerResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger?status=open`);
+    assert.equal(profileTargetTaskLedgerResponse.status, 200);
+    const profileTargetTaskLedgerJson = await profileTargetTaskLedgerResponse.json();
+    assert.equal(profileTargetTaskLedgerJson.summary.visible, 1);
+    assert.equal(profileTargetTaskLedgerJson.summary.open, 1);
+    assert.equal(profileTargetTaskLedgerJson.summary.testCoverage, 1);
+    assert.match(profileTargetTaskLedgerJson.markdown, /Governance Profile Target Task Ledger/);
+    assert.match(profileTargetTaskLedgerJson.markdown, /alpha-app:test-coverage/);
 
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",

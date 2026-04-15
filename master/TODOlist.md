@@ -1659,3 +1659,10 @@
 - [x] Persist non-secret snapshot, field, decision, severity, score, and delta metadata on checkpoint tasks.
 - [x] Route Governance drift item Confirm, Defer, and Escalate controls through server-side upsert behavior.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Ledger Drift Checkpoint Visibility
+
+- [x] Show existing checkpoint decisions on each visible Convergence Review task-ledger drift field.
+- [x] Display checkpoint status, task status, priority, and last update timestamp from persisted task metadata.
+- [x] Switch drift field actions to update labels when a checkpoint task already exists.
+- [x] Add parser checks, validation, relaunch, commit, and push.

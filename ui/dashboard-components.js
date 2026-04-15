@@ -2682,6 +2682,15 @@ export function createGovernanceDeck(governance) {
   const convergenceTaskLedgerDriftItems = Array.isArray(convergenceTaskLedgerSnapshotDiff?.driftItems)
     ? convergenceTaskLedgerSnapshotDiff.driftItems
     : [];
+  const convergenceTaskLedgerDriftCheckpointByField = new Map();
+  if (convergenceTaskLedgerSnapshotDiff?.snapshotId) {
+    (governance.convergenceTasks || []).forEach((task) => {
+      if (task.convergenceTaskLedgerDriftSnapshotId !== convergenceTaskLedgerSnapshotDiff.snapshotId) return;
+      const field = task.convergenceTaskLedgerDriftField || "";
+      if (!field) return;
+      convergenceTaskLedgerDriftCheckpointByField.set(field, task);
+    });
+  }
   const convergenceTaskLedgerSnapshotDiffEntries = convergenceTaskLedgerSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-task-ledger-drift-card",
@@ -2762,57 +2771,88 @@ export function createGovernanceDeck(governance) {
                 textTransform: "uppercase"
               }
             }),
-            ...convergenceTaskLedgerDriftItems.slice(0, 8).map((item) => createElement("div", {
-              style: {
-                display: "grid",
-                gap: "0.5rem",
-                padding: "0.65rem",
-                border: "1px solid var(--border)",
-                borderRadius: "0.75rem",
-                background: "var(--surface)"
-              }
-            }, [
-              createElement("div", {
-                text: `${item.label || item.field || "Convergence task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+            ...convergenceTaskLedgerDriftItems.slice(0, 8).map((item) => {
+              const field = item.field || item.label || "";
+              const checkpoint = convergenceTaskLedgerDriftCheckpointByField.get(field);
+              const checkpointStatus = checkpoint?.convergenceTaskLedgerDriftCheckpointStatus || checkpoint?.convergenceTaskLedgerDriftDecision || "";
+              return createElement("div", {
                 style: {
-                  color: "var(--text)",
-                  fontSize: "0.84rem",
-                  fontWeight: "700",
-                  lineHeight: "1.45"
+                  display: "grid",
+                  gap: "0.5rem",
+                  padding: "0.65rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.75rem",
+                  background: "var(--surface)"
                 }
-              }),
-              createElement("div", {
-                className: "governance-actions"
               }, [
-                createElement("button", {
-                  className: "btn governance-action-btn convergence-task-ledger-drift-item-confirm-btn",
-                  text: "Confirm",
-                  attrs: { type: "button" },
-                  dataset: {
-                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
-                    convergenceTaskLedgerDriftItemDecision: "confirmed"
+                createElement("div", {
+                  text: `${item.label || item.field || "Convergence task drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${item.delta >= 0 ? "+" : ""}${item.delta ?? 0})`,
+                  style: {
+                    color: "var(--text)",
+                    fontSize: "0.84rem",
+                    fontWeight: "700",
+                    lineHeight: "1.45"
                   }
                 }),
-                createElement("button", {
-                  className: "btn governance-action-btn convergence-task-ledger-drift-item-defer-btn",
-                  text: "Defer",
-                  attrs: { type: "button" },
-                  dataset: {
-                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
-                    convergenceTaskLedgerDriftItemDecision: "deferred"
+                checkpoint ? createElement("div", {
+                  style: {
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "0.45rem",
+                    alignItems: "center",
+                    color: "var(--text-muted)",
+                    fontSize: "0.78rem",
+                    lineHeight: "1.4"
+                  }
+                }, [
+                  createTag(`CHECKPOINT ${String(checkpointStatus || "tracked").toUpperCase()}`, {
+                    border: "1px solid var(--border)",
+                    background: "var(--bg)",
+                    color: checkpointStatus === "escalated" ? "var(--danger)" : checkpointStatus === "deferred" ? "var(--warning)" : "var(--success)"
+                  }),
+                  createElement("span", {
+                    text: `${checkpoint.status || "open"} / ${checkpoint.priority || "medium"} | ${checkpoint.updatedAt || checkpoint.createdAt || "not recorded"}`
+                  })
+                ]) : createElement("div", {
+                  text: "Checkpoint: not recorded",
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.78rem"
                   }
                 }),
-                createElement("button", {
-                  className: "btn governance-action-btn convergence-task-ledger-drift-item-escalate-btn",
-                  text: "Escalate",
-                  attrs: { type: "button" },
-                  dataset: {
-                    convergenceTaskLedgerDriftItemField: item.field || item.label || "",
-                    convergenceTaskLedgerDriftItemDecision: "escalated"
-                  }
-                })
-              ])
-            ])),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn convergence-task-ledger-drift-item-confirm-btn",
+                    text: checkpoint ? "Update Confirm" : "Confirm",
+                    attrs: { type: "button" },
+                    dataset: {
+                      convergenceTaskLedgerDriftItemField: field,
+                      convergenceTaskLedgerDriftItemDecision: "confirmed"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn convergence-task-ledger-drift-item-defer-btn",
+                    text: checkpoint ? "Update Defer" : "Defer",
+                    attrs: { type: "button" },
+                    dataset: {
+                      convergenceTaskLedgerDriftItemField: field,
+                      convergenceTaskLedgerDriftItemDecision: "deferred"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn convergence-task-ledger-drift-item-escalate-btn",
+                    text: checkpoint ? "Update Escalate" : "Escalate",
+                    attrs: { type: "button" },
+                    dataset: {
+                      convergenceTaskLedgerDriftItemField: field,
+                      convergenceTaskLedgerDriftItemDecision: "escalated"
+                    }
+                  })
+                ])
+              ]);
+            }),
             convergenceTaskLedgerDriftItems.length > 8
               ? createElement("div", {
                   text: `${convergenceTaskLedgerDriftItems.length - 8} additional drift item(s).`,

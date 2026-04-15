@@ -548,6 +548,22 @@
  *   snapshotSummary: { decision: string, authorizationStatus: string, launchpadDecision: string, readinessDecision: string, launchpadSnapshotDriftSeverity: string, launchpadSnapshotDriftScore: number, openLaunchpadDriftCheckpointCount: number, escalatedLaunchpadDriftCheckpointCount: number, recommendedAction: string } | null,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1784,6 +1800,7 @@
  *   convergenceAssimilationRunnerLaunchpadGateSnapshots: PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[],
  *   convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffPayload | null,
+ *   convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

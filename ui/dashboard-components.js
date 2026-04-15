@@ -3489,6 +3489,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Launch Pack Drift",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCopy: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Launch Pack Checkpoints",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open Launch Pack Checkpoints",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "open" }
         })
       ])
     ]),
@@ -3842,6 +3854,101 @@ export function createGovernanceDeck(governance) {
     ].filter(Boolean)))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiff = governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff || null;
+  const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger = governance.convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger || null;
+  const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointSummary = convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0
+  };
+  const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerEntries = convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Launch authorization pack drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "850"
+        }
+      }),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointSummary.visible || 0} visible | ${convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointSummary.open || 0} open | ${convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointSummary.closed || 0} closed | ${convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointSummary.escalated || 0} escalated`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger.items || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.45rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftLabel || "Launch authorization pack drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotTitle || item.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotId || "Snapshot not recorded"} | ${item.convergenceAssimilationRunnerLaunchAuthorizationPackRunner || "codex"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `${item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftBefore || "missing"} -> ${item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(`${item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftDecision || "deferred"} / ${item.status || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      })
+    ]))
+  ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launchpad-gate-snapshot-drift-card",
@@ -11727,6 +11834,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshots", "Persisted non-secret launchpad gate decisions for repeatable Codex and Claude execution handoffs.", convergenceAssimilationRunnerLaunchpadGateSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshots", "Persisted non-secret launch authorization packs for repeatable Codex and Claude runner starts.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshot Drift", "Latest saved launch authorization pack compared with current launch gate, packet, queue, and replay state.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffEntries),
+    createListSection("Convergence Assimilation Runner Launch Authorization Pack Drift Checkpoints", "Operator decisions made against launch authorization pack drift before runner launch.", convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

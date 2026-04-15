@@ -3330,6 +3330,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationSessionPacketSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationSessionPacketSnapshotsJson[0].title, "Fixture Codex Session Packet");
 
+    const convergenceAssimilationRunnerCommandQueueDraftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-command-queue-draft?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerCommandQueueDraftResponse.status, 200);
+    const convergenceAssimilationRunnerCommandQueueDraftJson = await convergenceAssimilationRunnerCommandQueueDraftResponse.json();
+    assert.equal(convergenceAssimilationRunnerCommandQueueDraftJson.runner, "claude");
+    assert.match(convergenceAssimilationRunnerCommandQueueDraftJson.protocolVersion, /convergence-assimilation-runner-command-queue-draft/);
+    assert.ok(convergenceAssimilationRunnerCommandQueueDraftJson.commands.length >= 6);
+    assert.match(convergenceAssimilationRunnerCommandQueueDraftJson.markdown, /# Convergence Assimilation Runner Command Queue Draft/);
+    assert.match(convergenceAssimilationRunnerCommandQueueDraftJson.secretPolicy, /Non-secret convergence assimilation runner command queue draft only/);
+
     const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
     const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();

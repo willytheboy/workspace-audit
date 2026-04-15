@@ -1820,3 +1820,10 @@
 - [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
 - [x] Surface checkpoint ledger cards and copy controls in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Command Queue Draft
+
+- [x] Add a non-executing Codex/Claude runner command queue draft API.
+- [x] Convert the current session packet and readiness state into operator-supervised queue steps.
+- [x] Add Governance copy controls for Codex and Claude queue drafts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

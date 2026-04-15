@@ -302,6 +302,16 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerCommandQueueDraftPayload>}
+   */
+  fetchConvergenceAssimilationRunnerCommandQueueDraft(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-command-queue-draft", {
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

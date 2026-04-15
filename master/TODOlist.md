@@ -2141,3 +2141,10 @@
 - [x] Convert blocked, failed, and needs-review remediation outcomes into Governance follow-up tasks.
 - [x] Surface Governance task creation controls from the remediation result ledger.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger
+
+- [x] Add a copyable ledger API for remediation result follow-up tasks.
+- [x] Summarize visible, open, closed, runner split, result status split, and priority split.
+- [x] Surface Governance ledger cards and Copy All/Open Codex/Open Claude controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

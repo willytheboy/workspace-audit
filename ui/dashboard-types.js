@@ -806,6 +806,34 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   runner: "all" | "codex" | "claude",
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   summary: { total: number, open: number, closed: number, visible: number, codex: number, claude: number, failed: number, blocked: number, needsReview: number, high: number, medium: number, low: number, normal: number },
+ *   items: Array<{
+ *     id: string,
+ *     title: string,
+ *     status: string,
+ *     priority: string,
+ *     projectId: string,
+ *     projectName: string,
+ *     runner: "codex" | "claude" | "runner",
+ *     runId: string,
+ *     resultStatus: "passed" | "failed" | "blocked" | "needs-review" | "cancelled",
+ *     resultSummary: string,
+ *     validationSummary: string,
+ *     nextAction: string,
+ *     description: string,
+ *     sourceId: string,
+ *     secretPolicy: string,
+ *     createdAt: string,
+ *     updatedAt: string
+ *   }>,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   runner: "codex" | "claude",
@@ -2200,6 +2228,7 @@
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload | null,

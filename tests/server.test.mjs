@@ -3702,6 +3702,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.created, 0);
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.totals.skipped, 1);
 
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger?status=open&runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson = await convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.status, "open");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.summary.open, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.summary.blocked, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.items[0].sourceId, blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.result.id);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Follow-Up Task Ledger/);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

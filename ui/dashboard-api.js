@@ -667,6 +667,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ status?: "all" | "open" | "closed", runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger", {
+      status: options.status,
+      runner: options.runner,
+      limit: options.limit
+    }));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

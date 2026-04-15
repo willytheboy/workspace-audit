@@ -3740,6 +3740,30 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.visible, 1);
     assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.closed, 1);
 
+    const refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        title: "Fixture Refreshed Claude Launch Stack Remediation Pack"
+      })
+    });
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 200);
+    const refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson = await refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.json();
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.success, true);
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.previousSnapshotId, createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.id);
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.title, "Fixture Refreshed Claude Launch Stack Remediation Pack");
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.runner, "claude");
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.openEscalatedCheckpoints, 0);
+    assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots.length, 2);
+
+    const refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
+    assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
+    const refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();
+    assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasDrift, false);
+    assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftSeverity, "none");
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -4155,6 +4179,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchControlBoardSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchExecutionPacketSnapshotCount, 2);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotCount, 2);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotCount, 2);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
@@ -4163,6 +4188,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots[0].title, "Fixture Codex Launch Authorization Pack");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchControlBoardSnapshots[0].title, "Fixture Codex Launch Control Board");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchExecutionPacketSnapshots[0].title, "Fixture Refreshed Claude Launch Execution Packet");
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots[0].title, "Fixture Refreshed Claude Launch Stack Remediation Pack");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots[0].title, "Fixture Refreshed Launch Stack Action Tasks");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
@@ -4180,6 +4206,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-refreshed"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-refreshed"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

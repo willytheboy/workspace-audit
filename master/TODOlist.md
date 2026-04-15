@@ -2085,3 +2085,10 @@
 - [x] Reuse the task lifecycle API so checkpoint status updates remain auditable through Governance operations.
 - [x] Validate open/closed ledger counts after blocked, reopened, and resolved checkpoint transitions.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Refresh
+
+- [x] Add an explicit refresh API that accepts live remediation pack drift as the latest saved baseline.
+- [x] Preserve the previous snapshot id while inserting the refreshed remediation pack snapshot at the top of the ledger.
+- [x] Surface an `Accept Drift` control on the remediation pack snapshot drift card.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

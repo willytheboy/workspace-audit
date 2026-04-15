@@ -5060,6 +5060,15 @@ export function createGovernanceDeck(governance) {
             convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftId: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.snapshotId || "latest",
             convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDriftRunner: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.runner || "codex"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-refresh-btn",
+          text: "Accept Drift",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotRefreshId: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.snapshotId || "latest",
+            convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotRefreshRunner: convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff.runner || "codex"
+          }
         })
       ])
     ]),

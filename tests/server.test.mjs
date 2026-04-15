@@ -3348,6 +3348,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerResultReplayChecklistJson.markdown, /# Convergence Assimilation Runner Result Replay Checklist/);
     assert.match(convergenceAssimilationRunnerResultReplayChecklistJson.secretPolicy, /Non-secret convergence assimilation runner result replay checklist only/);
 
+    const convergenceAssimilationRunnerLaunchpadGateResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate?runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchpadGateJson = await convergenceAssimilationRunnerLaunchpadGateResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateJson.runner, "codex");
+    assert.equal(convergenceAssimilationRunnerLaunchpadGateJson.decision, "ready");
+    assert.match(convergenceAssimilationRunnerLaunchpadGateJson.protocolVersion, /convergence-assimilation-runner-launchpad-gate/);
+    assert.match(convergenceAssimilationRunnerLaunchpadGateJson.markdown, /# Convergence Assimilation Runner Launchpad Gate/);
+    assert.match(convergenceAssimilationRunnerLaunchpadGateJson.secretPolicy, /Non-secret convergence assimilation runner launchpad gate only/);
+
     const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
     const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();

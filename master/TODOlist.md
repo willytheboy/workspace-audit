@@ -1834,3 +1834,10 @@
 - [x] Guide safe conversion of CLI output into result intake, validation summaries, blockers, checkpoints, and packet snapshots.
 - [x] Add Governance copy controls for Codex and Claude replay checklists.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launchpad Gate
+
+- [x] Add a non-secret Codex/Claude runner launchpad gate API.
+- [x] Combine readiness gate, latest packet drift, and packet drift checkpoint state into one launch decision.
+- [x] Add Governance copy controls for Codex and Claude launch gates.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

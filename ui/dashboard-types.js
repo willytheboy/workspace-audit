@@ -432,6 +432,19 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerResultReplayChecklistPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   decision: "ready" | "review" | "hold",
+ *   readinessGate: ConvergenceAssimilationReadinessGatePayload,
+ *   packetDrift: ConvergenceAssimilationSessionPacketSnapshotDiffPayload,
+ *   driftCheckpointSummary: ConvergenceAssimilationSessionPacketDriftCheckpointLedgerPayload["summary"],
+ *   reasons: Array<{ severity: "review" | "hold", code: string, message: string }>,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchpadGatePayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

@@ -3405,6 +3405,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Replay",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerResultReplayRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launchpad-gate-copy-btn",
+          text: "Copy Codex Launch Gate",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchpadGateRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launchpad-gate-copy-btn",
+          text: "Copy Claude Launch Gate",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchpadGateRunner: "claude" }
         })
       ])
     ]),

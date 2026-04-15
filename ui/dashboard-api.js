@@ -216,6 +216,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  createConvergenceTaskLedgerDriftCheckpoint(payload) {
+    return fetchJson("/api/convergence/task-ledger-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<Array<{ type: string, url?: string, path?: string, addedAt?: string }>>}
    */
   fetchSources() {

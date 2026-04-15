@@ -98,6 +98,7 @@ function createEmptyTableRow(message) {
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createConvergenceReviewTasks: (payload?: { pairIds?: string[], pairId?: string, candidates?: import("./dashboard-types.js").ConvergenceCandidate[], status?: "confirmed-overlap" | "needs-review" | "merge-candidate" | "actionable" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ pairId: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createConvergenceTaskLedgerDriftCheckpoint: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
@@ -9116,40 +9117,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return { diff, item };
   }
 
-  function getConvergenceTaskLedgerDriftItemDecision(decision) {
-    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
-    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
-    return { status: "resolved", priority: "low", label: "Confirmed" };
-  }
-
-  function buildConvergenceTaskLedgerDriftItemDescription(decision, diff, item) {
-    const label = item?.label || item?.field || "Convergence Review task ledger drift";
-    return [
-      `Operator ${decision.label.toLowerCase()} Convergence Review task ledger drift item ${label}.`,
-      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest Convergence Review task ledger snapshot"}.`,
-      `Field: ${item?.field || label}.`,
-      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
-      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
-      "Secret policy: non-secret convergence review task ledger drift metadata only; do not store credentials, repository tokens, provider tokens, cookies, certificates, private keys, browser sessions, or command output."
-    ].join(" ");
-  }
-
   async function updateConvergenceTaskLedgerDriftItemCheckpoint(field, checkpointDecision) {
     const { diff, item } = findConvergenceTaskLedgerDriftItem(field);
     if (!diff) throw new Error("Convergence Review task ledger snapshot drift is not loaded.");
     if (!item) throw new Error(`Convergence Review task ledger drift item not found: ${field}`);
 
-    const decision = getConvergenceTaskLedgerDriftItemDecision(checkpointDecision);
-    await api.createTask({
-      projectId: "convergence-control",
-      projectName: "Convergence Review",
-      title: `Convergence task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
-      description: buildConvergenceTaskLedgerDriftItemDescription(decision, diff, item),
-      priority: decision.priority,
-      status: decision.status
+    const result = await api.createConvergenceTaskLedgerDriftCheckpoint({
+      snapshotId: diff.snapshotId || "latest",
+      field: item.field || field,
+      decision: checkpointDecision
     });
     await renderGovernance();
-    return decision.label;
+    return `${result.decisionLabel || "Checkpoint"} ${result.mode === "updated" ? "Updated" : "Tracked"}`;
   }
 
   async function copyAgentExecutionResultTaskLedger() {

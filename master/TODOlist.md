@@ -1652,3 +1652,10 @@
 - [x] Add Confirm, Defer, and Escalate controls for each visible drift item.
 - [x] Convert drift item decisions into non-secret convergence-control tasks through the existing task API.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Review Task Ledger Drift Checkpoint Upserts
+
+- [x] Add a duplicate-safe Convergence Review task-ledger drift checkpoint API.
+- [x] Persist non-secret snapshot, field, decision, severity, score, and delta metadata on checkpoint tasks.
+- [x] Route Governance drift item Confirm, Defer, and Escalate controls through server-side upsert behavior.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

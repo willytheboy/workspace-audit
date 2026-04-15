@@ -3202,6 +3202,62 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
+
+    const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked", priority: "high" })
+    });
+    assert.equal(updateConvergenceTaskForDriftResponse.status, 200);
+
+    const convergenceTaskLedgerDriftAfterUpdateResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(convergenceTaskLedgerDriftAfterUpdateResponse.status, 200);
+    const convergenceTaskLedgerDriftAfterUpdateJson = await convergenceTaskLedgerDriftAfterUpdateResponse.json();
+    assert.equal(convergenceTaskLedgerDriftAfterUpdateJson.hasDrift, true);
+    const convergenceTaskDriftItem = convergenceTaskLedgerDriftAfterUpdateJson.driftItems.find((item) => String(item.field || "").startsWith("convergence-task:"));
+    assert.ok(convergenceTaskDriftItem);
+
+    const createConvergenceTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        field: convergenceTaskDriftItem.field,
+        decision: "deferred"
+      })
+    });
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointResponse.status, 200);
+    const createConvergenceTaskLedgerDriftCheckpointJson = await createConvergenceTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.success, true);
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.mode, "created");
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.task.convergenceTaskLedgerDriftField, convergenceTaskDriftItem.field);
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.task.convergenceTaskLedgerDriftCheckpointStatus, "deferred");
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.task.status, "deferred");
+    assert.equal(createConvergenceTaskLedgerDriftCheckpointJson.task.secretPolicy, "non-secret-convergence-review-task-ledger-drift-only");
+
+    const updateConvergenceTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        field: convergenceTaskDriftItem.field,
+        decision: "escalated"
+      })
+    });
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointResponse.status, 200);
+    const updateConvergenceTaskLedgerDriftCheckpointJson = await updateConvergenceTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.success, true);
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.mode, "updated");
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.task.id, createConvergenceTaskLedgerDriftCheckpointJson.task.id);
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.task.convergenceTaskLedgerDriftCheckpointStatus, "escalated");
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.task.status, "blocked");
+    assert.equal(updateConvergenceTaskLedgerDriftCheckpointJson.task.priority, "high");
+
+    const convergenceTaskLedgerAfterDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger`);
+    assert.equal(convergenceTaskLedgerAfterDriftCheckpointResponse.status, 200);
+    const convergenceTaskLedgerAfterDriftCheckpointJson = await convergenceTaskLedgerAfterDriftCheckpointResponse.json();
+    assert.ok(convergenceTaskLedgerAfterDriftCheckpointJson.items.some((item) => item.convergenceTaskLedgerDriftField === convergenceTaskDriftItem.field));
+    assert.match(convergenceTaskLedgerAfterDriftCheckpointJson.markdown, /Drift checkpoint/);
   } finally {
     server.close();
     await once(server, "close");

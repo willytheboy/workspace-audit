@@ -612,6 +612,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[]>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots() {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[] }>}
+   */
+  createConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

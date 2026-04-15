@@ -2002,3 +2002,10 @@
 - [x] Summarize open, closed, runner, and priority counts with Markdown export.
 - [x] Surface Governance ledger cards and copy controls for all/open Codex/Claude task slices.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots
+
+- [x] Add persisted snapshots for launch stack action task ledgers.
+- [x] Store runner/status filters, task counts, priority split, Markdown, and visible task payload.
+- [x] Surface Governance save and copy controls for action task ledger snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

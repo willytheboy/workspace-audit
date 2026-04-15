@@ -20,23 +20,65 @@ export function createDashboardCommandPalette({ getActions }) {
   let selectedIndex = 0;
 
   /**
+   * @param {string} value
+   */
+  function normalizeSearchText(value) {
+    return String(value || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+
+  /**
+   * @param {string} haystack
+   * @param {string} needle
+   */
+  function hasFuzzySubsequence(haystack, needle) {
+    if (!needle) return true;
+    let offset = 0;
+    for (const character of needle.replace(/\s+/g, "")) {
+      offset = haystack.indexOf(character, offset);
+      if (offset === -1) return false;
+      offset += 1;
+    }
+    return true;
+  }
+
+  /**
+   * @param {DashboardAction} action
+   * @param {string} normalizedQuery
+   */
+  function scoreAction(action, normalizedQuery) {
+    if (!normalizedQuery) return 1;
+    const label = normalizeSearchText(action.label);
+    const description = normalizeSearchText(action.description);
+    const category = normalizeSearchText(action.category);
+    const keywords = (action.keywords || []).map(normalizeSearchText).join(" ");
+    const haystack = `${label} ${description} ${category} ${keywords}`;
+    const queryTokens = normalizedQuery.split(/\s+/).filter(Boolean);
+
+    let score = 0;
+    if (label === normalizedQuery) score += 140;
+    if (label.includes(normalizedQuery)) score += 110;
+    if (haystack.includes(normalizedQuery)) score += 80;
+    if (queryTokens.length && queryTokens.every((token) => haystack.includes(token))) score += 50 + queryTokens.length * 8;
+    if (hasFuzzySubsequence(label, normalizedQuery)) score += 36;
+    if (hasFuzzySubsequence(haystack, normalizedQuery)) score += 18;
+    if (action.category === "Projects") score += 8;
+    return score;
+  }
+
+  /**
    * @returns {DashboardAction[]}
    */
   function getFilteredActions() {
     const actions = getActions();
     if (!query.trim()) return actions.slice(0, 16);
 
-    const lowerQuery = query.toLowerCase();
-    return actions.filter((action) => {
-      const haystack = [
-        action.label,
-        action.description,
-        action.category,
-        ...(action.keywords || [])
-      ].join(" ").toLowerCase();
-
-      return haystack.includes(lowerQuery);
-    }).slice(0, 16);
+    const normalizedQuery = normalizeSearchText(query);
+    return actions
+      .map((action) => ({ action, score: scoreAction(action, normalizedQuery) }))
+      .filter((item) => item.score > 0)
+      .sort((left, right) => right.score - left.score || left.action.category.localeCompare(right.action.category) || left.action.label.localeCompare(right.action.label))
+      .slice(0, 20)
+      .map((item) => item.action);
   }
 
   /**

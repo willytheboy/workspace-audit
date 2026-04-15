@@ -2190,3 +2190,10 @@
 - [x] Add launch command metadata with working directories so nested package scripts can run from the project workbench.
 - [x] Update the Launchpad and agent handoff pack to show detected runtime surfaces instead of reporting empty scripts too early.
 - [x] Add parser checks, audit coverage, validation, relaunch, commit, and push.
+
+## Next Command Palette Fuzzy Project Search
+
+- [x] Index every project as a command palette workbench target instead of only the top quality projects.
+- [x] Add fuzzy scoring across labels, descriptions, IDs, paths, stack, zone, and category metadata.
+- [x] Prioritize project matches when the query resembles a project name or path.
+- [x] Add parser checks, validation, relaunch, commit, and push.

@@ -1007,14 +1007,27 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
    */
   function createProjectActions(projects) {
     return [...projects]
-      .sort((left, right) => right.qualityScore - left.qualityScore)
-      .slice(0, 12)
+      .sort((left, right) => {
+        const leftActive = left.zone === "active" ? 0 : 1;
+        const rightActive = right.zone === "active" ? 0 : 1;
+        return leftActive - rightActive || left.name.localeCompare(right.name);
+      })
       .map((project) => ({
         id: `project-${project.id}`,
         label: `Inspect ${project.name}`,
         description: `${project.category} • ${project.relPath}`,
         category: "Projects",
-        keywords: [project.zone, project.category, ...project.frameworks],
+        keywords: [
+          "project",
+          "workbench",
+          project.id,
+          project.name,
+          project.relPath,
+          project.zone,
+          project.category,
+          ...project.frameworks,
+          ...project.languages
+        ],
         run: () => handlers.openProject(project.id)
       }));
   }

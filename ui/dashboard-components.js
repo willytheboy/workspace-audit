@@ -2682,6 +2682,9 @@ export function createGovernanceDeck(governance) {
   const convergenceTaskLedgerDriftItems = Array.isArray(convergenceTaskLedgerSnapshotDiff?.driftItems)
     ? convergenceTaskLedgerSnapshotDiff.driftItems
     : [];
+  const convergenceTaskLedgerDriftCheckpointFilter = ["all", "uncheckpointed", "confirmed", "deferred", "escalated"].includes(governance.convergenceTaskLedgerDriftCheckpointFilter)
+    ? governance.convergenceTaskLedgerDriftCheckpointFilter
+    : "all";
   const convergenceTaskLedgerDriftCheckpointByField = new Map();
   if (convergenceTaskLedgerSnapshotDiff?.snapshotId) {
     (governance.convergenceTasks || []).forEach((task) => {
@@ -2691,6 +2694,35 @@ export function createGovernanceDeck(governance) {
       convergenceTaskLedgerDriftCheckpointByField.set(field, task);
     });
   }
+  const convergenceTaskLedgerDriftRecords = convergenceTaskLedgerDriftItems.map((item) => {
+    const field = item.field || item.label || "";
+    const checkpoint = convergenceTaskLedgerDriftCheckpointByField.get(field);
+    const checkpointStatus = checkpoint?.convergenceTaskLedgerDriftCheckpointStatus || checkpoint?.convergenceTaskLedgerDriftDecision || "";
+    return {
+      item,
+      field,
+      checkpoint,
+      checkpointStatus: checkpointStatus || "uncheckpointed"
+    };
+  });
+  const convergenceTaskLedgerDriftCheckpointCounts = convergenceTaskLedgerDriftRecords.reduce((counts, record) => {
+    counts.all += 1;
+    if (record.checkpointStatus === "confirmed") counts.confirmed += 1;
+    else if (record.checkpointStatus === "deferred") counts.deferred += 1;
+    else if (record.checkpointStatus === "escalated") counts.escalated += 1;
+    else counts.uncheckpointed += 1;
+    return counts;
+  }, { all: 0, uncheckpointed: 0, confirmed: 0, deferred: 0, escalated: 0 });
+  const convergenceTaskLedgerVisibleDriftRecords = convergenceTaskLedgerDriftCheckpointFilter === "all"
+    ? convergenceTaskLedgerDriftRecords
+    : convergenceTaskLedgerDriftRecords.filter((record) => record.checkpointStatus === convergenceTaskLedgerDriftCheckpointFilter);
+  const convergenceTaskLedgerDriftFilterOptions = [
+    ["all", "All"],
+    ["uncheckpointed", "Uncheckpointed"],
+    ["confirmed", "Confirmed"],
+    ["deferred", "Deferred"],
+    ["escalated", "Escalated"]
+  ];
   const convergenceTaskLedgerSnapshotDiffEntries = convergenceTaskLedgerSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-task-ledger-drift-card",
@@ -2742,13 +2774,30 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("div", {
-        text: `${convergenceTaskLedgerSnapshotDiff.driftScore || 0} drift score | ${convergenceTaskLedgerDriftItems.length} drift item(s)`,
+        text: `${convergenceTaskLedgerSnapshotDiff.driftScore || 0} drift score | ${convergenceTaskLedgerVisibleDriftRecords.length}/${convergenceTaskLedgerDriftItems.length} drift item(s) shown | ${convergenceTaskLedgerDriftCheckpointCounts.confirmed} confirmed, ${convergenceTaskLedgerDriftCheckpointCounts.deferred} deferred, ${convergenceTaskLedgerDriftCheckpointCounts.escalated} escalated, ${convergenceTaskLedgerDriftCheckpointCounts.uncheckpointed} uncheckpointed`,
         style: {
           color: "var(--text-muted)",
           fontSize: "0.84rem",
           lineHeight: "1.45"
         }
       }),
+      convergenceTaskLedgerDriftItems.length
+        ? createElement("div", {
+            className: "governance-actions"
+          }, convergenceTaskLedgerDriftFilterOptions.map(([filter, label]) => createElement("button", {
+            className: "btn governance-action-btn convergence-task-ledger-drift-checkpoint-filter-btn",
+            text: `${label} (${convergenceTaskLedgerDriftCheckpointCounts[filter] || 0})`,
+            attrs: { type: "button" },
+            dataset: {
+              convergenceTaskLedgerDriftCheckpointFilter: filter
+            },
+            style: {
+              borderColor: convergenceTaskLedgerDriftCheckpointFilter === filter ? "var(--primary)" : "var(--border)",
+              color: convergenceTaskLedgerDriftCheckpointFilter === filter ? "var(--primary)" : "var(--text)",
+              fontWeight: convergenceTaskLedgerDriftCheckpointFilter === filter ? "800" : "600"
+            }
+          })))
+        : null,
       convergenceTaskLedgerDriftItems.length
         ? createElement("div", {
             style: {
@@ -2771,10 +2820,8 @@ export function createGovernanceDeck(governance) {
                 textTransform: "uppercase"
               }
             }),
-            ...convergenceTaskLedgerDriftItems.slice(0, 8).map((item) => {
-              const field = item.field || item.label || "";
-              const checkpoint = convergenceTaskLedgerDriftCheckpointByField.get(field);
-              const checkpointStatus = checkpoint?.convergenceTaskLedgerDriftCheckpointStatus || checkpoint?.convergenceTaskLedgerDriftDecision || "";
+            ...convergenceTaskLedgerVisibleDriftRecords.slice(0, 8).map((record) => {
+              const { item, field, checkpoint, checkpointStatus } = record;
               return createElement("div", {
                 style: {
                   display: "grid",
@@ -2853,9 +2900,19 @@ export function createGovernanceDeck(governance) {
                 ])
               ]);
             }),
-            convergenceTaskLedgerDriftItems.length > 8
+            !convergenceTaskLedgerVisibleDriftRecords.length
               ? createElement("div", {
-                  text: `${convergenceTaskLedgerDriftItems.length - 8} additional drift item(s).`,
+                  text: `No ${convergenceTaskLedgerDriftCheckpointFilter} drift item checkpoints match the current filter.`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.82rem",
+                    lineHeight: "1.45"
+                  }
+                })
+              : null,
+            convergenceTaskLedgerVisibleDriftRecords.length > 8
+              ? createElement("div", {
+                  text: `${convergenceTaskLedgerVisibleDriftRecords.length - 8} additional filtered drift item(s).`,
                   style: {
                     color: "var(--text-muted)",
                     fontSize: "0.8rem"

@@ -1666,3 +1666,10 @@
 - [x] Display checkpoint status, task status, priority, and last update timestamp from persisted task metadata.
 - [x] Switch drift field actions to update labels when a checkpoint task already exists.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Drift Checkpoint Summary & Filters
+
+- [x] Add confirmed, deferred, escalated, and uncheckpointed drift checkpoint counts to the Convergence Review task-ledger drift card.
+- [x] Add field-level filters for all, uncheckpointed, confirmed, deferred, and escalated drift items.
+- [x] Keep filters view-local so they do not mutate persisted Governance state.
+- [x] Add parser checks, validation, relaunch, commit, and push.

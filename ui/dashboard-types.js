@@ -1248,6 +1248,7 @@
  *   dataSourceAccessTaskLedgerSnapshotDiff?: DataSourcesAccessTaskLedgerSnapshotDiffPayload | null,
  *   convergenceTaskLedgerSnapshots: PersistedConvergenceTaskLedgerSnapshot[],
  *   convergenceTaskLedgerSnapshotDiff?: ConvergenceTaskLedgerSnapshotDiffPayload | null,
+ *   convergenceTaskLedgerDriftCheckpointFilter?: "all" | "uncheckpointed" | "confirmed" | "deferred" | "escalated",
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],

@@ -168,6 +168,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     terminalStatuses: ["passed", "failed", "cancelled"],
     updatedAt: ""
   };
+  let convergenceTaskLedgerDriftCheckpointFilter = "all";
   let governanceControlsBound = false;
 
   /**
@@ -1847,6 +1848,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         } finally {
           element.disabled = false;
         }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-task-ledger-drift-checkpoint-filter]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const filter = element.dataset.convergenceTaskLedgerDriftCheckpointFilter || "all";
+        convergenceTaskLedgerDriftCheckpointFilter = ["all", "uncheckpointed", "confirmed", "deferred", "escalated"].includes(filter) ? filter : "all";
+        renderGovernanceFromCache();
       };
     });
 
@@ -4471,6 +4484,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const container = document.getElementById("governance-panels");
     if (!container) return;
     const governance = applyGovernanceFilters(governanceCache);
+    governance.convergenceTaskLedgerDriftCheckpointFilter = convergenceTaskLedgerDriftCheckpointFilter;
     container.replaceChildren(
       createGovernanceSummaryGrid(governanceCache),
       createGovernanceDeck(governance)

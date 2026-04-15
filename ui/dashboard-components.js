@@ -3357,6 +3357,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Packet",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationSessionPacketRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-save-btn",
+          text: "Save Codex Packet",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketSaveRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-save-btn",
+          text: "Save Claude Packet",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketSaveRunner: "claude" }
         })
       ])
     ]),
@@ -3383,6 +3395,64 @@ export function createGovernanceDeck(governance) {
       })
     ]))
   ] : [];
+  const convergenceAssimilationSessionPacketSnapshotEntries = (governance.convergenceAssimilationSessionPacketSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-assimilation-session-packet-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.65rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Convergence Assimilation Session Packet",
+          style: {
+            color: "var(--text)",
+            fontWeight: "850"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} | ${snapshot.runner || "codex"} | ${snapshot.protocolVersion || "session-packet"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.28rem"
+          }
+        })
+      ]),
+      createTag(snapshot.readinessDecision || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.readinessDecision === "ready" ? "var(--success)" : snapshot.readinessDecision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.runCount || 0} run(s) | ${snapshot.resultCount || 0} result(s) | ${snapshot.checkpointCount || 0} checkpoint(s) | ${snapshot.recommendedAction || "Review this session packet before execution."}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-session-packet-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationSessionPacketSnapshotId: snapshot.id }
+      })
+    ])
+  ]));
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -10820,6 +10890,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Results", "Non-secret Codex and Claude assimilation results captured back into Workspace Audit Pro.", convergenceAssimilationResultEntries),
     createListSection("Convergence Assimilation Result Checkpoints", "Operator decisions on captured assimilation results before follow-up implementation.", convergenceAssimilationResultCheckpointEntries),
     createListSection("Convergence Assimilation Readiness Gate", "Ready/review/hold gate for continuing supervised convergence implementation.", convergenceAssimilationReadinessEntries),
+    createListSection("Convergence Assimilation Session Packet Snapshots", "Persisted non-secret Codex and Claude session packets for auditable CLI handoffs.", convergenceAssimilationSessionPacketSnapshotEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

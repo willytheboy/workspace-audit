@@ -1792,3 +1792,10 @@
 - [x] Bundle readiness gate, operator playbook, CLI contract, run ledger, result ledger, and checkpoint ledger.
 - [x] Add Governance copy controls for Codex and Claude session packets.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Session Packet Snapshots
+
+- [x] Add non-secret saved session packet snapshots for Codex and Claude.
+- [x] Persist runner, readiness decision, counts, recommended action, Markdown, and full packet payload.
+- [x] Add Governance save and copy controls for persisted session packet snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

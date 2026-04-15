@@ -344,6 +344,24 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationSessionPacketPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runner: "codex" | "claude",
+ *   protocolVersion: string,
+ *   packetGeneratedAt: string,
+ *   readinessDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   runCount: number,
+ *   openRunCount: number,
+ *   resultCount: number,
+ *   checkpointCount: number,
+ *   openCheckpointCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   packet: ConvergenceAssimilationSessionPacketPayload,
+ *   createdAt: string
+ * }} PersistedConvergenceAssimilationSessionPacketSnapshot
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1554,6 +1572,7 @@
  *     convergenceTaskCount: number,
  *     convergenceOpenTaskCount: number,
  *     convergenceClosedTaskCount: number,
+ *     convergenceAssimilationSessionPacketSnapshotCount: number,
  *     convergenceTaskLedgerSnapshotCount: number,
  *     agentReadyProjects: number,
  *     agentReadinessItems: number
@@ -1573,6 +1592,7 @@
  *   convergenceAssimilationResultLedger?: ConvergenceAssimilationResultLedgerPayload | null,
  *   convergenceAssimilationResultCheckpointLedger?: ConvergenceAssimilationResultCheckpointLedgerPayload | null,
  *   convergenceAssimilationReadinessGate?: ConvergenceAssimilationReadinessGatePayload | null,
+ *   convergenceAssimilationSessionPacketSnapshots: PersistedConvergenceAssimilationSessionPacketSnapshot[],
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

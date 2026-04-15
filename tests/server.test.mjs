@@ -3307,6 +3307,29 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationSessionPacketJson.markdown, /# Convergence Assimilation Operator Playbook/);
     assert.match(convergenceAssimilationSessionPacketJson.secretPolicy, /Non-secret convergence assimilation session packet only/);
 
+    const createConvergenceAssimilationSessionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Codex Session Packet",
+        runner: "codex"
+      })
+    });
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotResponse.status, 200);
+    const createConvergenceAssimilationSessionPacketSnapshotJson = await createConvergenceAssimilationSessionPacketSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotJson.snapshot.title, "Fixture Codex Session Packet");
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotJson.snapshot.readinessDecision, "ready");
+    assert.equal(createConvergenceAssimilationSessionPacketSnapshotJson.snapshot.packet.readinessGate.decision, "ready");
+    assert.match(createConvergenceAssimilationSessionPacketSnapshotJson.snapshot.markdown, /# Convergence Assimilation Session Packet/);
+
+    const convergenceAssimilationSessionPacketSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots`);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotsResponse.status, 200);
+    const convergenceAssimilationSessionPacketSnapshotsJson = await convergenceAssimilationSessionPacketSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationSessionPacketSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotsJson[0].title, "Fixture Codex Session Packet");
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3371,10 +3394,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceOpenTaskCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationSessionPacketSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationSessionPacketSnapshots[0].title, "Fixture Codex Session Packet");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-session-packet-snapshot-created"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

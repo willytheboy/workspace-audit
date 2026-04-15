@@ -1960,3 +1960,10 @@
 - [x] Compare launch decision/status, execution mode, preflight count, command count, replay count, recommended action, and Markdown changes.
 - [x] Add Governance copy controls and drift cards for latest/per-snapshot launch execution packet drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Execution Packet Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for launch execution packet snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Show checkpoint state on launch execution packet drift cards and rehydrate decisions into drift payloads.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

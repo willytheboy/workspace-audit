@@ -2280,6 +2280,249 @@ export function createGovernanceDeck(governance) {
     needsReview: 0,
     mergeCandidate: 0
   };
+  const convergenceOperatorProposalQueue = governance.convergenceOperatorProposalQueue || null;
+  const convergenceOperatorProposalSummary = convergenceOperatorProposalQueue?.summary || {
+    total: 0,
+    visible: 0,
+    active: 0,
+    reviewRequired: 0,
+    taskReady: 0,
+    taskTracked: 0,
+    blocked: 0,
+    completed: 0,
+    suppressed: 0,
+    highConfidence: 0
+  };
+  const convergenceOperatorProposalQueueEntries = convergenceOperatorProposalQueue ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-operator-proposal-queue-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Operator proposal review queue",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "User-contributed overlap candidates with AI due diligence, task state, and direct triage actions.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(`${convergenceOperatorProposalSummary.active || 0} active`, {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${convergenceOperatorProposalSummary.reviewRequired || 0} review`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceOperatorProposalSummary.reviewRequired || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceOperatorProposalSummary.taskReady || 0} task ready`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceOperatorProposalSummary.taskReady || 0) ? "var(--success)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceOperatorProposalSummary.taskTracked || 0} tracked`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceOperatorProposalSummary.taskTracked || 0) ? "var(--success)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceOperatorProposalSummary.suppressed || 0} suppressed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceOperatorProposalSummary.suppressed || 0) ? "var(--danger)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-operator-proposal-queue-copy-btn",
+          text: "Copy Active",
+          attrs: { type: "button" },
+          dataset: { convergenceOperatorProposalQueueCopy: "active" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-operator-proposal-queue-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceOperatorProposalQueueCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-operator-proposal-queue-copy-btn",
+          text: "Copy Suppressed",
+          attrs: { type: "button" },
+          dataset: { convergenceOperatorProposalQueueCopy: "suppressed" }
+        })
+      ])
+    ]),
+    ...(convergenceOperatorProposalQueue.items || []).slice(0, 16).map((item) => {
+      const statusColor = item.queueStatus === "suppressed"
+        ? "var(--danger)"
+        : item.queueStatus === "blocked" || item.queueStatus === "review-required"
+          ? "var(--warning)"
+          : "var(--success)";
+      return createElement("div", {
+        className: "governance-gap-card convergence-operator-proposal-queue-item-card",
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.6rem"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.75rem",
+            alignItems: "flex-start"
+          }
+        }, [
+          createElement("div", {}, [
+            createElement("div", {
+              text: `${item.leftName || item.leftId} -> ${item.rightName || item.rightId}`,
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "0.96rem"
+              }
+            }),
+            createElement("div", {
+              text: item.recommendedAction || "Review operator-contributed overlap evidence before assimilation.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45",
+                marginTop: "0.25rem"
+              }
+            })
+          ]),
+          createTag(`${item.score || 0}%`, {
+            background: "var(--bg)",
+            border: "1px solid var(--primary)",
+            color: "var(--primary)"
+          })
+        ]),
+        createElement("div", {
+          className: "tags"
+        }, [
+          createTag((item.queueStatus || "review-required").replaceAll("-", " "), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: statusColor
+          }),
+          createTag((item.reviewStatus || "unreviewed").replaceAll("-", " "), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          }),
+          createTag(`${item.openTaskCount || 0} open task(s)`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: (item.openTaskCount || 0) ? "var(--success)" : "var(--text-muted)"
+          })
+        ]),
+        item.generatedInsight
+          ? createElement("div", {
+              text: `AI insight: ${item.generatedInsight}`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null,
+        item.reviewNote
+          ? createElement("div", {
+              text: item.reviewNote,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null,
+        createElement("div", {
+          className: "governance-actions"
+        }, [
+          createElement("button", {
+            className: "btn governance-action-btn convergence-operator-proposal-action-btn",
+            text: "Confirm",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceOperatorProposalActionPairId: item.pairId || "",
+              convergenceOperatorProposalAction: "confirmed-overlap"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-operator-proposal-action-btn",
+            text: "Needs Review",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceOperatorProposalActionPairId: item.pairId || "",
+              convergenceOperatorProposalAction: "needs-review"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-operator-proposal-action-btn",
+            text: "Merge",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceOperatorProposalActionPairId: item.pairId || "",
+              convergenceOperatorProposalAction: "merge-candidate"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-operator-proposal-action-btn",
+            text: "Not Related",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceOperatorProposalActionPairId: item.pairId || "",
+              convergenceOperatorProposalAction: "not-related"
+            }
+          }),
+          item.queueStatus !== "suppressed" ? createElement("button", {
+            className: "btn governance-action-btn convergence-review-task-btn",
+            text: "Track Task",
+            attrs: { type: "button" },
+            dataset: { convergenceReviewTaskPairId: item.pairId || "" }
+          }) : null,
+          createElement("button", {
+            className: "btn governance-action-btn convergence-due-diligence-pack-copy-btn",
+            text: "Copy Pack",
+            attrs: { type: "button" },
+            dataset: { convergenceDueDiligencePairId: item.pairId || "" }
+          })
+        ])
+      ]);
+    })
+  ] : [];
   const convergenceReviewLedgerEntries = convergenceReviewLedger ? [
     createElement("div", {
       className: "governance-gap-card convergence-review-ledger-summary-card",
@@ -9928,6 +10171,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),

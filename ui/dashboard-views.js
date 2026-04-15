@@ -98,6 +98,8 @@ function createEmptyTableRow(message) {
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceDueDiligencePack: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceDueDiligencePackPayload>,
+ *     fetchConvergenceOperatorProposalQueue: (status?: import("./dashboard-types.js").ConvergenceOperatorProposalQueueStatus) => Promise<import("./dashboard-types.js").ConvergenceOperatorProposalQueuePayload>,
+ *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>,
  *     createConvergenceReviewTasks: (payload?: { pairIds?: string[], pairId?: string, candidates?: import("./dashboard-types.js").ConvergenceCandidate[], status?: "confirmed-overlap" | "needs-review" | "merge-candidate" | "actionable" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ pairId: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>,
  *     createConvergenceTaskLedgerDriftCheckpoint: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
@@ -483,6 +485,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               governance.convergenceCandidates.candidates || [],
               (candidate) => [candidate.leftName || "", candidate.rightName || "", candidate.reviewStatus || "", candidate.reviewSource || "", candidate.reviewNote || "", Array.isArray(candidate.reasons) ? candidate.reasons.join(" ") : "", candidate.generatedInsight || ""],
               (left, right) => right.score - left.score || left.leftName.localeCompare(right.leftName)
+            )
+          }
+        : null,
+      convergenceOperatorProposalQueue: governance.convergenceOperatorProposalQueue
+        ? {
+            ...governance.convergenceOperatorProposalQueue,
+            items: filterAndSort(
+              governance.convergenceOperatorProposalQueue.items || [],
+              (item) => [item.leftName || "", item.rightName || "", item.queueStatus || "", item.reviewStatus || "", item.reviewNote || "", item.generatedInsight || "", item.recommendedAction || "", Array.isArray(item.reasons) ? item.reasons.join(" ") : ""],
+              (left, right) => {
+                const statusRank = { blocked: 0, "review-required": 1, "task-ready": 2, "task-tracked": 3, completed: 4, suppressed: 5 };
+                const statusDelta = (statusRank[left.queueStatus] ?? 9) - (statusRank[right.queueStatus] ?? 9);
+                if (statusDelta) return statusDelta;
+                return right.score - left.score || left.leftName.localeCompare(right.leftName);
+              }
             )
           }
         : null,
@@ -895,6 +912,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "operations") filtered.operationLog = [];
       if (scope !== "operations") filtered.taskSeedingCheckpoints = [];
       if (scope !== "convergence") filtered.convergenceCandidates = null;
+      if (scope !== "convergence") filtered.convergenceOperatorProposalQueue = null;
       if (scope !== "convergence") filtered.convergenceTasks = [];
       if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshots = [];
       if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshotDiff = null;
@@ -1700,6 +1718,68 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = `Copied ${payload.summary.total}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-operator-proposal-queue-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.convergenceOperatorProposalQueueCopy || "active";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const payload = await api.fetchConvergenceOperatorProposalQueue(status);
+          await copyText(payload.markdown);
+          element.textContent = `Copied ${payload.summary.visible}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-operator-proposal-action-pair-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const pairId = element.dataset.convergenceOperatorProposalActionPairId || "";
+        const status = element.dataset.convergenceOperatorProposalAction || "";
+        if (!pairId || !status) return;
+
+        const item = governanceCache?.convergenceOperatorProposalQueue?.items?.find((candidate) => candidate.pairId === pairId)
+          || governanceCache?.convergenceCandidates?.candidates?.find((candidate) => candidate.pairId === pairId);
+        if (!item) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.saveConvergenceReview({
+            leftId: item.leftId,
+            rightId: item.rightId,
+            leftName: item.leftName,
+            rightName: item.rightName,
+            score: item.score,
+            reasons: Array.isArray(item.reasons) ? item.reasons : [],
+            status,
+            note: item.reviewNote || `Operator proposal queue action: ${status}.`
+          });
+          await renderGovernance();
+          element.textContent = "Saved";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -4627,6 +4707,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Suppressed queue items: ${governanceCache?.summary.suppressedQueueItems ?? 0}`,
       `Governance operation log entries: ${governanceCache?.summary.governanceOperationCount ?? 0}`,
       `Convergence review ledger candidates: ${governanceCache?.convergenceCandidates?.summary.total ?? 0}`,
+      `Operator convergence proposal queue: ${governanceCache?.convergenceOperatorProposalQueue?.summary.active ?? 0} active / ${governanceCache?.convergenceOperatorProposalQueue?.summary.total ?? 0} total`,
       `Convergence hidden Not Related pairs: ${governanceCache?.convergenceCandidates?.summary.notRelated ?? 0}`,
       `Convergence review tasks: ${governanceCache?.summary.convergenceOpenTaskCount ?? 0} open / ${governanceCache?.summary.convergenceTaskCount ?? 0} total`,
       `Workflow runbook items: ${governanceCache?.summary.workflowRunbookItems ?? 0}`,
@@ -4685,6 +4766,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible suppressed queue items: ${governance.queueSuppressions.length}`,
       `Visible operation log entries: ${governance.operationLog.length}`,
       `Visible convergence review ledger candidates: ${governance.convergenceCandidates?.candidates?.length || 0}`,
+      `Visible operator convergence proposal queue items: ${governance.convergenceOperatorProposalQueue?.items?.length || 0}`,
       `Visible convergence review tasks: ${governance.convergenceTasks?.length || 0}`,
       `Visible task update audit rows: ${governance.governanceTaskUpdateLedger?.items?.length || 0}`,
       `Visible task update audit snapshot drift: ${governance.governanceTaskUpdateLedgerSnapshotDiff ? "yes" : "no"}`,
@@ -4765,6 +4847,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Suppressed queue items: ${governanceCache?.summary.suppressedQueueItems ?? 0}`,
       `- Governance operation log entries: ${governanceCache?.summary.governanceOperationCount ?? 0}`,
       `- Convergence review ledger candidates: ${governanceCache?.convergenceCandidates?.summary.total ?? 0}`,
+      `- Operator convergence proposal queue: ${governanceCache?.convergenceOperatorProposalQueue?.summary.active ?? 0} active / ${governanceCache?.convergenceOperatorProposalQueue?.summary.total ?? 0} total`,
       `- Convergence review tasks: ${governanceCache?.summary.convergenceOpenTaskCount ?? 0} open / ${governanceCache?.summary.convergenceTaskCount ?? 0} total`,
       `- Workflow runbook items: ${governanceCache?.summary.workflowRunbookItems ?? 0}`,
       `- Agent sessions: ${governanceCache?.summary.agentSessionCount ?? 0}`,
@@ -7287,7 +7370,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -7303,11 +7386,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchCliBridgeRunTraceSnapshotDiff("latest"),
         api.fetchCliBridgeRunTraceSnapshotBaselineStatus(),
         api.fetchConvergenceCandidates({ status: "all", includeNotRelated: true }),
+        api.fetchConvergenceOperatorProposalQueue("active"),
         api.fetchConvergenceTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
         convergenceCandidates,
+        convergenceOperatorProposalQueue,
         governanceTaskUpdateLedger,
         governanceTaskUpdateLedgerSnapshotDiff,
         releaseSummary,
@@ -7335,6 +7420,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.operationLog.length
         + (convergenceCandidates ? 1 : 0)
         + (convergenceCandidates?.candidates || []).length
+        + (convergenceOperatorProposalQueue ? 1 : 0)
+        + (convergenceOperatorProposalQueue?.items || []).length
         + (governance.convergenceTasks || []).length
         + (governance.convergenceTaskLedgerSnapshots || []).length
         + (convergenceTaskLedgerSnapshotDiff ? 1 : 0)

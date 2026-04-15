@@ -130,6 +130,50 @@
  *   },
  *   markdown: string
  * }} ConvergenceDueDiligencePackPayload
+ * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
+ * @typedef {{
+ *   pairId: string,
+ *   leftId: string,
+ *   rightId: string,
+ *   leftName: string,
+ *   rightName: string,
+ *   score: number,
+ *   reasons: string[],
+ *   reviewStatus: ConvergenceReviewStatus | "unreviewed",
+ *   reviewId: string,
+ *   reviewNote: string,
+ *   reviewedAt: string,
+ *   reviewer: string,
+ *   reviewSource: string,
+ *   generatedInsight: string,
+ *   assimilationRecommendation: ConvergenceReviewStatus | "unreviewed" | "",
+ *   queueStatus: ConvergenceOperatorProposalQueueStatus,
+ *   relatedTaskCount: number,
+ *   openTaskCount: number,
+ *   blockedTaskCount: number,
+ *   relatedTasks: Array<{ id: string, title: string, status: string, priority: string, updatedAt: string }>,
+ *   recommendedAction: string,
+ *   secretPolicy: string
+ * }} ConvergenceOperatorProposalQueueItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: ConvergenceOperatorProposalQueueStatus,
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     active: number,
+ *     reviewRequired: number,
+ *     taskReady: number,
+ *     taskTracked: number,
+ *     blocked: number,
+ *     completed: number,
+ *     suppressed: number,
+ *     highConfidence: number
+ *   },
+ *   items: ConvergenceOperatorProposalQueueItem[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceOperatorProposalQueuePayload
  * @typedef {{
  *   id: string,
  *   title: string,
@@ -1291,6 +1335,7 @@
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
  *   convergenceCandidates?: ConvergenceCandidatesPayload | null,
+ *   convergenceOperatorProposalQueue?: ConvergenceOperatorProposalQueuePayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

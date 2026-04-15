@@ -1694,3 +1694,10 @@
 - [x] Include candidate evidence, AI insight, operator note, project snapshot, related tasks, related drift checkpoints, and recommended next action.
 - [x] Add a Governance `Copy Pack` action on each convergence candidate card.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Operator Proposal Review Queue
+
+- [x] Add a non-secret Operator Convergence Proposal Review Queue API with active/all/status filters.
+- [x] Surface operator-contributed overlap proposals in Governance with due diligence, task state, and direct triage controls.
+- [x] Keep Not Related actions out of the active queue while preserving suppressed proposal audit export.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

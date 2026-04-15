@@ -153,6 +153,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceOperatorProposalQueuePayload>}
+   */
+  fetchConvergenceOperatorProposalQueue(status = "active") {
+    return fetchJson(withQuery("/api/convergence/operator-proposal-queue", { status }));
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

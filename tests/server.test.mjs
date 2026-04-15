@@ -3116,6 +3116,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(operatorProposalJson.review.note, /Operator context/);
     assert.equal(operatorProposalJson.candidates.some((candidate) => candidate.operatorProposed === true), true);
 
+    const operatorProposalQueueResponse = await fetch(`${baseUrl}/api/convergence/operator-proposal-queue?status=active`);
+    assert.equal(operatorProposalQueueResponse.status, 200);
+    const operatorProposalQueueJson = await operatorProposalQueueResponse.json();
+    assert.equal(operatorProposalQueueJson.summary.total, 1);
+    assert.equal(operatorProposalQueueJson.summary.visible, 1);
+    assert.equal(operatorProposalQueueJson.items[0].pairId, operatorProposalJson.review.pairId);
+    assert.equal(operatorProposalQueueJson.items[0].queueStatus, "task-ready");
+    assert.match(operatorProposalQueueJson.items[0].recommendedAction, /task|merge|assimilation/i);
+    assert.match(operatorProposalQueueJson.markdown, /# Operator Convergence Proposal Review Queue/);
+    assert.match(operatorProposalQueueJson.secretPolicy, /Non-secret operator convergence proposal metadata only/);
+
     const convergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3133,6 +3144,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceTaskJson.createdTasks[0].convergenceReviewStatus, operatorProposalJson.review.status);
     assert.equal(convergenceTaskJson.createdTasks[0].secretPolicy, "non-secret-convergence-review-evidence-only");
     assert.match(convergenceTaskJson.createdTasks[0].description, /Do not store passwords/);
+
+    const trackedOperatorProposalQueueResponse = await fetch(`${baseUrl}/api/convergence/operator-proposal-queue?status=task-tracked`);
+    assert.equal(trackedOperatorProposalQueueResponse.status, 200);
+    const trackedOperatorProposalQueueJson = await trackedOperatorProposalQueueResponse.json();
+    assert.equal(trackedOperatorProposalQueueJson.summary.taskTracked, 1);
+    assert.equal(trackedOperatorProposalQueueJson.items[0].pairId, operatorProposalJson.review.pairId);
+    assert.equal(trackedOperatorProposalQueueJson.items[0].openTaskCount, 1);
 
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",

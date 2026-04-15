@@ -3505,6 +3505,14 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotsJson[0].title, "Fixture Claude Launch Stack Action Tasks");
 
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson = await convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.hasDrift, false);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+    assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift/);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

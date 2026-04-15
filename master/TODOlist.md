@@ -2009,3 +2009,10 @@
 - [x] Store runner/status filters, task counts, priority split, Markdown, and visible task payload.
 - [x] Surface Governance save and copy controls for action task ledger snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved launch stack action task ledger snapshots with the live ledger.
+- [x] Compare task totals, open/closed counts, runner split, and priority split.
+- [x] Surface Governance drift cards and copy controls for latest and per-snapshot drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

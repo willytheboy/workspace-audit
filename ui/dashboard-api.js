@@ -631,6 +631,20 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @param {{ runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/diff", {
+      snapshotId,
+      runner: options.runner,
+      status: options.status,
+      limit: options.limit
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

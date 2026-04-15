@@ -5038,9 +5038,99 @@ export function createGovernanceDeck(governance) {
         text: "Copy Snapshot",
         attrs: { type: "button" },
         dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotId: snapshot.id }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDriftId: snapshot.id }
       })
     ])
   ]));
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff || null;
+  const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries = convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.hasSnapshot ? (convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotTitle || "Latest launch stack task ledger snapshot") : "No launch stack task ledger snapshot",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.recommendedAction || "Save a launch stack action task ledger snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftSeverity === "high" ? "var(--danger)" : convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftScore || 0} drift score | ${(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftItems || []).length} drift item(s) | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.runner || "all"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-copy-btn",
+          text: "Copy Latest Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDriftId: convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.snapshotId || "latest" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-drift-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.35rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.label || item.field || "Launch stack action task ledger drift",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]))
+  ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launchpad-gate-snapshot-drift-card",
@@ -12938,6 +13028,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots", "Persisted launch stack action task baselines for repeatable runner remediation handoffs.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift", "Latest saved launch stack action task ledger compared with the current live remediation task state.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

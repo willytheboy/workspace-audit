@@ -1848,3 +1848,10 @@
 - [x] Persist runner, launch decision, readiness state, packet drift, checkpoint counts, recommended action, Markdown, and full gate payload.
 - [x] Add Governance save and copy controls for persisted launchpad gate snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launchpad Gate Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved launchpad gates with live readiness, packet drift, and checkpoint state.
+- [x] Compare launch decision, readiness decision, reason counts, packet drift severity/score, checkpoint counts, recommended action, and Markdown changes.
+- [x] Add Governance copy controls and drift cards for latest/per-snapshot launchpad gate drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

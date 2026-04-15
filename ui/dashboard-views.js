@@ -119,6 +119,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchpadGate: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchpadGatePayload>,
  *     fetchConvergenceAssimilationRunnerLaunchpadGateSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchpadGateSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot, convergenceAssimilationRunnerLaunchpadGateSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[] }>,
+ *     fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff: (snapshotId?: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload>,
  *     fetchConvergenceAssimilationRunTracePack: (runId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>,
  *     recordConvergenceAssimilationRunResult: (runId: string, payload: { status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string }) => Promise<{ success: true, result: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunResults: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     checkpointConvergenceAssimilationResult: (resultId: string, payload: { decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>,
@@ -724,6 +725,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.decision || "", snapshot.readinessDecision || "", snapshot.packetDriftSeverity || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      convergenceAssimilationRunnerLaunchpadGateSnapshotDiff: governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff && matchesSearch([
+        "convergence assimilation runner launchpad gate snapshot drift",
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.snapshotTitle || "",
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.runner || "",
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.driftSeverity || "",
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.recommendedAction || "",
+        governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff
+        : null,
       convergenceAssimilationSessionPacketSnapshotDiff: governance.convergenceAssimilationSessionPacketSnapshotDiff && matchesSearch([
         "convergence assimilation session packet snapshot drift",
         governance.convergenceAssimilationSessionPacketSnapshotDiff.snapshotTitle || "",
@@ -1009,6 +1021,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "convergence") filtered.convergenceAssimilationReadinessGate = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchpadGateSnapshots = [];
+      if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketDriftCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceTasks = [];
@@ -2324,6 +2337,55 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Copied";
           await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launchpad-gate-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchpadGateDriftCopy || "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff("latest", {
+            runner: runner === "claude" ? "claude" : "codex"
+          });
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launchpad-gate-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchpadGateSnapshotDriftId || "";
+        if (!snapshotId) return;
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -8081,7 +8143,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -8103,6 +8165,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchConvergenceAssimilationResultCheckpointLedger("all"),
         api.fetchConvergenceAssimilationReadinessGate(),
         api.fetchConvergenceAssimilationSessionPacketSnapshotDiff("latest"),
+        api.fetchConvergenceAssimilationRunnerLaunchpadGateSnapshotDiff("latest"),
         api.fetchConvergenceAssimilationSessionPacketDriftCheckpointLedger("all"),
         api.fetchConvergenceTaskLedgerSnapshotDiff("latest")
       ]);
@@ -8115,6 +8178,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         convergenceAssimilationResultCheckpointLedger,
         convergenceAssimilationReadinessGate,
         convergenceAssimilationSessionPacketSnapshotDiff,
+        convergenceAssimilationRunnerLaunchpadGateSnapshotDiff,
         convergenceAssimilationSessionPacketDriftCheckpointLedger,
         governanceTaskUpdateLedger,
         governanceTaskUpdateLedgerSnapshotDiff,
@@ -8157,6 +8221,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.convergenceAssimilationRunnerLaunchpadGateSnapshots || []).length
         + (convergenceAssimilationSessionPacketSnapshotDiff ? 1 : 0)
         + (convergenceAssimilationSessionPacketSnapshotDiff?.driftItems || []).length
+        + (convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? 1 : 0)
+        + (convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?.driftItems || []).length
         + (convergenceAssimilationSessionPacketDriftCheckpointLedger ? 1 : 0)
         + (convergenceAssimilationSessionPacketDriftCheckpointLedger?.items || []).length
         + (governance.convergenceTasks || []).length

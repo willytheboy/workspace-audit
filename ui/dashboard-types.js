@@ -464,6 +464,22 @@
  *   gate: ConvergenceAssimilationRunnerLaunchpadGatePayload,
  *   createdAt: string
  * }} PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   runner: "codex" | "claude" | "",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: { decision: string, readinessDecision: string, reasonCount: number, packetDriftSeverity: string, packetDriftScore: number, openDriftCheckpointCount: number, escalatedDriftCheckpointCount: number, recommendedAction: string } | null,
+ *   snapshotSummary: { decision: string, readinessDecision: string, reasonCount: number, packetDriftSeverity: string, packetDriftScore: number, openDriftCheckpointCount: number, escalatedDriftCheckpointCount: number, recommendedAction: string } | null,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1697,6 +1713,7 @@
  *   convergenceAssimilationReadinessGate?: ConvergenceAssimilationReadinessGatePayload | null,
  *   convergenceAssimilationSessionPacketSnapshots: PersistedConvergenceAssimilationSessionPacketSnapshot[],
  *   convergenceAssimilationRunnerLaunchpadGateSnapshots: PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[],
+ *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,
  *   convergenceAssimilationSessionPacketDriftCheckpointLedger?: ConvergenceAssimilationSessionPacketDriftCheckpointLedgerPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],

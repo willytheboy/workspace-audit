@@ -4951,6 +4951,12 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Pack",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-save-btn",
+          text: "Save Pack Snapshot",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotRunner: convergenceAssimilationRunnerLaunchStackRemediationPack.runner || "codex" }
         })
       ])
     ]),
@@ -4984,6 +4990,65 @@ export function createGovernanceDeck(governance) {
       })
     ]))
   ] : [];
+  const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries = (governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Launch Stack Remediation Pack",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} | ${snapshot.runner || "codex"} | ${snapshot.nonReadyStages || 0} non-ready | ${snapshot.openTasks || 0} open task(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(snapshot.decision || "review", {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: snapshot.decision === "ready" ? "var(--success)" : snapshot.decision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.openCheckpoints || 0} open checkpoint(s) | ${snapshot.openEscalatedCheckpoints || 0} open escalated | ${snapshot.secretPolicy || "non-secret remediation pack metadata only"}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotId: snapshot.id }
+      })
+    ])
+  ]));
   const convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries = convergenceAssimilationRunnerLaunchStackActionTaskLedger ? [
     createElement("div", {
       className: "governance-gap-card convergence-assimilation-runner-launch-stack-action-task-ledger-card",
@@ -13329,6 +13394,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Execution Packet Drift Checkpoints", "Operator decisions made against launch execution packet drift before CLI handoff reuse.", convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack", "Copyable Codex and Claude remediation handoff for non-ready stack stages, open tasks, and unresolved checkpoint drift.", convergenceAssimilationRunnerLaunchStackRemediationPackEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshots", "Persisted Codex and Claude remediation pack baselines for later launch stack drift comparison.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger", "Trackable Governance tasks created from non-ready launch stack stages.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshots", "Persisted launch stack action task baselines for repeatable runner remediation handoffs.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Action Task Ledger Snapshot Drift", "Latest saved launch stack action task ledger compared with the current live remediation task state.", convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffEntries),

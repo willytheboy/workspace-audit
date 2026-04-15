@@ -598,6 +598,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>}
+   */
+  createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
    */

@@ -746,6 +746,26 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload
  * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runner: "codex" | "claude",
+ *   decision: "ready" | "review" | "hold",
+ *   totalStages: number,
+ *   readyStages: number,
+ *   reviewStages: number,
+ *   holdStages: number,
+ *   nonReadyStages: number,
+ *   openTasks: number,
+ *   highPriorityTasks: number,
+ *   openCheckpoints: number,
+ *   openEscalatedCheckpoints: number,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   payload: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload,
+ *   createdAt: string
+ * }} PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot
+ * @typedef {{
  *   success: true,
  *   requested: number,
  *   createdTasks: PersistedTask[],
@@ -2084,6 +2104,7 @@
  *   convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedger?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffPayload | null,

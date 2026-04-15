@@ -3581,6 +3581,28 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack/);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackJson.markdown, /Open escalated checkpoints: 1/);
 
+    const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        title: "Fixture Claude Launch Stack Remediation Pack"
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson = await createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.title, "Fixture Claude Launch Stack Remediation Pack");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.runner, "claude");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.openEscalatedCheckpoints, 1);
+    assert.match(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.snapshot.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack/);
+
+    const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsJson = await convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotsJson[0].title, "Fixture Claude Launch Stack Remediation Pack");
+
     const refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

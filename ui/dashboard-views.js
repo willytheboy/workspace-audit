@@ -143,6 +143,8 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackStatus: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackStatusPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPack: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload>,
+ *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>,
+ *     createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
  *     createConvergenceAssimilationRunnerLaunchStackActionTasks: (payload?: { runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedger: (options?: { runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTaskLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[]>,
@@ -873,6 +875,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.convergenceAssimilationRunnerLaunchStackRemediationPack
         : null,
+      convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: filterAndSort(
+        governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.decision || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       convergenceAssimilationRunnerLaunchStackActionTaskLedger: governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger && matchesSearch([
         "convergence assimilation runner launch stack action task ledger",
         governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger.runner || "",
@@ -1224,6 +1231,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackStatus = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPack = null;
+      if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackActionTaskLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff = null;
@@ -3276,6 +3284,56 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = payload.decision === "ready" ? "Copied Ready" : `Copied ${payload.decision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotRunner || "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot({
+            title: "Convergence Assimilation Runner Launch Stack Remediation Pack",
+            runner: runner === "claude" ? "claude" : "codex"
+          });
+          await renderGovernance();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-pack-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotId || "";
+        const originalLabel = element.textContent || "";
+        try {
+          const snapshot = governanceCache?.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots?.find((item) => item.id === snapshotId);
+          if (!snapshot) throw new Error("Launch stack remediation pack snapshot not found.");
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyText(snapshot.markdown || "");
+          element.textContent = "Copied Snapshot";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -9441,6 +9499,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceAssimilationRunnerLaunchStackRemediationPack?.nonReadyStages || []).length
         + (convergenceAssimilationRunnerLaunchStackRemediationPack?.openTasks || []).length
         + (convergenceAssimilationRunnerLaunchStackRemediationPack?.openCheckpoints || []).length
+        + (governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || []).length
         + (convergenceAssimilationRunnerLaunchStackActionTaskLedger ? 1 : 0)
         + (convergenceAssimilationRunnerLaunchStackActionTaskLedger?.items || []).length
         + (governance.convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots || []).length

@@ -2050,3 +2050,10 @@
 - [x] Bundle non-ready launch stack stages, open runner action tasks, and unresolved action-task ledger drift checkpoints.
 - [x] Surface Governance copy controls and remediation stage cards for supervised CLI handoff preparation.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Pack Snapshots
+
+- [x] Add persisted snapshots for Codex and Claude launch stack remediation packs.
+- [x] Store decision, stage/task/checkpoint counts, Markdown, and full non-secret pack payload.
+- [x] Surface Governance save and copy controls for remediation pack snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

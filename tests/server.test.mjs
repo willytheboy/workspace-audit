@@ -3255,6 +3255,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationResultCheckpointJson.task.status, "resolved");
     assert.match(convergenceAssimilationResultCheckpointJson.task.secretPolicy, /non-secret-convergence-assimilation-result-checkpoint-only/);
 
+    const convergenceAssimilationResultCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-result-checkpoint-ledger?status=closed`);
+    assert.equal(convergenceAssimilationResultCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationResultCheckpointLedgerJson = await convergenceAssimilationResultCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationResultCheckpointLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationResultCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationResultCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(convergenceAssimilationResultCheckpointLedgerJson.summary.closed, 1);
+    assert.equal(convergenceAssimilationResultCheckpointLedgerJson.items[0].convergenceAssimilationRunResultId, convergenceAssimilationRunResultJson.result.id);
+    assert.match(convergenceAssimilationResultCheckpointLedgerJson.markdown, /# Convergence Assimilation Result Checkpoint Ledger/);
+    assert.match(convergenceAssimilationResultCheckpointLedgerJson.secretPolicy, /Non-secret convergence assimilation result checkpoint metadata only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

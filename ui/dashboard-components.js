@@ -3157,6 +3157,121 @@ export function createGovernanceDeck(governance) {
       ])
     ]))
   ] : [];
+  const convergenceAssimilationResultCheckpointLedger = governance.convergenceAssimilationResultCheckpointLedger || null;
+  const convergenceAssimilationResultCheckpointSummary = convergenceAssimilationResultCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0
+  };
+  const convergenceAssimilationResultCheckpointEntries = convergenceAssimilationResultCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-result-checkpoint-ledger-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Convergence assimilation result checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900"
+        }
+      }),
+      createElement("div", {
+        text: `${convergenceAssimilationResultCheckpointSummary.open || 0} open / ${convergenceAssimilationResultCheckpointSummary.total || 0} checkpoint(s). Export operator decisions on captured runner results.`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.86rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(`${convergenceAssimilationResultCheckpointSummary.confirmed || 0} confirmed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationResultCheckpointSummary.confirmed || 0) ? "var(--success)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationResultCheckpointSummary.deferred || 0} deferred`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationResultCheckpointSummary.deferred || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationResultCheckpointSummary.escalated || 0} escalated`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationResultCheckpointSummary.escalated || 0) ? "var(--danger)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationResultCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationResultCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-result-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationResultCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationResultCheckpointLedger.items || []).slice(0, 12).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-result-checkpoint-ledger-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.55rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || "Convergence assimilation result checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900",
+          fontSize: "0.95rem"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(item.convergenceAssimilationResultCheckpointDecision || "deferred", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: item.convergenceAssimilationResultCheckpointDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationResultCheckpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(item.status || "open", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: ["resolved", "done", "closed"].includes(item.status || "") ? "var(--success)" : "var(--warning)"
+        }),
+        createTag(item.convergenceAssimilationRunResultId || "result", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      item.convergenceAssimilationResultCheckpointNote ? createElement("div", {
+        text: item.convergenceAssimilationResultCheckpointNote,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.82rem",
+          lineHeight: "1.45"
+        }
+      }) : null
+    ]))
+  ] : [];
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -10592,6 +10707,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
     createListSection("Convergence Assimilation Runs", "Queued Codex and Claude Agent Work Order runs created from convergence assimilation drafts.", convergenceAssimilationRunEntries),
     createListSection("Convergence Assimilation Results", "Non-secret Codex and Claude assimilation results captured back into Workspace Audit Pro.", convergenceAssimilationResultEntries),
+    createListSection("Convergence Assimilation Result Checkpoints", "Operator decisions on captured assimilation results before follow-up implementation.", convergenceAssimilationResultCheckpointEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

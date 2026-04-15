@@ -263,6 +263,22 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationResultLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationResultCheckpointLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1490,6 +1506,7 @@
  *   convergenceOperatorProposalQueue?: ConvergenceOperatorProposalQueuePayload | null,
  *   convergenceAssimilationRunLedger?: ConvergenceAssimilationRunLedgerPayload | null,
  *   convergenceAssimilationResultLedger?: ConvergenceAssimilationResultLedgerPayload | null,
+ *   convergenceAssimilationResultCheckpointLedger?: ConvergenceAssimilationResultCheckpointLedgerPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

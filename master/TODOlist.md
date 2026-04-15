@@ -1757,3 +1757,10 @@
 - [x] Upsert checkpoint tasks with result id, run id, pair id, runner result status, checkpoint decision, and no-secrets policy.
 - [x] Add Governance result-card checkpoint controls for operator review.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Result Checkpoint Ledger
+
+- [x] Add a non-secret checkpoint ledger API for captured convergence assimilation result decisions.
+- [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
+- [x] Surface checkpoint ledger cards and copy controls in Governance.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

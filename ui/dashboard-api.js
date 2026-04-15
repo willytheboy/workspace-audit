@@ -209,6 +209,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationResultCheckpointLedgerPayload>}
+   */
+  fetchConvergenceAssimilationResultCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-result-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

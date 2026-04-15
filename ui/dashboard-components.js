@@ -1104,6 +1104,12 @@ function createSectionCard(title, subtitle, content) {
  * @param {ScanDiffPayload} scanDiff
  */
 export function createTrendDiffSummary(scanDiff) {
+  const alertSummary = scanDiff.alertSummary || { total: 0, high: 0, medium: 0, low: 0 };
+  const alertAccent = alertSummary.high
+    ? "var(--danger)"
+    : alertSummary.medium
+      ? "var(--warning)"
+      : "var(--success)";
   return createElement("div", {
     style: {
       display: "grid",
@@ -1134,6 +1140,12 @@ export function createTrendDiffSummary(scanDiff) {
       label: "Test Files Delta",
       value: formatSigned(scanDiff.totals.testDelta),
       detail: "Observed test coverage movement between the latest scans"
+    }),
+    createKpiCard({
+      accentColor: alertAccent,
+      label: "Regression Alerts",
+      value: String(alertSummary.total || 0),
+      detail: `${alertSummary.high || 0} high • ${alertSummary.medium || 0} medium • ${alertSummary.low || 0} low`
     })
   ]);
 }
@@ -1194,6 +1206,7 @@ export function createScanDiffBreakdown(scanDiff) {
   }
 
   if (scanDiff.status === "summary_only") {
+    const alerts = scanDiff.alerts || [];
     return createElement("div", {
       style: {
         display: "flex",
@@ -1206,9 +1219,107 @@ export function createScanDiffBreakdown(scanDiff) {
         title: "Project-level diff warming up",
         message: "Summary deltas are available, but one of the latest scans predates project snapshot persistence. The next scan will unlock project-level change lists.",
         tone: "var(--warning)"
-      })
+      }),
+      ...(alerts.length
+        ? [createListSection("Health Regression Alerts", scanDiff.recommendedAction || "Workspace-level regression alerts from the latest scan summary.", alerts.map((alert) => createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.35rem",
+              padding: "0.95rem 1rem",
+              borderRadius: "0.9rem",
+              border: "1px solid var(--border)",
+              background: "color-mix(in srgb, var(--surface-hover) 52%, transparent 48%)"
+            }
+          }, [
+            createElement("div", {
+              text: alert.title,
+              style: {
+                fontWeight: "800",
+                color: "var(--text)"
+              }
+            }),
+            createElement("div", {
+              text: alert.detail,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.86rem",
+                lineHeight: "1.45"
+              }
+            })
+          ])))]
+        : [])
     ]);
   }
+
+  const alertEntries = (scanDiff.alerts || []).map((alert) => createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.45rem",
+      padding: "0.95rem 1rem",
+      borderRadius: "0.9rem",
+      border: "1px solid var(--border)",
+      background: "color-mix(in srgb, var(--surface-hover) 52%, transparent 48%)"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.75rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.25rem"
+        }
+      }, [
+        createElement("div", {
+          text: alert.title,
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: alert.projectName || alert.kind,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.8rem",
+            fontFamily: alert.relPath ? "var(--font-mono)" : "inherit"
+          }
+        })
+      ]),
+      createTag(String(alert.severity || "low").toUpperCase(), {
+        border: "1px solid var(--border)",
+        background: alert.severity === "high"
+          ? "color-mix(in srgb, var(--danger) 14%, transparent 86%)"
+          : alert.severity === "medium"
+            ? "color-mix(in srgb, var(--warning) 16%, transparent 84%)"
+            : "color-mix(in srgb, var(--success) 14%, transparent 86%)"
+      })
+    ]),
+    createElement("div", {
+      text: alert.detail,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.86rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      text: alert.recommendedAction,
+      style: {
+        color: "var(--text)",
+        fontSize: "0.82rem",
+        lineHeight: "1.45"
+      }
+    })
+  ]));
 
   const changeEntries = scanDiff.topChanges.map((change) => createElement("div", {
     style: {
@@ -1329,6 +1440,7 @@ export function createScanDiffBreakdown(scanDiff) {
     }
   }, [
     windowCard,
+    createListSection("Health Regression Alerts", scanDiff.recommendedAction || "Regression triage from scan-to-scan movement.", alertEntries),
     createListSection("Top Project Changes", "Largest per-project movement between the two latest persisted scans.", changeEntries),
     createListSection("Added Projects", "Projects present in the latest scan but not the previous one.", addedEntries),
     createListSection("Removed Projects", "Projects present in the previous scan but not the latest one.", removedEntries)

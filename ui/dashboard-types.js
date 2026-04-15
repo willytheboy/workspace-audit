@@ -1580,6 +1580,18 @@
  *   changeScore: number
  * }} ScanDiffProjectChange
  * @typedef {{
+ *   id: string,
+ *   kind: string,
+ *   severity: "high" | "medium" | "low",
+ *   title: string,
+ *   detail: string,
+ *   recommendedAction: string,
+ *   projectId?: string,
+ *   projectName?: string,
+ *   relPath?: string,
+ *   delta?: number
+ * }} ScanHealthAlert
+ * @typedef {{
  *   status: "insufficient_data" | "summary_only" | "ready",
  *   latestGeneratedAt: string | null,
  *   previousGeneratedAt: string | null,
@@ -1595,7 +1607,15 @@
  *   addedProjects: Array<Pick<ProjectScanSnapshot, "id" | "name" | "relPath" | "zone" | "category" | "qualityScore">>,
  *   removedProjects: Array<Pick<ProjectScanSnapshot, "id" | "name" | "relPath" | "zone" | "category" | "qualityScore">>,
  *   changedProjects: ScanDiffProjectChange[],
- *   topChanges: ScanDiffProjectChange[]
+ *   topChanges: ScanDiffProjectChange[],
+ *   alerts: ScanHealthAlert[],
+ *   alertSummary: {
+ *     total: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number
+ *   },
+ *   recommendedAction: string
  * }} ScanDiffPayload
  * @typedef {{
  *   projectId?: string,

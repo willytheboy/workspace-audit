@@ -2176,3 +2176,10 @@
 - [x] Extend governance starter packs with scan-derived milestones that include test coverage and runtime detection targets.
 - [x] Include note and milestone totals in bootstrap and queue execution responses.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Scan Health Regression Alerts
+
+- [x] Add scan-diff health alerts for workspace health drops, stagnant tests, and project-level regressions.
+- [x] Surface alert counts and severity in the Trends summary.
+- [x] Add a Health Regression Alerts deck with recommended actions for scan triage.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

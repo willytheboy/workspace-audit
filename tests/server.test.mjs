@@ -635,6 +635,9 @@ export async function serverTest() {
     assert.ok(scanDiffJson.latestGeneratedAt);
     assert.ok(scanDiffJson.previousGeneratedAt);
     assert.equal(typeof scanDiffJson.totals.changedCount, "number");
+    assert.equal(Array.isArray(scanDiffJson.alerts), true);
+    assert.equal(typeof scanDiffJson.alertSummary.total, "number");
+    assert.match(scanDiffJson.recommendedAction, /scan|regression|healthy|triage/i);
 
     const findingsResponse = await fetch(`${baseUrl}/api/findings`);
     assert.equal(findingsResponse.status, 200);

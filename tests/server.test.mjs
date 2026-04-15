@@ -3429,6 +3429,8 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(["ready", "review", "hold"].includes(convergenceAssimilationRunnerLaunchStackStatusJson.decision));
     assert.ok(convergenceAssimilationRunnerLaunchStackStatusJson.stages.length >= 8);
     assert.ok(convergenceAssimilationRunnerLaunchStackStatusJson.summary.total >= 8);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusJson.stages.some((stage) => stage.id === "launch-stack-remediation-pack-snapshot-drift"), true);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusJson.stages.some((stage) => stage.id === "launch-stack-remediation-pack-drift-checkpoints"), true);
     assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.markdown, /# Convergence Assimilation Runner Launch Stack Status/);
     assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.secretPolicy, /Non-secret convergence assimilation runner launch stack status only/);
 
@@ -3656,6 +3658,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse.status, 200);
     const convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson = await convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse.json();
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints")?.status, "ready");
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-remediation-pack-snapshot-drift")?.status, "hold");
 
     const driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/diff?snapshotId=latest&runner=claude`);
     assert.equal(driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.status, 200);
@@ -3763,6 +3766,12 @@ export async function convergenceReviewSuppressionTest() {
     const refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson = await refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffResponse.json();
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.hasDrift, false);
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftSeverity, "none");
+
+    const convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-status?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshJson = await convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshJson.stages.find((stage) => stage.id === "launch-stack-remediation-pack-snapshot-drift")?.status, "ready");
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshJson.stages.find((stage) => stage.id === "launch-stack-remediation-pack-drift-checkpoints")?.status, "ready");
 
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",

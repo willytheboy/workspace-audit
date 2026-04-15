@@ -2092,3 +2092,10 @@
 - [x] Preserve the previous snapshot id while inserting the refreshed remediation pack snapshot at the top of the ledger.
 - [x] Surface an `Accept Drift` control on the remediation pack snapshot drift card.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Stack Gate
+
+- [x] Feed remediation pack snapshot drift into the runner launch stack ready/review/hold status.
+- [x] Feed remediation pack drift checkpoint ledger state into the runner launch stack status.
+- [x] Add an internal recursion guard so remediation pack generation can compute live packs without self-referencing the stack gate.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

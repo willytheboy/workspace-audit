@@ -301,6 +301,24 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationReadinessGatePayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   runner: "codex" | "claude",
+ *   executionMode: string,
+ *   readinessGate: ConvergenceAssimilationReadinessGatePayload,
+ *   expectedResultSchema: {
+ *     status: string[],
+ *     summary: string,
+ *     changedFiles: string,
+ *     validationSummary: string,
+ *     blockers: string,
+ *     nextAction: string
+ *   },
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationCliHandoffContractPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

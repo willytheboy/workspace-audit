@@ -1771,3 +1771,10 @@
 - [x] Evaluate queued runs, captured results, failed or blocked outcomes, pending checkpoints, and escalations.
 - [x] Surface the gate and copy control in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation CLI Handoff Contract
+
+- [x] Add a non-secret Codex/Claude CLI handoff contract API.
+- [x] Include readiness gate state, execution mode, no-secrets policy, and expected result schema.
+- [x] Add Governance copy controls for Codex and Claude contracts.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -3278,6 +3278,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationReadinessGateJson.markdown, /# Convergence Assimilation Readiness Gate/);
     assert.match(convergenceAssimilationReadinessGateJson.secretPolicy, /Non-secret convergence assimilation readiness metadata only/);
 
+    const convergenceAssimilationCliHandoffContractResponse = await fetch(`${baseUrl}/api/convergence/assimilation-cli-handoff-contract?runner=claude`);
+    assert.equal(convergenceAssimilationCliHandoffContractResponse.status, 200);
+    const convergenceAssimilationCliHandoffContractJson = await convergenceAssimilationCliHandoffContractResponse.json();
+    assert.equal(convergenceAssimilationCliHandoffContractJson.runner, "claude");
+    assert.equal(convergenceAssimilationCliHandoffContractJson.readinessGate.decision, "ready");
+    assert.ok(convergenceAssimilationCliHandoffContractJson.expectedResultSchema.status.includes("passed"));
+    assert.match(convergenceAssimilationCliHandoffContractJson.protocolVersion, /convergence-assimilation-cli-handoff-contract/);
+    assert.match(convergenceAssimilationCliHandoffContractJson.markdown, /# Convergence Assimilation CLI Handoff Contract/);
+    assert.match(convergenceAssimilationCliHandoffContractJson.secretPolicy, /Non-secret convergence assimilation CLI handoff contract only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

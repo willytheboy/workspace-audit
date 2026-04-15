@@ -3327,6 +3327,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Gate",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationReadinessGateCopy: "true" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-cli-contract-copy-btn",
+          text: "Copy Codex Contract",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationCliContractRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-cli-contract-copy-btn",
+          text: "Copy Claude Contract",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationCliContractRunner: "claude" }
         })
       ])
     ]),

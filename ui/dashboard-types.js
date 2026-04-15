@@ -273,7 +273,8 @@
  *     closed: number,
  *     confirmed: number,
  *     deferred: number,
- *     escalated: number
+ *     escalated: number,
+ *     openEscalated: number
  *   },
  *   items: PersistedTask[],
  *   secretPolicy: string,

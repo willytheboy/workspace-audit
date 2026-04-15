@@ -3560,6 +3560,7 @@ export async function convergenceReviewSuppressionTest() {
     const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson = await convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse.json();
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.visible, 1);
     assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.escalated, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.openEscalated, 1);
     assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger Drift Checkpoint Ledger/);
 
     const convergenceAssimilationRunnerLaunchStackStatusAfterActionTaskDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-status?runner=claude`);
@@ -3593,6 +3594,26 @@ export async function convergenceReviewSuppressionTest() {
     const refreshedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson = await refreshedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffResponse.json();
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.hasDrift, false);
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+
+    const resolveLaunchStackActionTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "resolved" })
+    });
+    assert.equal(resolveLaunchStackActionTaskLedgerDriftCheckpointResponse.status, 200);
+    const resolveLaunchStackActionTaskLedgerDriftCheckpointJson = await resolveLaunchStackActionTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(resolveLaunchStackActionTaskLedgerDriftCheckpointJson.task.status, "resolved");
+
+    const resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-ledger?status=closed`);
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson = await resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedgerJson.summary.openEscalated, 0);
+
+    const convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-status?runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson = await convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterResolvedActionTaskDriftJson.stages.find((stage) => stage.id === "launch-stack-action-task-ledger-drift-checkpoints")?.status, "ready");
 
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",

@@ -3165,7 +3165,8 @@ export function createGovernanceDeck(governance) {
     closed: 0,
     confirmed: 0,
     deferred: 0,
-    escalated: 0
+    escalated: 0,
+    openEscalated: 0
   };
   const convergenceAssimilationResultCheckpointEntries = convergenceAssimilationResultCheckpointLedger ? [
     createElement("div", {
@@ -5213,7 +5214,7 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("div", {
-        text: `${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.visible || 0} visible | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.open || 0} open | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.closed || 0} closed | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.escalated || 0} escalated`,
+        text: `${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.visible || 0} visible | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.open || 0} open | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.closed || 0} closed | ${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointSummary.openEscalated || 0} open escalated`,
         style: {
           color: "var(--text-muted)",
           fontSize: "0.84rem",
@@ -5278,7 +5279,38 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
-      })
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-task-ledger-drift-checkpoint-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskId: item.id || "",
+            convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointTaskStatus: "blocked"
+          }
+        })
+      ])
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [

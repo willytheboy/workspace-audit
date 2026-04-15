@@ -2036,3 +2036,10 @@
 - [x] Surface an `Accept Drift` control on the Governance launch stack action task ledger drift card.
 - [x] Preserve the previous snapshot id for audit history while inserting the refreshed snapshot at the top of the snapshot ledger.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Task Ledger Checkpoint Lifecycle
+
+- [x] Add direct Resolve, Reopen, and Block controls to launch stack action task ledger drift checkpoint cards.
+- [x] Track open escalated checkpoint counts separately from historical escalations.
+- [x] Let resolved checkpoint tasks release the action-task ledger checkpoint stage from hold back to ready.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

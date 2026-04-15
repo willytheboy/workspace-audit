@@ -3339,6 +3339,48 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffJson.driftItems.length, 0);
     assert.match(convergenceAssimilationSessionPacketSnapshotDiffJson.markdown, /# Convergence Assimilation Session Packet Snapshot Drift/);
 
+    const secondConvergenceAssimilationRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "needs-review",
+        summary: "Second fixture result to force deterministic packet drift.",
+        validationSummary: "Drift fixture validation."
+      })
+    });
+    assert.equal(secondConvergenceAssimilationRunResultResponse.status, 200);
+
+    const convergenceAssimilationSessionPacketSnapshotDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDriftResponse.status, 200);
+    const convergenceAssimilationSessionPacketSnapshotDriftJson = await convergenceAssimilationSessionPacketSnapshotDriftResponse.json();
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDriftJson.hasDrift, true);
+    assert.ok(convergenceAssimilationSessionPacketSnapshotDriftJson.driftItems.some((item) => item.field === "resultCount"));
+
+    const convergenceAssimilationSessionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: "resultCount",
+        decision: "confirmed",
+        note: "Fixture packet drift accepted."
+      })
+    });
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationSessionPacketDriftCheckpointJson = await convergenceAssimilationSessionPacketDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointJson.task.convergenceAssimilationSessionPacketDriftField, "resultCount");
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointJson.task.status, "resolved");
+
+    const convergenceAssimilationSessionPacketSnapshotCheckpointedDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotCheckpointedDriftResponse.status, 200);
+    const convergenceAssimilationSessionPacketSnapshotCheckpointedDriftJson = await convergenceAssimilationSessionPacketSnapshotCheckpointedDriftResponse.json();
+    const checkpointedResultCountDrift = convergenceAssimilationSessionPacketSnapshotCheckpointedDriftJson.driftItems.find((item) => item.field === "resultCount");
+    assert.equal(checkpointedResultCountDrift.checkpointDecision, "confirmed");
+    assert.equal(checkpointedResultCountDrift.checkpointStatus, "resolved");
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

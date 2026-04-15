@@ -373,7 +373,7 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number, checkpointTaskId?: string, checkpointDecision?: string, checkpointStatus?: string, checkpointedAt?: string }>,
  *   liveSummary: { readinessDecision: string, runCount: number, openRunCount: number, resultCount: number, checkpointCount: number, openCheckpointCount: number, recommendedAction: string } | null,
  *   snapshotSummary: { readinessDecision: string, runCount: number, openRunCount: number, resultCount: number, checkpointCount: number, openCheckpointCount: number, recommendedAction: string } | null,
  *   markdown: string

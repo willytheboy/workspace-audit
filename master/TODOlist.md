@@ -1806,3 +1806,10 @@
 - [x] Compare readiness decision, run/result/checkpoint counts, recommended action, and packet Markdown changes.
 - [x] Add Governance copy controls and drift cards for latest/per-snapshot packet drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Session Packet Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for session packet snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, and no-secrets policy.
+- [x] Show checkpoint state on packet drift cards and rehydrate decisions into drift payloads.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

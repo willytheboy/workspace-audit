@@ -217,6 +217,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationReadinessGatePayload>}
+   */
+  fetchConvergenceAssimilationReadinessGate() {
+    return fetchJson("/api/convergence/assimilation-readiness-gate");
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

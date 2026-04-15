@@ -1764,3 +1764,10 @@
 - [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
 - [x] Surface checkpoint ledger cards and copy controls in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Readiness Gate
+
+- [x] Add a non-secret ready/review/hold gate for convergence assimilation continuation.
+- [x] Evaluate queued runs, captured results, failed or blocked outcomes, pending checkpoints, and escalations.
+- [x] Surface the gate and copy control in Governance.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

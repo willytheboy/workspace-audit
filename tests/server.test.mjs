@@ -3266,6 +3266,18 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationResultCheckpointLedgerJson.markdown, /# Convergence Assimilation Result Checkpoint Ledger/);
     assert.match(convergenceAssimilationResultCheckpointLedgerJson.secretPolicy, /Non-secret convergence assimilation result checkpoint metadata only/);
 
+    const convergenceAssimilationReadinessGateResponse = await fetch(`${baseUrl}/api/convergence/assimilation-readiness-gate`);
+    assert.equal(convergenceAssimilationReadinessGateResponse.status, 200);
+    const convergenceAssimilationReadinessGateJson = await convergenceAssimilationReadinessGateResponse.json();
+    assert.equal(convergenceAssimilationReadinessGateJson.decision, "ready");
+    assert.equal(convergenceAssimilationReadinessGateJson.summary.runCount, 1);
+    assert.equal(convergenceAssimilationReadinessGateJson.summary.resultCount, 1);
+    assert.equal(convergenceAssimilationReadinessGateJson.summary.confirmedCheckpointCount, 1);
+    assert.equal(convergenceAssimilationReadinessGateJson.reasons.length, 0);
+    assert.match(convergenceAssimilationReadinessGateJson.protocolVersion, /convergence-assimilation-readiness-gate/);
+    assert.match(convergenceAssimilationReadinessGateJson.markdown, /# Convergence Assimilation Readiness Gate/);
+    assert.match(convergenceAssimilationReadinessGateJson.secretPolicy, /Non-secret convergence assimilation readiness metadata only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

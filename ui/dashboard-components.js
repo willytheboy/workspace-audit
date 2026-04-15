@@ -3272,6 +3272,87 @@ export function createGovernanceDeck(governance) {
       }) : null
     ]))
   ] : [];
+  const convergenceAssimilationReadinessGate = governance.convergenceAssimilationReadinessGate || null;
+  const convergenceAssimilationReadinessSummary = convergenceAssimilationReadinessGate?.summary || {};
+  const convergenceAssimilationReadinessEntries = convergenceAssimilationReadinessGate ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-readiness-gate-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Convergence assimilation readiness gate",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900",
+          fontSize: "1.02rem"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(convergenceAssimilationReadinessGate.decision || "review", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationReadinessGate.decision === "ready" ? "var(--success)" : convergenceAssimilationReadinessGate.decision === "hold" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(`${convergenceAssimilationReadinessSummary.runCount || 0} runs`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationReadinessSummary.resultCount || 0} results`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationReadinessSummary.openCheckpointCount || 0} open checkpoints`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationReadinessSummary.openCheckpointCount || 0) ? "var(--warning)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        text: convergenceAssimilationReadinessGate.recommendedAction || "Review convergence assimilation readiness.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.86rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-readiness-gate-copy-btn",
+          text: "Copy Gate",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationReadinessGateCopy: "true" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationReadinessGate.reasons || []).slice(0, 8).map((reason) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-readiness-reason-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.4rem"
+      }
+    }, [
+      createElement("div", {
+        text: reason.message || reason.code || "Readiness review required.",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800",
+          fontSize: "0.92rem"
+        }
+      }),
+      createTag(reason.severity || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: reason.severity === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]))
+  ] : [];
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -10708,6 +10789,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runs", "Queued Codex and Claude Agent Work Order runs created from convergence assimilation drafts.", convergenceAssimilationRunEntries),
     createListSection("Convergence Assimilation Results", "Non-secret Codex and Claude assimilation results captured back into Workspace Audit Pro.", convergenceAssimilationResultEntries),
     createListSection("Convergence Assimilation Result Checkpoints", "Operator decisions on captured assimilation results before follow-up implementation.", convergenceAssimilationResultCheckpointEntries),
+    createListSection("Convergence Assimilation Readiness Gate", "Ready/review/hold gate for continuing supervised convergence implementation.", convergenceAssimilationReadinessEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-04-13T15:42:23.609Z",
-  "rootDir": "D:\\Development",
+  "generatedAt": "2026-04-15T06:17:03.042Z",
+  "rootDir": "D:\\development",
   "meta": {
     "zoneOptions": [
       "active",
@@ -41,7 +41,7 @@
       "Wellness / Nutrition": 3,
       "General Workspace": 4
     },
-    "avgQuality": 50,
+    "avgQuality": 48,
     "totalSource": 11978,
     "totalTests": 326,
     "testCoverageSignal": 3,
@@ -50,7 +50,7 @@
       "name": "Master",
       "dirName": "master",
       "relPath": "workspace-audit\\master",
-      "absPath": "D:\\Development\\workspace-audit\\master",
+      "absPath": "D:\\development\\workspace-audit\\master",
       "zone": "workspace",
       "category": "Platform / Tooling",
       "description": "Project rooted at workspace-audit\\master",
@@ -61,8 +61,8 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T15:42:02.397Z",
-      "lastModifiedLabel": "2026-04-13",
+      "lastModifiedIso": "2026-04-15T06:14:54.000Z",
+      "lastModifiedLabel": "2026-04-15",
       "daysOld": 0,
       "qualityScore": 28,
       "freshnessScore": 100,
@@ -72,14 +72,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 213,
+      "docsFiles": 306,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 213,
-      "totalBytes": 299286,
+      "totalFiles": 306,
+      "totalBytes": 504651,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -141,7 +141,7 @@
       "name": "Getting Started With Create React App",
       "dirName": "01_sporting-club-final",
       "relPath": "archive\\by-project\\sporting-club\\01_sporting-club-final",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\01_sporting-club-final",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\01_sporting-club-final",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -261,7 +261,7 @@
       ],
       "lastModifiedIso": "2026-02-01T13:34:05.335Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 65,
       "freshnessScore": 65,
       "testingScore": 2,
@@ -561,17 +561,6 @@
       ]
     },
     {
-      "leftId": "archive__experiments__GitHub_Projects__Juice-Bar",
-      "rightId": "archive__by-project__fnb__ElieLebos_FnB__v1.0.0",
-      "leftName": "Juice Bar",
-      "rightName": "Sporting Club F&B Management System",
-      "score": 76,
-      "reasons": [
-        "F&B / Hospitality",
-        "HTML, JavaScript, CSS"
-      ]
-    },
-    {
       "leftId": "archive__experiments__my-story-app",
       "rightId": "archive__by-project__02_Music_Suno_Apps__Suno_Music_React_App",
       "leftName": "My Story App",
@@ -592,6 +581,17 @@
       ]
     },
     {
+      "leftId": "archive__experiments__GitHub_Projects__Juice-Bar",
+      "rightId": "archive__by-project__fnb__ElieLebos_FnB__v1.0.0",
+      "leftName": "Juice Bar",
+      "rightName": "Sporting Club F&B Management System",
+      "score": 75,
+      "reasons": [
+        "F&B / Hospitality",
+        "HTML, JavaScript, CSS"
+      ]
+    },
+    {
       "leftId": "archive__experiments__Web_Development__my-story-app",
       "rightId": "archive__by-project__02_Music_Suno_Apps__Suno_Music_React_App",
       "leftName": "My Story App",
@@ -608,7 +608,7 @@
       "name": "🏖️ Sporting Club OS — V4.0",
       "dirName": "TEST",
       "relPath": "TEST",
-      "absPath": "D:\\Development\\TEST",
+      "absPath": "D:\\development\\TEST",
       "zone": "workspace",
       "category": "F&B / Hospitality",
       "description": "> *Stop managing your venue. Start optimizing your revenue automatically.*",
@@ -656,7 +656,7 @@
       ],
       "lastModifiedIso": "2026-04-04T13:50:44.323Z",
       "lastModifiedLabel": "2026-04-04",
-      "daysOld": 9,
+      "daysOld": 11,
       "qualityScore": 64,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -728,7 +728,7 @@
       "name": "A PHOTO ARCHIVER",
       "dirName": "A-PHOTO-ARCHIVER",
       "relPath": "archive\\experiments\\A-PHOTO-ARCHIVER",
-      "absPath": "D:\\Development\\archive\\experiments\\A-PHOTO-ARCHIVER",
+      "absPath": "D:\\development\\archive\\experiments\\A-PHOTO-ARCHIVER",
       "zone": "archived",
       "category": "Media / Creative",
       "description": "This is a Flask-based web application for archiving and organizing photos. It allows you to scan a directory of photos, automatically tag them using image recognition, and then browse, search, and manage them through a web interface.",
@@ -782,7 +782,7 @@
       ],
       "lastModifiedIso": "2025-12-12T11:00:34.773Z",
       "lastModifiedLabel": "2025-12-12",
-      "daysOld": 122,
+      "daysOld": 124,
       "qualityScore": 36,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -848,7 +848,7 @@
       "name": "AI Assistant Bot",
       "dirName": "bot",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP\\bot",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP\\bot",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP\\bot",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Programmatic interface to interact with the Suno Companion AI Assistant.",
@@ -871,7 +871,7 @@
       ],
       "lastModifiedIso": "2025-11-07T14:39:34.014Z",
       "lastModifiedLabel": "2025-11-07",
-      "daysOld": 157,
+      "daysOld": 159,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -937,7 +937,7 @@
       "name": "AI Assistant Bot",
       "dirName": "bot",
       "relPath": "archive\\experiments\\CreativeTools\\SunoCompanion\\bot",
-      "absPath": "D:\\Development\\archive\\experiments\\CreativeTools\\SunoCompanion\\bot",
+      "absPath": "D:\\development\\archive\\experiments\\CreativeTools\\SunoCompanion\\bot",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Programmatic interface to interact with the Suno Companion AI Assistant.",
@@ -960,7 +960,7 @@
       ],
       "lastModifiedIso": "2025-11-07T14:39:34.014Z",
       "lastModifiedLabel": "2025-11-07",
-      "daysOld": 157,
+      "daysOld": 159,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -1026,7 +1026,7 @@
       "name": "AI Development Team",
       "dirName": "02_ai-agent-studio",
       "relPath": "active\\02_ai-agent-studio",
-      "absPath": "D:\\Development\\active\\02_ai-agent-studio",
+      "absPath": "D:\\development\\active\\02_ai-agent-studio",
       "zone": "active",
       "category": "AI / Agents",
       "description": "**Version:** 1.0.0",
@@ -1071,9 +1071,9 @@
         "version",
         "websockets"
       ],
-      "lastModifiedIso": "2026-04-10T09:35:54.676Z",
-      "lastModifiedLabel": "2026-04-10",
-      "daysOld": 3,
+      "lastModifiedIso": "2026-04-08T10:16:50.000Z",
+      "lastModifiedLabel": "2026-04-08",
+      "daysOld": 7,
       "qualityScore": 70,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -1144,7 +1144,7 @@
       "name": "AI Development Team",
       "dirName": "AI_team",
       "relPath": "archive\\experiments\\AI_team",
-      "absPath": "D:\\Development\\archive\\experiments\\AI_team",
+      "absPath": "D:\\development\\archive\\experiments\\AI_team",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "**Version:** 1.0.0",
@@ -1190,7 +1190,7 @@
       ],
       "lastModifiedIso": "2026-01-08T18:04:27.562Z",
       "lastModifiedLabel": "2026-01-08",
-      "daysOld": 95,
+      "daysOld": 97,
       "qualityScore": 48,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -1261,7 +1261,7 @@
       "name": "AI Music Generator 1",
       "dirName": "AI_music_generator_1",
       "relPath": "archive\\by-project\\AI_music_generator_1",
-      "absPath": "D:\\Development\\archive\\by-project\\AI_music_generator_1",
+      "absPath": "D:\\development\\archive\\by-project\\AI_music_generator_1",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Ultimate Suno V5 Enhanced AI Music Generation Studio - DJ WillyTheBoy Edition",
@@ -1290,7 +1290,7 @@
       ],
       "lastModifiedIso": "2025-12-07T14:29:46.266Z",
       "lastModifiedLabel": "2025-12-07",
-      "daysOld": 127,
+      "daysOld": 129,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -1399,7 +1399,7 @@
       "name": "AI Orchestrator",
       "dirName": "ai-orchestrator",
       "relPath": "archive\\experiments\\ai-orchestrator",
-      "absPath": "D:\\Development\\archive\\experiments\\ai-orchestrator",
+      "absPath": "D:\\development\\archive\\experiments\\ai-orchestrator",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "SportingClubOS AI Orchestration Service - Unified AI modules for demand forecasting, menu recommendations, pricing, and scheduling",
@@ -1435,7 +1435,7 @@
       ],
       "lastModifiedIso": "2026-01-12T12:00:52.889Z",
       "lastModifiedLabel": "2026-01-12",
-      "daysOld": 91,
+      "daysOld": 93,
       "qualityScore": 16,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -1485,7 +1485,7 @@
         {
           "name": "Waiter Magic Print Server",
           "id": "archive__github-repos__order-swift-touch__print-server",
-          "score": 42,
+          "score": 43,
           "reasons": [
             "F&B / Hospitality",
             "Express, JSON"
@@ -1524,7 +1524,7 @@
       "name": "AI Project Creator",
       "dirName": "AI_project_creator",
       "relPath": "archive\\experiments\\AI_project_creator",
-      "absPath": "D:\\Development\\archive\\experiments\\AI_project_creator",
+      "absPath": "D:\\development\\archive\\experiments\\AI_project_creator",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "AI-Powered Project Management and Team Collaboration Platform - Multi-Agent Development Workspace",
@@ -1652,7 +1652,7 @@
       ],
       "lastModifiedIso": "2026-01-12T11:59:32.461Z",
       "lastModifiedLabel": "2026-01-12",
-      "daysOld": 91,
+      "daysOld": 93,
       "qualityScore": 21,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -1756,7 +1756,7 @@
         {
           "name": "Patterns Extracted From AI Project Creator (Archive)",
           "id": "active__02_ai-agent-studio__patterns-from-project-creator",
-          "score": 64,
+          "score": 63,
           "reasons": [
             "AI / Agents",
             "Docker Compose, FastAPI, Python"
@@ -1794,7 +1794,7 @@
       "name": "AI Sync | Enterprise Intelligence Factory",
       "dirName": "12_database-integration",
       "relPath": "active\\12_database-integration",
-      "absPath": "D:\\Development\\active\\12_database-integration",
+      "absPath": "D:\\development\\active\\12_database-integration",
       "zone": "active",
       "category": "Data / Integration",
       "description": "An autonomous data migration and intelligence platform that bridges legacy data sources (CSV, SQL, Excel) into a modern Common Data Model (CDM). The platform leverages AI agents for schema discovery, SQL optimization, and self-healing data repair.",
@@ -1859,7 +1859,7 @@
       ],
       "lastModifiedIso": "2026-03-19T18:00:45.913Z",
       "lastModifiedLabel": "2026-03-19",
-      "daysOld": 25,
+      "daysOld": 27,
       "qualityScore": 67,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -1888,7 +1888,7 @@
         {
           "name": "Patterns Extracted From AI Project Creator (Archive)",
           "id": "active__02_ai-agent-studio__patterns-from-project-creator",
-          "score": 34,
+          "score": 35,
           "reasons": [
             "Docker Compose, FastAPI, Python, YAML"
           ]
@@ -1925,7 +1925,7 @@
       "name": "Beachclub Pos",
       "dirName": "beachclub-pos",
       "relPath": "archive\\experiments\\beachclub-pos",
-      "absPath": "D:\\Development\\archive\\experiments\\beachclub-pos",
+      "absPath": "D:\\development\\archive\\experiments\\beachclub-pos",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "Generated on 2025-04-24.",
@@ -1949,7 +1949,7 @@
       ],
       "lastModifiedIso": "2025-08-02T15:10:51.843Z",
       "lastModifiedLabel": "2025-08-02",
-      "daysOld": 254,
+      "daysOld": 256,
       "qualityScore": 34,
       "freshnessScore": 18,
       "testingScore": 0,
@@ -2037,7 +2037,7 @@
       "name": "Beachclub Pos",
       "dirName": "beachclub-pos",
       "relPath": "archive\\experiments\\GitHub_Projects\\beachclub-pos",
-      "absPath": "D:\\Development\\archive\\experiments\\GitHub_Projects\\beachclub-pos",
+      "absPath": "D:\\development\\archive\\experiments\\GitHub_Projects\\beachclub-pos",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "Generated on 2025-04-24.",
@@ -2060,9 +2060,9 @@
         "github",
         "pos"
       ],
-      "lastModifiedIso": "2025-08-02T15:10:51.843Z",
-      "lastModifiedLabel": "2025-08-02",
-      "daysOld": 254,
+      "lastModifiedIso": "2025-07-27T09:44:35.000Z",
+      "lastModifiedLabel": "2025-07-27",
+      "daysOld": 262,
       "qualityScore": 34,
       "freshnessScore": 18,
       "testingScore": 0,
@@ -2150,7 +2150,7 @@
       "name": "CommandCore Portable",
       "dirName": "CommandCore-Portable",
       "relPath": "CommandCore-Portable",
-      "absPath": "D:\\Development\\CommandCore-Portable",
+      "absPath": "D:\\development\\CommandCore-Portable",
       "zone": "workspace",
       "category": "Platform / Tooling",
       "description": "Project rooted at CommandCore-Portable",
@@ -2180,7 +2180,7 @@
       ],
       "lastModifiedIso": "2026-04-04T12:31:17.853Z",
       "lastModifiedLabel": "2026-04-04",
-      "daysOld": 9,
+      "daysOld": 11,
       "qualityScore": 42,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -2251,7 +2251,7 @@
       "name": "Control Plane",
       "dirName": "09_control-plane",
       "relPath": "active\\09_control-plane",
-      "absPath": "D:\\Development\\active\\09_control-plane",
+      "absPath": "D:\\development\\active\\09_control-plane",
       "zone": "active",
       "category": "Platform / Tooling",
       "description": "A desktop application for managing a portfolio of local software projects. It scans user-designated root directories, discovers projects by detecting marker files (`package.json`, `Cargo.toml`, etc.), indexes file trees, detects tech stacks, tracks git metadata, monitors file changes, performs similarity analysis to find duplicate or related projects, and can generate and execute merge plans to combine two projects into a new merged directory.",
@@ -2318,7 +2318,7 @@
       ],
       "lastModifiedIso": "2026-03-19T11:02:24.206Z",
       "lastModifiedLabel": "2026-03-19",
-      "daysOld": 25,
+      "daysOld": 27,
       "qualityScore": 67,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -2393,7 +2393,7 @@
       "name": "Dar Abu Nassar App",
       "dirName": "dar-abu-nassar-v2",
       "relPath": "dar-abu-nassar-v2",
-      "absPath": "D:\\Development\\dar-abu-nassar-v2",
+      "absPath": "D:\\development\\dar-abu-nassar-v2",
       "zone": "workspace",
       "category": "Heritage / Content",
       "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
@@ -2428,9 +2428,9 @@
         "with",
         "working"
       ],
-      "lastModifiedIso": "2026-03-21T18:26:07.666Z",
+      "lastModifiedIso": "2026-03-21T18:25:16.000Z",
       "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
+      "daysOld": 24,
       "qualityScore": 59,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -2530,7 +2530,7 @@
       "name": "Ensemble AI Trading Bot Frontend",
       "dirName": "07_trading-bot",
       "relPath": "active\\07_trading-bot",
-      "absPath": "D:\\Development\\active\\07_trading-bot",
+      "absPath": "D:\\development\\active\\07_trading-bot",
       "zone": "active",
       "category": "Finance / Trading",
       "description": "Modern React + TypeScript frontend for the Ensemble AI Trading Bot asset management and chatbot interface.",
@@ -2612,7 +2612,7 @@
       ],
       "lastModifiedIso": "2026-04-02T10:21:25.342Z",
       "lastModifiedLabel": "2026-04-02",
-      "daysOld": 11,
+      "daysOld": 13,
       "qualityScore": 79,
       "freshnessScore": 85,
       "testingScore": 13,
@@ -2679,7 +2679,7 @@
       "name": "Ensemble AI Trading Bot Frontend",
       "dirName": "Ensemble_AI_Trading_Bot",
       "relPath": "archive\\by-project\\trading-bot\\Ensemble_AI_Trading_Bot",
-      "absPath": "D:\\Development\\archive\\by-project\\trading-bot\\Ensemble_AI_Trading_Bot",
+      "absPath": "D:\\development\\archive\\by-project\\trading-bot\\Ensemble_AI_Trading_Bot",
       "zone": "archived",
       "category": "Finance / Trading",
       "description": "Modern React + TypeScript frontend for the Ensemble AI Trading Bot asset management and chatbot interface.",
@@ -2747,7 +2747,7 @@
       ],
       "lastModifiedIso": "2025-10-30T16:10:13.861Z",
       "lastModifiedLabel": "2025-10-30",
-      "daysOld": 165,
+      "daysOld": 167,
       "qualityScore": 61,
       "freshnessScore": 40,
       "testingScore": 4,
@@ -2814,7 +2814,7 @@
       "name": "Eventos Catering",
       "dirName": "catering",
       "relPath": "active\\04_fnb-suite\\catering",
-      "absPath": "D:\\Development\\active\\04_fnb-suite\\catering",
+      "absPath": "D:\\development\\active\\04_fnb-suite\\catering",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "Project rooted at active\\04_fnb-suite\\catering",
@@ -2839,7 +2839,7 @@
       ],
       "lastModifiedIso": "2026-03-18T19:10:55.140Z",
       "lastModifiedLabel": "2026-03-18",
-      "daysOld": 26,
+      "daysOld": 27,
       "qualityScore": 45,
       "freshnessScore": 85,
       "testingScore": 11,
@@ -2940,7 +2940,7 @@
       "name": "Feluka Rebuild",
       "dirName": "14_feluka-website",
       "relPath": "active\\14_feluka-website",
-      "absPath": "D:\\Development\\active\\14_feluka-website",
+      "absPath": "D:\\development\\active\\14_feluka-website",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
@@ -2974,7 +2974,7 @@
       ],
       "lastModifiedIso": "2026-04-04T13:42:29.276Z",
       "lastModifiedLabel": "2026-04-04",
-      "daysOld": 9,
+      "daysOld": 11,
       "qualityScore": 56,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -3044,7 +3044,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__order-swift-touch",
-          "score": 61,
+          "score": 60,
           "reasons": [
             "F&B / Hospitality",
             "Next.js, React, Supabase, React TSX"
@@ -3075,7 +3075,7 @@
       "name": "Feluka Rebuild",
       "dirName": "feluka-rebuild",
       "relPath": "archive\\experiments\\2026_project\\feluka-rebuild",
-      "absPath": "D:\\Development\\archive\\experiments\\2026_project\\feluka-rebuild",
+      "absPath": "D:\\development\\archive\\experiments\\2026_project\\feluka-rebuild",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
@@ -3108,9 +3108,9 @@
         "this",
         "with"
       ],
-      "lastModifiedIso": "2026-01-31T09:26:33.060Z",
+      "lastModifiedIso": "2026-01-31T10:42:36.000Z",
       "lastModifiedLabel": "2026-01-31",
-      "daysOld": 72,
+      "daysOld": 74,
       "qualityScore": 46,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -3188,7 +3188,7 @@
         {
           "name": "Food Pyramid",
           "id": "active__13_food-pyramid",
-          "score": 54,
+          "score": 55,
           "reasons": [
             "F&B / Hospitality",
             "React, React TSX, TypeScript, JSON"
@@ -3210,7 +3210,7 @@
       "name": "Fived Rolodex",
       "dirName": "08_rolodex-crm",
       "relPath": "active\\08_rolodex-crm",
-      "absPath": "D:\\Development\\active\\08_rolodex-crm",
+      "absPath": "D:\\development\\active\\08_rolodex-crm",
       "zone": "active",
       "category": "CRM / Operations",
       "description": "Mobile-first relationship OS (contacts + context + graph + time) based on `CONCEPT.txt`.",
@@ -3245,7 +3245,7 @@
       ],
       "lastModifiedIso": "2026-04-09T10:20:44.531Z",
       "lastModifiedLabel": "2026-04-09",
-      "daysOld": 4,
+      "daysOld": 6,
       "qualityScore": 68,
       "freshnessScore": 100,
       "testingScore": 5,
@@ -3347,7 +3347,7 @@
       "name": "Fived Rolodex",
       "dirName": "fiveD-rolodex",
       "relPath": "archive\\by-project\\rolodex-crm\\ROLODEX\\fiveD-rolodex",
-      "absPath": "D:\\Development\\archive\\by-project\\rolodex-crm\\ROLODEX\\fiveD-rolodex",
+      "absPath": "D:\\development\\archive\\by-project\\rolodex-crm\\ROLODEX\\fiveD-rolodex",
       "zone": "archived",
       "category": "CRM / Operations",
       "description": "Mobile-first relationship OS (contacts + context + graph + time) based on `CONCEPT.txt`.",
@@ -3379,9 +3379,9 @@
         "time",
         "txt"
       ],
-      "lastModifiedIso": "2025-12-15T09:29:37.697Z",
-      "lastModifiedLabel": "2025-12-15",
-      "daysOld": 119,
+      "lastModifiedIso": "2025-12-13T16:39:48.000Z",
+      "lastModifiedLabel": "2025-12-13",
+      "daysOld": 123,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -3479,7 +3479,7 @@
       "name": "FNB Management Suite",
       "dirName": "04_fnb-suite",
       "relPath": "active\\04_fnb-suite",
-      "absPath": "D:\\Development\\active\\04_fnb-suite",
+      "absPath": "D:\\development\\active\\04_fnb-suite",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "F&B Management Suite - Modern Event Catering & Proposal Management",
@@ -3507,7 +3507,7 @@
       ],
       "lastModifiedIso": "2026-04-02T09:05:10.175Z",
       "lastModifiedLabel": "2026-04-02",
-      "daysOld": 11,
+      "daysOld": 13,
       "qualityScore": 68,
       "freshnessScore": 85,
       "testingScore": 20,
@@ -3644,7 +3644,7 @@
       "name": "Food Pyramid",
       "dirName": "13_food-pyramid",
       "relPath": "active\\13_food-pyramid",
-      "absPath": "D:\\Development\\active\\13_food-pyramid",
+      "absPath": "D:\\development\\active\\13_food-pyramid",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
@@ -3677,11 +3677,11 @@
         "with",
         "working"
       ],
-      "lastModifiedIso": "2026-03-21T13:56:18.892Z",
-      "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
-      "qualityScore": 61,
-      "freshnessScore": 85,
+      "lastModifiedIso": "2026-03-14T09:31:16.000Z",
+      "lastModifiedLabel": "2026-03-14",
+      "daysOld": 32,
+      "qualityScore": 54,
+      "freshnessScore": 65,
       "testingScore": 29,
       "docsScore": 32,
       "readinessScore": 48,
@@ -3752,19 +3752,18 @@
         {
           "name": "Feluka Rebuild",
           "id": "archive__experiments__2026_project__feluka-rebuild",
-          "score": 54,
+          "score": 55,
           "reasons": [
             "F&B / Hospitality",
             "React, React TSX, TypeScript, JSON"
           ]
         },
         {
-          "name": "Feluka Rebuild",
-          "id": "active__14_feluka-website",
-          "score": 52,
+          "name": "Sporting Club FNB",
+          "id": "active__16_sportingclub-fnb__sporting-club-fnb",
+          "score": 53,
           "reasons": [
-            "F&B / Hospitality",
-            "React, React TSX, TypeScript, JSON"
+            "React, Vite, JavaScript, JSON"
           ]
         }
       ]
@@ -3774,7 +3773,7 @@
       "name": "Genesis Fm",
       "dirName": "genesis-fm",
       "relPath": "archive\\experiments\\genesis-fm",
-      "absPath": "D:\\Development\\archive\\experiments\\genesis-fm",
+      "absPath": "D:\\development\\archive\\experiments\\genesis-fm",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "Project rooted at archive\\experiments\\genesis-fm",
@@ -3794,7 +3793,7 @@
       ],
       "lastModifiedIso": "2026-03-04T15:27:03.707Z",
       "lastModifiedLabel": "2026-03-04",
-      "daysOld": 40,
+      "daysOld": 42,
       "qualityScore": 24,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -3907,7 +3906,7 @@
       "name": "Getting Started With Create React App",
       "dirName": "01_sporting-club-final",
       "relPath": "archive\\by-project\\sporting-club\\01_sporting-club-final",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\01_sporting-club-final",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\01_sporting-club-final",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -4027,7 +4026,7 @@
       ],
       "lastModifiedIso": "2026-02-01T13:34:05.335Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 65,
       "freshnessScore": 65,
       "testingScore": 2,
@@ -4109,7 +4108,7 @@
       "name": "Image Enhancer Gui",
       "dirName": "image-enhancer-gui",
       "relPath": "active\\05_photo-studio\\image-enhancer-gui",
-      "absPath": "D:\\Development\\active\\05_photo-studio\\image-enhancer-gui",
+      "absPath": "D:\\development\\active\\05_photo-studio\\image-enhancer-gui",
       "zone": "active",
       "category": "Media / Creative",
       "description": "This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.",
@@ -4149,7 +4148,7 @@
       ],
       "lastModifiedIso": "2026-03-21T15:52:29.252Z",
       "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
+      "daysOld": 25,
       "qualityScore": 64,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -4252,7 +4251,7 @@
       "name": "Image Enhancer Gui",
       "dirName": "image-enhancer-gui",
       "relPath": "archive\\by-project\\photo-studio\\image_enhancer_moved\\image-enhancer-gui",
-      "absPath": "D:\\Development\\archive\\by-project\\photo-studio\\image_enhancer_moved\\image-enhancer-gui",
+      "absPath": "D:\\development\\archive\\by-project\\photo-studio\\image_enhancer_moved\\image-enhancer-gui",
       "zone": "archived",
       "category": "Media / Creative",
       "description": "This template should help get you started developing with Tauri in vanilla HTML, CSS and Typescript.",
@@ -4293,7 +4292,7 @@
       ],
       "lastModifiedIso": "2026-02-01T09:31:41.053Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 57,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -4375,7 +4374,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__waiter-magic-basket",
-          "score": 39,
+          "score": 38,
           "reasons": [
             "React, Vite, Zustand, TypeScript"
           ]
@@ -4395,7 +4394,7 @@
       "name": "Juice Bar",
       "dirName": "juice-bar",
       "relPath": "archive\\experiments\\juice-bar",
-      "absPath": "D:\\Development\\archive\\experiments\\juice-bar",
+      "absPath": "D:\\development\\archive\\experiments\\juice-bar",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Juice Bar at Sporting Club",
@@ -4415,7 +4414,7 @@
       ],
       "lastModifiedIso": "2025-12-11T12:49:02.373Z",
       "lastModifiedLabel": "2025-12-11",
-      "daysOld": 123,
+      "daysOld": 125,
       "qualityScore": 39,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -4480,7 +4479,7 @@
       "name": "Juice Bar",
       "dirName": "Juice-Bar",
       "relPath": "archive\\experiments\\GitHub_Projects\\Juice-Bar",
-      "absPath": "D:\\Development\\archive\\experiments\\GitHub_Projects\\Juice-Bar",
+      "absPath": "D:\\development\\archive\\experiments\\GitHub_Projects\\Juice-Bar",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Juice Bar at Sporting Club",
@@ -4499,11 +4498,11 @@
         "juice",
         "sporting"
       ],
-      "lastModifiedIso": "2025-12-11T12:49:02.373Z",
-      "lastModifiedLabel": "2025-12-11",
-      "daysOld": 123,
-      "qualityScore": 39,
-      "freshnessScore": 40,
+      "lastModifiedIso": "2024-06-13T08:48:08.000Z",
+      "lastModifiedLabel": "2024-06-13",
+      "daysOld": 671,
+      "qualityScore": 31,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 77,
       "readinessScore": 34,
@@ -4519,7 +4518,12 @@
       "totalFiles": 5,
       "totalBytes": 99820,
       "nestedManifestSample": [],
-      "warnings": [],
+      "warnings": [
+        {
+          "type": "info",
+          "message": "Project hasn't been updated in over a year (671 days)."
+        }
+      ],
       "scripts": [],
       "packageName": null,
       "deps": [],
@@ -4536,7 +4540,7 @@
         {
           "name": "Sporting Club F&B Management System",
           "id": "archive__by-project__fnb__ElieLebos_FnB__v1.0.0",
-          "score": 76,
+          "score": 75,
           "reasons": [
             "F&B / Hospitality",
             "HTML, JavaScript, CSS"
@@ -4545,16 +4549,16 @@
         {
           "name": "Sporting Club F&B Management System",
           "id": "archive",
-          "score": 52,
+          "score": 51,
           "reasons": [
             "F&B / Hospitality",
             "HTML, JavaScript, CSS"
           ]
         },
         {
-          "name": "New Sporting Club Pos",
-          "id": "archive__by-project__sporting-club__01_sporting-club-final__New_Sporting_Club_POS_x_New_Sporting_Club_POS",
-          "score": 40,
+          "name": "My Story App",
+          "id": "archive__experiments__my-story-app",
+          "score": 39,
           "reasons": [
             "HTML, JavaScript, CSS"
           ]
@@ -4566,7 +4570,7 @@
       "name": "Master",
       "dirName": "master",
       "relPath": "workspace-audit\\master",
-      "absPath": "D:\\Development\\workspace-audit\\master",
+      "absPath": "D:\\development\\workspace-audit\\master",
       "zone": "workspace",
       "category": "Platform / Tooling",
       "description": "Project rooted at workspace-audit\\master",
@@ -4577,8 +4581,8 @@
         "master",
         "rooted"
       ],
-      "lastModifiedIso": "2026-04-13T15:42:02.397Z",
-      "lastModifiedLabel": "2026-04-13",
+      "lastModifiedIso": "2026-04-15T06:14:54.000Z",
+      "lastModifiedLabel": "2026-04-15",
       "daysOld": 0,
       "qualityScore": 28,
       "freshnessScore": 100,
@@ -4588,14 +4592,14 @@
       "sourceFiles": 0,
       "sourceLines": 0,
       "testFiles": 0,
-      "docsFiles": 213,
+      "docsFiles": 306,
       "configFiles": 0,
       "manifestFiles": 0,
       "lockFiles": 0,
       "ciFiles": 0,
       "dockerFiles": 0,
-      "totalFiles": 213,
-      "totalBytes": 299286,
+      "totalFiles": 306,
+      "totalBytes": 504651,
       "nestedManifestSample": [],
       "warnings": [
         {
@@ -4646,7 +4650,7 @@
       "name": "Master Control",
       "dirName": "15_master-control",
       "relPath": "active\\15_master-control",
-      "absPath": "D:\\Development\\active\\15_master-control",
+      "absPath": "D:\\development\\active\\15_master-control",
       "zone": "active",
       "category": "Platform / Tooling",
       "description": "Portfolio command cockpit for managing 14+ software projects. The missing layer between your code and your AI tools.",
@@ -4677,9 +4681,9 @@
         "software",
         "your"
       ],
-      "lastModifiedIso": "2026-04-11T14:04:16.024Z",
+      "lastModifiedIso": "2026-04-11T14:05:43.000Z",
       "lastModifiedLabel": "2026-04-11",
-      "daysOld": 2,
+      "daysOld": 4,
       "qualityScore": 77,
       "freshnessScore": 100,
       "testingScore": 40,
@@ -4793,11 +4797,12 @@
           ]
         },
         {
-          "name": "Vite React Shadcn Ts",
-          "id": "archive__github-repos__order-swift-touch",
-          "score": 37,
+          "name": "CommandCore Portable",
+          "id": "CommandCore-Portable",
+          "score": 36,
           "reasons": [
-            "React, Supabase, Vite, TypeScript"
+            "Platform / Tooling",
+            "React, Supabase, Vite, JavaScript"
           ]
         }
       ]
@@ -4807,7 +4812,7 @@
       "name": "Menu Companion",
       "dirName": "web",
       "relPath": "active\\05_photo-studio\\client-companion\\web",
-      "absPath": "D:\\Development\\active\\05_photo-studio\\client-companion\\web",
+      "absPath": "D:\\development\\active\\05_photo-studio\\client-companion\\web",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "Project rooted at active\\05_photo-studio\\client-companion\\web",
@@ -4832,7 +4837,7 @@
       ],
       "lastModifiedIso": "2026-02-08T08:39:15.077Z",
       "lastModifiedLabel": "2026-02-08",
-      "daysOld": 64,
+      "daysOld": 66,
       "qualityScore": 30,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -4880,7 +4885,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__waiter-magic-basket",
-          "score": 59,
+          "score": 60,
           "reasons": [
             "F&B / Hospitality",
             "React, Vite, Zustand, React TSX"
@@ -4907,7 +4912,7 @@
         {
           "name": "Food Pyramid",
           "id": "active__13_food-pyramid",
-          "score": 48,
+          "score": 49,
           "reasons": [
             "F&B / Hospitality",
             "React, Vite, React TSX, TypeScript"
@@ -4920,7 +4925,7 @@
       "name": "Metabolic Engine",
       "dirName": "metabolic-engine",
       "relPath": "1_metabolic_flow\\metabolicflow_0\\services\\metabolic-engine",
-      "absPath": "D:\\Development\\1_metabolic_flow\\metabolicflow_0\\services\\metabolic-engine",
+      "absPath": "D:\\development\\1_metabolic_flow\\metabolicflow_0\\services\\metabolic-engine",
       "zone": "workspace",
       "category": "Wellness / Nutrition",
       "description": "This service owns deterministic metabolic computation.",
@@ -4944,7 +4949,7 @@
       ],
       "lastModifiedIso": "2026-03-21T18:54:35.455Z",
       "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
+      "daysOld": 24,
       "qualityScore": 69,
       "freshnessScore": 85,
       "testingScore": 46,
@@ -5008,7 +5013,7 @@
       "name": "Metabolic Flow",
       "dirName": "metabolicflow_0",
       "relPath": "1_metabolic_flow\\metabolicflow_0",
-      "absPath": "D:\\Development\\1_metabolic_flow\\metabolicflow_0",
+      "absPath": "D:\\development\\1_metabolic_flow\\metabolicflow_0",
       "zone": "workspace",
       "category": "Wellness / Nutrition",
       "description": "This repo is now wired as a **local-first, runnable v4** of Metabolic Flow.",
@@ -5035,7 +5040,7 @@
       ],
       "lastModifiedIso": "2026-03-24T14:16:11.191Z",
       "lastModifiedLabel": "2026-03-24",
-      "daysOld": 20,
+      "daysOld": 22,
       "qualityScore": 71,
       "freshnessScore": 85,
       "testingScore": 23,
@@ -5131,7 +5136,7 @@
       "name": "Migrations",
       "dirName": "migrations",
       "relPath": "archive\\experiments\\A-PHOTO-ARCHIVER\\migrations",
-      "absPath": "D:\\Development\\archive\\experiments\\A-PHOTO-ARCHIVER\\migrations",
+      "absPath": "D:\\development\\archive\\experiments\\A-PHOTO-ARCHIVER\\migrations",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "Single-database configuration for Flask.",
@@ -5154,7 +5159,7 @@
       ],
       "lastModifiedIso": "2025-12-12T10:13:34.537Z",
       "lastModifiedLabel": "2025-12-12",
-      "daysOld": 122,
+      "daysOld": 124,
       "qualityScore": 35,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -5217,7 +5222,7 @@
       "name": "My Story App",
       "dirName": "my-story-app",
       "relPath": "archive\\experiments\\my-story-app",
-      "absPath": "D:\\Development\\archive\\experiments\\my-story-app",
+      "absPath": "D:\\development\\archive\\experiments\\my-story-app",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -5247,7 +5252,7 @@
       ],
       "lastModifiedIso": "2025-12-07T16:47:39.440Z",
       "lastModifiedLabel": "2025-12-07",
-      "daysOld": 127,
+      "daysOld": 129,
       "qualityScore": 49,
       "freshnessScore": 40,
       "testingScore": 29,
@@ -5332,7 +5337,7 @@
       "name": "My Story App",
       "dirName": "my-story-app",
       "relPath": "archive\\experiments\\Web_Development\\my-story-app",
-      "absPath": "D:\\Development\\archive\\experiments\\Web_Development\\my-story-app",
+      "absPath": "D:\\development\\archive\\experiments\\Web_Development\\my-story-app",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -5363,7 +5368,7 @@
       ],
       "lastModifiedIso": "2025-12-07T16:47:39.440Z",
       "lastModifiedLabel": "2025-12-07",
-      "daysOld": 127,
+      "daysOld": 129,
       "qualityScore": 49,
       "freshnessScore": 40,
       "testingScore": 29,
@@ -5448,7 +5453,7 @@
       "name": "New Sporting Club Pos",
       "dirName": "New_Sporting_Club_POS_x_New_Sporting_Club_POS",
       "relPath": "archive\\by-project\\sporting-club\\01_sporting-club-final\\New_Sporting_Club_POS_x_New_Sporting_Club_POS",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\New_Sporting_Club_POS_x_New_Sporting_Club_POS",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\New_Sporting_Club_POS_x_New_Sporting_Club_POS",
       "zone": "archived",
       "category": "Heritage / Content",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -5481,7 +5486,7 @@
       ],
       "lastModifiedIso": "2026-02-01T07:23:22.984Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 54,
       "freshnessScore": 65,
       "testingScore": 23,
@@ -5570,7 +5575,7 @@
       "name": "Parts Catalog",
       "dirName": "parts",
       "relPath": "workspace-audit\\master\\parts",
-      "absPath": "D:\\Development\\workspace-audit\\master\\parts",
+      "absPath": "D:\\development\\workspace-audit\\master\\parts",
       "zone": "workspace",
       "category": "AI / Agents",
       "description": "This folder contains reusable part dossiers extracted from the reviewed applications.",
@@ -5592,9 +5597,9 @@
         "reviewed",
         "this"
       ],
-      "lastModifiedIso": "2026-04-10T16:03:39.259Z",
-      "lastModifiedLabel": "2026-04-10",
-      "daysOld": 3,
+      "lastModifiedIso": "2026-04-15T06:14:54.000Z",
+      "lastModifiedLabel": "2026-04-15",
+      "daysOld": 0,
       "qualityScore": 47,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -5618,14 +5623,6 @@
       "deps": [],
       "similarApps": [
         {
-          "name": "Patterns Extracted From AI Project Creator (Archive)",
-          "id": "active__02_ai-agent-studio__patterns-from-project-creator",
-          "score": 21,
-          "reasons": [
-            "AI / Agents"
-          ]
-        },
-        {
           "name": "Suno Companion V5",
           "id": "archive__experiments__CreativeTools__SunoCompanion",
           "score": 21,
@@ -5648,6 +5645,14 @@
           "reasons": [
             "AI / Agents"
           ]
+        },
+        {
+          "name": "AI Assistant Bot",
+          "id": "archive__experiments__CreativeTools__SunoCompanion__bot",
+          "score": 20,
+          "reasons": [
+            "AI / Agents"
+          ]
         }
       ]
     },
@@ -5656,7 +5661,7 @@
       "name": "Patterns Extracted From AI Project Creator (Archive)",
       "dirName": "patterns-from-project-creator",
       "relPath": "active\\02_ai-agent-studio\\patterns-from-project-creator",
-      "absPath": "D:\\Development\\active\\02_ai-agent-studio\\patterns-from-project-creator",
+      "absPath": "D:\\development\\active\\02_ai-agent-studio\\patterns-from-project-creator",
       "zone": "active",
       "category": "AI / Agents",
       "description": "**Source:** D:/Development/A_MASTER_APP_dir_archive/AI_project_creator/",
@@ -5775,11 +5780,11 @@
         "validators",
         "websockets"
       ],
-      "lastModifiedIso": "2026-02-01T12:39:43.016Z",
-      "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
-      "qualityScore": 51,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2026-04-08T10:16:50.000Z",
+      "lastModifiedLabel": "2026-04-08",
+      "daysOld": 7,
+      "qualityScore": 63,
+      "freshnessScore": 100,
       "testingScore": 0,
       "docsScore": 56,
       "readinessScore": 54,
@@ -5805,7 +5810,7 @@
         {
           "name": "AI Project Creator",
           "id": "archive__experiments__AI_project_creator",
-          "score": 64,
+          "score": 63,
           "reasons": [
             "AI / Agents",
             "Docker Compose, FastAPI, Python"
@@ -5822,7 +5827,7 @@
         {
           "name": "Unified AI Platform",
           "id": "archive__by-project__sporting-club__01_sporting-club-final__ai",
-          "score": 46,
+          "score": 47,
           "reasons": [
             "Docker Compose, FastAPI, Python"
           ]
@@ -5843,7 +5848,7 @@
       "name": "Platform API",
       "dirName": "platform-api",
       "relPath": "1_metabolic_flow\\metabolicflow_0\\services\\platform-api",
-      "absPath": "D:\\Development\\1_metabolic_flow\\metabolicflow_0\\services\\platform-api",
+      "absPath": "D:\\development\\1_metabolic_flow\\metabolicflow_0\\services\\platform-api",
       "zone": "workspace",
       "category": "Wellness / Nutrition",
       "description": "Fastify orchestration layer for auth, persistence, billing, and analytics.",
@@ -5868,7 +5873,7 @@
       ],
       "lastModifiedIso": "2026-03-24T14:59:28.759Z",
       "lastModifiedLabel": "2026-03-24",
-      "daysOld": 20,
+      "daysOld": 22,
       "qualityScore": 48,
       "freshnessScore": 85,
       "testingScore": 6,
@@ -5954,7 +5959,7 @@
       "name": "Projects",
       "dirName": "projects",
       "relPath": "projects",
-      "absPath": "D:\\Development\\projects",
+      "absPath": "D:\\development\\projects",
       "zone": "workspace",
       "category": "General Workspace",
       "description": "Project rooted at projects",
@@ -5973,7 +5978,7 @@
       ],
       "lastModifiedIso": "2026-04-10T09:53:29.816Z",
       "lastModifiedLabel": "2026-04-10",
-      "daysOld": 3,
+      "daysOld": 5,
       "qualityScore": 42,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -6050,7 +6055,7 @@
       "name": "React + Vite",
       "dirName": "MasterControl",
       "relPath": "MasterControl",
-      "absPath": "D:\\Development\\MasterControl",
+      "absPath": "D:\\development\\MasterControl",
       "zone": "workspace",
       "category": "Platform / Tooling",
       "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
@@ -6095,7 +6100,7 @@
       ],
       "lastModifiedIso": "2026-03-22T18:46:33.565Z",
       "lastModifiedLabel": "2026-03-22",
-      "daysOld": 22,
+      "daysOld": 23,
       "qualityScore": 75,
       "freshnessScore": 85,
       "testingScore": 3,
@@ -6147,7 +6152,7 @@
         {
           "name": "Food Pyramid",
           "id": "active__13_food-pyramid",
-          "score": 40,
+          "score": 39,
           "reasons": [
             "React, Vite, JavaScript, JSON"
           ]
@@ -6167,7 +6172,7 @@
       "name": "React + Vite",
       "dirName": "SportingClubOS",
       "relPath": "archive\\by-project\\sporting-club\\SportingClubOS",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\SportingClubOS",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\SportingClubOS",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
@@ -6277,7 +6282,7 @@
       ],
       "lastModifiedIso": "2026-01-04T16:50:04.052Z",
       "lastModifiedLabel": "2026-01-04",
-      "daysOld": 99,
+      "daysOld": 101,
       "qualityScore": 57,
       "freshnessScore": 40,
       "testingScore": 2,
@@ -6359,7 +6364,7 @@
       "name": "Rest Express",
       "dirName": "sporting-club-fnb",
       "relPath": "sporting-club-fnb",
-      "absPath": "D:\\Development\\sporting-club-fnb",
+      "absPath": "D:\\development\\sporting-club-fnb",
       "zone": "workspace",
       "category": "General Workspace",
       "description": "Project rooted at sporting-club-fnb",
@@ -6382,9 +6387,9 @@
         "rooted",
         "sporting"
       ],
-      "lastModifiedIso": "2026-04-10T10:52:42.483Z",
+      "lastModifiedIso": "2026-04-10T10:30:20.000Z",
       "lastModifiedLabel": "2026-04-10",
-      "daysOld": 3,
+      "daysOld": 5,
       "qualityScore": 42,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -6543,7 +6548,7 @@
       "name": "ROLODEX",
       "dirName": "ROLODEX",
       "relPath": "archive\\by-project\\rolodex-crm\\ROLODEX",
-      "absPath": "D:\\Development\\archive\\by-project\\rolodex-crm\\ROLODEX",
+      "absPath": "D:\\development\\archive\\by-project\\rolodex-crm\\ROLODEX",
       "zone": "archived",
       "category": "CRM / Operations",
       "description": "This repo contains the initial build for **5D Rolodex — Walid’s & Nayla’s Network**.",
@@ -6563,7 +6568,7 @@
       ],
       "lastModifiedIso": "2025-12-13T16:45:10.525Z",
       "lastModifiedLabel": "2025-12-13",
-      "daysOld": 121,
+      "daysOld": 123,
       "qualityScore": 27,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -6609,7 +6614,7 @@
       "name": "Scripts",
       "dirName": "scripts",
       "relPath": "shared\\scripts",
-      "absPath": "D:\\Development\\shared\\scripts",
+      "absPath": "D:\\development\\shared\\scripts",
       "zone": "workspace",
       "category": "AI / Agents",
       "description": "Project rooted at shared\\scripts",
@@ -6678,7 +6683,7 @@
       ],
       "lastModifiedIso": "2026-03-18T18:15:06.934Z",
       "lastModifiedLabel": "2026-03-18",
-      "daysOld": 26,
+      "daysOld": 28,
       "qualityScore": 49,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -6711,7 +6716,7 @@
         {
           "name": "Patterns Extracted From AI Project Creator (Archive)",
           "id": "active__02_ai-agent-studio__patterns-from-project-creator",
-          "score": 38,
+          "score": 37,
           "reasons": [
             "AI / Agents",
             "FastAPI"
@@ -6750,7 +6755,7 @@
       "name": "Sporting Club F&B Management System",
       "dirName": "archive",
       "relPath": "archive",
-      "absPath": "D:\\Development\\archive",
+      "absPath": "D:\\development\\archive",
       "zone": "workspace",
       "category": "F&B / Hospitality",
       "description": "**Version:** 1.21.0",
@@ -6785,7 +6790,7 @@
       ],
       "lastModifiedIso": "2026-03-02T09:02:35.716Z",
       "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
+      "daysOld": 44,
       "qualityScore": 54,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -6836,7 +6841,7 @@
         {
           "name": "Juice Bar",
           "id": "archive__experiments__GitHub_Projects__Juice-Bar",
-          "score": 52,
+          "score": 51,
           "reasons": [
             "F&B / Hospitality",
             "HTML, JavaScript, CSS"
@@ -6858,7 +6863,7 @@
       "name": "Sporting Club F&B Management System",
       "dirName": "v1.0.0",
       "relPath": "archive\\by-project\\fnb\\ElieLebos_FnB\\v1.0.0",
-      "absPath": "D:\\Development\\archive\\by-project\\fnb\\ElieLebos_FnB\\v1.0.0",
+      "absPath": "D:\\development\\archive\\by-project\\fnb\\ElieLebos_FnB\\v1.0.0",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "**Version:** 1.21.0",
@@ -6878,7 +6883,7 @@
       ],
       "lastModifiedIso": "2025-11-09T11:07:53.693Z",
       "lastModifiedLabel": "2025-11-09",
-      "daysOld": 155,
+      "daysOld": 157,
       "qualityScore": 43,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -6913,7 +6918,7 @@
         {
           "name": "Juice Bar",
           "id": "archive__experiments__GitHub_Projects__Juice-Bar",
-          "score": 76,
+          "score": 75,
           "reasons": [
             "F&B / Hospitality",
             "HTML, JavaScript, CSS"
@@ -6943,7 +6948,7 @@
       "name": "Sporting Club FNB",
       "dirName": "04_1_fnb-suite",
       "relPath": "active\\04_1_fnb-suite",
-      "absPath": "D:\\Development\\active\\04_1_fnb-suite",
+      "absPath": "D:\\development\\active\\04_1_fnb-suite",
       "zone": "active",
       "category": "F&B / Hospitality",
       "description": "Sporting Club SAL - F&B Management System",
@@ -6966,9 +6971,9 @@
         "sal",
         "sporting"
       ],
-      "lastModifiedIso": "2026-03-25T15:33:06.599Z",
+      "lastModifiedIso": "2026-03-25T14:45:17.000Z",
       "lastModifiedLabel": "2026-03-25",
-      "daysOld": 19,
+      "daysOld": 21,
       "qualityScore": 59,
       "freshnessScore": 85,
       "testingScore": 0,
@@ -7060,7 +7065,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__order-swift-touch",
-          "score": 55,
+          "score": 54,
           "reasons": [
             "F&B / Hospitality",
             "React, Supabase, Vite, React TSX"
@@ -7073,7 +7078,7 @@
       "name": "Sporting Club FNB",
       "dirName": "sporting-club-fnb",
       "relPath": "active\\16_sportingclub-fnb\\sporting-club-fnb",
-      "absPath": "D:\\Development\\active\\16_sportingclub-fnb\\sporting-club-fnb",
+      "absPath": "D:\\development\\active\\16_sportingclub-fnb\\sporting-club-fnb",
       "zone": "active",
       "category": "General Workspace",
       "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
@@ -7110,7 +7115,7 @@
       ],
       "lastModifiedIso": "2025-10-21T09:40:19.000Z",
       "lastModifiedLabel": "2025-10-21",
-      "daysOld": 174,
+      "daysOld": 176,
       "qualityScore": 45,
       "freshnessScore": 40,
       "testingScore": 0,
@@ -7153,6 +7158,14 @@
       ],
       "similarApps": [
         {
+          "name": "Food Pyramid",
+          "id": "active__13_food-pyramid",
+          "score": 53,
+          "reasons": [
+            "React, Vite, JavaScript, JSON"
+          ]
+        },
+        {
           "name": "Projects",
           "id": "projects",
           "score": 53,
@@ -7164,14 +7177,6 @@
         {
           "name": "Dar Abu Nassar App",
           "id": "dar-abu-nassar-v2",
-          "score": 52,
-          "reasons": [
-            "React, Vite, JavaScript, JSON"
-          ]
-        },
-        {
-          "name": "Food Pyramid",
-          "id": "active__13_food-pyramid",
           "score": 52,
           "reasons": [
             "React, Vite, JavaScript, JSON"
@@ -7192,7 +7197,7 @@
       "name": "Sporting Club Supabase Migration",
       "dirName": "dropbox-offers-migration",
       "relPath": "archive\\by-project\\fnb\\dropbox-offers-migration",
-      "absPath": "D:\\Development\\archive\\by-project\\fnb\\dropbox-offers-migration",
+      "absPath": "D:\\development\\archive\\by-project\\fnb\\dropbox-offers-migration",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "Migrate 13 years of Sporting Club offer data from Dropbox to Supabase",
@@ -7221,7 +7226,7 @@
       ],
       "lastModifiedIso": "2026-02-06T09:53:40.751Z",
       "lastModifiedLabel": "2026-02-06",
-      "daysOld": 66,
+      "daysOld": 68,
       "qualityScore": 49,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -7302,7 +7307,7 @@
       "name": "Sportingclub FNB",
       "dirName": "16_sportingclub-fnb",
       "relPath": "active\\16_sportingclub-fnb",
-      "absPath": "D:\\Development\\active\\16_sportingclub-fnb",
+      "absPath": "D:\\development\\active\\16_sportingclub-fnb",
       "zone": "active",
       "category": "General Workspace",
       "description": "Project rooted at active\\16_sportingclub-fnb",
@@ -7325,7 +7330,7 @@
       ],
       "lastModifiedIso": "2026-04-10T10:52:42.483Z",
       "lastModifiedLabel": "2026-04-10",
-      "daysOld": 3,
+      "daysOld": 5,
       "qualityScore": 42,
       "freshnessScore": 100,
       "testingScore": 0,
@@ -7401,7 +7406,7 @@
       "name": "Studio Image Enhancer",
       "dirName": "05_photo-studio",
       "relPath": "active\\05_photo-studio",
-      "absPath": "D:\\Development\\active\\05_photo-studio",
+      "absPath": "D:\\development\\active\\05_photo-studio",
       "zone": "active",
       "category": "Media / Creative",
       "description": "Studio-grade automated product image enhancement platform with a Tauri v2 desktop GUI and Python CLI backend.",
@@ -7455,7 +7460,7 @@
       ],
       "lastModifiedIso": "2026-03-21T11:05:44.510Z",
       "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
+      "daysOld": 25,
       "qualityScore": 62,
       "freshnessScore": 85,
       "testingScore": 28,
@@ -7523,7 +7528,7 @@
       "name": "Studio Image Enhancer",
       "dirName": "image_enhancer_moved",
       "relPath": "archive\\by-project\\photo-studio\\image_enhancer_moved",
-      "absPath": "D:\\Development\\archive\\by-project\\photo-studio\\image_enhancer_moved",
+      "absPath": "D:\\development\\archive\\by-project\\photo-studio\\image_enhancer_moved",
       "zone": "archived",
       "category": "Media / Creative",
       "description": "Studio-grade automated product image enhancement platform with a Tauri v2 desktop GUI and Python CLI backend.",
@@ -7563,7 +7568,7 @@
       ],
       "lastModifiedIso": "2026-02-01T09:31:41.566Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 50,
       "freshnessScore": 65,
       "testingScore": 35,
@@ -7630,7 +7635,7 @@
       "name": "Suno Companion V3",
       "dirName": "SUNO_companionApp_v3_BACKUP",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_BACKUP",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_BACKUP",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_BACKUP",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Project rooted at archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_BACKUP",
@@ -7655,7 +7660,7 @@
       ],
       "lastModifiedIso": "2025-10-30T18:28:46.437Z",
       "lastModifiedLabel": "2025-10-30",
-      "daysOld": 165,
+      "daysOld": 166,
       "qualityScore": 29,
       "freshnessScore": 40,
       "testingScore": 3,
@@ -7746,7 +7751,7 @@
       "name": "Suno Companion V3",
       "dirName": "SUNO_companionApp_v3_suno",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_suno",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_suno",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_suno",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Project rooted at archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3_suno",
@@ -7770,7 +7775,7 @@
       ],
       "lastModifiedIso": "2025-10-20T11:58:24.932Z",
       "lastModifiedLabel": "2025-10-20",
-      "daysOld": 175,
+      "daysOld": 177,
       "qualityScore": 33,
       "freshnessScore": 40,
       "testingScore": 2,
@@ -7866,7 +7871,7 @@
       "name": "Suno Companion V4",
       "dirName": "SUNO_companionApp_v4",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v4",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v4",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v4",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Project rooted at archive\\by-project\\Suno_Versions\\SUNO_companionApp_v4",
@@ -7890,7 +7895,7 @@
       ],
       "lastModifiedIso": "2025-11-01T05:39:38.788Z",
       "lastModifiedLabel": "2025-11-01",
-      "daysOld": 163,
+      "daysOld": 165,
       "qualityScore": 30,
       "freshnessScore": 40,
       "testingScore": 5,
@@ -7981,7 +7986,7 @@
       "name": "Suno Companion V5",
       "dirName": "SUNO_companionApp_v3",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Project rooted at archive\\by-project\\Suno_Versions\\SUNO_companionApp_v3",
@@ -8006,7 +8011,7 @@
       ],
       "lastModifiedIso": "2025-11-01T05:40:29.752Z",
       "lastModifiedLabel": "2025-11-01",
-      "daysOld": 163,
+      "daysOld": 165,
       "qualityScore": 32,
       "freshnessScore": 40,
       "testingScore": 3,
@@ -8099,7 +8104,7 @@
       "name": "Suno Companion V5",
       "dirName": "SUNO_companionApp_v5.2_BACKUP",
       "relPath": "archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP",
-      "absPath": "D:\\Development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP",
+      "absPath": "D:\\development\\archive\\by-project\\Suno_Versions\\SUNO_companionApp_v5.2_BACKUP",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "**AI-Powered Music Artist & Track Creation Tool**",
@@ -8130,7 +8135,7 @@
       ],
       "lastModifiedIso": "2025-11-08T05:54:19.405Z",
       "lastModifiedLabel": "2025-11-08",
-      "daysOld": 156,
+      "daysOld": 158,
       "qualityScore": 58,
       "freshnessScore": 40,
       "testingScore": 12,
@@ -8234,7 +8239,7 @@
       "name": "Suno Companion V5",
       "dirName": "SunoCompanion",
       "relPath": "archive\\experiments\\CreativeTools\\SunoCompanion",
-      "absPath": "D:\\Development\\archive\\experiments\\CreativeTools\\SunoCompanion",
+      "absPath": "D:\\development\\archive\\experiments\\CreativeTools\\SunoCompanion",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -8271,7 +8276,7 @@
       ],
       "lastModifiedIso": "2025-12-05T15:23:04.210Z",
       "lastModifiedLabel": "2025-12-05",
-      "daysOld": 129,
+      "daysOld": 131,
       "qualityScore": 57,
       "freshnessScore": 40,
       "testingScore": 3,
@@ -8384,7 +8389,7 @@
       "name": "Suno Music App",
       "dirName": "Suno_Music_React_App",
       "relPath": "archive\\by-project\\02_Music_Suno_Apps\\Suno_Music_React_App",
-      "absPath": "D:\\Development\\archive\\by-project\\02_Music_Suno_Apps\\Suno_Music_React_App",
+      "absPath": "D:\\development\\archive\\by-project\\02_Music_Suno_Apps\\Suno_Music_React_App",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
@@ -8414,7 +8419,7 @@
       ],
       "lastModifiedIso": "2024-12-30T09:34:00.251Z",
       "lastModifiedLabel": "2024-12-30",
-      "daysOld": 469,
+      "daysOld": 471,
       "qualityScore": 38,
       "freshnessScore": 18,
       "testingScore": 15,
@@ -8445,7 +8450,7 @@
         },
         {
           "type": "info",
-          "message": "Project hasn't been updated in over a year (469 days)."
+          "message": "Project hasn't been updated in over a year (471 days)."
         }
       ],
       "scripts": [
@@ -8503,7 +8508,7 @@
       "name": "Suno Music Studio",
       "dirName": "03_suno-music-studio",
       "relPath": "active\\03_suno-music-studio",
-      "absPath": "D:\\Development\\active\\03_suno-music-studio",
+      "absPath": "D:\\development\\active\\03_suno-music-studio",
       "zone": "active",
       "category": "AI / Agents",
       "description": "Ultimate Suno V5 Enhanced AI Music Generation Studio - DJ WillyTheBoy Edition",
@@ -8533,7 +8538,7 @@
       ],
       "lastModifiedIso": "2026-03-21T13:46:56.951Z",
       "lastModifiedLabel": "2026-03-21",
-      "daysOld": 23,
+      "daysOld": 25,
       "qualityScore": 64,
       "freshnessScore": 85,
       "testingScore": 6,
@@ -8647,7 +8652,7 @@
       "name": "Suno Prompt Studio Enhanced",
       "dirName": "suno-prompt-studio-enhanced",
       "relPath": "archive\\by-project\\SUNO-promptStudio-X\\suno-prompt-studio-enhanced",
-      "absPath": "D:\\Development\\archive\\by-project\\SUNO-promptStudio-X\\suno-prompt-studio-enhanced",
+      "absPath": "D:\\development\\archive\\by-project\\SUNO-promptStudio-X\\suno-prompt-studio-enhanced",
       "zone": "archived",
       "category": "AI / Agents",
       "description": "Project rooted at archive\\by-project\\SUNO-promptStudio-X\\suno-prompt-studio-enhanced",
@@ -8667,9 +8672,9 @@
         "rooted",
         "suno"
       ],
-      "lastModifiedIso": "2025-08-11T13:12:48.377Z",
-      "lastModifiedLabel": "2025-08-11",
-      "daysOld": 245,
+      "lastModifiedIso": "2025-07-31T15:17:30.000Z",
+      "lastModifiedLabel": "2025-07-31",
+      "daysOld": 258,
       "qualityScore": 12,
       "freshnessScore": 18,
       "testingScore": 0,
@@ -8750,7 +8755,7 @@
       "name": "TV Display",
       "dirName": "TV-Display",
       "relPath": "archive\\github-repos\\TV-Display",
-      "absPath": "D:\\Development\\archive\\github-repos\\TV-Display",
+      "absPath": "D:\\development\\archive\\github-repos\\TV-Display",
       "zone": "archived",
       "category": "Media / Creative",
       "description": "Project rooted at archive\\github-repos\\TV-Display",
@@ -8763,11 +8768,11 @@
         "repos",
         "rooted"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:35.561Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
-      "qualityScore": 35,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2025-06-01T09:46:30.000Z",
+      "lastModifiedLabel": "2025-06-01",
+      "daysOld": 318,
+      "qualityScore": 19,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 24,
       "readinessScore": 18,
@@ -8791,7 +8796,7 @@
         {
           "name": "A PHOTO ARCHIVER",
           "id": "archive__experiments__A-PHOTO-ARCHIVER",
-          "score": 21,
+          "score": 20,
           "reasons": [
             "Media / Creative"
           ]
@@ -8799,7 +8804,7 @@
         {
           "name": "Image Enhancer Gui",
           "id": "archive__by-project__photo-studio__image_enhancer_moved__image-enhancer-gui",
-          "score": 20,
+          "score": 19,
           "reasons": [
             "Media / Creative"
           ]
@@ -8807,7 +8812,7 @@
         {
           "name": "Studio Image Enhancer",
           "id": "archive__by-project__photo-studio__image_enhancer_moved",
-          "score": 20,
+          "score": 19,
           "reasons": [
             "Media / Creative"
           ]
@@ -8815,7 +8820,7 @@
         {
           "name": "Image Enhancer Gui",
           "id": "active__05_photo-studio__image-enhancer-gui",
-          "score": 18,
+          "score": 17,
           "reasons": [
             "Media / Creative"
           ]
@@ -8827,7 +8832,7 @@
       "name": "Unified AI Platform",
       "dirName": "ai",
       "relPath": "archive\\by-project\\sporting-club\\01_sporting-club-final\\ai",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\ai",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\ai",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Unified AI Platform for APEX Hospitality Event Management",
@@ -8966,7 +8971,7 @@
       ],
       "lastModifiedIso": "2026-02-01T13:30:30.070Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 65,
       "freshnessScore": 65,
       "testingScore": 18,
@@ -9088,7 +9093,7 @@
         {
           "name": "Patterns Extracted From AI Project Creator (Archive)",
           "id": "active__02_ai-agent-studio__patterns-from-project-creator",
-          "score": 46,
+          "score": 47,
           "reasons": [
             "Docker Compose, FastAPI, Python"
           ]
@@ -9109,7 +9114,7 @@
       "name": "Unified AI Platform",
       "dirName": "ai",
       "relPath": "archive\\by-project\\sporting-club\\SportingClubOS\\ai",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\SportingClubOS\\ai",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\SportingClubOS\\ai",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Unified AI Platform for APEX Hospitality Event Management",
@@ -9240,7 +9245,7 @@
       ],
       "lastModifiedIso": "2025-12-29T09:46:54.177Z",
       "lastModifiedLabel": "2025-12-29",
-      "daysOld": 105,
+      "daysOld": 107,
       "qualityScore": 54,
       "freshnessScore": 40,
       "testingScore": 18,
@@ -9378,7 +9383,7 @@
       "name": "Unified Waiter App",
       "dirName": "unified_waiter_app",
       "relPath": "archive\\by-project\\sporting-club\\01_sporting-club-final\\unified_waiter_app",
-      "absPath": "D:\\Development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\unified_waiter_app",
+      "absPath": "D:\\development\\archive\\by-project\\sporting-club\\01_sporting-club-final\\unified_waiter_app",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Unified restaurant management system with POS, orders, inventory, and kitchen display",
@@ -9413,7 +9418,7 @@
       ],
       "lastModifiedIso": "2026-01-31T19:36:57.739Z",
       "lastModifiedLabel": "2026-01-31",
-      "daysOld": 72,
+      "daysOld": 73,
       "qualityScore": 63,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -9487,21 +9492,21 @@
           ]
         },
         {
-          "name": "Vite React Shadcn Ts",
-          "id": "archive__github-repos__waiter-magic-basket",
-          "score": 51,
-          "reasons": [
-            "F&B / Hospitality",
-            "Next.js, React, Vite, Zustand"
-          ]
-        },
-        {
           "name": "FNB Management Suite",
           "id": "active__04_fnb-suite",
           "score": 50,
           "reasons": [
             "F&B / Hospitality",
             "Docker Compose, Express, React, Vite"
+          ]
+        },
+        {
+          "name": "Vite React Shadcn Ts",
+          "id": "archive__github-repos__waiter-magic-basket",
+          "score": 50,
+          "reasons": [
+            "F&B / Hospitality",
+            "Next.js, React, Vite, Zustand"
           ]
         }
       ]
@@ -9511,7 +9516,7 @@
       "name": "Vite React Shadcn Ts",
       "dirName": "clone-of-loyalty-link-forge-final",
       "relPath": "archive\\github-repos\\clone-of-loyalty-link-forge-final",
-      "absPath": "D:\\Development\\archive\\github-repos\\clone-of-loyalty-link-forge-final",
+      "absPath": "D:\\development\\archive\\github-repos\\clone-of-loyalty-link-forge-final",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "A comprehensive customer loyalty program solution designed specifically for restaurants, with seamless POS system integration and beautiful mobile-first design.",
@@ -9554,9 +9559,9 @@
         "vite",
         "with"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:36.338Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
+      "lastModifiedIso": "2026-01-29T12:50:05.000Z",
+      "lastModifiedLabel": "2026-01-29",
+      "daysOld": 76,
       "qualityScore": 52,
       "freshnessScore": 65,
       "testingScore": 0,
@@ -9670,15 +9675,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__smart-dish-flow",
-          "score": 58,
-          "reasons": [
-            "Next.js, React, Supabase, Vite"
-          ]
-        },
-        {
-          "name": "Vite React Shadcn Ts",
-          "id": "archive__github-repos__order-swift-touch",
-          "score": 47,
+          "score": 57,
           "reasons": [
             "Next.js, React, Supabase, Vite"
           ]
@@ -9690,6 +9687,14 @@
           "reasons": [
             "Data / Integration",
             "React, Supabase, Vite, React TSX"
+          ]
+        },
+        {
+          "name": "Vite React Shadcn Ts",
+          "id": "archive__github-repos__order-swift-touch",
+          "score": 46,
+          "reasons": [
+            "Next.js, React, Supabase, Vite"
           ]
         },
         {
@@ -9708,7 +9713,7 @@
       "name": "Vite React Shadcn Ts",
       "dirName": "order-swift-touch",
       "relPath": "archive\\github-repos\\order-swift-touch",
-      "absPath": "D:\\Development\\archive\\github-repos\\order-swift-touch",
+      "absPath": "D:\\development\\archive\\github-repos\\order-swift-touch",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "**URL**: https://lovable.dev/projects/2bbe1aaf-6449-4044-ac72-1cdad003f82b",
@@ -9743,11 +9748,11 @@
         "url",
         "vite"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:35.793Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
-      "qualityScore": 52,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2025-08-09T08:11:57.000Z",
+      "lastModifiedLabel": "2025-08-09",
+      "daysOld": 249,
+      "qualityScore": 36,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 25,
       "readinessScore": 56,
@@ -9872,7 +9877,7 @@
         {
           "name": "Feluka Rebuild",
           "id": "active__14_feluka-website",
-          "score": 61,
+          "score": 60,
           "reasons": [
             "F&B / Hospitality",
             "Next.js, React, Supabase, React TSX"
@@ -9903,7 +9908,7 @@
       "name": "Vite React Shadcn Ts",
       "dirName": "smart-dish-flow",
       "relPath": "archive\\github-repos\\smart-dish-flow",
-      "absPath": "D:\\Development\\archive\\github-repos\\smart-dish-flow",
+      "absPath": "D:\\development\\archive\\github-repos\\smart-dish-flow",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "**URL**: https://lovable.dev/projects/85469ebc-a0da-43f5-857c-d156796dea93",
@@ -9938,11 +9943,11 @@
         "url",
         "vite"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:34.533Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
-      "qualityScore": 52,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2025-09-24T07:52:47.000Z",
+      "lastModifiedLabel": "2025-09-24",
+      "daysOld": 203,
+      "qualityScore": 36,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 26,
       "readinessScore": 56,
@@ -10065,7 +10070,7 @@
         {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__clone-of-loyalty-link-forge-final",
-          "score": 58,
+          "score": 57,
           "reasons": [
             "Next.js, React, Supabase, Vite"
           ]
@@ -10086,7 +10091,7 @@
       "name": "Vite React Shadcn Ts",
       "dirName": "waiter-magic-basket",
       "relPath": "archive\\github-repos\\waiter-magic-basket",
-      "absPath": "D:\\Development\\archive\\github-repos\\waiter-magic-basket",
+      "absPath": "D:\\development\\archive\\github-repos\\waiter-magic-basket",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "**URL**: https://lovable.dev/projects/607baee3-0cd6-4047-9df1-bc9881101a64",
@@ -10121,11 +10126,11 @@
         "vite",
         "waiter"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:32.789Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
-      "qualityScore": 52,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2025-08-09T20:02:59.000Z",
+      "lastModifiedLabel": "2025-08-09",
+      "daysOld": 248,
+      "qualityScore": 36,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 27,
       "readinessScore": 56,
@@ -10231,6 +10236,15 @@
       ],
       "similarApps": [
         {
+          "name": "Menu Companion",
+          "id": "active__05_photo-studio__client-companion__web",
+          "score": 60,
+          "reasons": [
+            "F&B / Hospitality",
+            "React, Vite, Zustand, React TSX"
+          ]
+        },
+        {
           "name": "Vite React Shadcn Ts",
           "id": "archive__github-repos__order-swift-touch",
           "score": 60,
@@ -10249,18 +10263,9 @@
           ]
         },
         {
-          "name": "Menu Companion",
-          "id": "active__05_photo-studio__client-companion__web",
-          "score": 59,
-          "reasons": [
-            "F&B / Hospitality",
-            "React, Vite, Zustand, React TSX"
-          ]
-        },
-        {
           "name": "Unified Waiter App",
           "id": "archive__by-project__sporting-club__01_sporting-club-final__unified_waiter_app",
-          "score": 51,
+          "score": 50,
           "reasons": [
             "F&B / Hospitality",
             "Next.js, React, Vite, Zustand"
@@ -10273,7 +10278,7 @@
       "name": "Waiter Magic Print Server",
       "dirName": "print-server",
       "relPath": "archive\\github-repos\\order-swift-touch\\print-server",
-      "absPath": "D:\\Development\\archive\\github-repos\\order-swift-touch\\print-server",
+      "absPath": "D:\\development\\archive\\github-repos\\order-swift-touch\\print-server",
       "zone": "archived",
       "category": "F&B / Hospitality",
       "description": "Local print server for WaiterMagic to connect to network printers",
@@ -10301,11 +10306,11 @@
         "waiter",
         "waitermagic"
       ],
-      "lastModifiedIso": "2026-03-02T09:02:35.692Z",
-      "lastModifiedLabel": "2026-03-02",
-      "daysOld": 42,
-      "qualityScore": 54,
-      "freshnessScore": 65,
+      "lastModifiedIso": "2025-08-09T08:11:57.000Z",
+      "lastModifiedLabel": "2025-08-09",
+      "daysOld": 249,
+      "qualityScore": 38,
+      "freshnessScore": 18,
       "testingScore": 0,
       "docsScore": 100,
       "readinessScore": 38,
@@ -10339,19 +10344,10 @@
         {
           "name": "AI Orchestrator",
           "id": "archive__experiments__ai-orchestrator",
-          "score": 42,
+          "score": 43,
           "reasons": [
             "F&B / Hospitality",
             "Express, JSON"
-          ]
-        },
-        {
-          "name": "Unified AI Platform",
-          "id": "archive__by-project__sporting-club__SportingClubOS__ai",
-          "score": 38,
-          "reasons": [
-            "F&B / Hospitality",
-            "Express, JavaScript, JSON"
           ]
         },
         {
@@ -10365,8 +10361,17 @@
         },
         {
           "name": "Unified AI Platform",
-          "id": "archive__by-project__sporting-club__01_sporting-club-final__ai",
+          "id": "archive__by-project__sporting-club__SportingClubOS__ai",
           "score": 37,
+          "reasons": [
+            "F&B / Hospitality",
+            "Express, JavaScript, JSON"
+          ]
+        },
+        {
+          "name": "Unified AI Platform",
+          "id": "archive__by-project__sporting-club__01_sporting-club-final__ai",
+          "score": 36,
           "reasons": [
             "F&B / Hospitality",
             "Express, JavaScript, JSON"
@@ -10379,7 +10384,7 @@
       "name": "Willys Recipe Book",
       "dirName": "06_recipe-book-final",
       "relPath": "archive\\by-project\\recipe-book\\06_recipe-book-final",
-      "absPath": "D:\\Development\\archive\\by-project\\recipe-book\\06_recipe-book-final",
+      "absPath": "D:\\development\\archive\\by-project\\recipe-book\\06_recipe-book-final",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "Beautiful recipe management app with meal planning and shopping lists",
@@ -10411,7 +10416,7 @@
       ],
       "lastModifiedIso": "2026-02-01T13:12:28.114Z",
       "lastModifiedLabel": "2026-02-01",
-      "daysOld": 71,
+      "daysOld": 73,
       "qualityScore": 60,
       "freshnessScore": 65,
       "testingScore": 16,
@@ -10504,7 +10509,7 @@
       "name": "Willys Recipe Book",
       "dirName": "recipe-book-enhanced",
       "relPath": "archive\\by-project\\recipe-book\\recipe-book-enhanced",
-      "absPath": "D:\\Development\\archive\\by-project\\recipe-book\\recipe-book-enhanced",
+      "absPath": "D:\\development\\archive\\by-project\\recipe-book\\recipe-book-enhanced",
       "zone": "archived",
       "category": "Data / Integration",
       "description": "Beautiful recipe management app with meal planning and shopping lists",
@@ -10535,7 +10540,7 @@
       ],
       "lastModifiedIso": "2025-12-15T16:09:12.232Z",
       "lastModifiedLabel": "2025-12-15",
-      "daysOld": 119,
+      "daysOld": 121,
       "qualityScore": 49,
       "freshnessScore": 40,
       "testingScore": 18,
@@ -10631,7 +10636,7 @@
       "name": "Workspace Reorganization",
       "dirName": "temp-ws-reorg",
       "relPath": "temp-ws-reorg",
-      "absPath": "D:\\Development\\temp-ws-reorg",
+      "absPath": "D:\\development\\temp-ws-reorg",
       "zone": "sandbox",
       "category": "AI / Agents",
       "description": "Claude Code automation package - workspace reorganization, P0 deployment, file consolidation scripts",
@@ -10667,9 +10672,9 @@
         "temp",
         "uvicorn"
       ],
-      "lastModifiedIso": "2026-04-04T15:20:04.813Z",
+      "lastModifiedIso": "2026-04-04T15:18:12.000Z",
       "lastModifiedLabel": "2026-04-04",
-      "daysOld": 9,
+      "daysOld": 11,
       "qualityScore": 65,
       "freshnessScore": 85,
       "testingScore": 0,

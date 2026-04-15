@@ -1918,3 +1918,10 @@
 - [x] Persist runner, launch decision/status, authorization status, checkpoint counts, recommended action, Markdown, and full board payload.
 - [x] Add Governance save and copy controls for persisted launch control board snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Control Board Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved launch control boards with live runner-start state.
+- [x] Compare launch decision/status, authorization status, pack decision, checkpoint counts, recommended action, and Markdown changes.
+- [x] Add Governance copy controls and drift cards for latest/per-snapshot launch control board drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

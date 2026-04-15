@@ -473,6 +473,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiffPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-control-board-snapshots/diff", {
+      snapshotId,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

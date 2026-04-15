@@ -609,6 +609,22 @@
  *   board: ConvergenceAssimilationRunnerLaunchControlBoardPayload,
  *   createdAt: string
  * }} PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   runner: "codex" | "claude" | "",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: { launchDecision: string, launchStatus: string, authorizationStatus: string, packDecision: string, openCheckpointCount: number, escalatedCheckpointCount: number, recommendedAction: string } | null,
+ *   snapshotSummary: { launchDecision: string, launchStatus: string, authorizationStatus: string, packDecision: string, openCheckpointCount: number, escalatedCheckpointCount: number, recommendedAction: string } | null,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiffPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1848,6 +1864,7 @@
  *   convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchControlBoard?: ConvergenceAssimilationRunnerLaunchControlBoardPayload | null,
  *   convergenceAssimilationRunnerLaunchControlBoardSnapshots: PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[],
+ *   convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff?: ConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

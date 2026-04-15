@@ -3434,6 +3434,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotsJson[0].title, "Fixture Codex Launch Control Board");
 
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson = await convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.runner, "codex");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.driftItems.length, 0);
+    assert.match(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Control Board Snapshot Drift/);
+
     const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3506,6 +3515,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.hasDrift, true);
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftSeverity, "high");
     assert.ok(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.some((item) => item.field === "decision" || item.field === "authorizationStatus"));
+
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson = await convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.hasDrift, true);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.driftSeverity, "high");
+    assert.ok(convergenceAssimilationRunnerLaunchControlBoardSnapshotDriftJson.driftItems.some((item) => item.field === "launchDecision" || item.field === "launchStatus" || item.field === "authorizationStatus"));
     const launchAuthorizationPackCheckpointField = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.find((item) => item.field === "decision" || item.field === "authorizationStatus")?.field || "decision";
 
     const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {

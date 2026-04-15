@@ -3589,6 +3589,120 @@ export function createGovernanceDeck(governance) {
       ])
     ].filter(Boolean)))
   ] : [];
+  const convergenceAssimilationSessionPacketDriftCheckpointLedger = governance.convergenceAssimilationSessionPacketDriftCheckpointLedger || null;
+  const convergenceAssimilationSessionPacketDriftCheckpointSummary = convergenceAssimilationSessionPacketDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0
+  };
+  const convergenceAssimilationSessionPacketDriftCheckpointLedgerEntries = convergenceAssimilationSessionPacketDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-session-packet-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Session packet drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900"
+        }
+      }),
+      createElement("div", {
+        text: `${convergenceAssimilationSessionPacketDriftCheckpointSummary.open || 0} open / ${convergenceAssimilationSessionPacketDriftCheckpointSummary.total || 0} checkpoint(s). Export decisions before refreshing CLI handoff snapshots.`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.86rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(`${convergenceAssimilationSessionPacketDriftCheckpointSummary.confirmed || 0} confirmed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationSessionPacketDriftCheckpointSummary.confirmed || 0) ? "var(--success)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationSessionPacketDriftCheckpointSummary.deferred || 0} deferred`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationSessionPacketDriftCheckpointSummary.deferred || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationSessionPacketDriftCheckpointSummary.escalated || 0} escalated`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationSessionPacketDriftCheckpointSummary.escalated || 0) ? "var(--danger)" : "var(--text-muted)"
+        })
+      ]),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationSessionPacketDriftCheckpointLedger.items || []).slice(0, 12).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-session-packet-drift-checkpoint-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.42rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.convergenceAssimilationSessionPacketDriftLabel || "Session packet drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(item.convergenceAssimilationSessionPacketDriftDecision || "deferred", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: item.convergenceAssimilationSessionPacketDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationSessionPacketDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(item.status || "open", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: item.status === "resolved" ? "var(--success)" : item.status === "blocked" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(item.convergenceAssimilationSessionPacketRunner || "codex", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        text: `${item.convergenceAssimilationSessionPacketDriftLabel || item.convergenceAssimilationSessionPacketDriftField || "field"}: ${item.convergenceAssimilationSessionPacketDriftBefore || "missing"} -> ${item.convergenceAssimilationSessionPacketDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]))
+  ] : [];
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -11028,6 +11142,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Readiness Gate", "Ready/review/hold gate for continuing supervised convergence implementation.", convergenceAssimilationReadinessEntries),
     createListSection("Convergence Assimilation Session Packet Snapshots", "Persisted non-secret Codex and Claude session packets for auditable CLI handoffs.", convergenceAssimilationSessionPacketSnapshotEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),
+    createListSection("Convergence Assimilation Session Packet Drift Checkpoints", "Operator decisions made against session packet drift before refreshing CLI handoffs.", convergenceAssimilationSessionPacketDriftCheckpointLedgerEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

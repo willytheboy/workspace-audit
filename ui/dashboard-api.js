@@ -294,6 +294,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationSessionPacketDriftCheckpointLedgerPayload>}
+   */
+  fetchConvergenceAssimilationSessionPacketDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/assimilation-session-packet-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

@@ -3381,6 +3381,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(checkpointedResultCountDrift.checkpointDecision, "confirmed");
     assert.equal(checkpointedResultCountDrift.checkpointStatus, "resolved");
 
+    const convergenceAssimilationSessionPacketDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-drift-checkpoint-ledger?status=closed`);
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationSessionPacketDriftCheckpointLedgerJson = await convergenceAssimilationSessionPacketDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(convergenceAssimilationSessionPacketDriftCheckpointLedgerJson.items[0].convergenceAssimilationSessionPacketDriftField, "resultCount");
+    assert.match(convergenceAssimilationSessionPacketDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Session Packet Drift Checkpoint Ledger/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -2120,3 +2120,10 @@
 - [x] Summarize visible, open, closed, archived, Codex, Claude, and total work-item counts.
 - [x] Surface Governance ledger cards and Copy All/Open/Closed controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Intake
+
+- [x] Add a non-secret result intake API for queued launch stack remediation work-order runs.
+- [x] Update linked remediation work-order runs with result status, validation summary, changed files, blockers, and next action.
+- [x] Surface Governance Record Passed and Record Blocked controls on remediation work-order run cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

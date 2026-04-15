@@ -5265,6 +5265,28 @@ export function createGovernanceDeck(governance) {
           border: "1px solid var(--border)",
           color: "var(--text-muted)"
         })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-btn",
+          text: "Record Passed",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultRunId: run.id || "",
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultStatus: "passed"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-result-btn",
+          text: "Record Blocked",
+          attrs: { type: "button" },
+          dataset: {
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultRunId: run.id || "",
+            convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultStatus: "blocked"
+          }
+        })
       ])
     ]))
   ] : [];

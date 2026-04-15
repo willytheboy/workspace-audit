@@ -146,6 +146,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload>,
  *     queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun: (payload?: { runner?: "codex" | "claude", status?: string, notes?: string }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger: (options?: { status?: "all" | "open" | "closed" | "active" | "archived", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload>,
+ *     recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult: (runId: string, payload: { status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string }) => Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
  *     refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
@@ -3411,6 +3412,40 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = `Copied ${status}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-work-order-result-run-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultRunId || "";
+        const status = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultStatus || "needs-review";
+        if (!runId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Recording";
+          await api.recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult(runId, {
+            status: status === "passed" ? "passed" : "blocked",
+            summary: status === "passed"
+              ? "Operator recorded a non-secret launch stack remediation pass result from the supervised runner."
+              : "Operator recorded a non-secret launch stack remediation blocker from the supervised runner.",
+            validationSummary: status === "passed" ? "Validation was reported as passed by the operator." : "Validation is blocked pending remediation follow-up.",
+            blockers: status === "passed" ? [] : ["Operator-marked remediation blocker requires review."],
+            nextAction: status === "passed" ? "Refresh remediation pack baselines and re-check launch stack status." : "Review blocker and queue a follow-up remediation work order if needed."
+          });
+          await renderGovernance();
+          element.textContent = status === "passed" ? "Passed Recorded" : "Blocked Recorded";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

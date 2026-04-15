@@ -3306,6 +3306,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationBlueprintJson.markdown, /# Convergence Assimilation Blueprint/);
     assert.match(convergenceAssimilationBlueprintJson.markdown, /No-Secrets Boundary/);
     assert.match(convergenceAssimilationBlueprintJson.secretPolicy, /Non-secret convergence assimilation planning metadata only/);
+
+    const convergenceAssimilationWorkOrderDraftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-draft?pairId=${encodeURIComponent(operatorProposalJson.review.pairId)}&runner=claude`);
+    assert.equal(convergenceAssimilationWorkOrderDraftResponse.status, 200);
+    const convergenceAssimilationWorkOrderDraftJson = await convergenceAssimilationWorkOrderDraftResponse.json();
+    assert.equal(convergenceAssimilationWorkOrderDraftJson.pairId, operatorProposalJson.review.pairId);
+    assert.equal(convergenceAssimilationWorkOrderDraftJson.runner, "claude");
+    assert.equal(convergenceAssimilationWorkOrderDraftJson.executionMode, "non-executing");
+    assert.match(convergenceAssimilationWorkOrderDraftJson.protocolVersion, /convergence-assimilation-work-order-draft/);
+    assert.match(convergenceAssimilationWorkOrderDraftJson.markdown, /# Convergence Assimilation Work-Order Draft/);
+    assert.match(convergenceAssimilationWorkOrderDraftJson.draft.prompt, /Claude CLI/);
+    assert.match(convergenceAssimilationWorkOrderDraftJson.secretPolicy, /Non-secret convergence assimilation work-order draft only/);
   } finally {
     server.close();
     await once(server, "close");

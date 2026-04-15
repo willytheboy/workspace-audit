@@ -169,6 +169,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} pairId
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload>}
+   */
+  fetchConvergenceAssimilationWorkOrderDraft(pairId, options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-work-order-draft", {
+      pairId,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */

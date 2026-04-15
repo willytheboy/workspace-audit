@@ -2524,6 +2524,24 @@ export function createGovernanceDeck(governance) {
             text: "Copy Blueprint",
             attrs: { type: "button" },
             dataset: { convergenceAssimilationBlueprintPairId: item.pairId || "" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-draft-btn",
+            text: "Copy Codex Draft",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderPairId: item.pairId || "",
+              convergenceAssimilationWorkOrderRunner: "codex"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-draft-btn",
+            text: "Copy Claude Draft",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderPairId: item.pairId || "",
+              convergenceAssimilationWorkOrderRunner: "claude"
+            }
           })
         ])
       ]);
@@ -2735,6 +2753,24 @@ export function createGovernanceDeck(governance) {
             text: "Copy Blueprint",
             attrs: { type: "button" },
             dataset: { convergenceAssimilationBlueprintPairId: candidate.pairId || "" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-draft-btn",
+            text: "Copy Codex Draft",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderPairId: candidate.pairId || "",
+              convergenceAssimilationWorkOrderRunner: "codex"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn convergence-assimilation-work-order-draft-btn",
+            text: "Copy Claude Draft",
+            attrs: { type: "button" },
+            dataset: {
+              convergenceAssimilationWorkOrderPairId: candidate.pairId || "",
+              convergenceAssimilationWorkOrderRunner: "claude"
+            }
           }),
           candidate.leftId ? createElement("button", {
             className: "btn governance-action-btn",

@@ -157,6 +157,35 @@
  *   },
  *   markdown: string
  * }} ConvergenceAssimilationBlueprintPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   bridgeMode: string,
+ *   executionMode: "non-executing",
+ *   runner: "codex" | "claude",
+ *   pairId: string,
+ *   draftDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   reasons: Array<{ severity: string, code: string, message: string }>,
+ *   blueprint: ConvergenceAssimilationBlueprintPayload,
+ *   draft: {
+ *     sourceType: string,
+ *     sourcePairId: string,
+ *     runner: "codex" | "claude",
+ *     projectId: string,
+ *     projectName: string,
+ *     relPath: string,
+ *     title: string,
+ *     objective: string,
+ *     recommendedPath: string,
+ *     validationCommands: string[],
+ *     acceptanceCriteria: string[],
+ *     risks: string[],
+ *     prompt: string
+ *   },
+ *   markdown: string
+ * }} ConvergenceAssimilationWorkOrderDraftPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

@@ -1708,3 +1708,10 @@
 - [x] Include review status, reuse signals, build phases, validation targets, risks, and no-secrets policy.
 - [x] Add Governance `Copy Blueprint` actions beside due diligence packs for ledger and operator queue cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Work-Order Drafts
+
+- [x] Add a non-executing Convergence Assimilation Work-Order Draft API for Codex and Claude runners.
+- [x] Build runner-specific prompts from blueprint phases, validation targets, risks, and no-secrets policy.
+- [x] Add Governance `Copy Codex Draft` and `Copy Claude Draft` actions beside convergence blueprint controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

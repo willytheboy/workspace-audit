@@ -1883,3 +1883,10 @@
 - [x] Persist authorization status, launchpad decision, readiness decision, drift state, checkpoint counts, recommended action, Markdown, and full pack payload.
 - [x] Add Governance save and copy controls for persisted launch authorization pack snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Authorization Pack Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved launch authorization packs with live authorization state.
+- [x] Compare authorization decision/status, launchpad decision, readiness decision, launchpad drift severity/score, checkpoint counts, recommended action, and Markdown changes.
+- [x] Add Governance copy controls and drift cards for latest/per-snapshot launch authorization pack drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

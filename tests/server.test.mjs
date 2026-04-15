@@ -3425,6 +3425,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotsJson[0].title, "Fixture Codex Launch Authorization Pack");
 
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson = await convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson.runner, "codex");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson.driftItems.length, 0);
+    assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Authorization Pack Snapshot Drift/);
+
     const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
     assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
     const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();
@@ -3457,6 +3466,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchpadGateSnapshotDriftJson.hasDrift, true);
     assert.equal(convergenceAssimilationRunnerLaunchpadGateSnapshotDriftJson.driftSeverity, "high");
     assert.ok(convergenceAssimilationRunnerLaunchpadGateSnapshotDriftJson.driftItems.some((item) => item.field === "decision"));
+
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson = await convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.hasDrift, true);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftSeverity, "high");
+    assert.ok(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.some((item) => item.field === "decision" || item.field === "authorizationStatus"));
 
     const convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshot-drift-checkpoints`, {
       method: "POST",

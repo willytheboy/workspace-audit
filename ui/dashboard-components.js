@@ -3477,6 +3477,18 @@ export function createGovernanceDeck(governance) {
           text: "Save Claude Launch Pack",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackSaveRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-copy-btn",
+          text: "Copy Codex Launch Pack Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCopy: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-drift-copy-btn",
+          text: "Copy Claude Launch Pack Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCopy: "claude" }
         })
       ])
     ]),
@@ -3702,9 +3714,91 @@ export function createGovernanceDeck(governance) {
         text: "Copy Launch Pack",
         attrs: { type: "button" },
         dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotId: snapshot.id }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launch-authorization-pack-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftId: snapshot.id }
       })
     ])
   ]));
+  const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff = governance.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff || null;
+  const convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffEntries = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-authorization-pack-snapshot-drift-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.hasSnapshot ? (convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.snapshotTitle || "Latest launch authorization pack snapshot") : "No launch authorization pack snapshot",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.recommendedAction || "Save a launch authorization pack snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftSeverity || "missing-snapshot", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftSeverity === "high" ? "var(--danger)" : convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftScore || 0} drift score | ${(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftItems || []).length} drift item(s) | ${convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.runner || "runner unset"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]),
+    ...(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-authorization-pack-snapshot-drift-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.35rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.label || item.field || "Launch authorization pack drift",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]))
+  ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiff = governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff || null;
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {
@@ -11590,6 +11684,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Session Packet Snapshots", "Persisted non-secret Codex and Claude session packets for auditable CLI handoffs.", convergenceAssimilationSessionPacketSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshots", "Persisted non-secret launchpad gate decisions for repeatable Codex and Claude execution handoffs.", convergenceAssimilationRunnerLaunchpadGateSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshots", "Persisted non-secret launch authorization packs for repeatable Codex and Claude runner starts.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotEntries),
+    createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshot Drift", "Latest saved launch authorization pack compared with current launch gate, packet, queue, and replay state.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

@@ -3620,6 +3620,12 @@
  *   action: string,
  *   validation: string,
  *   credentialHint: string,
+ *   evidenceCoverageStatus: "covered" | "review" | "blocked" | "missing",
+ *   latestEvidenceStatus: string,
+ *   latestEvidenceAt: string,
+ *   latestEvidenceSummary: string,
+ *   evidenceAction: string,
+ *   evidenceRequired: boolean,
  *   sourceAccessCheckpoints: SourceAccessCheckpointDrilldown,
  *   secretPolicy: string
  * }} DataSourcesAccessReviewQueueItem
@@ -3644,11 +3650,17 @@
  *     checkpointNeedsReview: number,
  *     checkpointUnresolved: number,
  *     checkpointSources: number,
- *     checkpointBySource: Array<{ source: string, total: number, approved: number, deferred: number, dismissed: number, needsReview: number, unresolved: number, latestAt: string }>
+ *     checkpointBySource: Array<{ source: string, total: number, approved: number, deferred: number, dismissed: number, needsReview: number, unresolved: number, latestAt: string }>,
+ *     evidenceCovered: number,
+ *     evidenceReview: number,
+ *     evidenceBlocked: number,
+ *     evidenceMissing: number,
+ *     evidenceCoveragePercent: number
  *   },
  *   items: DataSourcesAccessReviewQueueItem[],
  *   checklist: DataSourcesAccessChecklistPayload,
  *   matrix: DataSourcesAccessMatrixPayload,
+ *   evidenceCoverage: DataSourcesAccessValidationEvidenceCoveragePayload,
  *   markdown: string
  * }} DataSourcesAccessReviewQueuePayload
  * @typedef {{

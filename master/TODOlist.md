@@ -2204,3 +2204,10 @@
 - [x] Export the current filtered project set with runtime surfaces, launch commands, warnings, and similarity metadata in JSON.
 - [x] Export a readable Markdown portfolio summary for executive review and agent handoff context.
 - [x] Add command palette actions, parser checks, validation, relaunch, commit, and push.
+
+## Next Source Access Evidence Status Clarification
+
+- [x] Attach validation evidence coverage status to every Data Sources access review queue item.
+- [x] Distinguish approved source-access checkpoints from missing non-secret validation evidence in queue summaries and markdown.
+- [x] Surface evidence status in the Data Sources and Governance review queue cards.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

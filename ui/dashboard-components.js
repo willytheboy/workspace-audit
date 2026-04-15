@@ -9663,8 +9663,21 @@ export function createGovernanceDeck(governance) {
       }
     }),
     createElement("div", {
+      text: `Evidence coverage: ${item.evidenceCoverageStatus || "missing"} | latest: ${item.latestEvidenceStatus || "missing"} | ${item.evidenceAction || "Record non-secret validation evidence after confirming access outside this app."}`,
+      style: {
+        color: item.evidenceCoverageStatus === "covered" ? "var(--success)" : item.evidenceCoverageStatus === "blocked" ? "var(--danger)" : "var(--warning)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
       className: "tags"
     }, [
+      createTag(`evidence ${item.evidenceCoverageStatus || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.evidenceCoverageStatus === "covered" ? "var(--success)" : item.evidenceCoverageStatus === "blocked" ? "var(--danger)" : "var(--warning)"
+      }),
       createTag(item.sourceHealth || "health unknown", {
         background: "var(--bg)",
         border: "1px solid var(--border)",

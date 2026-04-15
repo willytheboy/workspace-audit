@@ -4859,6 +4859,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `High priority: ${sourceSummary.high || 0}`,
       `Medium priority: ${sourceSummary.medium || 0}`,
       `Source-access task checkpoints: ${sourceSummary.checkpointUnresolved || governanceCache?.summary.sourceAccessCheckpointUnresolvedCount || 0} unresolved / ${sourceSummary.checkpointCount || governanceCache?.summary.sourceAccessCheckpointCount || 0} total`,
+      `Validation evidence: ${sourceSummary.evidenceCovered || 0} covered / ${sourceSummary.evidenceMissing || 0} missing / ${sourceSummary.evidenceReview || 0} review / ${sourceSummary.evidenceBlocked || 0} blocked`,
       `Scope filter: ${filters.scope}`,
       `Search filter: ${filters.search || "none"}`,
       "",
@@ -4878,6 +4879,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`  Source status: ${item.sourceHealth || "unknown"} / ${item.sourceStatus || "unknown"}`);
       lines.push(`  Action: ${item.action || "Review source access outside this app."}`);
       lines.push(`  Validation: ${item.validation || "Confirm access outside this app."}`);
+      lines.push(`  Evidence coverage: ${item.evidenceCoverageStatus || "missing"}`);
+      lines.push(`  Latest evidence: ${item.latestEvidenceStatus || "missing"}`);
+      lines.push(`  Evidence action: ${item.evidenceAction || "Record non-secret validation evidence after confirming access outside this app."}`);
+      if (item.latestEvidenceSummary) {
+        lines.push(`  Evidence summary: ${item.latestEvidenceSummary}`);
+      }
+      if (item.latestEvidenceAt) {
+        lines.push(`  Latest evidence at: ${item.latestEvidenceAt}`);
+      }
       if (item.credentialHint) {
         lines.push(`  Credential hint: ${item.credentialHint}`);
       }
@@ -7548,6 +7558,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         lines.push(`  Access method: ${item.accessMethod || "review-required"}`);
         lines.push(`  Action: ${item.action || "Review source access outside this app."}`);
         lines.push(`  Validation: ${item.validation || "Confirm access outside this app."}`);
+        lines.push(`  Evidence coverage: ${item.evidenceCoverageStatus || "missing"}`);
+        lines.push(`  Latest evidence: ${item.latestEvidenceStatus || "missing"}`);
+        lines.push(`  Evidence action: ${item.evidenceAction || "Record non-secret validation evidence after confirming access outside this app."}`);
         if (item.credentialHint) {
           lines.push(`  Credential hint: ${item.credentialHint}`);
         }
@@ -8818,8 +8831,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     title.style.color = "var(--text)";
 
     const summary = document.createElement("div");
-    summary.textContent = `${queue.summary.total} item(s) | ${queue.summary.blocked} blocked | ${queue.summary.review} review | ${queue.summary.checkpointUnresolved || 0} unresolved checkpoint(s)`;
-    summary.style.color = queue.summary.blocked ? "var(--danger)" : queue.summary.review || queue.summary.checkpointUnresolved ? "var(--warning)" : "var(--success)";
+    summary.textContent = `${queue.summary.total} item(s) | ${queue.summary.blocked} blocked | ${queue.summary.review} review | ${queue.summary.evidenceMissing || 0} missing evidence | ${queue.summary.checkpointUnresolved || 0} unresolved checkpoint(s)`;
+    summary.style.color = queue.summary.blocked || queue.summary.evidenceBlocked
+      ? "var(--danger)"
+      : queue.summary.review || queue.summary.evidenceMissing || queue.summary.evidenceReview || queue.summary.checkpointUnresolved
+        ? "var(--warning)"
+        : "var(--success)";
     summary.style.fontSize = "0.84rem";
 
     heading.append(title, summary);
@@ -8884,6 +8901,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       validation.style.fontSize = "0.78rem";
       validation.style.marginTop = "0.25rem";
 
+      const evidence = document.createElement("div");
+      evidence.textContent = `Evidence coverage: ${item.evidenceCoverageStatus || "missing"} | latest: ${item.latestEvidenceStatus || "missing"} | ${item.evidenceAction || "Record non-secret validation evidence after confirming access outside this app."}`;
+      evidence.style.color = item.evidenceCoverageStatus === "covered" ? "var(--success)" : item.evidenceCoverageStatus === "blocked" ? "var(--danger)" : "var(--warning)";
+      evidence.style.fontSize = "0.78rem";
+      evidence.style.marginTop = "0.25rem";
+
       const sourceCheckpoints = document.createElement("div");
       sourceCheckpoints.textContent = `Source checkpoints: ${checkpointCounts.unresolved} unresolved / ${checkpointCounts.total} total`;
       sourceCheckpoints.style.color = checkpointCounts.unresolved ? "var(--warning)" : checkpointCounts.total ? "var(--success)" : "var(--text-muted)";
@@ -8918,7 +8941,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       trackSnapshotButton.dataset.sourceAccessReviewTaskSnapshotRenderTarget = "sources";
       checkpointActions.append(trackSnapshotButton);
 
-      body.append(itemTitle, action, validation, sourceCheckpoints, checkpointActions);
+      body.append(itemTitle, action, validation, evidence, sourceCheckpoints, checkpointActions);
 
       const meta = document.createElement("div");
       meta.style.display = "flex";
@@ -8930,7 +8953,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       for (const line of [
         item.status.toUpperCase(),
         item.priority.toUpperCase(),
-        item.accessMethod
+        item.accessMethod,
+        `EVIDENCE ${String(item.evidenceCoverageStatus || "missing").toUpperCase()}`
       ]) {
         const metaLine = document.createElement("span");
         metaLine.textContent = line;

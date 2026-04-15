@@ -452,8 +452,11 @@ export async function serverTest() {
     assert.equal(sourcesAccessReviewQueueResponse.status, 200);
     const sourcesAccessReviewQueueJson = await sourcesAccessReviewQueueResponse.json();
     assert.equal(sourcesAccessReviewQueueJson.summary.total, 0);
+    assert.equal(sourcesAccessReviewQueueJson.summary.evidenceMissing, 0);
+    assert.equal(sourcesAccessReviewQueueJson.summary.evidenceCoveragePercent, 0);
     assert.deepEqual(sourcesAccessReviewQueueJson.items, []);
     assert.match(sourcesAccessReviewQueueJson.markdown, /# Data Sources Access Review Queue/);
+    assert.match(sourcesAccessReviewQueueJson.markdown, /Validation evidence:/);
 
     const sourcesAccessTaskLedgerResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger`);
     assert.equal(sourcesAccessTaskLedgerResponse.status, 200);
@@ -579,9 +582,16 @@ export async function serverTest() {
     const sourcesAccessReviewQueueAfterAddJson = await sourcesAccessReviewQueueAfterAddResponse.json();
     assert.equal(sourcesAccessReviewQueueAfterAddJson.summary.total, 1);
     assert.equal(sourcesAccessReviewQueueAfterAddJson.summary.medium, 1);
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.summary.evidenceMissing, 1);
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.summary.evidenceCovered, 0);
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.summary.evidenceCoveragePercent, 0);
     assert.equal(sourcesAccessReviewQueueAfterAddJson.items[0].accessMethod, "git-https");
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.items[0].evidenceCoverageStatus, "missing");
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.items[0].latestEvidenceStatus, "missing");
+    assert.equal(sourcesAccessReviewQueueAfterAddJson.items[0].evidenceRequired, true);
     assert.match(sourcesAccessReviewQueueAfterAddJson.items[0].action, /Git Credential Manager/);
     assert.match(sourcesAccessReviewQueueAfterAddJson.markdown, /Data Sources Access Review Queue/);
+    assert.match(sourcesAccessReviewQueueAfterAddJson.markdown, /Evidence coverage: missing/);
 
     const governanceAfterSourceReviewQueueResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterSourceReviewQueueResponse.status, 200);
@@ -594,7 +604,9 @@ export async function serverTest() {
     assert.equal(governanceAfterSourceReviewQueueJson.dataSourcesAccessGate.review, 1);
     assert.equal(governanceAfterSourceReviewQueueJson.summary.dataSourcesAccessReviewQueueCount, 1);
     assert.equal(governanceAfterSourceReviewQueueJson.dataSourcesAccessReviewQueue.summary.total, 1);
+    assert.equal(governanceAfterSourceReviewQueueJson.dataSourcesAccessReviewQueue.summary.evidenceMissing, 1);
     assert.equal(governanceAfterSourceReviewQueueJson.dataSourcesAccessReviewQueue.items[0].accessMethod, "git-https");
+    assert.equal(governanceAfterSourceReviewQueueJson.dataSourcesAccessReviewQueue.items[0].evidenceCoverageStatus, "missing");
     assert.equal(governanceAfterSourceReviewQueueJson.agentControlPlaneDecision.dataSourcesAccessReviewQueueCount, 1);
 
     const sourcesAccessGateAfterAddResponse = await fetch(`${baseUrl}/api/sources/access-gate`);

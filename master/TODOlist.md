@@ -1988,3 +1988,10 @@
 - [x] Roll up session packet drift, launchpad gate, authorization pack drift, control board state, execution packet drift, and checkpoint ledgers.
 - [x] Surface a Governance launch stack board with ready/review/hold stage cards and copy controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Action Tasks
+
+- [x] Add a non-secret launch stack action task API for Codex and Claude non-ready stages.
+- [x] Persist runner-specific stage tasks with launch stack decision, stage status, action detail, and no-secrets policy.
+- [x] Surface Governance controls to seed all non-ready stack tasks or track one stage at a time.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

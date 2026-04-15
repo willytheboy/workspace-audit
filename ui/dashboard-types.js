@@ -721,6 +721,14 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackStatusPayload
+ * @typedef {{
+ *   success: true,
+ *   requested: number,
+ *   createdTasks: PersistedTask[],
+ *   skipped: Array<{ id: string, label: string, reason: string }>,
+ *   totals: { requested: number, created: number, skipped: number },
+ *   tasks: PersistedTask[]
+ * }} ConvergenceAssimilationRunnerLaunchStackActionTasksPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,

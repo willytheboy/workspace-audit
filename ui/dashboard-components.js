@@ -4788,6 +4788,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Claude Stack",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchStackStatusRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-tasks-btn",
+          text: "Track Codex Tasks",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTasksRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-action-tasks-btn",
+          text: "Track Claude Tasks",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackActionTasksRunner: "claude" }
         })
       ])
     ]),
@@ -4826,7 +4838,16 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: stage.status === "ready" ? "var(--success)" : stage.status === "hold" ? "var(--danger)" : "var(--warning)"
-      })
+      }),
+      stage.status !== "ready" ? createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-stage-task-btn",
+        text: "Track Stage",
+        attrs: { type: "button" },
+        dataset: {
+          convergenceAssimilationRunnerLaunchStackStageTaskRunner: convergenceAssimilationRunnerLaunchStackStatus.runner || "codex",
+          convergenceAssimilationRunnerLaunchStackStageTaskId: stage.id || ""
+        }
+      }) : null
     ]))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [

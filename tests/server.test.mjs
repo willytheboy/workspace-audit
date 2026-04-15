@@ -3432,6 +3432,42 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.markdown, /# Convergence Assimilation Runner Launch Stack Status/);
     assert.match(convergenceAssimilationRunnerLaunchStackStatusJson.secretPolicy, /Non-secret convergence assimilation runner launch stack status only/);
 
+    const launchStackActionTaskStages = convergenceAssimilationRunnerLaunchStackStatusJson.stages.filter((stage) => stage.status !== "ready");
+    assert.ok(launchStackActionTaskStages.length >= 1);
+    const createConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        stages: [launchStackActionTaskStages[0]]
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchStackActionTasksJson = await createConvergenceAssimilationRunnerLaunchStackActionTasksResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.requested, 1);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.created, 1);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.skipped, 0);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.createdTasks[0].sourceType, "convergence-assimilation-runner-launch-stack-stage-action");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.createdTasks[0].convergenceAssimilationRunnerLaunchStackRunner, "claude");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.createdTasks[0].convergenceAssimilationRunnerLaunchStackStageId, launchStackActionTaskStages[0].id);
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.createdTasks[0].status, "open");
+    assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksJson.createdTasks[0].secretPolicy, "non-secret-convergence-assimilation-runner-launch-stack-readiness-evidence-only");
+
+    const duplicateConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        stages: [launchStackActionTaskStages[0]]
+      })
+    });
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);
+    const duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson = await duplicateConvergenceAssimilationRunnerLaunchStackActionTasksResponse.json();
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.requested, 1);
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.created, 0);
+    assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksJson.totals.skipped, 1);
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3866,6 +3902,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-execution-packet-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-execution-packet-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-execution-packet-snapshot-refreshed"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-stack-action-tasks-created"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

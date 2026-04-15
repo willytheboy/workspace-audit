@@ -588,6 +588,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
+   */
+  createConvergenceAssimilationRunnerLaunchStackActionTasks(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-stack-action-tasks", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

@@ -1722,3 +1722,10 @@
 - [x] Preserve runner, pair id, draft decision, recommended path, validation commands, and no-secrets policy on queued runs.
 - [x] Add Governance `Queue Codex Run` and `Queue Claude Run` controls beside draft copy actions.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Run Ledger
+
+- [x] Add a non-secret `/api/convergence/assimilation-run-ledger` endpoint with all/open/closed/active/archived filtering.
+- [x] Surface queued Codex and Claude convergence assimilation runs in the Governance convergence scope.
+- [x] Add copy controls for all, open, and closed convergence assimilation run ledgers.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

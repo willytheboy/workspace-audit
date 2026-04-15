@@ -102,6 +102,7 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationBlueprint: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationBlueprintPayload>,
  *     fetchConvergenceAssimilationWorkOrderDraft: (pairId: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload>,
  *     queueConvergenceAssimilationWorkOrderRun: (payload: { pairId: string, runner?: "codex" | "claude", status?: string, notes?: string }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
+ *     fetchConvergenceAssimilationRunLedger: (status?: "all" | "open" | "closed" | "active" | "archived") => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunLedgerPayload>,
  *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>,
  *     createConvergenceReviewTasks: (payload?: { pairIds?: string[], pairId?: string, candidates?: import("./dashboard-types.js").ConvergenceCandidate[], status?: "confirmed-overlap" | "needs-review" | "merge-candidate" | "actionable" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ pairId: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>,
@@ -503,6 +504,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
                 if (statusDelta) return statusDelta;
                 return right.score - left.score || left.leftName.localeCompare(right.leftName);
               }
+            )
+          }
+        : null,
+      convergenceAssimilationRunLedger: governance.convergenceAssimilationRunLedger
+        ? {
+            ...governance.convergenceAssimilationRunLedger,
+            runs: filterAndSort(
+              governance.convergenceAssimilationRunLedger.runs || [],
+              (run) => [run.projectName || "", run.title || "", run.status || "", run.convergencePairId || "", run.convergenceAssimilationRunner || "", run.convergenceAssimilationDraftDecision || "", run.objective || "", run.notes || ""],
+              (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
             )
           }
         : null,
@@ -916,6 +927,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "operations") filtered.taskSeedingCheckpoints = [];
       if (scope !== "convergence") filtered.convergenceCandidates = null;
       if (scope !== "convergence") filtered.convergenceOperatorProposalQueue = null;
+      if (scope !== "convergence") filtered.convergenceAssimilationRunLedger = null;
       if (scope !== "convergence") filtered.convergenceTasks = [];
       if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshots = [];
       if (scope !== "convergence") filtered.convergenceTaskLedgerSnapshotDiff = null;
@@ -1783,6 +1795,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await renderGovernance();
           element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-run-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.convergenceAssimilationRunLedgerCopy || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const payload = await api.fetchConvergenceAssimilationRunLedger(status);
+          await copyText(payload.markdown);
+          element.textContent = `Copied ${payload.summary.visible}`;
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -7455,7 +7490,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -7472,12 +7507,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchCliBridgeRunTraceSnapshotBaselineStatus(),
         api.fetchConvergenceCandidates({ status: "all", includeNotRelated: true }),
         api.fetchConvergenceOperatorProposalQueue("active"),
+        api.fetchConvergenceAssimilationRunLedger("all"),
         api.fetchConvergenceTaskLedgerSnapshotDiff("latest")
       ]);
       governanceCache = {
         ...governance,
         convergenceCandidates,
         convergenceOperatorProposalQueue,
+        convergenceAssimilationRunLedger,
         governanceTaskUpdateLedger,
         governanceTaskUpdateLedgerSnapshotDiff,
         releaseSummary,
@@ -7507,6 +7544,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceCandidates?.candidates || []).length
         + (convergenceOperatorProposalQueue ? 1 : 0)
         + (convergenceOperatorProposalQueue?.items || []).length
+        + (convergenceAssimilationRunLedger ? 1 : 0)
+        + (convergenceAssimilationRunLedger?.runs || []).length
         + (governance.convergenceTasks || []).length
         + (governance.convergenceTaskLedgerSnapshots || []).length
         + (convergenceTaskLedgerSnapshotDiff ? 1 : 0)

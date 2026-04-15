@@ -2824,6 +2824,146 @@ export function createGovernanceDeck(governance) {
       ]);
     })
   ] : [];
+  const convergenceAssimilationRunLedger = governance.convergenceAssimilationRunLedger || null;
+  const convergenceAssimilationRunSummary = convergenceAssimilationRunLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    active: 0,
+    archived: 0,
+    codex: 0,
+    claude: 0,
+    pairCount: 0
+  };
+  const convergenceAssimilationRunEntries = convergenceAssimilationRunLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-run-ledger-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Convergence assimilation run ledger",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: "Agent Work Order runs queued from convergence assimilation drafts.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(`${convergenceAssimilationRunSummary.visible || 0} visible`, {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", { className: "tags" }, [
+        createTag(`${convergenceAssimilationRunSummary.open || 0} open`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationRunSummary.open || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationRunSummary.closed || 0} closed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationRunSummary.closed || 0) ? "var(--success)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationRunSummary.codex || 0} codex`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationRunSummary.claude || 0} claude`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", { className: "governance-actions" }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-run-ledger-copy-btn",
+          text: "Copy All Runs",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-run-ledger-copy-btn",
+          text: "Copy Open Runs",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-run-ledger-copy-btn",
+          text: "Copy Closed Runs",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunLedger.runs || []).slice(0, 16).map((run) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-run-ledger-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.55rem"
+      }
+    }, [
+      createElement("div", {
+        text: run.title || "Convergence assimilation run",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900",
+          fontSize: "0.96rem"
+        }
+      }),
+      createElement("div", {
+        text: run.objective || "No objective recorded.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", { className: "tags" }, [
+        createTag(run.status || "queued", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: ["passed", "done", "resolved"].includes(run.status || "") ? "var(--success)" : "var(--warning)"
+        }),
+        createTag(run.convergenceAssimilationRunner || "runner", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(run.convergencePairId || "pair", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ])
+    ]))
+  ] : [];
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -10257,6 +10397,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
+    createListSection("Convergence Assimilation Runs", "Queued Codex and Claude Agent Work Order runs created from convergence assimilation drafts.", convergenceAssimilationRunEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

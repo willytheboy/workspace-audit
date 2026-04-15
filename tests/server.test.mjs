@@ -3181,6 +3181,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(duplicateConvergenceAssimilationRunJson.run, null);
     assert.match(duplicateConvergenceAssimilationRunJson.skippedRun.reason, /already exists/);
 
+    const convergenceAssimilationRunLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-run-ledger?status=all`);
+    assert.equal(convergenceAssimilationRunLedgerResponse.status, 200);
+    const convergenceAssimilationRunLedgerJson = await convergenceAssimilationRunLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationRunLedgerJson.summary.claude, 1);
+    assert.equal(convergenceAssimilationRunLedgerJson.summary.pairCount, 1);
+    assert.equal(convergenceAssimilationRunLedgerJson.runs[0].convergencePairId, operatorProposalJson.review.pairId);
+    assert.match(convergenceAssimilationRunLedgerJson.markdown, /# Convergence Assimilation Run Ledger/);
+    assert.match(convergenceAssimilationRunLedgerJson.secretPolicy, /Non-secret convergence assimilation run metadata only/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

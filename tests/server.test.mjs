@@ -3647,6 +3647,17 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.run.status, "passed");
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.run.convergenceAssimilationRunnerLaunchStackRemediationResultStatus, "passed");
 
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-ledger?status=passed&runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson = await convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.protocolVersion, "convergence-assimilation-runner-launch-stack-remediation-work-order-result-ledger.v1");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.status, "passed");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.summary.passed, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.results[0].runId, queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.id);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Ledger/);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

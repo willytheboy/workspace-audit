@@ -2127,3 +2127,10 @@
 - [x] Update linked remediation work-order runs with result status, validation summary, changed files, blockers, and next action.
 - [x] Surface Governance Record Passed and Record Blocked controls on remediation work-order run cards.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Result Ledger
+
+- [x] Add a copyable result ledger API for launch stack remediation work-order outcomes.
+- [x] Summarize visible, passed, failed, blocked, needs-review, cancelled, Codex, Claude, and total work-item counts.
+- [x] Surface Governance result ledger cards and Copy All/Passed/Blocked controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

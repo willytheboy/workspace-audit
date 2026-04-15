@@ -785,6 +785,27 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   status: "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled",
+ *   runner: "all" | "codex" | "claude",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     passed: number,
+ *     failed: number,
+ *     blocked: number,
+ *     needsReview: number,
+ *     cancelled: number,
+ *     codex: number,
+ *     claude: number,
+ *     workItems: number
+ *   },
+ *   results: Array<Record<string, unknown>>,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   runner: "codex" | "claude",
@@ -2178,6 +2199,7 @@
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload | null,

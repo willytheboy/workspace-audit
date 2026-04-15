@@ -644,6 +644,17 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ status?: "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled", runner?: "all" | "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-ledger", {
+      status: options.status,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

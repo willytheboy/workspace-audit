@@ -147,6 +147,7 @@ function createEmptyTableRow(message) {
  *     queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun: (payload?: { runner?: "codex" | "claude", status?: string, notes?: string }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger: (options?: { status?: "all" | "open" | "closed" | "active" | "archived", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload>,
  *     recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult: (runId: string, payload: { status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string }) => Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
+ *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger: (options?: { status?: "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
  *     refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[] }>,
@@ -903,6 +904,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger
         : null,
+      convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger: governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger && matchesSearch([
+        "convergence assimilation runner launch stack remediation work-order result ledger",
+        governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger.status || "",
+        governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger.runner || "",
+        governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger.markdown || "",
+        ...(governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger.results || []).map((result) => `${result.projectName || ""} ${result.status || ""} ${result.runner || ""} ${result.summary || ""} ${result.validationSummary || ""}`)
+      ])
+        ? governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger
+        : null,
       convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: filterAndSort(
         governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.decision || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
@@ -1281,6 +1291,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPack = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger = null;
+      if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger = null;
@@ -3446,6 +3457,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await renderGovernance();
           element.textContent = status === "passed" ? "Passed Recorded" : "Blocked Recorded";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-stack-remediation-work-order-result-ledger-status]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerStatus || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const payload = await api.fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger({
+            status: ["passed", "failed", "blocked", "needs-review", "cancelled"].includes(status) ? /** @type {"passed" | "failed" | "blocked" | "needs-review" | "cancelled"} */ (status) : "all",
+            runner: "all"
+          });
+          await copyText(payload.markdown);
+          element.textContent = `Copied ${status}`;
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -9666,7 +9703,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -9700,6 +9737,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchConvergenceAssimilationRunnerLaunchStackRemediationPack({ runner: "codex" }),
         api.fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft({ runner: "codex" }),
         api.fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger({ status: "all", runner: "all" }),
+        api.fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger({ status: "all", runner: "all" }),
         api.fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff("latest", { runner: "codex" }),
         api.fetchConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger("all"),
         api.fetchConvergenceAssimilationRunnerLaunchStackActionTaskLedger({ runner: "all", status: "all", limit: 100 }),
@@ -9731,6 +9769,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         convergenceAssimilationRunnerLaunchStackRemediationPack,
         convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft,
         convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger,
+        convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger,
         convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff,
         convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger,
         convergenceAssimilationRunnerLaunchStackActionTaskLedger,
@@ -9809,6 +9848,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?.workItems || []).length
         + (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger ? 1 : 0)
         + (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?.runs || []).length
+        + (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger ? 1 : 0)
+        + (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger?.results || []).length
         + (governance.convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots || []).length
         + (convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff ? 1 : 0)
         + (convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?.driftItems || []).length

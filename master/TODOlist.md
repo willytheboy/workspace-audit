@@ -1904,3 +1904,10 @@
 - [x] Include open, closed, confirmed, deferred, and escalated counts in Markdown.
 - [x] Surface checkpoint ledger cards and copy controls in Governance.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Control Board
+
+- [x] Add a non-secret Codex/Claude launch control board API.
+- [x] Combine launch authorization pack state with launch authorization pack drift checkpoint ledger state.
+- [x] Surface a single launch-ready/review-required/blocked decision with reasons and operator steps.
+- [x] Add Governance copy controls, parser checks, server coverage, validation, relaunch, commit, and push.

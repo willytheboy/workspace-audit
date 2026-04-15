@@ -3501,6 +3501,18 @@ export function createGovernanceDeck(governance) {
           text: "Copy Open Launch Pack Checkpoints",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-copy-btn",
+          text: "Copy Codex Launch Board",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchControlBoardRunner: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-copy-btn",
+          text: "Copy Claude Launch Board",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchControlBoardRunner: "claude" }
         })
       ])
     ]),
@@ -3948,6 +3960,77 @@ export function createGovernanceDeck(governance) {
         color: item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftDecision === "confirmed" ? "var(--success)" : item.convergenceAssimilationRunnerLaunchAuthorizationPackDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
       })
     ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchControlBoard = governance.convergenceAssimilationRunnerLaunchControlBoard || null;
+  const convergenceAssimilationRunnerLaunchControlBoardEntries = convergenceAssimilationRunnerLaunchControlBoard ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-control-board-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: `${convergenceAssimilationRunnerLaunchControlBoard.runner || "codex"} launch control board`,
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationRunnerLaunchControlBoard.recommendedAction || "Resolve runner launch conditions before starting a CLI session.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationRunnerLaunchControlBoard.launchStatus || "review-required", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationRunnerLaunchControlBoard.launchDecision === "ready" ? "var(--success)" : convergenceAssimilationRunnerLaunchControlBoard.launchDecision === "hold" ? "var(--danger)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationRunnerLaunchControlBoard.openCheckpointCount || 0} open checkpoint(s) | ${convergenceAssimilationRunnerLaunchControlBoard.escalatedCheckpointCount || 0} escalated | ${convergenceAssimilationRunnerLaunchControlBoard.authorizationStatus || "review-required"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-control-board-copy-btn",
+          text: "Copy Board",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchControlBoardRunner: convergenceAssimilationRunnerLaunchControlBoard.runner || "codex" }
+        })
+      ])
+    ]),
+    ...(convergenceAssimilationRunnerLaunchControlBoard.reasons || []).slice(0, 8).map((reason) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-control-board-reason-card",
+      text: reason,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.86rem",
+        lineHeight: "1.45"
+      }
+    }))
   ] : [];
   const convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries = convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? [
     createElement("div", {
@@ -11835,6 +11918,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshots", "Persisted non-secret launch authorization packs for repeatable Codex and Claude runner starts.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Snapshot Drift", "Latest saved launch authorization pack compared with current launch gate, packet, queue, and replay state.", convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Authorization Pack Drift Checkpoints", "Operator decisions made against launch authorization pack drift before runner launch.", convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerEntries),
+    createListSection("Convergence Assimilation Runner Launch Control Board", "Single runner-start decision combining launch authorization pack state and unresolved checkpoint ledger decisions.", convergenceAssimilationRunnerLaunchControlBoardEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Snapshot Drift", "Latest saved launchpad gate compared with current readiness, packet drift, and checkpoint state.", convergenceAssimilationRunnerLaunchpadGateSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launchpad Gate Drift Checkpoints", "Operator decisions made against launchpad gate drift before runner launch.", convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerEntries),
     createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),

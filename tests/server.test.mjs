@@ -3401,6 +3401,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.markdown, /# Convergence Assimilation Runner Launch Authorization Pack/);
     assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackJson.secretPolicy, /Non-secret convergence assimilation runner launch authorization pack only/);
 
+    const convergenceAssimilationRunnerLaunchControlBoardResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board?runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardJson = await convergenceAssimilationRunnerLaunchControlBoardResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardJson.runner, "codex");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardJson.launchDecision, "ready");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardJson.launchStatus, "launch-ready");
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardJson.openCheckpointCount, 0);
+    assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.protocolVersion, /convergence-assimilation-runner-launch-control-board/);
+    assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.markdown, /# Convergence Assimilation Runner Launch Control Board/);
+
     const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -444,6 +444,16 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchControlBoardPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchControlBoard(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-control-board", {
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

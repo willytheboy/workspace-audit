@@ -1887,6 +1887,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-convergence-task-ledger-baseline-refresh]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createConvergenceTaskLedgerSnapshot({
+            title: "Accepted Convergence Review Task Ledger Baseline",
+            status: "all",
+            limit: 100
+          });
+          element.textContent = "Baseline Saved";
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-convergence-review-task-pair-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

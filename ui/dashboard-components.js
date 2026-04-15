@@ -2935,6 +2935,12 @@ export function createGovernanceDeck(governance) {
           text: "Copy Checkpoint Ledger",
           attrs: { type: "button" },
           dataset: { convergenceTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-baseline-refresh-btn",
+          text: "Accept Live Baseline",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerBaselineRefresh: "true" }
         })
       ])
     ])

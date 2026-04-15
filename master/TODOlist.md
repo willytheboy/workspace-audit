@@ -1680,3 +1680,10 @@
 - [x] Include decision counts, status split, snapshot count, field count, and checkpoint metadata in Markdown.
 - [x] Add Governance copy control for the checkpoint ledger.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Drift Checkpoint Snapshot Refresh
+
+- [x] Add an explicit Governance action to accept the current live Convergence Review task ledger as the refreshed baseline.
+- [x] Reuse the existing snapshot API with a clear accepted-baseline title, all-status filter, and standard limit.
+- [x] Keep the action adjacent to drift and checkpoint ledger controls for post-review workflow continuity.
+- [x] Add parser checks, validation, relaunch, commit, and push.

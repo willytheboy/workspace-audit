@@ -3548,6 +3548,15 @@ export async function convergenceReviewSuppressionTest() {
     const checkpointedLaunchControlBoardDrift = convergenceAssimilationRunnerLaunchControlBoardCheckpointedDriftJson.driftItems.find((item) => item.field === launchControlBoardCheckpointField);
     assert.equal(checkpointedLaunchControlBoardDrift.checkpointDecision, "confirmed");
     assert.equal(checkpointedLaunchControlBoardDrift.checkpointStatus, "resolved");
+
+    const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-drift-checkpoint-ledger?status=closed`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson = await convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.items[0].convergenceAssimilationRunnerLaunchControlBoardDriftField, launchControlBoardCheckpointField);
+    assert.match(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Control Board Drift Checkpoint Ledger/);
     const launchAuthorizationPackCheckpointField = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.find((item) => item.field === "decision" || item.field === "authorizationStatus")?.field || "decision";
 
     const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {

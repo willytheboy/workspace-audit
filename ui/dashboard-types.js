@@ -625,6 +625,22 @@
  *   snapshotSummary: { launchDecision: string, launchStatus: string, authorizationStatus: string, packDecision: string, openCheckpointCount: number, escalatedCheckpointCount: number, recommendedAction: string } | null,
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1865,6 +1881,7 @@
  *   convergenceAssimilationRunnerLaunchControlBoard?: ConvergenceAssimilationRunnerLaunchControlBoardPayload | null,
  *   convergenceAssimilationRunnerLaunchControlBoardSnapshots: PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[],
  *   convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff?: ConvergenceAssimilationRunnerLaunchControlBoardSnapshotDiffPayload | null,
+ *   convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?: ConvergenceAssimilationRunnerLaunchpadGateSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerPayload | null,
  *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,

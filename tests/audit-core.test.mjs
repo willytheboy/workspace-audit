@@ -19,6 +19,9 @@ export async function auditCoreTest() {
   assert.equal(inventory.projects.length, 1);
   assert.equal(inventory.projects[0].name, "Alpha App");
   assert.deepEqual(inventory.projects[0].scripts.sort(), ["dev", "test"]);
+  assert.ok(inventory.projects[0].runtimeSurfaces.some((surface) => surface.cwd.endsWith("alpha-app")));
+  assert.ok(inventory.projects[0].runtimeSurfaces.some((surface) => surface.cwd.endsWith(join("alpha-app", "frontend"))));
+  assert.ok(inventory.projects[0].launchCommands.some((command) => command.cwd.endsWith(join("alpha-app", "frontend")) && command.name === "build"));
   assert.ok(inventory.projects[0].frameworks.includes("React"));
   assert.ok(inventory.projects[0].frameworks.includes("Vite"));
 

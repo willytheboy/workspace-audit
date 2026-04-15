@@ -17,6 +17,8 @@ const storeSource = fs.readFileSync(path.join(__dirname, "lib", "workspace-audit
 const appSource = fs.readFileSync(path.join(__dirname, "app.js"), "utf8");
 const testsSource = [
   fs.readFileSync(path.join(__dirname, "tests", "run-tests.mjs"), "utf8"),
+  fs.readFileSync(path.join(__dirname, "tests", "test-helpers.mjs"), "utf8"),
+  fs.readFileSync(path.join(__dirname, "tests", "audit-core.test.mjs"), "utf8"),
   fs.readFileSync(path.join(__dirname, "tests", "server.test.mjs"), "utf8"),
   fs.readFileSync(path.join(__dirname, "tests", "governance-bootstrap.test.mjs"), "utf8")
 ].join("\n");
@@ -195,6 +197,7 @@ try {
   console.log("Data sources registry removal:", dashboardApiSource.includes("deleteSource") && dashboardComponentsSource.includes("source-remove-btn") && dashboardViewsSource.includes("bindSourceRegistryActions") && serverSource.includes("data-source-removed") ? "Present" : "Missing");
   console.log("Settings modal:", html.includes('id="open-settings-btn"') && html.includes('id="settings-modal"') ? "Present" : "Missing");
   console.log("Project workbench:", html.includes('data-workbench-tab="workflow"') && html.includes('id="workbench-task-form"') ? "Present" : "Missing");
+  console.log("Project runtime surface detection:", serverSource.includes("cwdPath") && dashboardModalSource.includes("runtimeSurfaces") && dashboardModalSource.includes("launchCommands") && dashboardTypesSource.includes("RuntimeSurface") && testsSource.includes("alpha-frontend") ? "Present" : "Missing");
   console.log("Project memory:", html.includes('data-workbench-tab="memory"') && html.includes('id="workbench-note-form"') && html.includes('id="workbench-milestone-form"') ? "Present" : "Missing");
   console.log("Project governance profile:", html.includes('id="workbench-profile-form"') && html.includes('id="workbench-profile-owner"') && html.includes('id="workbench-profile-summary-card"') ? "Present" : "Missing");
   console.log("Governance view:", html.includes('data-view="governance"') && html.includes('id="app-governance-wrapper"') && html.includes('id="refresh-governance-btn"') ? "Present" : "Missing");

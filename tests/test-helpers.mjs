@@ -81,6 +81,22 @@ export async function createFixtureWorkspace() {
   await writeFile(join(projectDir, "src", "index.js"), "export const answer = 42;\n");
   await writeFile(join(projectDir, "src", "index.test.js"), "import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('fixture', () => assert.equal(1, 1));\n");
 
+  const frontendDir = join(projectDir, "frontend");
+  await mkdir(frontendDir, { recursive: true });
+  await writeFile(join(frontendDir, "package.json"), JSON.stringify({
+    name: "alpha-frontend",
+    scripts: {
+      dev: "vite --host 0.0.0.0",
+      build: "vite build"
+    },
+    dependencies: {
+      react: "^19.0.0"
+    },
+    devDependencies: {
+      vite: "^7.0.0"
+    }
+  }, null, 2));
+
   const skippedDir = join(workspaceRoot, "archive", "legacy-migrations", "ignored-app");
   await mkdir(skippedDir, { recursive: true });
   await writeFile(join(skippedDir, "package.json"), JSON.stringify({ name: "ignored-app" }, null, 2));

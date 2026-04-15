@@ -2183,3 +2183,10 @@
 - [x] Surface alert counts and severity in the Trends summary.
 - [x] Add a Health Regression Alerts deck with recommended actions for scan triage.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Runtime Surface Detection Heuristics
+
+- [x] Capture nested package scripts, Python requirements, and Docker Compose runtime surfaces during audit scans.
+- [x] Add launch command metadata with working directories so nested package scripts can run from the project workbench.
+- [x] Update the Launchpad and agent handoff pack to show detected runtime surfaces instead of reporting empty scripts too early.
+- [x] Add parser checks, audit coverage, validation, relaunch, commit, and push.

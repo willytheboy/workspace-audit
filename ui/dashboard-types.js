@@ -4,6 +4,22 @@
  * @typedef {{ type: string, message: string }} AuditWarning
  * @typedef {{ name: string, id: string, score: number, reasons: string[] }} SimilarApp
  * @typedef {{
+ *   name: string,
+ *   command: string,
+ *   run: string,
+ *   cwd: string,
+ *   label: string
+ * }} LaunchCommand
+ * @typedef {{
+ *   type: string,
+ *   label: string,
+ *   path: string,
+ *   cwd: string,
+ *   packageName?: string,
+ *   scripts?: string[],
+ *   commands?: LaunchCommand[]
+ * }} RuntimeSurface
+ * @typedef {{
  *   id: string,
  *   name: string,
  *   relPath: string,
@@ -24,6 +40,9 @@
  *   sourceLines: number,
  *   warnings?: AuditWarning[],
  *   scripts?: string[],
+ *   runtimeSurfaces?: RuntimeSurface[],
+ *   runtimeSurfaceCount?: number,
+ *   launchCommands?: LaunchCommand[],
  *   similarApps?: SimilarApp[]
  * }} AuditProject
  * @typedef {{ zoneOptions: string[], categoryOptions: string[] }} AuditMeta
@@ -1290,6 +1309,7 @@
  *   projectId?: string,
  *   projectName?: string,
  *   relPath: string,
+ *   cwd?: string,
  *   script: string,
  *   status: "running" | "success" | "failed" | "cancelled",
  *   startedAt: string,

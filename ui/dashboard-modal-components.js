@@ -189,12 +189,13 @@ export function createWarningItem(warning) {
 
 /**
  * @param {string} script
+ * @param {{ label?: string, cwd?: string }} [options]
  */
-export function createScriptButton(script) {
+export function createScriptButton(script, options = {}) {
   return createElement("button", {
     className: "btn",
-    text: `▶ ${script}`,
-    dataset: { script },
+    text: `▶ ${options.label || script}`,
+    dataset: { script, cwd: options.cwd || "" },
     style: {
       fontSize: "0.8rem",
       padding: "0.25rem 0.75rem"

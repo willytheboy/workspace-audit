@@ -191,6 +191,15 @@ export function createDashboardModal({ getData, api }) {
    * @param {AuditProject} project
    */
   function buildAgentHandoffPack(project) {
+    const launchCommands = Array.isArray(project.launchCommands) ? project.launchCommands : [];
+    const runtimeSurfaces = Array.isArray(project.runtimeSurfaces) ? project.runtimeSurfaces : [];
+    const runtimeLines = launchCommands.length
+      ? launchCommands.map((command) => `- ${command.label || command.name}: ${command.run || command.command} (cwd: ${command.cwd || project.relPath})`).join("\n")
+      : runtimeSurfaces.length
+        ? runtimeSurfaces.map((surface) => `- ${surface.label || surface.type}: ${surface.cwd || project.relPath}`).join("\n")
+        : project.scripts?.length
+          ? project.scripts.map((script) => `- npm run ${script}`).join("\n")
+          : "- No package scripts detected.";
     const lines = [
       `# Agent Handoff Pack: ${project.name}`,
       "",
@@ -207,7 +216,7 @@ export function createDashboardModal({ getData, api }) {
       `- Description: ${project.description || "No description captured."}`,
       "",
       "## Runtime Surface",
-      project.scripts?.length ? project.scripts.map((script) => `- npm run ${script}`).join("\n") : "- No package scripts detected.",
+      runtimeLines,
       "",
       "## Stack",
       [...project.frameworks, ...project.languages].length
@@ -253,7 +262,7 @@ export function createDashboardModal({ getData, api }) {
       "",
       "## Recent Script Runs",
       scriptRuns.length
-        ? scriptRuns.slice(0, 5).map((run) => `- npm run ${run.script}: ${run.status}${run.exitCode == null ? "" : `, exit ${run.exitCode}`} (${formatDate(run.endedAt || run.startedAt)})`).join("\n")
+        ? scriptRuns.slice(0, 5).map((run) => `- npm run ${run.script}${run.cwd ? ` in ${run.cwd}` : ""}: ${run.status}${run.exitCode == null ? "" : `, exit ${run.exitCode}`} (${formatDate(run.endedAt || run.startedAt)})`).join("\n")
         : "- No launchpad script runs recorded.",
       "",
       "## Suggested Agent Instructions",
@@ -1200,6 +1209,18 @@ export function createDashboardModal({ getData, api }) {
     const launchGrid = document.getElementById("workbench-launch-grid");
     const scriptsSection = /** @type {HTMLElement} */ (document.getElementById("modal-scripts-section"));
     const scriptsList = document.getElementById("modal-scripts-list");
+    const runtimeSurfaces = Array.isArray(project.runtimeSurfaces) ? project.runtimeSurfaces : [];
+    const launchCommands = Array.isArray(project.launchCommands) ? project.launchCommands : [];
+    const runnablePackageCommands = launchCommands.filter((command) => String(command.run || "").startsWith("npm run "));
+    const rootScriptCommands = project.scripts?.length
+      ? project.scripts.map((script) => ({
+          name: script,
+          label: script,
+          cwd: project.relPath,
+          run: `npm run ${script}`
+        }))
+      : [];
+    const runnableCommands = runnablePackageCommands.length ? runnablePackageCommands : rootScriptCommands;
 
     const openCard = createWorkbenchLaunchCard({
       title: "Source access",
@@ -1216,10 +1237,20 @@ export function createDashboardModal({ getData, api }) {
 
     const stackCard = createWorkbenchLaunchCard({
       title: "Runtime surface",
-      copy: project.scripts?.length
-        ? `${project.scripts.length} package scripts are available to run from this panel.`
-        : "No package scripts were detected for this project."
+      copy: launchCommands.length
+        ? `${launchCommands.length} launch hint(s) across ${runtimeSurfaces.length || 1} runtime surface(s).`
+        : runtimeSurfaces.length
+          ? `${runtimeSurfaces.length} runtime surface(s) detected. Add package scripts or launch commands to make them runnable.`
+          : "No package scripts or runtime surfaces were detected for this project."
     });
+    for (const surface of runtimeSurfaces.slice(0, 4)) {
+      const surfaceEntry = document.createElement("div");
+      surfaceEntry.textContent = `${surface.label || surface.type} • ${surface.cwd || project.relPath}`;
+      surfaceEntry.style.fontSize = "0.78rem";
+      surfaceEntry.style.color = "var(--text-muted)";
+      surfaceEntry.style.marginTop = "0.45rem";
+      stackCard.append(surfaceEntry);
+    }
 
     const overlapCard = createWorkbenchLaunchCard({
       title: "Convergence signal",
@@ -1237,7 +1268,7 @@ export function createDashboardModal({ getData, api }) {
     });
     for (const run of scriptRuns.slice(0, 3)) {
       const runEntry = document.createElement("div");
-      runEntry.textContent = `${run.script} • ${run.status}${run.exitCode == null ? "" : ` • exit ${run.exitCode}`} • ${formatDate(run.endedAt || run.startedAt)}`;
+      runEntry.textContent = `${run.script}${run.cwd ? ` in ${run.cwd}` : ""} • ${run.status}${run.exitCode == null ? "" : ` • exit ${run.exitCode}`} • ${formatDate(run.endedAt || run.startedAt)}`;
       runEntry.style.fontSize = "0.78rem";
       runEntry.style.color = run.status === "success"
         ? "var(--success)"
@@ -1285,20 +1316,24 @@ export function createDashboardModal({ getData, api }) {
     terminal.textContent ||= "";
     resetTerminalSource();
 
-    if (project.scripts?.length) {
+    if (runnableCommands.length) {
       scriptsSection.hidden = false;
       const scriptsFragment = document.createDocumentFragment();
-      for (const script of project.scripts) {
-        scriptsFragment.append(createScriptButton(script));
+      for (const command of runnableCommands) {
+        scriptsFragment.append(createScriptButton(command.name, {
+          label: command.label || command.name,
+          cwd: command.cwd || project.relPath
+        }));
       }
       scriptsList.replaceChildren(scriptsFragment);
       scriptsList.querySelectorAll("button").forEach((button) => {
         if (!(button instanceof HTMLButtonElement)) return;
         button.onclick = () => {
           resetTerminalSource();
-          terminal.textContent += `\n--- Starting: npm run ${button.dataset.script} ---\n`;
+          const cwd = button.dataset.cwd || project.relPath;
+          terminal.textContent += `\n--- Starting: npm run ${button.dataset.script} in ${cwd} ---\n`;
           terminal.scrollTop = terminal.scrollHeight;
-          const source = new EventSource(`/api/run?script=${encodeURIComponent(button.dataset.script ?? "")}&path=${encodeURIComponent(project.relPath)}`);
+          const source = new EventSource(`/api/run?script=${encodeURIComponent(button.dataset.script ?? "")}&path=${encodeURIComponent(project.relPath)}&cwd=${encodeURIComponent(cwd)}`);
           currentTerminalSource = source;
           source.onmessage = (event) => {
             const message = JSON.parse(event.data);

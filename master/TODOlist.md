@@ -1890,3 +1890,10 @@
 - [x] Compare authorization decision/status, launchpad decision, readiness decision, launchpad drift severity/score, checkpoint counts, recommended action, and Markdown changes.
 - [x] Add Governance copy controls and drift cards for latest/per-snapshot launch authorization pack drift.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Authorization Pack Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoints for launch authorization pack snapshot drift items.
+- [x] Persist checkpoint tasks with snapshot id, runner, drift field, before/current values, decision, note, and no-secrets policy.
+- [x] Show checkpoint state on launch authorization pack drift cards and rehydrate decisions into drift payloads.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

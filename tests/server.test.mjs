@@ -3473,6 +3473,32 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.hasDrift, true);
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftSeverity, "high");
     assert.ok(convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.some((item) => item.field === "decision" || item.field === "authorizationStatus"));
+    const launchAuthorizationPackCheckpointField = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.find((item) => item.field === "decision" || item.field === "authorizationStatus")?.field || "decision";
+
+    const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: launchAuthorizationPackCheckpointField,
+        decision: "confirmed",
+        note: "Fixture launch authorization pack drift accepted."
+      })
+    });
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson = await convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson.success, true);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson.decision, "confirmed");
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson.task.convergenceAssimilationRunnerLaunchAuthorizationPackDriftField, launchAuthorizationPackCheckpointField);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson.task.status, "resolved");
+
+    const convergenceAssimilationRunnerLaunchAuthorizationPackCheckpointedDriftResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackCheckpointedDriftResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchAuthorizationPackCheckpointedDriftJson = await convergenceAssimilationRunnerLaunchAuthorizationPackCheckpointedDriftResponse.json();
+    const checkpointedLaunchAuthorizationPackDrift = convergenceAssimilationRunnerLaunchAuthorizationPackCheckpointedDriftJson.driftItems.find((item) => item.field === launchAuthorizationPackCheckpointField);
+    assert.equal(checkpointedLaunchAuthorizationPackDrift.checkpointDecision, "confirmed");
+    assert.equal(checkpointedLaunchAuthorizationPackDrift.checkpointStatus, "resolved");
 
     const convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshot-drift-checkpoints`, {
       method: "POST",
@@ -3620,6 +3646,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-snapshot-created"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-upserted"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

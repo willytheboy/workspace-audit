@@ -216,6 +216,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchConvergenceTaskLedgerDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/convergence/task-ledger-drift-checkpoints", { status }));
+  },
+
+  /**
    * @param {{ snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */

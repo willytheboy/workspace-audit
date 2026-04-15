@@ -1673,3 +1673,10 @@
 - [x] Add field-level filters for all, uncheckpointed, confirmed, deferred, and escalated drift items.
 - [x] Keep filters view-local so they do not mutate persisted Governance state.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Convergence Drift Checkpoint Ledger Export
+
+- [x] Add a non-secret Convergence Review task-ledger drift checkpoint ledger export API.
+- [x] Include decision counts, status split, snapshot count, field count, and checkpoint metadata in Markdown.
+- [x] Add Governance copy control for the checkpoint ledger.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

@@ -203,6 +203,53 @@
  * }} ConvergenceTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   field: string,
+ *   label: string,
+ *   decision: string,
+ *   checkpointStatus: string,
+ *   severity: string,
+ *   score: number,
+ *   before: string,
+ *   current: string,
+ *   delta: number,
+ *   checkpointedAt: string,
+ *   note: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} ConvergenceTaskLedgerDriftCheckpointLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number,
+ *     snapshotCount: number,
+ *     fieldCount: number
+ *   },
+ *   items: ConvergenceTaskLedgerDriftCheckpointLedgerItem[],
+ *   markdown: string
+ * }} ConvergenceTaskLedgerDriftCheckpointLedgerPayload
+ * @typedef {{
+ *   id: string,
  *   projectId?: string,
  *   projectName?: string,
  *   title: string,

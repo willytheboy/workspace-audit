@@ -2929,6 +2929,12 @@ export function createGovernanceDeck(governance) {
           text: "Copy Drift",
           attrs: { type: "button" },
           dataset: { convergenceTaskLedgerDriftCopy: "latest" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Checkpoint Ledger",
+          attrs: { type: "button" },
+          dataset: { convergenceTaskLedgerDriftCheckpointLedgerCopy: "all" }
         })
       ])
     ])

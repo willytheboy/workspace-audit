@@ -3258,6 +3258,16 @@ export async function convergenceReviewSuppressionTest() {
     const convergenceTaskLedgerAfterDriftCheckpointJson = await convergenceTaskLedgerAfterDriftCheckpointResponse.json();
     assert.ok(convergenceTaskLedgerAfterDriftCheckpointJson.items.some((item) => item.convergenceTaskLedgerDriftField === convergenceTaskDriftItem.field));
     assert.match(convergenceTaskLedgerAfterDriftCheckpointJson.markdown, /Drift checkpoint/);
+
+    const convergenceTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`);
+    assert.equal(convergenceTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const convergenceTaskLedgerDriftCheckpointLedgerJson = await convergenceTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(convergenceTaskLedgerDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(convergenceTaskLedgerDriftCheckpointLedgerJson.summary.escalated, 1);
+    assert.equal(convergenceTaskLedgerDriftCheckpointLedgerJson.summary.fieldCount, 1);
+    assert.equal(convergenceTaskLedgerDriftCheckpointLedgerJson.items[0].field, convergenceTaskDriftItem.field);
+    assert.match(convergenceTaskLedgerDriftCheckpointLedgerJson.markdown, /# Convergence Review Task Ledger Drift Checkpoints/);
+    assert.match(convergenceTaskLedgerDriftCheckpointLedgerJson.secretPolicy, /Non-secret convergence review task ledger drift metadata only/);
   } finally {
     server.close();
     await once(server, "close");

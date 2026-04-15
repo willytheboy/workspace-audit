@@ -1911,3 +1911,10 @@
 - [x] Combine launch authorization pack state with launch authorization pack drift checkpoint ledger state.
 - [x] Surface a single launch-ready/review-required/blocked decision with reasons and operator steps.
 - [x] Add Governance copy controls, parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Control Board Snapshots
+
+- [x] Add non-secret saved launch control board snapshots for Codex and Claude.
+- [x] Persist runner, launch decision/status, authorization status, checkpoint counts, recommended action, Markdown, and full board payload.
+- [x] Add Governance save and copy controls for persisted launch control board snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

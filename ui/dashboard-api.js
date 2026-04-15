@@ -454,6 +454,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[]>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchControlBoardSnapshots() {
+    return fetchJson("/api/convergence/assimilation-runner-launch-control-board-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot, convergenceAssimilationRunnerLaunchControlBoardSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[] }>}
+   */
+  createConvergenceAssimilationRunnerLaunchControlBoardSnapshot(payload = {}) {
+    return fetchJson("/api/convergence/assimilation-runner-launch-control-board-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

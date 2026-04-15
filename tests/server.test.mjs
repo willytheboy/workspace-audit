@@ -3411,6 +3411,29 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.protocolVersion, /convergence-assimilation-runner-launch-control-board/);
     assert.match(convergenceAssimilationRunnerLaunchControlBoardJson.markdown, /# Convergence Assimilation Runner Launch Control Board/);
 
+    const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "codex",
+        title: "Fixture Codex Launch Control Board"
+      })
+    });
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse.status, 200);
+    const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson = await createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse.json();
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.success, true);
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.snapshot.title, "Fixture Codex Launch Control Board");
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.snapshot.launchDecision, "ready");
+    assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.snapshot.launchStatus, "launch-ready");
+    assert.match(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.snapshot.markdown, /# Convergence Assimilation Runner Launch Control Board/);
+
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotsResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotsResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchControlBoardSnapshotsJson = await convergenceAssimilationRunnerLaunchControlBoardSnapshotsResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotsJson.length, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotsJson[0].title, "Fixture Codex Launch Control Board");
+
     const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3654,11 +3677,13 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationSessionPacketSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchpadGateSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount, 1);
+    assert.equal(governanceAfterConvergenceTasksJson.summary.convergenceAssimilationRunnerLaunchControlBoardSnapshotCount, 1);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTasks[0].convergencePairId, operatorProposalJson.review.pairId);
     assert.equal(governanceAfterConvergenceTasksJson.convergenceTaskLedgerSnapshots[0].title, "Fixture Convergence Review Task Ledger");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationSessionPacketSnapshots[0].title, "Fixture Codex Session Packet");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchpadGateSnapshots[0].title, "Fixture Codex Launchpad Gate");
     assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots[0].title, "Fixture Codex Launch Authorization Pack");
+    assert.equal(governanceAfterConvergenceTasksJson.convergenceAssimilationRunnerLaunchControlBoardSnapshots[0].title, "Fixture Codex Launch Control Board");
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-review-tasks-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-task-ledger-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-session-packet-snapshot-created"));
@@ -3666,6 +3691,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launchpad-gate-drift-checkpoint-upserted"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-snapshot-created"));
     assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-authorization-pack-drift-checkpoint-upserted"));
+    assert.ok(governanceAfterConvergenceTasksJson.operationLog.some((operation) => operation.type === "convergence-assimilation-runner-launch-control-board-snapshot-created"));
 
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",

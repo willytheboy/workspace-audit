@@ -129,6 +129,8 @@ function createEmptyTableRow(message) {
  *     checkpointConvergenceAssimilationRunnerLaunchAuthorizationPackDrift: (payload: { snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchControlBoard: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchControlBoardPayload>,
+ *     fetchConvergenceAssimilationRunnerLaunchControlBoardSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[]>,
+ *     createConvergenceAssimilationRunnerLaunchControlBoardSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot, convergenceAssimilationRunnerLaunchControlBoardSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[] }>,
  *     fetchConvergenceAssimilationRunTracePack: (runId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>,
  *     recordConvergenceAssimilationRunResult: (runId: string, payload: { status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string }) => Promise<{ success: true, result: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunResults: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     checkpointConvergenceAssimilationResult: (resultId: string, payload: { decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>,
@@ -770,6 +772,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.convergenceAssimilationRunnerLaunchControlBoard
         : null,
+      convergenceAssimilationRunnerLaunchControlBoardSnapshots: filterAndSort(
+        governance.convergenceAssimilationRunnerLaunchControlBoardSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.runner || "", snapshot.launchDecision || "", snapshot.launchStatus || "", snapshot.authorizationStatus || "", snapshot.recommendedAction || "", snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       convergenceAssimilationRunnerLaunchpadGateSnapshotDiff: governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff && matchesSearch([
         "convergence assimilation runner launchpad gate snapshot drift",
         governance.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff.snapshotTitle || "",
@@ -1078,6 +1085,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchControlBoard = null;
+      if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchControlBoardSnapshots = [];
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchpadGateSnapshotDiff = null;
       if (scope !== "convergence") filtered.convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger = null;
       if (scope !== "convergence") filtered.convergenceAssimilationSessionPacketSnapshotDiff = null;
@@ -2708,6 +2716,57 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           });
           await copyText(payload.markdown);
           element.textContent = `Copied ${payload.launchDecision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-control-board-save-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.convergenceAssimilationRunnerLaunchControlBoardSaveRunner || "codex";
+        const normalizedRunner = runner === "claude" ? "claude" : "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const response = await api.createConvergenceAssimilationRunnerLaunchControlBoardSnapshot({
+            runner: normalizedRunner,
+            title: `Convergence Assimilation ${normalizedRunner} Launch Control Board`
+          });
+          await renderGovernance();
+          element.textContent = `Saved ${response.snapshot.launchDecision}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-convergence-assimilation-runner-launch-control-board-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.convergenceAssimilationRunnerLaunchControlBoardSnapshotId || "";
+        const snapshot = governanceCache?.convergenceAssimilationRunnerLaunchControlBoardSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -8558,6 +8617,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger?.items || []).length
         + (convergenceAssimilationRunnerLaunchControlBoard ? 1 : 0)
         + (convergenceAssimilationRunnerLaunchControlBoard?.reasons || []).length
+        + (governance.convergenceAssimilationRunnerLaunchControlBoardSnapshots || []).length
         + (convergenceAssimilationRunnerLaunchpadGateSnapshotDiff ? 1 : 0)
         + (convergenceAssimilationRunnerLaunchpadGateSnapshotDiff?.driftItems || []).length
         + (convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger ? 1 : 0)

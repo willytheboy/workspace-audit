@@ -1799,3 +1799,10 @@
 - [x] Persist runner, readiness decision, counts, recommended action, Markdown, and full packet payload.
 - [x] Add Governance save and copy controls for persisted session packet snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Session Packet Snapshot Drift
+
+- [x] Add a non-secret drift API comparing saved session packets with live packet state.
+- [x] Compare readiness decision, run/result/checkpoint counts, recommended action, and packet Markdown changes.
+- [x] Add Governance copy controls and drift cards for latest/per-snapshot packet drift.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

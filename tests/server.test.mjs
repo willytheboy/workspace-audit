@@ -3330,6 +3330,15 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationSessionPacketSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationSessionPacketSnapshotsJson[0].title, "Fixture Codex Session Packet");
 
+    const convergenceAssimilationSessionPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDiffResponse.status, 200);
+    const convergenceAssimilationSessionPacketSnapshotDiffJson = await convergenceAssimilationSessionPacketSnapshotDiffResponse.json();
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDiffJson.runner, "codex");
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(convergenceAssimilationSessionPacketSnapshotDiffJson.driftItems.length, 0);
+    assert.match(convergenceAssimilationSessionPacketSnapshotDiffJson.markdown, /# Convergence Assimilation Session Packet Snapshot Drift/);
+
     const repeatConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -3369,6 +3369,18 @@ export function createGovernanceDeck(governance) {
           text: "Save Claude Packet",
           attrs: { type: "button" },
           dataset: { convergenceAssimilationSessionPacketSaveRunner: "claude" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-drift-copy-btn",
+          text: "Copy Codex Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketDriftCopy: "codex" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-session-packet-drift-copy-btn",
+          text: "Copy Claude Drift",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationSessionPacketDriftCopy: "claude" }
         })
       ])
     ]),
@@ -3450,9 +3462,91 @@ export function createGovernanceDeck(governance) {
         text: "Copy Snapshot",
         attrs: { type: "button" },
         dataset: { convergenceAssimilationSessionPacketSnapshotId: snapshot.id }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn convergence-assimilation-session-packet-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: { convergenceAssimilationSessionPacketSnapshotDriftId: snapshot.id }
       })
     ])
   ]));
+  const convergenceAssimilationSessionPacketSnapshotDiff = governance.convergenceAssimilationSessionPacketSnapshotDiff || null;
+  const convergenceAssimilationSessionPacketSnapshotDiffEntries = convergenceAssimilationSessionPacketSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-session-packet-snapshot-drift-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: convergenceAssimilationSessionPacketSnapshotDiff.hasSnapshot ? (convergenceAssimilationSessionPacketSnapshotDiff.snapshotTitle || "Latest session packet snapshot") : "No session packet snapshot",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: convergenceAssimilationSessionPacketSnapshotDiff.recommendedAction || "Save a session packet snapshot before comparing drift.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(convergenceAssimilationSessionPacketSnapshotDiff.driftSeverity || "missing-snapshot", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: convergenceAssimilationSessionPacketSnapshotDiff.driftSeverity === "high" ? "var(--danger)" : convergenceAssimilationSessionPacketSnapshotDiff.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+        })
+      ]),
+      createElement("div", {
+        text: `${convergenceAssimilationSessionPacketSnapshotDiff.driftScore || 0} drift score | ${(convergenceAssimilationSessionPacketSnapshotDiff.driftItems || []).length} drift item(s) | ${convergenceAssimilationSessionPacketSnapshotDiff.runner || "runner unset"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]),
+    ...(convergenceAssimilationSessionPacketSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-session-packet-snapshot-drift-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.35rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.label || item.field || "Session packet drift",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]))
+  ] : [];
   const convergenceTaskSummary = governance.summary || {};
   const convergenceTaskEntries = [
     createElement("div", {
@@ -10891,6 +10985,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Result Checkpoints", "Operator decisions on captured assimilation results before follow-up implementation.", convergenceAssimilationResultCheckpointEntries),
     createListSection("Convergence Assimilation Readiness Gate", "Ready/review/hold gate for continuing supervised convergence implementation.", convergenceAssimilationReadinessEntries),
     createListSection("Convergence Assimilation Session Packet Snapshots", "Persisted non-secret Codex and Claude session packets for auditable CLI handoffs.", convergenceAssimilationSessionPacketSnapshotEntries),
+    createListSection("Convergence Assimilation Session Packet Snapshot Drift", "Latest saved session packet compared with current live convergence assimilation handoff state.", convergenceAssimilationSessionPacketSnapshotDiffEntries),
     createListSection("Convergence Review Tasks", "Trackable tasks created from confirmed, merge-candidate, or needs-review overlap pairs.", convergenceTaskEntries),
     createListSection("Convergence Review Task Ledger Snapshots", "Persisted non-secret baselines and drift handoffs for convergence task follow-up work.", [...convergenceTaskLedgerSnapshotDiffEntries, ...convergenceTaskLedgerSnapshotEntries]),
     createListSection("Task Seeding Checkpoints", "Operator decisions for generated task batches before or instead of creating task records.", taskSeedingCheckpointEntries),

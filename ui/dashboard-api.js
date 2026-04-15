@@ -270,6 +270,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @param {{ runner?: "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationSessionPacketSnapshotDiffPayload>}
+   */
+  fetchConvergenceAssimilationSessionPacketSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-session-packet-snapshots/diff", {
+      snapshotId,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @param {string} runId
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunTracePackPayload>}
    */

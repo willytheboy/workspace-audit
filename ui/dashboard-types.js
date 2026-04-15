@@ -362,6 +362,22 @@
  *   packet: ConvergenceAssimilationSessionPacketPayload,
  *   createdAt: string
  * }} PersistedConvergenceAssimilationSessionPacketSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   runner: "codex" | "claude" | "",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: { readinessDecision: string, runCount: number, openRunCount: number, resultCount: number, checkpointCount: number, openCheckpointCount: number, recommendedAction: string } | null,
+ *   snapshotSummary: { readinessDecision: string, runCount: number, openRunCount: number, resultCount: number, checkpointCount: number, openCheckpointCount: number, recommendedAction: string } | null,
+ *   markdown: string
+ * }} ConvergenceAssimilationSessionPacketSnapshotDiffPayload
  * @typedef { "all" | "active" | "review-required" | "task-ready" | "task-tracked" | "blocked" | "completed" | "suppressed" } ConvergenceOperatorProposalQueueStatus
  * @typedef {{
  *   pairId: string,
@@ -1593,6 +1609,7 @@
  *   convergenceAssimilationResultCheckpointLedger?: ConvergenceAssimilationResultCheckpointLedgerPayload | null,
  *   convergenceAssimilationReadinessGate?: ConvergenceAssimilationReadinessGatePayload | null,
  *   convergenceAssimilationSessionPacketSnapshots: PersistedConvergenceAssimilationSessionPacketSnapshot[],
+ *   convergenceAssimilationSessionPacketSnapshotDiff?: ConvergenceAssimilationSessionPacketSnapshotDiffPayload | null,
  *   taskSeedingCheckpoints: TaskSeedingCheckpoint[],
  *   governanceTaskUpdateLedger?: GovernanceTaskUpdateLedgerPayload | null,
  *   governanceTaskUpdateLedgerSnapshotDiff?: GovernanceTaskUpdateLedgerSnapshotDiffPayload | null,

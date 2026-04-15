@@ -620,6 +620,17 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ status?: "all" | "open" | "closed" | "active" | "archived", runner?: "all" | "codex" | "claude" }} [options]
+   * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload>}
+   */
+  fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger(options = {}) {
+    return fetchJson(withQuery("/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run-ledger", {
+      status: options.status,
+      runner: options.runner
+    }));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[]>}
    */
   fetchConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshots() {

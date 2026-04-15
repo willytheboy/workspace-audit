@@ -765,6 +765,26 @@
  *   markdown: string
  * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   status: "all" | "open" | "closed" | "active" | "archived",
+ *   runner: "all" | "codex" | "claude",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     active: number,
+ *     archived: number,
+ *     codex: number,
+ *     claude: number,
+ *     workItems: number
+ *   },
+ *   runs: PersistedAgentWorkOrderRun[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   runner: "codex" | "claude",
@@ -2157,6 +2177,7 @@
  *   convergenceAssimilationRunnerLaunchStackStatus?: ConvergenceAssimilationRunnerLaunchStackStatusPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPack?: ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload | null,
+ *   convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshots: PersistedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshot[],
  *   convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff?: ConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffPayload | null,
  *   convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger?: ConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerPayload | null,

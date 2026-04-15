@@ -2113,3 +2113,10 @@
 - [x] Persist queued remediation work orders as supervised agent work-order runs with runner, work-item, validation, and secret-policy metadata.
 - [x] Surface Governance queue controls next to the remediation work-order draft copy controls.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Ledger
+
+- [x] Add a copyable ledger API for queued launch stack remediation work-order runs.
+- [x] Summarize visible, open, closed, archived, Codex, Claude, and total work-item counts.
+- [x] Surface Governance ledger cards and Copy All/Open/Closed controls.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

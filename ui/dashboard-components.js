@@ -4740,6 +4740,19 @@ export function createGovernanceDeck(governance) {
   };
   const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft = governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft || null;
   const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftItems = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft?.workItems || [];
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger = governance.convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger || null;
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    active: 0,
+    archived: 0,
+    codex: 0,
+    claude: 0,
+    workItems: 0
+  };
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerRuns = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger?.runs || [];
   const convergenceAssimilationRunnerLaunchStackActionTaskLedger = governance.convergenceAssimilationRunnerLaunchStackActionTaskLedger || null;
   const convergenceAssimilationRunnerLaunchStackActionTaskLedgerSummary = convergenceAssimilationRunnerLaunchStackActionTaskLedger?.summary || {
     total: 0,
@@ -5114,6 +5127,143 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: "var(--primary)"
+        })
+      ])
+    ]))
+  ] : [];
+  const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerEntries = convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger ? [
+    createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-work-order-run-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Launch stack remediation work-order run ledger",
+            style: {
+              color: "var(--text)",
+              fontWeight: "850"
+            }
+          }),
+          createElement("div", {
+            text: "Queued non-executing Codex and Claude remediation handoffs tracked as supervised agent work-order runs.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.28rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.visible || 0} visible`, {
+          background: "var(--bg)",
+          border: "1px solid var(--primary)",
+          color: "var(--primary)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.open || 0} open`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.open || 0) ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.closed || 0} closed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        }),
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.codex || 0} codex`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--primary)"
+        }),
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.claude || 0} claude`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--primary)"
+        }),
+        createTag(`${convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerSummary.workItems || 0} work items`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-run-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerStatus: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-run-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerStatus: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn convergence-assimilation-runner-launch-stack-remediation-work-order-run-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerStatus: "closed" }
+        })
+      ])
+    ]),
+    ...convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerRuns.slice(0, 8).map((run) => createElement("div", {
+      className: "governance-gap-card convergence-assimilation-runner-launch-stack-remediation-work-order-run-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.38rem"
+      }
+    }, [
+      createElement("div", {
+        text: run.title || "Launch stack remediation work order",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: run.notes || run.objective || "No notes recorded.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(run.status || "queued", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: ["done", "resolved", "closed", "cancelled", "archived", "passed", "failed"].includes(String(run.status || "").toLowerCase()) ? "var(--success)" : "var(--warning)"
+        }),
+        createTag(run.convergenceAssimilationRunnerLaunchStackRemediationRunner || run.runtime || "runner", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--primary)"
+        }),
+        createTag(`${run.convergenceAssimilationRunnerLaunchStackRemediationWorkItemCount || 0} item(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
         })
       ])
     ]))
@@ -13798,6 +13948,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Convergence Assimilation Runner Launch Stack Status", "Single ready/review/hold rollup for Codex and Claude launch handoff safety.", convergenceAssimilationRunnerLaunchStackStatusEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack", "Copyable Codex and Claude remediation handoff for non-ready stack stages, open tasks, and unresolved checkpoint drift.", convergenceAssimilationRunnerLaunchStackRemediationPackEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Draft", "Non-executing Codex and Claude work-order prompts generated from the current remediation pack.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftEntries),
+    createListSection("Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Ledger", "Queued Codex and Claude launch stack remediation handoffs tracked as supervised agent work-order runs.", convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshots", "Persisted Codex and Claude remediation pack baselines for later launch stack drift comparison.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift", "Latest saved launch stack remediation pack compared with current live runner remediation state.", convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffEntries),
     createListSection("Convergence Assimilation Runner Launch Stack Remediation Pack Drift Checkpoints", "Operator decisions made against launch stack remediation pack drift before runner handoff reuse.", convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerEntries),

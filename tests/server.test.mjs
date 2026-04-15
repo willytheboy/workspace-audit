@@ -3617,6 +3617,16 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run, null);
     assert.match(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.skippedRun.reason, /already exists/);
 
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run-ledger?status=all&runner=claude`);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerResponse.status, 200);
+    const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson = await convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerResponse.json();
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.protocolVersion, "convergence-assimilation-runner-launch-stack-remediation-work-order-run-ledger.v1");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.runner, "claude");
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.summary.visible, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.summary.claude, 1);
+    assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.summary.workItems >= 1, true);
+    assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Ledger/);
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -1271,6 +1271,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger
         : null,
+      agentExecutionTargetBaselineAuditLedgerBaselineStatus: governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus && matchesSearch([
+        "agent execution target baseline audit baseline status",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.title || "",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.health || "",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.freshness || "",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.driftSeverity || "",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.recommendedAction || "",
+        governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.markdown || ""
+      ])
+        ? governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus
+        : null,
       cliBridgeRunTraceSnapshots: filterAndSort(
         governance.cliBridgeRunTraceSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
@@ -1411,6 +1422,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
+      if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotBaselineStatus = null;
@@ -5157,6 +5169,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    * @param {HTMLElement} container
    */
   function bindTargetBaselineAuditLedgerSnapshotActions(container) {
+    container.querySelectorAll("[data-target-baseline-audit-ledger-baseline-status-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          element.textContent = await copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8307,6 +8339,19 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Drifted: ${(executionMetrics.targetBaselineDrifted || 0) + (executionMetrics.targetBaselineDriftReviewRequired || 0)}`);
       lines.push(`- Uncheckpointed drift items: ${executionMetrics.targetBaselineUncheckpointedDriftItems || 0}`);
       lines.push("- Use the Governance action card or command palette to copy the full non-secret run-level audit ledger.");
+    }
+
+    lines.push("", "## Agent Execution Target Baseline Audit Baseline Status");
+    if (governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus) {
+      const status = governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus;
+      lines.push(`- Baseline status: ${status.hasBaseline ? "set" : "missing"}`);
+      lines.push(`- Health: ${status.health || "missing"}`);
+      lines.push(`- Freshness: ${status.freshness || "missing"} (${status.ageHours || 0}h old, threshold ${status.freshnessThresholdHours || 24}h)`);
+      lines.push(`- Drift: ${status.driftSeverity || "missing-snapshot"} / score ${status.driftScore || 0}`);
+      lines.push(`- Checkpoints: ${status.checkpointedDriftItemCount || 0}/${status.driftItemCount || 0}`);
+      lines.push(`- Action: ${status.recommendedAction || "Save a target-baseline audit snapshot."}`);
+    } else {
+      lines.push("- No visible target baseline audit baseline status.");
     }
 
     lines.push("", "## Agent Execution Target Baseline Audit Ledger Snapshots");
@@ -12839,6 +12884,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.total} target baseline audit run${payload.total === 1 ? "" : "s"}`;
   }
 
+  async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
+    const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
+    await copyText(payload.markdown);
+    return `Copied ${payload.health || "missing"} Baseline Status`;
+  }
+
   async function saveAgentExecutionTargetBaselineAuditLedgerSnapshot(stateOverride = "review") {
     const state = getAgentExecutionTargetBaselineAuditLedgerState(stateOverride);
     await api.createAgentExecutionTargetBaselineAuditLedgerSnapshot({
@@ -13645,6 +13696,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyLatestSourcesSummarySnapshotDrift,
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
+    copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,
     checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,

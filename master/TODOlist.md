@@ -2386,3 +2386,10 @@
 - [x] Store checkpoint decisions as non-secret Governance tasks with ledger evidence.
 - [x] Surface per-snapshot checkpoint controls and a command-palette confirm action.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Baseline Status
+
+- [x] Add a baseline status API for latest target-baseline audit snapshot health, freshness, drift, and checkpoint coverage.
+- [x] Surface baseline health in Governance summary, report, deck card, and command palette copy action.
+- [x] Add parser and server test coverage for healthy refreshed audit baselines.
+- [x] Validate, relaunch, commit, and push.

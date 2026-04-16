@@ -10311,6 +10311,70 @@ export function createGovernanceDeck(governance) {
       ])
     ])
   ] : [];
+  const agentExecutionTargetBaselineAuditLedgerBaselineStatus = governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus || null;
+  const agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries = agentExecutionTargetBaselineAuditLedgerBaselineStatus ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Target baseline audit snapshot baseline",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: agentExecutionTargetBaselineAuditLedgerBaselineStatus.recommendedAction || "Save a target-baseline audit snapshot before relying on execution baseline drift gates.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(agentExecutionTargetBaselineAuditLedgerBaselineStatus.health || "missing", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: agentExecutionTargetBaselineAuditLedgerBaselineStatus.health === "healthy" ? "var(--success)" : agentExecutionTargetBaselineAuditLedgerBaselineStatus.health === "stale" ? "var(--warning)" : "var(--danger)"
+        })
+      ]),
+      createElement("div", {
+        text: agentExecutionTargetBaselineAuditLedgerBaselineStatus.hasBaseline
+          ? `Snapshot ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.title || agentExecutionTargetBaselineAuditLedgerBaselineStatus.snapshotId || "baseline"} | ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.freshness || "missing"} | drift ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.driftSeverity || "none"} / score ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.driftScore || 0} | checkpoints ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.checkpointedDriftItemCount || 0}/${agentExecutionTargetBaselineAuditLedgerBaselineStatus.driftItemCount || 0}`
+          : `No target-baseline audit baseline snapshot saved. Snapshots available: ${agentExecutionTargetBaselineAuditLedgerBaselineStatus.snapshotCount || 0}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.86rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn target-baseline-audit-ledger-baseline-status-copy-btn",
+          text: "Copy Baseline Status",
+          attrs: { type: "button" },
+          dataset: { targetBaselineAuditLedgerBaselineStatusCopy: "true" }
+        })
+      ])
+    ])
+  ] : [];
 
   const dataSourcesAccessReviewQueue = governance.dataSourcesAccessReviewQueue;
   const dataSourcesAccessReviewQueueItems = Array.isArray(dataSourcesAccessReviewQueue?.items)
@@ -15661,6 +15725,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
+    createListSection("Agent Execution Target Baseline Audit Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.", agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries),
     createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),

@@ -1874,6 +1874,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerBaselineStatusPayload>}
+   */
+  fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
+    return fetchJson("/api/agent-work-order-runs/target-baseline-audit-ledger-baseline-status");
+  },
+
+  /**
    * @param {string} snapshotId
    * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerSnapshotDriftPayload>}
    */

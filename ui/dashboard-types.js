@@ -2258,6 +2258,30 @@
  *   markdown: string
  * }} AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload
  * @typedef {{
+ *   generatedAt: string,
+ *   hasBaseline: boolean,
+ *   snapshotId: string,
+ *   title: string,
+ *   createdAt: string,
+ *   stateFilter: string,
+ *   ageHours: number,
+ *   freshness: "missing" | "fresh" | "stale" | string,
+ *   freshnessThresholdHours: number,
+ *   health: "missing" | "healthy" | "stale" | "drifted" | "drift-review-required" | string,
+ *   recommendedAction: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: string,
+ *   driftRecommendedAction: string,
+ *   driftItemCount: number,
+ *   checkpointedDriftItemCount: number,
+ *   uncheckpointedDriftItemCount: number,
+ *   snapshotCount: number,
+ *   secretPolicy: string,
+ *   driftItems: Array<Record<string, unknown>>,
+ *   markdown: string
+ * }} AgentExecutionTargetBaselineAuditLedgerBaselineStatusPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   stateFilter: "all" | "open" | "resolved",
@@ -2728,6 +2752,7 @@
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentExecutionTargetBaselineAuditLedgerSnapshots: PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[],
  *   agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger?: AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload | null,
+ *   agentExecutionTargetBaselineAuditLedgerBaselineStatus?: AgentExecutionTargetBaselineAuditLedgerBaselineStatusPayload | null,
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],

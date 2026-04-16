@@ -104,6 +104,7 @@
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     copySlaBreachLedger: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
+ *     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus: () => Promise<void>,
  *     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask: () => Promise<void>,
  *     saveAgentControlPlaneSnapshot: () => Promise<void>,
@@ -884,6 +885,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "copy"],
         run: () => handlers.copyAgentExecutionTargetBaselineAuditLedger()
+      },
+      {
+        id: "copy-agent-execution-target-baseline-audit-ledger-baseline-status",
+        label: "Copy target baseline audit status",
+        description: "Copy freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "status", "health", "copy"],
+        run: () => handlers.copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus()
       },
       {
         id: "copy-latest-agent-execution-target-baseline-audit-ledger-snapshot-drift",

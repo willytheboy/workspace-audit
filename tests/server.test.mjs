@@ -1432,8 +1432,19 @@ export async function serverTest() {
     assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshResponse.status, 200);
     const governanceAfterTargetBaselineAuditSnapshotRefreshJson = await governanceAfterTargetBaselineAuditSnapshotRefreshResponse.json();
     assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 2);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshJson.summary.agentExecutionTargetBaselineAuditLedgerBaselineHealth, "healthy");
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshJson.summary.agentExecutionTargetBaselineAuditLedgerBaselineFreshness, "fresh");
     assert.ok(governanceAfterTargetBaselineAuditSnapshotRefreshJson.operationLog.some((operation) => operation.type === "agent-execution-target-baseline-audit-ledger-snapshot-refreshed"));
     assert.ok(governanceAfterTargetBaselineAuditSnapshotRefreshJson.operationLog.some((operation) => operation.type === "agent-execution-target-baseline-audit-ledger-drift-checkpoint-upserted"));
+
+    const targetBaselineAuditLedgerBaselineStatusResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-baseline-status`);
+    assert.equal(targetBaselineAuditLedgerBaselineStatusResponse.status, 200);
+    const targetBaselineAuditLedgerBaselineStatusJson = await targetBaselineAuditLedgerBaselineStatusResponse.json();
+    assert.equal(targetBaselineAuditLedgerBaselineStatusJson.hasBaseline, true);
+    assert.equal(targetBaselineAuditLedgerBaselineStatusJson.health, "healthy");
+    assert.equal(targetBaselineAuditLedgerBaselineStatusJson.freshness, "fresh");
+    assert.equal(targetBaselineAuditLedgerBaselineStatusJson.driftScore, 0);
+    assert.match(targetBaselineAuditLedgerBaselineStatusJson.markdown, /# Agent Execution Target Baseline Audit Ledger Baseline Status/);
 
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",

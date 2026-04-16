@@ -7633,6 +7633,50 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-run-trace-lifecycle-ledger-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeRunTraceLifecycleLedgerReviewTask();
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-run-trace-lifecycle-ledger-item-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunTraceLifecycleLedgerItemTaskId || "";
+        if (!snapshotId) return;
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeRunTraceLifecycleItemReviewTask(snapshotId);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-run-trace-snapshot-drift-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -11815,6 +11859,91 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review CLI dry-run lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
       description: buildCliBridgeRunnerDryRunLifecycleItemTaskDescription(item),
       priority: getCliBridgeRunnerDryRunLifecycleItemPriority(item),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Tracked Item";
+  }
+
+  function getCliBridgeRunTraceLifecycleLedgerTaskPriority(summary = {}) {
+    if ((summary.hold || 0) > 0 || (summary.acceptedDrift || 0) > 0) return "high";
+    if ((summary.review || 0) > 0) return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeRunTraceLifecycleLedgerTaskDescription(payload) {
+    const summary = payload.summary || {};
+    const lines = [
+      "Review CLI bridge run trace lifecycle ledger.",
+      `Visible trace snapshots: ${summary.visible || 0}; total snapshots: ${summary.total || 0}; available: ${summary.available || 0}.`,
+      `Decision split: ready ${summary.ready || 0}; review ${summary.review || 0}; hold ${summary.hold || 0}.`,
+      `Accepted drift baselines: ${summary.acceptedDrift || 0}.`,
+      `Latest snapshot: ${summary.latestTitle || summary.latestSnapshotId || "none"}; run ${summary.latestRunId || "unknown"}; project ${summary.latestProjectName || summary.latestProjectId || "Portfolio"}.`,
+      "Secret policy: non-secret CLI bridge run trace lifecycle metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ];
+
+    if ((payload.items || []).length) {
+      lines.push("Recent lifecycle items:");
+      for (const item of payload.items.slice(0, 8)) {
+        lines.push(`- ${item.title || "CLI Bridge Run Trace"}: ${item.lifecycleAction || "snapshot-saved"} / ${item.traceDecision || "review"} / run ${item.runId || "unknown"} / project ${item.projectName || item.projectId || "Portfolio"}.`);
+      }
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createCliBridgeRunTraceLifecycleLedgerReviewTask() {
+    const payload = await api.fetchCliBridgeRunTraceSnapshotLifecycleLedger({ limit: 50 });
+    await api.createTask({
+      projectId: payload.summary?.latestProjectId || "cli-bridge",
+      projectName: payload.summary?.latestProjectName || "CLI Bridge",
+      title: "Review CLI bridge run trace lifecycle ledger",
+      description: buildCliBridgeRunTraceLifecycleLedgerTaskDescription(payload),
+      priority: getCliBridgeRunTraceLifecycleLedgerTaskPriority(payload.summary || {}),
+      status: "open"
+    });
+    await renderGovernance();
+    return `Tracked ${payload.summary?.visible || 0}`;
+  }
+
+  function findCliBridgeRunTraceLifecycleLedgerItem(snapshotId) {
+    const ledger = governanceCache?.cliBridgeRunTraceSnapshotLifecycleLedger;
+    return (ledger?.items || []).find((item) => item.snapshotId === snapshotId) || null;
+  }
+
+  function getCliBridgeRunTraceLifecycleItemPriority(item) {
+    if (item?.traceDecision === "hold" || item?.lifecycleAction === "accepted-drift-baseline") return "high";
+    if (item?.traceDecision === "review") return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeRunTraceLifecycleItemTaskDescription(item) {
+    return [
+      `Review CLI bridge run trace lifecycle item ${item.title || item.snapshotId || "snapshot"}.`,
+      `Snapshot ID: ${item.snapshotId || "unknown"}.`,
+      `Run ID: ${item.runId || "unknown"}; project: ${item.projectName || item.projectId || "Portfolio"}.`,
+      `Lifecycle action: ${item.lifecycleAction || "snapshot-saved"}; trace decision: ${item.traceDecision || "review"}.`,
+      `Created: ${item.createdAt || "unknown"}; operation: ${item.operationId || "not linked"}.`,
+      `Profile baseline: ${item.profileTargetTaskLedgerBaselineHealth || "missing"} / ${item.profileTargetTaskLedgerBaselineFreshness || "missing"} / drift ${item.profileTargetTaskLedgerBaselineDriftSeverity || "missing-snapshot"} / uncheckpointed ${item.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0}.`,
+      `Audit baseline: ${item.targetBaselineAuditLedgerBaselineHealth || "missing"} / ${item.targetBaselineAuditLedgerBaselineFreshness || "missing"} / drift ${item.targetBaselineAuditLedgerBaselineDriftSeverity || "missing-snapshot"} / uncheckpointed ${item.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0}.`,
+      `Related handoffs: ${item.relatedHandoffCount || 0}; latest result ${item.latestCliBridgeResultHandoffId || "none"}; latest review ${item.latestCliBridgeReviewHandoffId || "none"}.`,
+      "Secret policy: non-secret CLI bridge run trace lifecycle metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ].join("\n");
+  }
+
+  async function createCliBridgeRunTraceLifecycleItemReviewTask(snapshotId) {
+    const ledger = governanceCache?.cliBridgeRunTraceSnapshotLifecycleLedger?.items?.length
+      ? governanceCache.cliBridgeRunTraceSnapshotLifecycleLedger
+      : await api.fetchCliBridgeRunTraceSnapshotLifecycleLedger({ limit: 100 });
+    const item = (ledger.items || []).find((candidate) => candidate.snapshotId === snapshotId) || findCliBridgeRunTraceLifecycleLedgerItem(snapshotId);
+    if (!item) throw new Error(`CLI bridge run trace lifecycle item not found: ${snapshotId}`);
+
+    await api.createTask({
+      projectId: item.projectId || "cli-bridge",
+      projectName: item.projectName || "CLI Bridge",
+      title: `Review CLI trace lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
+      description: buildCliBridgeRunTraceLifecycleItemTaskDescription(item),
+      priority: getCliBridgeRunTraceLifecycleItemPriority(item),
       status: "open"
     });
     await renderGovernance();

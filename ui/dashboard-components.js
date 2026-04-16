@@ -10125,7 +10125,19 @@ export function createGovernanceDeck(governance) {
                     fontSize: "0.82rem",
                     lineHeight: "1.45"
                   }
-                })
+                }),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-run-trace-lifecycle-ledger-item-task-btn",
+                    text: "Track Item",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunTraceLifecycleLedgerItemTaskId: item.snapshotId || ""
+                    }
+                  })
+                ])
               ])))
             : null,
           createElement("div", {
@@ -10137,6 +10149,14 @@ export function createGovernanceDeck(governance) {
               attrs: { type: "button" },
               dataset: {
                 cliBridgeRunTraceLifecycleLedgerCopy: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-run-trace-lifecycle-ledger-task-btn",
+              text: "Track Trace Ledger",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunTraceLifecycleLedgerTask: "true"
               }
             })
           ])

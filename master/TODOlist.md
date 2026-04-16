@@ -2567,3 +2567,11 @@
 - [x] Surface a copyable run-trace lifecycle ledger in Governance.
 - [x] Include trace lifecycle data in Governance filtering, summaries, and reports.
 - [x] Add parser, server test, and milestone coverage; validate, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Lifecycle Ledger Review Controls
+
+- [x] Add task-generation controls to the run-trace lifecycle ledger.
+- [x] Add per-lifecycle-item task-generation controls scoped to the traced project when available.
+- [x] Generate non-secret Governance task descriptions from trace lifecycle metadata, baseline health, and handoff counts.
+- [x] Add parser and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

@@ -1556,6 +1556,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationPackPayload>}
+   */
+  fetchCliBridgeLifecycleStackRemediationPack(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-stack-remediation-pack", options));
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

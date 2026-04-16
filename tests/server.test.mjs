@@ -2516,6 +2516,13 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleStackStatusJson.stages.length, 4);
     assert.match(cliBridgeLifecycleStackStatusJson.markdown, /lifecycle stack status/i);
 
+    const cliBridgeLifecycleStackRemediationPackResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-pack`);
+    assert.equal(cliBridgeLifecycleStackRemediationPackResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationPackJson = await cliBridgeLifecycleStackRemediationPackResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationPackJson.nonReadyCount, cliBridgeLifecycleStackStatusJson.stages.filter((stage) => stage.decision !== "ready").length);
+    assert.equal(cliBridgeLifecycleStackRemediationPackJson.workItemCount, cliBridgeLifecycleStackRemediationPackJson.workItems.length);
+    assert.match(cliBridgeLifecycleStackRemediationPackJson.markdown, /lifecycle stack remediation pack/i);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

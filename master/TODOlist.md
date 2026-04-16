@@ -2583,3 +2583,11 @@
 - [x] Surface the stack status in Governance with copyable Markdown.
 - [x] Add parser, server test, and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Pack
+
+- [x] Add a copyable remediation-pack API derived from non-ready lifecycle stack stages.
+- [x] Convert hold/review stages into operator-guided work items with priorities and runner hints.
+- [x] Surface the remediation pack in Governance with Markdown copy controls.
+- [x] Add parser, server test, and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

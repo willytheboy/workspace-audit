@@ -2799,6 +2799,7 @@
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
  *   cliBridgeRunTraceSnapshotLifecycleLedger?: CliBridgeRunTraceSnapshotLifecycleLedgerPayload | null,
  *   cliBridgeLifecycleStackStatus?: CliBridgeLifecycleStackStatusPayload | null,
+ *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3340,6 +3341,21 @@
  *   runTraceLifecycleLedger: CliBridgeRunTraceSnapshotLifecycleLedgerPayload,
  *   markdown: string
  * }} CliBridgeLifecycleStackStatusPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: "cli-bridge-lifecycle-stack-remediation-pack.v1",
+ *   remediationMode: string,
+ *   decision: "ready" | "review" | "hold",
+ *   readyToRun: boolean,
+ *   nonReadyCount: number,
+ *   workItemCount: number,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   nonReadyStages: Array<{ id: string, label: string, decision: "ready" | "review" | "hold", detail: string, action: string }>,
+ *   workItems: Array<{ id: string, stageId: string, title: string, priority: string, description: string, recommendedAction: string, runnerHint: string }>,
+ *   stackStatus: CliBridgeLifecycleStackStatusPayload,
+ *   markdown: string
+ * }} CliBridgeLifecycleStackRemediationPackPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

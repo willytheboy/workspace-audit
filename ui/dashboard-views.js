@@ -5197,6 +5197,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.targetBaselineAuditLedgerSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          element.textContent = await createAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask(snapshotId);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -12768,6 +12791,58 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? `Copied ${diff.driftSeverity} target baseline audit drift` : "Copied clean target baseline audit drift";
   }
 
+  function getAgentExecutionTargetBaselineAuditDriftPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildAgentExecutionTargetBaselineAuditDriftTaskDescription(diff) {
+    const lines = [
+      `Review Agent Execution target-baseline audit ledger drift from snapshot ${diff.snapshotTitle || diff.snapshotId || "unknown"}.`,
+      `Snapshot ID: ${diff.snapshotId || "unknown"}.`,
+      `State filter: ${diff.stateFilter || "review"}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review target-baseline audit drift before unattended CLI work."}`,
+      `Summary drift fields: ${(diff.summaryDrift || []).length}; added runs: ${diff.addedCount || 0}; removed runs: ${diff.removedCount || 0}; changed runs: ${diff.changedCount || 0}.`,
+      "Secret policy: non-secret Agent Execution target-baseline audit metadata only; do not store credentials, provider tokens, cookies, certificates, private keys, browser sessions, response bodies, or command output."
+    ];
+
+    const changed = diff.changed || [];
+    if (changed.length) {
+      lines.push("Changed runs:");
+      changed.slice(0, 8).forEach((item) => {
+        lines.push(`- ${item.projectName || "Portfolio"} - ${item.title || item.id || "Agent Work Order Run"}: ${(item.driftItems || []).map((driftItem) => driftItem.label || driftItem.field).join(", ") || "field drift"}`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask(snapshotId) {
+    const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])
+      .find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error(`Target baseline audit ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshotId);
+    await api.createTask({
+      projectId: "agent-execution-target-baseline-audit",
+      projectName: "Agent Execution Target Baseline Audit",
+      title: `Review target baseline audit drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`.slice(0, 140),
+      description: buildAgentExecutionTargetBaselineAuditDriftTaskDescription(diff),
+      priority: getAgentExecutionTargetBaselineAuditDriftPriority(diff.driftSeverity),
+      status: diff.hasDrift ? "open" : "resolved"
+    });
+    await renderGovernance();
+    return diff.hasDrift ? "Created Drift Task" : "Recorded Clean Drift";
+  }
+
+  async function createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask() {
+    const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available.");
+    return createAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask(snapshot.id);
+  }
+
   function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
     if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
     if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
@@ -13468,6 +13543,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
+    createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,

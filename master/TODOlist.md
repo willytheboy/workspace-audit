@@ -2365,3 +2365,10 @@
 - [x] Surface per-snapshot and command-palette copy controls for drift handoffs.
 - [x] Add parser checks and server coverage for clean snapshot drift.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Ledger Snapshot Drift Tasks
+
+- [x] Add per-snapshot controls for creating Governance tasks from target baseline audit drift.
+- [x] Add command-palette support for tracking latest target baseline audit drift.
+- [x] Preserve no-secret drift summaries in created task descriptions.
+- [x] Validate, relaunch, commit, and push.

@@ -10172,6 +10172,14 @@ export function createGovernanceDeck(governance) {
         dataset: {
           targetBaselineAuditLedgerSnapshotDriftId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotDriftTaskId: snapshot.id
+        }
       })
     ])
   ]));

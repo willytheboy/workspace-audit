@@ -1564,6 +1564,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
+   */
+  fetchCliBridgeLifecycleStackRemediationTaskLedger(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-stack-remediation-task-ledger", options));
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

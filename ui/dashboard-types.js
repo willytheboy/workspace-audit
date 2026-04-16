@@ -2800,6 +2800,7 @@
  *   cliBridgeRunTraceSnapshotLifecycleLedger?: CliBridgeRunTraceSnapshotLifecycleLedgerPayload | null,
  *   cliBridgeLifecycleStackStatus?: CliBridgeLifecycleStackStatusPayload | null,
  *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
+ *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3356,6 +3357,26 @@
  *   stackStatus: CliBridgeLifecycleStackStatusPayload,
  *   markdown: string
  * }} CliBridgeLifecycleStackRemediationPackPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     latestTaskId: string,
+ *     latestTitle: string,
+ *     latestUpdatedAt: string
+ *   },
+ *   items: Array<{ id: string, title: string, status: string, priority: string, projectId: string, projectName: string, stageId: string, description: string, createdAt: string, updatedAt: string }>,
+ *   markdown: string
+ * }} CliBridgeLifecycleStackRemediationTaskLedgerPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

@@ -2523,6 +2523,13 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleStackRemediationPackJson.workItemCount, cliBridgeLifecycleStackRemediationPackJson.workItems.length);
     assert.match(cliBridgeLifecycleStackRemediationPackJson.markdown, /lifecycle stack remediation pack/i);
 
+    const cliBridgeLifecycleStackRemediationTaskLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerJson = await cliBridgeLifecycleStackRemediationTaskLedgerResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerJson.summary.total, 0);
+    assert.ok(Array.isArray(cliBridgeLifecycleStackRemediationTaskLedgerJson.items));
+    assert.match(cliBridgeLifecycleStackRemediationTaskLedgerJson.markdown, /lifecycle stack remediation task ledger/i);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

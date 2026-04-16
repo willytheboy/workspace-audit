@@ -2599,3 +2599,11 @@
 - [x] Generate non-secret task descriptions from stage details, recommended actions, and runner hints.
 - [x] Add parser and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger
+
+- [x] Add a remediation task ledger API for CLI bridge lifecycle remediation tasks.
+- [x] Include status filtering, priority summaries, stage extraction, and copyable Markdown.
+- [x] Surface the task ledger in Governance with summary cards and copy controls.
+- [x] Add parser, server test, and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

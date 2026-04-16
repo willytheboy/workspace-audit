@@ -242,6 +242,27 @@ export async function governanceBootstrapTest() {
     assert.match(profileTargetTaskLedgerJson.markdown, /Governance Profile Target Task Ledger/);
     assert.match(profileTargetTaskLedgerJson.markdown, /alpha-app:test-coverage/);
 
+    const profileTargetTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Profile Target Task Ledger Snapshot",
+        status: "open"
+      })
+    });
+    assert.equal(profileTargetTaskLedgerSnapshotResponse.status, 200);
+    const profileTargetTaskLedgerSnapshotJson = await profileTargetTaskLedgerSnapshotResponse.json();
+    assert.equal(profileTargetTaskLedgerSnapshotJson.success, true);
+    assert.equal(profileTargetTaskLedgerSnapshotJson.snapshot.openCount, 1);
+    assert.equal(profileTargetTaskLedgerSnapshotJson.snapshot.testCoverageCount, 1);
+    assert.match(profileTargetTaskLedgerSnapshotJson.snapshot.markdown, /Fixture Profile Target Task Ledger Snapshot|Governance Profile Target Task Ledger/);
+
+    const profileTargetSnapshotGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(profileTargetSnapshotGovernanceResponse.status, 200);
+    const profileTargetSnapshotGovernanceJson = await profileTargetSnapshotGovernanceResponse.json();
+    assert.equal(profileTargetSnapshotGovernanceJson.summary.governanceProfileTargetTaskLedgerSnapshotCount, 1);
+    assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshots.length, 1);
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -266,7 +287,7 @@ export async function governanceBootstrapTest() {
     const suppressedGovernanceJson = await suppressedGovernanceResponse.json();
     assert.equal(suppressedGovernanceJson.summary.actionQueueItems, 0);
     assert.equal(suppressedGovernanceJson.summary.suppressedQueueItems, 1);
-    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 7);
+    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 8);
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
@@ -287,7 +308,7 @@ export async function governanceBootstrapTest() {
     const restoredGovernanceJson = await restoredGovernanceResponse.json();
     assert.equal(restoredGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(restoredGovernanceJson.summary.suppressedQueueItems, 0);
-    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 8);
+    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 9);
     assert.equal(restoredGovernanceJson.actionQueue.length, 1);
     assert.equal(restoredGovernanceJson.operationLog[0].type, "queue-restore");
   } finally {

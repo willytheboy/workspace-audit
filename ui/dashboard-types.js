@@ -1735,6 +1735,24 @@
  * }} GovernanceProfileTarget
  * @typedef {{
  *   id: string,
+ *   title: string,
+ *   statusFilter: string,
+ *   limit: number,
+ *   total: number,
+ *   visible: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   testCoverageCount: number,
+ *   runtimeSurfaceCount: number,
+ *   missingTestFiles: number,
+ *   projectCount: number,
+ *   markdown: string,
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   createdAt: string
+ * }} PersistedGovernanceProfileTargetTaskLedgerSnapshot
+ * @typedef {{
+ *   id: string,
  *   projectId: string,
  *   projectName: string,
  *   kind: "profile-gap" | "owner-gap" | "task-gap" | "workflow-gap" | "decision-gap",
@@ -2217,6 +2235,7 @@
  *     governanceProfileTargetTaskCount: number,
  *     governanceProfileTargetOpenTaskCount: number,
  *     governanceProfileTargetMissingTaskCount: number,
+ *     governanceProfileTargetTaskLedgerSnapshotCount: number,
  *     actionQueueItems: number,
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
@@ -2366,6 +2385,7 @@
  *   profileCoverage: GovernanceProfileCoverage,
  *   profileTargets: GovernanceProfileTarget[],
  *   profileTargetTasks: PersistedTask[],
+ *   governanceProfileTargetTaskLedgerSnapshots: PersistedGovernanceProfileTargetTaskLedgerSnapshot[],
  *   profileHistory: PersistedProjectProfileHistory[],
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],

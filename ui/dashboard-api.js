@@ -1957,6 +1957,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[]>}
+   */
+  fetchGovernanceProfileTargetTaskLedgerSnapshots() {
+    return fetchJson("/api/governance/profile-target-task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>}
+   */
+  createGovernanceProfileTargetTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/governance/profile-target-task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
    */
   executeGovernanceQueue(payload) {

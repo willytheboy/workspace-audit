@@ -201,6 +201,7 @@ function createEmptyTableRow(message) {
  *     refreshGovernanceProfileTargets: () => Promise<unknown>,
  *     createGovernanceProfileTargetTasks: (payload?: { items?: Array<Pick<import("./dashboard-types.js").GovernanceProfileTarget, "projectId" | "projectName" | "id">> }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ projectId: string, projectName: string, kind: string, reason: string }>, totals: { created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchGovernanceProfileTargetTaskLedger: (status?: "all" | "open" | "closed") => Promise<{ summary: Record<string, number | string>, items: import("./dashboard-types.js").PersistedTask[], markdown: string, secretPolicy: string, generatedAt: string }>,
+ *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
@@ -515,6 +516,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.profileTargetTasks || [],
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.governanceProfileTargetKind || "", task.governanceProfileTargetStatus || "", String(task.governanceProfileMissingTestFiles || ""), task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
+      ),
+      governanceProfileTargetTaskLedgerSnapshots: filterAndSort(
+        governance.governanceProfileTargetTaskLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total || ""), String(snapshot.openCount || ""), String(snapshot.missingTestFiles || "")],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
       decisions: filterAndSort(
         governance.decisions,
@@ -1295,6 +1301,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "registry") filtered.profiles = [];
       if (scope !== "registry") filtered.profileTargets = [];
       if (scope !== "registry") filtered.profileTargetTasks = [];
+      if (scope !== "registry") filtered.governanceProfileTargetTaskLedgerSnapshots = [];
       if (scope !== "registry") filtered.unprofiledProjects = [];
       if (scope !== "history") filtered.profileHistory = [];
       if (scope !== "queue") filtered.actionQueue = [];
@@ -7274,6 +7281,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Scoped profile coverage: ${governanceCache?.summary.governanceScopeProfileCoveragePercent ?? 0}% (${governanceCache?.summary.governanceScopeProfileCount ?? 0}/${governanceCache?.summary.governanceScopeProjectCount ?? 0})`,
       `Governance profile test targets: ${governanceCache?.summary.governanceProfileTestTargetMetCount ?? 0}/${governanceCache?.summary.governanceProfileTargetCount ?? 0} met, ${governanceCache?.summary.governanceProfileMissingTestFileCount ?? 0} target test files outstanding`,
       `Governance profile target tasks: ${governanceCache?.summary.governanceProfileTargetOpenTaskCount ?? 0} open, ${governanceCache?.summary.governanceProfileTargetMissingTaskCount ?? 0} missing`,
+      `Governance profile target task snapshots: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotCount ?? 0}`,
       `Scoped governance gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? governance.unprofiledProjects.length}`,
       `Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `Visible governance gaps: ${governance.unprofiledProjects.length}`,
@@ -7317,6 +7325,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible registry entries: ${governance.profiles.length}`,
       `Visible profile target rows: ${governance.profileTargets?.length || 0}`,
       `Visible profile target task rows: ${governance.profileTargetTasks?.length || 0}`,
+      `Visible profile target task snapshots: ${governance.governanceProfileTargetTaskLedgerSnapshots?.length || 0}`,
       `Visible history entries: ${governance.profileHistory.length}`,
       `Visible decisions: ${governance.decisions.length}`,
       `Visible milestones: ${governance.milestoneFocus.length}`,
@@ -7364,6 +7373,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Governance profile test targets: ${governanceCache?.summary.governanceProfileTestTargetMetCount ?? 0}/${governanceCache?.summary.governanceProfileTargetCount ?? 0} met; ${governanceCache?.summary.governanceProfileTestTargetMissingCount ?? 0} missing; ${governanceCache?.summary.governanceProfileTestTargetNeedsGrowthCount ?? 0} need growth`,
       `- Governance profile runtime target gaps: ${governanceCache?.summary.governanceProfileRuntimeTargetMissingCount ?? 0}`,
       `- Governance profile target tasks: ${governanceCache?.summary.governanceProfileTargetOpenTaskCount ?? 0} open; ${governanceCache?.summary.governanceProfileTargetMissingTaskCount ?? 0} missing`,
+      `- Governance profile target task snapshots: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotCount ?? 0}`,
       `- App-development profile gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? 0}`,
       `- Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `- Action queue items: ${governanceCache?.summary.actionQueueItems ?? 0}`,
@@ -7454,6 +7464,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible profile target tasks.");
+    }
+
+    lines.push("", "## Governance Profile Target Task Snapshots");
+    if (governance.governanceProfileTargetTaskLedgerSnapshots?.length) {
+      for (const snapshot of governance.governanceProfileTargetTaskLedgerSnapshots) {
+        lines.push(`- ${snapshot.title}: ${snapshot.visible} visible, ${snapshot.openCount} open, ${snapshot.missingTestFiles} missing tests`);
+        lines.push(`  Created: ${snapshot.createdAt || "not recorded"} | Status filter: ${snapshot.statusFilter || "all"}`);
+      }
+    } else {
+      lines.push("- No visible profile target task snapshots.");
     }
 
     lines.push("", "## Action Queue");
@@ -10236,6 +10256,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.fetchGovernanceProfileTargetTaskLedger("all");
     await copyText(payload.markdown);
     return `Copied ${payload.summary.visible || 0} Target Task${payload.summary.visible === 1 ? "" : "s"}`;
+  }
+
+  async function saveGovernanceProfileTargetTaskLedgerSnapshot() {
+    await api.createGovernanceProfileTargetTaskLedgerSnapshot({
+      title: "Governance Profile Target Task Ledger",
+      status: "all",
+      limit: 100
+    });
+    await renderGovernance();
+    return "Saved Target Task Snapshot";
   }
 
   async function executeVisibleGovernanceQueue() {
@@ -13028,6 +13058,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     refreshGovernanceProfileTargets,
     seedGovernanceProfileTargetTasks,
     copyGovernanceProfileTargetTaskLedger,
+    saveGovernanceProfileTargetTaskLedgerSnapshot,
     executeVisibleGovernanceQueue,
     exportGovernanceReport,
     renderApps,

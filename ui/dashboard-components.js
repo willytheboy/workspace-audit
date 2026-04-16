@@ -2230,6 +2230,65 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const profileTargetTaskSnapshotEntries = (governance.governanceProfileTargetTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: snapshot.title || "Governance Profile Target Task Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.visible || 0} visible • ${snapshot.openCount || 0} open • ${snapshot.missingTestFiles || 0} missing tests • ${snapshot.projectCount || 0} projects`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createElement("div", {
+        className: "tags",
+        style: {
+          justifyContent: "flex-end"
+        }
+      }, [
+        createTag(snapshot.statusFilter || "all", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(new Date(snapshot.createdAt || Date.now()).toLocaleDateString(), {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ])
+    ])
+  ]));
+
   const gapEntries = governance.unprofiledProjects.map((project) => createElement("div", {
     className: "governance-gap-card",
     dataset: { openAppId: encodeAppId(project.id) },
@@ -14725,6 +14784,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
     createListSection("Governance Profile Target Tasks", "Deduplicated task ledger for profile test coverage and runtime target gaps.", profileTargetTaskEntries),
+    createListSection("Governance Profile Target Task Snapshots", "Saved baselines for the profile target task ledger.", profileTargetTaskSnapshotEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),
     createListSection("Milestone Focus", "Upcoming or unresolved milestones that still need attention.", milestoneEntries),

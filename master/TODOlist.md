@@ -2246,3 +2246,10 @@
 - [x] Surface profile target task rows in Governance registry filtering and reports.
 - [x] Add toolbar and command-palette copy actions for the target task ledger.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Snapshots
+
+- [x] Persist Governance profile target task ledger snapshots with Markdown and task payloads.
+- [x] Surface saved target task ledger snapshots in Governance registry filtering and reports.
+- [x] Add toolbar and command-palette actions for saving target task ledger snapshots.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

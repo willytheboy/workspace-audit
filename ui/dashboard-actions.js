@@ -104,6 +104,7 @@
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     copySlaBreachLedger: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
+ *     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     saveAgentControlPlaneSnapshot: () => Promise<void>,
  *     saveAgentControlPlaneDecisionSnapshot: () => Promise<void>,
  *     saveAgentControlPlaneBaselineSnapshot: () => Promise<void>,
@@ -880,6 +881,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "copy"],
         run: () => handlers.copyAgentExecutionTargetBaselineAuditLedger()
+      },
+      {
+        id: "copy-latest-agent-execution-target-baseline-audit-ledger-snapshot-drift",
+        label: "Copy target baseline audit drift",
+        description: "Copy latest saved target-baseline audit ledger snapshot drift as markdown.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift()
       },
       {
         id: "save-sla-ledger-snapshot",

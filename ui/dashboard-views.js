@@ -5172,6 +5172,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.targetBaselineAuditLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const diff = await api.fetchAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${diff.driftSeverity}` : "Copied Clean";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -12735,6 +12760,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Target Baseline Audit Snapshot";
   }
 
+  async function copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift() {
+    const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available.");
+    const diff = await api.fetchAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshot.id);
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${diff.driftSeverity} target baseline audit drift` : "Copied clean target baseline audit drift";
+  }
+
   function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
     if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
     if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
@@ -13434,6 +13467,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyLatestSourcesSummarySnapshotDrift,
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
+    copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,

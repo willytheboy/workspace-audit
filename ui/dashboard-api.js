@@ -1850,6 +1850,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} snapshotId
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerSnapshotDriftPayload>}
+   */
+  fetchAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshotId) {
+    return fetchJson(`/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/${encodeURIComponent(snapshotId)}/drift`);
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionSlaLedgerSnapshot[]>}
    */
   fetchAgentExecutionSlaLedgerSnapshots() {

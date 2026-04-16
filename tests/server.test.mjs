@@ -1372,6 +1372,14 @@ export async function serverTest() {
     assert.equal(targetBaselineAuditLedgerSnapshotsJson.length, 1);
     assert.equal(targetBaselineAuditLedgerSnapshotsJson[0].title, "Fixture Target Baseline Audit Ledger");
 
+    const targetBaselineAuditLedgerSnapshotDriftResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/${createTargetBaselineAuditLedgerSnapshotJson.snapshot.id}/drift`);
+    assert.equal(targetBaselineAuditLedgerSnapshotDriftResponse.status, 200);
+    const targetBaselineAuditLedgerSnapshotDriftJson = await targetBaselineAuditLedgerSnapshotDriftResponse.json();
+    assert.equal(targetBaselineAuditLedgerSnapshotDriftJson.snapshotId, createTargetBaselineAuditLedgerSnapshotJson.snapshot.id);
+    assert.equal(targetBaselineAuditLedgerSnapshotDriftJson.hasDrift, false);
+    assert.equal(targetBaselineAuditLedgerSnapshotDriftJson.driftSeverity, "none");
+    assert.match(targetBaselineAuditLedgerSnapshotDriftJson.markdown, /# Agent Execution Target Baseline Audit Ledger Snapshot Drift/);
+
     const governanceAfterTargetBaselineAuditSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterTargetBaselineAuditSnapshotResponse.status, 200);
     const governanceAfterTargetBaselineAuditSnapshotJson = await governanceAfterTargetBaselineAuditSnapshotResponse.json();

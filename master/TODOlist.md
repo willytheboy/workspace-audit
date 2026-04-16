@@ -2358,3 +2358,10 @@
 - [x] Surface snapshot save/copy controls in Governance and command palette.
 - [x] Add Governance report evidence, parser checks, and server coverage for snapshot persistence.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Ledger Snapshot Drift
+
+- [x] Add a live-vs-snapshot drift API for saved target baseline audit ledgers.
+- [x] Surface per-snapshot and command-palette copy controls for drift handoffs.
+- [x] Add parser checks and server coverage for clean snapshot drift.
+- [x] Validate, relaunch, commit, and push.

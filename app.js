@@ -509,6 +509,12 @@ async function copyAgentExecutionTargetBaselineAuditLedger() {
   await views.copyAgentExecutionTargetBaselineAuditLedger();
 }
 
+async function copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift();
+}
+
 async function saveAgentWorkOrderSnapshot() {
   setView("governance");
   await views.renderGovernance();
@@ -805,6 +811,7 @@ const actionRegistry = createDashboardActionRegistry({
     refreshAgentControlPlaneBaselineSnapshot,
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
+    copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     saveAgentWorkOrderSnapshot,
     saveAgentControlPlaneSnapshot,
     saveAgentControlPlaneDecisionSnapshot,

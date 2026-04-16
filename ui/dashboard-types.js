@@ -2182,6 +2182,40 @@
  *   createdAt: string
  * }} PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot
  * @typedef {{
+ *   field: string,
+ *   label: string,
+ *   before: string | number,
+ *   current: string | number,
+ *   delta: number
+ * }} AgentExecutionTargetBaselineAuditLedgerSnapshotDriftItem
+ * @typedef {{
+ *   id: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   title: string,
+ *   driftItems: AgentExecutionTargetBaselineAuditLedgerSnapshotDriftItem[]
+ * }} AgentExecutionTargetBaselineAuditLedgerChangedRun
+ * @typedef {{
+ *   generatedAt: string,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   stateFilter: string,
+ *   hasDrift: boolean,
+ *   driftSeverity: "none" | "low" | "medium" | "high",
+ *   driftScore: number,
+ *   recommendedAction: string,
+ *   snapshotSummary: AgentExecutionTargetBaselineAuditLedgerSummary,
+ *   liveSummary: AgentExecutionTargetBaselineAuditLedgerSummary,
+ *   summaryDrift: AgentExecutionTargetBaselineAuditLedgerSnapshotDriftItem[],
+ *   addedCount: number,
+ *   removedCount: number,
+ *   changedCount: number,
+ *   added: AgentExecutionTargetBaselineAuditLedgerItem[],
+ *   removed: AgentExecutionTargetBaselineAuditLedgerItem[],
+ *   changed: AgentExecutionTargetBaselineAuditLedgerChangedRun[],
+ *   markdown: string
+ * }} AgentExecutionTargetBaselineAuditLedgerSnapshotDriftPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   stateFilter: "all" | "open" | "resolved",

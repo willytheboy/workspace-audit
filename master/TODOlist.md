@@ -2575,3 +2575,11 @@
 - [x] Generate non-secret Governance task descriptions from trace lifecycle metadata, baseline health, and handoff counts.
 - [x] Add parser and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Status
+
+- [x] Add a single ready/review/hold stack status API for dry-run and run-trace lifecycle evidence.
+- [x] Include dry-run baseline, dry-run lifecycle, run-trace baseline, and run-trace lifecycle stages.
+- [x] Surface the stack status in Governance with copyable Markdown.
+- [x] Add parser, server test, and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

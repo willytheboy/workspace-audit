@@ -1548,6 +1548,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackStatusPayload>}
+   */
+  fetchCliBridgeLifecycleStackStatus(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-stack-status", options));
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

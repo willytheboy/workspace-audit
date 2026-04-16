@@ -2798,6 +2798,7 @@
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
  *   cliBridgeRunTraceSnapshotLifecycleLedger?: CliBridgeRunTraceSnapshotLifecycleLedgerPayload | null,
+ *   cliBridgeLifecycleStackStatus?: CliBridgeLifecycleStackStatusPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3322,6 +3323,23 @@
  *   }>,
  *   markdown: string
  * }} CliBridgeRunTraceSnapshotLifecycleLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: "cli-bridge-lifecycle-stack-status.v1",
+ *   decision: "ready" | "review" | "hold",
+ *   readyCount: number,
+ *   reviewCount: number,
+ *   holdCount: number,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   stages: Array<{ id: string, label: string, decision: "ready" | "review" | "hold", detail: string, action: string }>,
+ *   reasons: Array<{ severity: "review" | "hold", code: string, message: string }>,
+ *   dryRunBaselineStatus: CliBridgeRunnerDryRunSnapshotBaselineStatusPayload,
+ *   dryRunLifecycleLedger: CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload,
+ *   runTraceBaselineStatus: CliBridgeRunTraceSnapshotBaselineStatusPayload,
+ *   runTraceLifecycleLedger: CliBridgeRunTraceSnapshotLifecycleLedgerPayload,
+ *   markdown: string
+ * }} CliBridgeLifecycleStackStatusPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

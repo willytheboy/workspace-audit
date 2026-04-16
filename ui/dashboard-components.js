@@ -10164,6 +10164,145 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeLifecycleStackStatus = governance.cliBridgeLifecycleStackStatus;
+  const cliBridgeLifecycleStackStatusColor = cliBridgeLifecycleStackStatus?.decision === "ready"
+    ? "var(--success)"
+    : cliBridgeLifecycleStackStatus?.decision === "hold"
+      ? "var(--danger)"
+      : "var(--warning)";
+  const cliBridgeLifecycleStackStatusEntries = cliBridgeLifecycleStackStatus
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-stack-status-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: "CLI bridge lifecycle stack",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeLifecycleStackStatus.recommendedAction || "Review CLI bridge lifecycle status before runner work.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeLifecycleStackStatus.decision || "review").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackStatusColor
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(`ready ${cliBridgeLifecycleStackStatus.readyCount || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--success)"
+            }),
+            createTag(`review ${cliBridgeLifecycleStackStatus.reviewCount || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--warning)"
+            }),
+            createTag(`hold ${cliBridgeLifecycleStackStatus.holdCount || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeLifecycleStackStatus.holdCount || 0) ? "var(--danger)" : "var(--text-muted)"
+            })
+          ]),
+          createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.45rem"
+            }
+          }, (cliBridgeLifecycleStackStatus.stages || []).map((stage) => createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.35rem",
+              padding: "0.65rem",
+              border: "1px solid var(--border)",
+              borderRadius: "0.75rem",
+              background: "var(--bg)"
+            }
+          }, [
+            createElement("div", {
+              style: {
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "0.6rem",
+                alignItems: "flex-start"
+              }
+            }, [
+              createElement("div", {
+                text: stage.label || stage.id || "Lifecycle stage",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "800"
+                }
+              }),
+              createTag(stage.decision || "review", {
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                color: stage.decision === "ready" ? "var(--success)" : stage.decision === "hold" ? "var(--danger)" : "var(--warning)"
+              })
+            ]),
+            createElement("div", {
+              text: stage.detail || "No detail recorded.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            }),
+            createElement("div", {
+              text: `Action: ${stage.action || "Review before continuing."}`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.82rem",
+                lineHeight: "1.45"
+              }
+            })
+          ]))),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-status-copy-btn",
+              text: "Copy Stack Status",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackStatusCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
     ? [
@@ -16585,6 +16724,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),
     createListSection("CLI Bridge Run Trace Lifecycle Ledger", "Copyable audit trail for saved and accepted CLI bridge run trace baselines.", cliBridgeRunTraceSnapshotLifecycleLedgerEntries),
+    createListSection("CLI Bridge Lifecycle Stack Status", "Single ready/review/hold rollup for dry-run and run-trace lifecycle evidence.", cliBridgeLifecycleStackStatusEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

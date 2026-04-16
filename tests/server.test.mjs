@@ -2475,10 +2475,14 @@ export async function serverTest() {
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesAccessOpenTaskCount, 0);
     assert.equal(initialAgentControlPlaneDecisionJson.dataSourcesAccessClosedTaskCount, 0);
     assert.deepEqual(initialAgentControlPlaneDecisionJson.dataSourcesAccessTasks, []);
+    assert.ok(initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
+    assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineMissingCount, "number");
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "baseline-missing"));
+    assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "execution-audit-baseline-review"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "release-build-gate-review"));
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /# Agent Control Plane Decision/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Decision: hold/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Execution run audit snapshot baseline:/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Release build gate: review/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Release Build Gate/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Data Sources access gate: ready/);
@@ -2526,6 +2530,7 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessValidationEvidenceCoverageCoveredCount, 1);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessValidationEvidenceCoveragePercent, 100);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourceAccessValidationEvidenceSnapshotCount, 1);
+    assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount, initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /# Agent Control Plane Decision/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Release Build Gate/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Data Sources Access Review Queue/);

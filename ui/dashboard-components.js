@@ -15451,6 +15451,9 @@ export function createGovernanceDeck(governance) {
   if ((executionMetrics.targetBaselineReviewRequired || 0) > 0) {
     cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.targetBaselineReviewRequired} Agent Execution run(s) were queued against a missing, stale, or drifted profile target task baseline.` });
   }
+  if ((executionMetrics.auditBaselineReviewRequired || 0) > 0) {
+    cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.auditBaselineReviewRequired} Agent Execution run(s) have missing, stale, or drifted target-baseline audit snapshot baseline evidence.` });
+  }
   const cliRunnerGateDecision = cliRunnerGateReasons.some((reason) => reason.severity === "hold")
     ? "hold"
     : cliRunnerGateReasons.length

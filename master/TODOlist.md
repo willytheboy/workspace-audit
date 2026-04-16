@@ -2465,3 +2465,12 @@
 - [x] Surface audit-baseline counts in Agent Execution Metrics and Governance report exports.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Audit Baseline Run Gate
+
+- [x] Feed run-level audit-baseline review-required counts into the Agent Control Plane decision API.
+- [x] Add a dedicated decision reason for execution runs with missing, stale, or drifted target-baseline audit snapshot evidence.
+- [x] Persist audit-baseline execution counts on Agent Control Plane decision snapshots.
+- [x] Add the audit-baseline execution blocker to the CLI runner readiness gate.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

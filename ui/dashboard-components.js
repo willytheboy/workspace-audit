@@ -9395,6 +9395,170 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeRunnerDryRunSnapshotLifecycleLedger = governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger;
+  const cliBridgeRunnerDryRunSnapshotLifecycleLedgerItems = cliBridgeRunnerDryRunSnapshotLifecycleLedger?.items || [];
+  const cliBridgeRunnerDryRunSnapshotLifecycleLedgerEntries = cliBridgeRunnerDryRunSnapshotLifecycleLedger
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-runner-dry-run-lifecycle-ledger-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: "Dry-run baseline lifecycle ledger",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeRunnerDryRunSnapshotLifecycleLedgerItems.length
+                  ? `Latest: ${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.latestTitle || cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.latestSnapshotId || "saved baseline"}`
+                  : "No saved Codex or Claude dry-run baseline lifecycle records matched this view.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag(`${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.visible || 0} visible`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.visible || 0) ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(`total ${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.total || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--text-muted)"
+            }),
+            createTag(`codex ${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.codex || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--primary)"
+            }),
+            createTag(`claude ${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.claude || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--primary)"
+            }),
+            createTag(`accepted drift ${cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.acceptedDrift || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.acceptedDrift || 0) ? "var(--warning)" : "var(--success)"
+            })
+          ]),
+          cliBridgeRunnerDryRunSnapshotLifecycleLedgerItems.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem"
+                }
+              }, cliBridgeRunnerDryRunSnapshotLifecycleLedgerItems.slice(0, 6).map((item) => createElement("div", {
+                className: "governance-gap-card",
+                dataset: item.selectedWorkOrderProjectId ? { openAppId: encodeAppId(item.selectedWorkOrderProjectId) } : undefined,
+                title: item.selectedWorkOrderProjectId ? "Open project workbench" : undefined,
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem",
+                  padding: "0.7rem",
+                  background: "var(--bg)"
+                }
+              }, [
+                createElement("div", {
+                  style: {
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "0.6rem",
+                    alignItems: "flex-start"
+                  }
+                }, [
+                  createElement("div", {
+                    text: item.title || "CLI Bridge Runner Dry Run",
+                    style: {
+                      color: "var(--text)",
+                      fontWeight: "800"
+                    }
+                  }),
+                  createTag(item.lifecycleAction || "snapshot-saved", {
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    color: item.lifecycleAction === "accepted-drift-baseline" ? "var(--warning)" : "var(--success)"
+                  })
+                ]),
+                createElement("div", {
+                  text: `${item.runner || "runner"} | ${item.dryRunDecision || "review"} | ${item.createdAt ? new Date(item.createdAt).toLocaleString() : "saved"} | ${item.selectedWorkOrderProjectName || item.selectedWorkOrderId || "Portfolio"}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.84rem",
+                    lineHeight: "1.45"
+                  }
+                }),
+                createElement("div", {
+                  text: `Gates: target ${item.targetBaselineAuditGateDecision || "review"} | audit runs ${item.auditBaselineRunGateDecision || "review"} | reasons ${item.reasonCount || 0}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.82rem",
+                    lineHeight: "1.45"
+                  }
+                })
+              ])))
+            : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-copy-btn",
+              text: "Copy All",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerCopy: "true",
+                cliBridgeRunnerDryRunLifecycleLedgerRunner: "all"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-copy-btn",
+              text: "Copy Codex",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerCopy: "true",
+                cliBridgeRunnerDryRunLifecycleLedgerRunner: "codex"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-copy-btn",
+              text: "Copy Claude",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerCopy: "true",
+                cliBridgeRunnerDryRunLifecycleLedgerRunner: "claude"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeRunnerDryRunSnapshotDiffActionId = governance.cliBridgeRunnerDryRunSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunnerDryRunSnapshotDiffEntries = governance.cliBridgeRunnerDryRunSnapshotDiff
     ? [
@@ -16215,6 +16379,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
     createListSection("CLI Bridge Runner Dry Run Snapshots", "Persisted non-secret Codex and Claude dry-run contracts before supervised CLI execution.", cliBridgeRunnerDryRunSnapshotEntries),
     createListSection("CLI Bridge Runner Dry Run Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge runner dry-run baseline.", cliBridgeRunnerDryRunSnapshotBaselineStatusEntries),
+    createListSection("CLI Bridge Runner Dry Run Baseline Lifecycle Ledger", "Copyable audit trail for saved, refreshed, and accepted Codex or Claude dry-run baselines.", cliBridgeRunnerDryRunSnapshotLifecycleLedgerEntries),
     createListSection("CLI Bridge Runner Dry Run Snapshot Drift", "Latest saved Codex or Claude dry-run contract compared with the current live dry-run gate.", cliBridgeRunnerDryRunSnapshotDiffEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),

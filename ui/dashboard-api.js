@@ -1483,6 +1483,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload>}
+   */
+  fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run-snapshots/lifecycle-ledger", options));
+  },
+
+  /**
    * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot, cliBridgeRunnerDryRunSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[], governanceOperationCount: number }>}
    */

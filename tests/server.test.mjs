@@ -1340,6 +1340,18 @@ export async function serverTest() {
     assert.ok(Number.isFinite(cliBridgeDryRunSnapshotBaselineStatusJson.driftScore));
     assert.match(cliBridgeDryRunSnapshotBaselineStatusJson.markdown, /# CLI Bridge Runner Dry-Run Baseline Status/);
 
+    const cliBridgeDryRunSnapshotLifecycleLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/lifecycle-ledger?runner=all`);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerResponse.status, 200);
+    const cliBridgeDryRunSnapshotLifecycleLedgerJson = await cliBridgeDryRunSnapshotLifecycleLedgerResponse.json();
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.summary.total, 1);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.summary.visible, 1);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.summary.codex, 1);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.summary.claude, 0);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.items[0].snapshotId, createCliBridgeDryRunSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeDryRunSnapshotLifecycleLedgerJson.items[0].runner, "codex");
+    assert.match(cliBridgeDryRunSnapshotLifecycleLedgerJson.items[0].lifecycleAction, /snapshot-saved|accepted-drift-baseline/);
+    assert.match(cliBridgeDryRunSnapshotLifecycleLedgerJson.markdown, /dry-run baseline lifecycle ledger/i);
+
     const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
     assert.equal(claudeCliBridgeDryRunResponse.status, 200);
     const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();

@@ -2793,6 +2793,7 @@
  *   cliBridgeRunnerDryRunSnapshots: PersistedCliBridgeRunnerDryRunSnapshot[],
  *   cliBridgeRunnerDryRunSnapshotDiff?: CliBridgeRunnerDryRunSnapshotDiffPayload | null,
  *   cliBridgeRunnerDryRunSnapshotBaselineStatus?: CliBridgeRunnerDryRunSnapshotBaselineStatusPayload | null,
+ *   cliBridgeRunnerDryRunSnapshotLifecycleLedger?: CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload | null,
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
@@ -3109,6 +3110,49 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} CliBridgeRunnerDryRunSnapshotBaselineStatusPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   runner: "all" | "codex" | "claude",
+ *   limit: number,
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     available: number,
+ *     codex: number,
+ *     claude: number,
+ *     ready: number,
+ *     review: number,
+ *     hold: number,
+ *     acceptedDrift: number,
+ *     latestSnapshotId: string,
+ *     latestTitle: string,
+ *     latestRunner: string,
+ *     latestCreatedAt: string
+ *   },
+ *   secretPolicy: string,
+ *   items: Array<{
+ *     snapshotId: string,
+ *     title: string,
+ *     runner: string,
+ *     lifecycleAction: string,
+ *     createdAt: string,
+ *     requestedRunId: string,
+ *     dryRunDecision: string,
+ *     contextDecision: string,
+ *     selectedWorkOrderId: string,
+ *     selectedWorkOrderProjectId: string,
+ *     selectedWorkOrderProjectName: string,
+ *     selectedWorkOrderSourceType: string,
+ *     targetBaselineAuditGateDecision: string,
+ *     auditBaselineRunGateDecision: string,
+ *     reasonCount: number,
+ *     reasonCodes: string,
+ *     operationId: string,
+ *     operationSummary: string,
+ *     operationCreatedAt: string
+ *   }>,
+ *   markdown: string
+ * }} CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload
  * @typedef {{
  *   sourceType: "cli-bridge-handoff",
  *   sourceHandoffId: string,

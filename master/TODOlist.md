@@ -2543,3 +2543,11 @@
 - [x] Reuse the existing non-secret runner dry-run snapshot save flow for refresh actions.
 - [x] Add parser and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Baseline Lifecycle Ledger
+
+- [x] Add a derived lifecycle ledger API for saved Codex and Claude dry-run baselines.
+- [x] Join saved snapshots with governance operation metadata where available.
+- [x] Surface copyable all/Codex/Claude lifecycle ledgers in Governance.
+- [x] Add parser, server test, and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

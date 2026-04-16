@@ -2623,3 +2623,11 @@
 - [x] Surface latest and per-snapshot copy controls in Governance.
 - [x] Include drift in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Drift Checkpoints
+
+- [x] Add confirm, defer, and escalate checkpoint endpoints for remediation task ledger drift items.
+- [x] Persist checkpoint decisions as non-secret Governance tasks excluded from the live remediation task ledger.
+- [x] Add a copyable all/open/closed checkpoint ledger with lifecycle controls.
+- [x] Surface checkpoint state in drift items, Governance filtering, visible summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

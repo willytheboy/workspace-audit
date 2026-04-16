@@ -2573,6 +2573,73 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.driftSeverity, "none");
     assert.match(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.markdown, /# CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift/);
 
+    const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: "cli-bridge",
+        projectName: "CLI Bridge",
+        title: "Fixture CLI Bridge Lifecycle Remediation Follow-up",
+        description: "CLI Bridge Lifecycle remediation follow-up.\nStage ID: fixture-cli-stage",
+        priority: "high",
+        status: "resolved"
+      })
+    });
+    assert.equal(createCliBridgeLifecycleRemediationFixtureTaskResponse.status, 200);
+    const createCliBridgeLifecycleRemediationFixtureTaskJson = await createCliBridgeLifecycleRemediationFixtureTaskResponse.json();
+    assert.equal(createCliBridgeLifecycleRemediationFixtureTaskJson.success, true);
+
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson = await cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson.hasDrift, true);
+    assert.ok(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson.driftItems.some((item) => item.field === "total"));
+
+    const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id,
+        status: "all",
+        field: "total",
+        decision: "escalated",
+        note: "Fixture non-secret drift checkpoint"
+      })
+    });
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson = await cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.success, true);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.decision, "escalated");
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.sourceType, "cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-drift-checkpoint");
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.secretPolicy, "non-secret-cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-only");
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.status, "blocked");
+
+    const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger?status=open`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson = await cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson.summary.openEscalated, 1);
+    assert.match(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson.markdown, /CLI Bridge Lifecycle Stack Remediation Task Ledger Drift Checkpoint Ledger/);
+
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterCheckpointResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterCheckpointJson = await cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterCheckpointResponse.json();
+    const checkpointedCliBridgeLifecycleTaskLedgerDriftItem = cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterCheckpointJson.driftItems.find((item) => item.field === "total");
+    assert.equal(checkpointedCliBridgeLifecycleTaskLedgerDriftItem.checkpointDecision, "escalated");
+    assert.equal(checkpointedCliBridgeLifecycleTaskLedgerDriftItem.checkpointStatus, "blocked");
+
+    const resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${encodeURIComponent(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "resolved" })
+    });
+    assert.equal(resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.status, 200);
+    const resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger?status=closed`);
+    assert.equal(resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson = await resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson.summary.visible, 1);
+    assert.equal(resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerJson.summary.closed, 1);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

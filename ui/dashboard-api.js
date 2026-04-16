@@ -1604,6 +1604,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  checkpointCliBridgeLifecycleStackRemediationTaskLedgerDrift(payload) {
+    return fetchJson("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

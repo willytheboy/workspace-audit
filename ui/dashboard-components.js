@@ -10776,10 +10776,180 @@ export function createGovernanceDeck(governance) {
               fontSize: "0.84rem",
               lineHeight: "1.45"
             }
-          })
+          }),
+          item.checkpointDecision ? createTag(`${item.checkpointDecision} / ${item.checkpointStatus || "open"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: item.checkpointDecision === "confirmed" ? "var(--success)" : item.checkpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+          }) : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-btn",
+              text: "Confirm",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftSnapshotId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftStatus: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.status || "all",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftField: item.field || "",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-btn",
+              text: "Defer",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftSnapshotId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftStatus: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.status || "all",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftField: item.field || "",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-btn",
+              text: "Escalate",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftSnapshotId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftStatus: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.status || "all",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftField: item.field || "",
+                cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision: "escalated"
+              }
+            })
+          ])
         ]))
       ]
     : [];
+
+  const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger = governance.cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger || null;
+  const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointSummary = cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0,
+    openEscalated: 0
+  };
+  const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerEntries = cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "CLI bridge remediation task ledger drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "850"
+        }
+      }),
+      createElement("div", {
+        text: `${cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointSummary.visible || 0} visible | ${cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointSummary.open || 0} open | ${cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointSummary.closed || 0} closed | ${cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointSummary.openEscalated || 0} open escalated`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger.items || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.45rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.cliBridgeLifecycleStackRemediationTaskLedgerDriftLabel || "CLI bridge remediation task ledger drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotTitle || item.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotId || "Snapshot not recorded"} | ${item.cliBridgeLifecycleStackRemediationTaskLedgerStatusFilter || "all"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `${item.cliBridgeLifecycleStackRemediationTaskLedgerDriftBefore || "missing"} -> ${item.cliBridgeLifecycleStackRemediationTaskLedgerDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(`${item.cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision || "deferred"} / ${item.status || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision === "confirmed" ? "var(--success)" : item.cliBridgeLifecycleStackRemediationTaskLedgerDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-drift-checkpoint-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointTaskStatus: "blocked"
+          }
+        })
+      ])
+    ]))
+  ] : [];
 
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
@@ -17207,6 +17377,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),
+    createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Drift Checkpoints", "Operator decisions made against remediation task ledger drift before CLI bridge handoff reuse.", cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

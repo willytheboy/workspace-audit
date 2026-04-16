@@ -2803,6 +2803,7 @@
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?: CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload | null,
+ *   cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger?: CliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3410,11 +3411,28 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number, checkpointTaskId?: string, checkpointDecision?: string, checkpointStatus?: string, checkpointedAt?: string }>,
  *   liveSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, highCount: number, mediumCount: number, lowCount: number, latestTaskId: string, latestTitle: string, latestUpdatedAt: string } | null,
  *   snapshotSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, highCount: number, mediumCount: number, lowCount: number, latestTaskId: string, latestTitle: string, latestUpdatedAt: string } | null,
  *   markdown: string
  * }} CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number,
+ *     openEscalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} CliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

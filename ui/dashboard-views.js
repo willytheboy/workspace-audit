@@ -219,6 +219,7 @@ function createEmptyTableRow(message) {
  *     createAgentWorkOrderRun: (payload: { projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string }) => Promise<unknown>,
  *     createAgentWorkOrderRunsFromSnapshot: (payload: { snapshotId: string }) => Promise<unknown>,
  *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean }) => Promise<unknown>,
+ *     refreshAgentWorkOrderRunTargetBaseline: (runId: string, payload?: { notes?: string }) => Promise<unknown>,
  *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[] }) => Promise<unknown>,
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string }) => Promise<unknown>,
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
@@ -6867,6 +6868,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           alert(getErrorMessage(error));
         } finally {
           element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-agent-work-order-run-target-baseline-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.agentWorkOrderRunTargetBaselineRefreshId || "";
+        if (!runId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          await api.refreshAgentWorkOrderRunTargetBaseline(runId, {
+            notes: "Refreshed profile target task baseline capture from Governance."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
         }
       };
     });

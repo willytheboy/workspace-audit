@@ -1312,6 +1312,26 @@ export async function serverTest() {
     assert.ok(governanceOperationTypes.includes("agent-work-order-run-status-updated"));
     assert.ok(governanceOperationTypes.includes("agent-policy-checkpoint-recorded"));
 
+    const refreshBatchRunTargetBaselineResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${batchAgentWorkOrderRunsJson.queuedRuns[0].id}/target-baseline-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: "Fixture target baseline recapture."
+      })
+    });
+    assert.equal(refreshBatchRunTargetBaselineResponse.status, 200);
+    const refreshBatchRunTargetBaselineJson = await refreshBatchRunTargetBaselineResponse.json();
+    assert.equal(refreshBatchRunTargetBaselineJson.success, true);
+    assert.equal(refreshBatchRunTargetBaselineJson.run.id, batchAgentWorkOrderRunsJson.queuedRuns[0].id);
+    assert.equal(refreshBatchRunTargetBaselineJson.run.profileTargetTaskLedgerBaselineHealth, "missing");
+    assert.equal(refreshBatchRunTargetBaselineJson.run.history[0].note, "Fixture target baseline recapture.");
+
+    const governanceAfterTargetBaselineRefreshResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterTargetBaselineRefreshResponse.status, 200);
+    const governanceAfterTargetBaselineRefreshJson = await governanceAfterTargetBaselineRefreshResponse.json();
+    assert.equal(governanceAfterTargetBaselineRefreshJson.summary.agentExecutionTargetBaselineMissingCount, 2);
+    assert.ok(governanceAfterTargetBaselineRefreshJson.operationLog.some((operation) => operation.type === "agent-work-order-run-target-baseline-refreshed"));
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

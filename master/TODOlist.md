@@ -2330,3 +2330,10 @@
 - [x] Add Governance execution filters, queue card details, and report evidence for target baseline review cases.
 - [x] Feed run-level target baseline review state into Agent Control Plane and CLI runner readiness gates.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Refresh
+
+- [x] Add an Agent Work Order run API action that recaptures the current profile target task baseline onto an existing run.
+- [x] Preserve run history and Governance operation evidence for every target baseline refresh.
+- [x] Add an Agent Execution Queue button for refreshing stale, missing, or drifted run target baselines.
+- [x] Validate, relaunch, commit, and push.

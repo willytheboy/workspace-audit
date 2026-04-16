@@ -1879,6 +1879,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} runId
+   * @param {{ notes?: string }} [payload]
+   * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
+   */
+  refreshAgentWorkOrderRunTargetBaseline(runId, payload = {}) {
+    return fetchJson(`/api/agent-work-order-runs/${encodeURIComponent(runId)}/target-baseline-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ retainCompleted: number, runIds?: string[] }} payload
    * @returns {Promise<{ success: true, retainCompleted: number, retained: number, archived: number, archivedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */

@@ -1332,6 +1332,16 @@ export async function serverTest() {
     assert.equal(governanceAfterTargetBaselineRefreshJson.summary.agentExecutionTargetBaselineMissingCount, 2);
     assert.ok(governanceAfterTargetBaselineRefreshJson.operationLog.some((operation) => operation.type === "agent-work-order-run-target-baseline-refreshed"));
 
+    const targetBaselineAuditLedgerResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger?state=review&limit=5`);
+    assert.equal(targetBaselineAuditLedgerResponse.status, 200);
+    const targetBaselineAuditLedgerJson = await targetBaselineAuditLedgerResponse.json();
+    assert.equal(targetBaselineAuditLedgerJson.state, "review");
+    assert.equal(targetBaselineAuditLedgerJson.total, 2);
+    assert.equal(targetBaselineAuditLedgerJson.summary.review, 2);
+    assert.equal(targetBaselineAuditLedgerJson.summary.missing, 2);
+    assert.match(targetBaselineAuditLedgerJson.markdown, /# Agent Execution Target Baseline Audit Ledger/);
+    assert.match(targetBaselineAuditLedgerJson.markdown, /Secret policy/);
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

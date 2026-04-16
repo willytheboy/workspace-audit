@@ -6848,6 +6848,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    * @param {HTMLElement} container
    */
   function bindAgentWorkOrderRunActions(container) {
+    container.querySelectorAll("[data-agent-execution-target-baseline-audit-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const state = element.dataset.agentExecutionTargetBaselineAuditLedgerCopy || "";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const label = await copyAgentExecutionTargetBaselineAuditLedger(state);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-agent-work-order-run-copy-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8113,6 +8135,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible CLI bridge run trace snapshot drift.");
+    }
+
+    lines.push("", "## Agent Execution Target Baseline Audit Ledger");
+    {
+      const executionMetrics = governance.agentExecutionMetrics || {};
+      lines.push(`- Review required: ${executionMetrics.targetBaselineReviewRequired || 0}`);
+      lines.push(`- Healthy: ${executionMetrics.targetBaselineHealthy || 0}`);
+      lines.push(`- Missing: ${executionMetrics.targetBaselineMissing || 0}`);
+      lines.push(`- Stale: ${executionMetrics.targetBaselineStale || 0}`);
+      lines.push(`- Drifted: ${(executionMetrics.targetBaselineDrifted || 0) + (executionMetrics.targetBaselineDriftReviewRequired || 0)}`);
+      lines.push(`- Uncheckpointed drift items: ${executionMetrics.targetBaselineUncheckpointedDriftItems || 0}`);
+      lines.push("- Use the Governance action card or command palette to copy the full non-secret run-level audit ledger.");
     }
 
     lines.push("", "## SLA Breach Ledger");
@@ -12605,6 +12639,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await copyText(markdown);
   }
 
+  function getAgentExecutionTargetBaselineAuditLedgerState(stateOverride = "") {
+    if (["all", "review", "missing", "healthy", "stale", "drift"].includes(stateOverride)) return stateOverride;
+    const executionStatus = getGovernanceFilterState().executionStatus;
+    if (executionStatus === "target-baseline-missing") return "missing";
+    if (executionStatus === "target-baseline-stale") return "stale";
+    if (executionStatus === "target-baseline-drift") return "drift";
+    if (executionStatus === "target-baseline-review") return "review";
+    return "all";
+  }
+
+  async function copyAgentExecutionTargetBaselineAuditLedger(stateOverride = "") {
+    const state = getAgentExecutionTargetBaselineAuditLedgerState(stateOverride);
+    const payload = await api.fetchAgentExecutionTargetBaselineAuditLedger({ state, limit: 100 });
+    await copyText(payload.markdown);
+    return `Copied ${payload.total} target baseline audit run${payload.total === 1 ? "" : "s"}`;
+  }
+
   function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
     if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
     if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
@@ -13303,6 +13354,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveSourcesSummarySnapshot,
     copyLatestSourcesSummarySnapshotDrift,
     copySlaBreachLedger,
+    copyAgentExecutionTargetBaselineAuditLedger,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,

@@ -1823,6 +1823,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerPayload>}
+   */
+  fetchAgentExecutionTargetBaselineAuditLedger(options = {}) {
+    return fetchJson(withQuery("/api/agent-work-order-runs/target-baseline-audit-ledger", options));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionSlaLedgerSnapshot[]>}
    */
   fetchAgentExecutionSlaLedgerSnapshots() {

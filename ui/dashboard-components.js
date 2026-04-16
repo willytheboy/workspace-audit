@@ -14314,6 +14314,99 @@ export function createGovernanceDeck(governance) {
       ]))
     : [];
 
+  const agentExecutionTargetBaselineAuditLedgerEntries = [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem"
+          }
+        }, [
+          createElement("div", {
+            text: "Target Baseline Audit Ledger",
+            style: {
+              fontWeight: "900",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: "Copy the no-secret run-level checklist for missing, stale, drifted, and healthy profile target baseline captures.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${executionMetrics.targetBaselineReviewRequired || 0} review`, {
+          border: `1px solid ${(executionMetrics.targetBaselineReviewRequired || 0) > 0 ? "var(--warning)" : "var(--success)"}`,
+          background: "var(--bg)",
+          color: (executionMetrics.targetBaselineReviewRequired || 0) > 0 ? "var(--warning)" : "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${executionMetrics.targetBaselineMissing || 0} missing`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${executionMetrics.targetBaselineStale || 0} stale`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${(executionMetrics.targetBaselineDrifted || 0) + (executionMetrics.targetBaselineDriftReviewRequired || 0)} drift`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${executionMetrics.targetBaselineUncheckpointedDriftItems || 0} uncheckpointed drift item(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn agent-execution-target-baseline-audit-ledger-copy-btn",
+          text: "Copy Review Ledger",
+          attrs: { type: "button" },
+          dataset: {
+            agentExecutionTargetBaselineAuditLedgerCopy: "review"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-execution-target-baseline-audit-ledger-copy-all-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: {
+            agentExecutionTargetBaselineAuditLedgerCopy: "all"
+          }
+        })
+      ])
+    ])
+  ];
+
   const slaLedgerEntries = (governance.agentExecutionSlaLedger || []).map((item) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -15348,6 +15441,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Execution Result Checkpoints", "Operator decisions for retry, archive, retention, SLA resolution, and baseline-refresh result handling.", agentExecutionResultCheckpointEntries),
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
+    createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),
     createListSection("SLA Ledger Snapshots", "Persisted SLA Breach Ledger exports for external audit handoffs.", agentExecutionSlaLedgerSnapshotEntries),
     createListSection("Agent Execution Queue", "Queued and in-flight Agent Work Order runs with validation outcomes.", agentWorkOrderRunEntries),

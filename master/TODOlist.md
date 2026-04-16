@@ -2344,3 +2344,10 @@
 - [x] Expose the action through the command palette/action registry for supervised batch remediation.
 - [x] Add parser coverage for the bulk target baseline refresh wiring.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Ledger
+
+- [x] Add a no-secret API ledger for run-level target baseline audit records across active Agent Work Order runs.
+- [x] Surface copy controls in Governance and command palette for review/all baseline audit ledgers.
+- [x] Add Governance report evidence, parser checks, and server coverage for the target baseline audit ledger.
+- [x] Validate, relaunch, commit, and push.

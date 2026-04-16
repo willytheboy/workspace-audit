@@ -103,6 +103,7 @@
  *     clearAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     refreshAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     copySlaBreachLedger: () => Promise<void>,
+ *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
  *     saveAgentControlPlaneSnapshot: () => Promise<void>,
  *     saveAgentControlPlaneDecisionSnapshot: () => Promise<void>,
  *     saveAgentControlPlaneBaselineSnapshot: () => Promise<void>,
@@ -870,6 +871,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "sla", "breach", "ledger", "copy"],
         run: () => handlers.copySlaBreachLedger()
+      },
+      {
+        id: "copy-agent-execution-target-baseline-audit-ledger",
+        label: "Copy target baseline audit ledger",
+        description: "Copy the non-secret Agent Execution target baseline audit ledger as markdown.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "copy"],
+        run: () => handlers.copyAgentExecutionTargetBaselineAuditLedger()
       },
       {
         id: "save-sla-ledger-snapshot",

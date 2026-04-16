@@ -4875,6 +4875,51 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-lifecycle-ledger-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.cliBridgeRunnerDryRunLifecycleLedgerTask || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeRunnerDryRunLifecycleLedgerReviewTask(runner);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-lifecycle-ledger-item-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunnerDryRunLifecycleLedgerItemTaskId || "";
+        if (!snapshotId) return;
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeRunnerDryRunLifecycleItemReviewTask(snapshotId);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot-drift-task-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -11635,6 +11680,91 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function getCliBridgeRunnerDryRunLifecycleLedgerTaskPriority(summary = {}) {
+    if ((summary.hold || 0) > 0 || (summary.acceptedDrift || 0) > 0) return "high";
+    if ((summary.review || 0) > 0) return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeRunnerDryRunLifecycleLedgerTaskDescription(payload) {
+    const summary = payload.summary || {};
+    const lines = [
+      `Review CLI bridge runner dry-run baseline lifecycle ledger for ${payload.runner || "all"} runner scope.`,
+      `Visible snapshots: ${summary.visible || 0}; total snapshots: ${summary.total || 0}; available after filter: ${summary.available || 0}.`,
+      `Runner split: Codex ${summary.codex || 0}; Claude ${summary.claude || 0}.`,
+      `Decision split: ready ${summary.ready || 0}; review ${summary.review || 0}; hold ${summary.hold || 0}.`,
+      `Accepted drift baselines: ${summary.acceptedDrift || 0}.`,
+      `Latest snapshot: ${summary.latestTitle || summary.latestSnapshotId || "none"}.`,
+      "Secret policy: non-secret CLI bridge runner dry-run lifecycle metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ];
+
+    if ((payload.items || []).length) {
+      lines.push("Recent lifecycle items:");
+      for (const item of payload.items.slice(0, 8)) {
+        lines.push(`- ${item.title || "CLI Bridge Runner Dry Run"}: ${item.runner || "runner"} / ${item.lifecycleAction || "snapshot-saved"} / ${item.dryRunDecision || "review"} / work order ${item.selectedWorkOrderId || "fallback"}.`);
+      }
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createCliBridgeRunnerDryRunLifecycleLedgerReviewTask(runner) {
+    const payload = await api.fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger({ runner, limit: 50 });
+    await api.createTask({
+      projectId: "cli-bridge",
+      projectName: "CLI Bridge",
+      title: `Review ${runner === "all" ? "CLI bridge" : runner} dry-run baseline lifecycle ledger`.slice(0, 140),
+      description: buildCliBridgeRunnerDryRunLifecycleLedgerTaskDescription(payload),
+      priority: getCliBridgeRunnerDryRunLifecycleLedgerTaskPriority(payload.summary || {}),
+      status: "open"
+    });
+    await renderGovernance();
+    return `Tracked ${payload.summary?.visible || 0}`;
+  }
+
+  function findCliBridgeRunnerDryRunLifecycleLedgerItem(snapshotId) {
+    const ledger = governanceCache?.cliBridgeRunnerDryRunSnapshotLifecycleLedger;
+    return (ledger?.items || []).find((item) => item.snapshotId === snapshotId) || null;
+  }
+
+  function getCliBridgeRunnerDryRunLifecycleItemPriority(item) {
+    if (item?.dryRunDecision === "hold" || item?.lifecycleAction === "accepted-drift-baseline") return "high";
+    if (item?.dryRunDecision === "review") return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeRunnerDryRunLifecycleItemTaskDescription(item) {
+    return [
+      `Review CLI bridge runner dry-run baseline lifecycle item ${item.title || item.snapshotId || "snapshot"}.`,
+      `Snapshot ID: ${item.snapshotId || "unknown"}.`,
+      `Runner: ${item.runner || "runner"}; lifecycle action: ${item.lifecycleAction || "snapshot-saved"}.`,
+      `Created: ${item.createdAt || "unknown"}; operation: ${item.operationId || "not linked"}.`,
+      `Work order: ${item.selectedWorkOrderId || "fallback"}; project: ${item.selectedWorkOrderProjectName || item.selectedWorkOrderProjectId || "Portfolio"}.`,
+      `Decisions: dry-run ${item.dryRunDecision || "review"}; context ${item.contextDecision || "review"}; target ${item.targetBaselineAuditGateDecision || "review"}; audit runs ${item.auditBaselineRunGateDecision || "review"}.`,
+      `Reasons: ${item.reasonCount || 0}; codes: ${item.reasonCodes || "none"}.`,
+      "Secret policy: non-secret CLI bridge runner dry-run lifecycle metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ].join("\n");
+  }
+
+  async function createCliBridgeRunnerDryRunLifecycleItemReviewTask(snapshotId) {
+    const ledger = governanceCache?.cliBridgeRunnerDryRunSnapshotLifecycleLedger?.items?.length
+      ? governanceCache.cliBridgeRunnerDryRunSnapshotLifecycleLedger
+      : await api.fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger({ runner: "all", limit: 100 });
+    const item = (ledger.items || []).find((candidate) => candidate.snapshotId === snapshotId) || findCliBridgeRunnerDryRunLifecycleLedgerItem(snapshotId);
+    if (!item) throw new Error(`CLI bridge runner dry-run lifecycle item not found: ${snapshotId}`);
+
+    await api.createTask({
+      projectId: item.selectedWorkOrderProjectId || "cli-bridge",
+      projectName: item.selectedWorkOrderProjectName || "CLI Bridge",
+      title: `Review CLI dry-run lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
+      description: buildCliBridgeRunnerDryRunLifecycleItemTaskDescription(item),
+      priority: getCliBridgeRunnerDryRunLifecycleItemPriority(item),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Tracked Item";
   }
 
   function findCliBridgeRunnerDryRunSnapshot(snapshotId) {

@@ -2551,3 +2551,11 @@
 - [x] Surface copyable all/Codex/Claude lifecycle ledgers in Governance.
 - [x] Add parser, server test, and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Lifecycle Ledger Review Controls
+
+- [x] Add all/Codex/Claude task-generation controls to the dry-run lifecycle ledger.
+- [x] Add per-lifecycle-item task-generation controls scoped to the selected work order project when available.
+- [x] Generate non-secret Governance task descriptions from lifecycle metadata and decisions.
+- [x] Add parser and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

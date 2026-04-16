@@ -9521,7 +9521,19 @@ export function createGovernanceDeck(governance) {
                     fontSize: "0.82rem",
                     lineHeight: "1.45"
                   }
-                })
+                }),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-item-task-btn",
+                    text: "Track Item",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunnerDryRunLifecycleLedgerItemTaskId: item.snapshotId || ""
+                    }
+                  })
+                ])
               ])))
             : null,
           createElement("div", {
@@ -9537,6 +9549,14 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-task-btn",
+              text: "Track All",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerTask: "all"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-copy-btn",
               text: "Copy Codex",
               attrs: { type: "button" },
@@ -9546,12 +9566,28 @@ export function createGovernanceDeck(governance) {
               }
             }),
             createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-task-btn",
+              text: "Track Codex",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerTask: "codex"
+              }
+            }),
+            createElement("button", {
               className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-copy-btn",
               text: "Copy Claude",
               attrs: { type: "button" },
               dataset: {
                 cliBridgeRunnerDryRunLifecycleLedgerCopy: "true",
                 cliBridgeRunnerDryRunLifecycleLedgerRunner: "claude"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-lifecycle-ledger-task-btn",
+              text: "Track Claude",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunLifecycleLedgerTask: "claude"
               }
             })
           ])

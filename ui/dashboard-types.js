@@ -3344,6 +3344,7 @@
  *   dryRunLifecycleLedger: CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload,
  *   runTraceBaselineStatus: CliBridgeRunTraceSnapshotBaselineStatusPayload,
  *   runTraceLifecycleLedger: CliBridgeRunTraceSnapshotLifecycleLedgerPayload,
+ *   remediationTaskLedgerBaselineStatus: CliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusPayload,
  *   markdown: string
  * }} CliBridgeLifecycleStackStatusPayload
  * @typedef {{

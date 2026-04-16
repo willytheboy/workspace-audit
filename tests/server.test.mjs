@@ -2513,7 +2513,9 @@ export async function serverTest() {
     const cliBridgeLifecycleStackStatusJson = await cliBridgeLifecycleStackStatusResponse.json();
     assert.ok(["ready", "review", "hold"].includes(cliBridgeLifecycleStackStatusJson.decision));
     assert.ok(Array.isArray(cliBridgeLifecycleStackStatusJson.stages));
-    assert.equal(cliBridgeLifecycleStackStatusJson.stages.length, 4);
+    assert.equal(cliBridgeLifecycleStackStatusJson.stages.length, 5);
+    assert.ok(cliBridgeLifecycleStackStatusJson.stages.some((stage) => stage.id === "remediation-task-ledger-baseline"));
+    assert.equal(cliBridgeLifecycleStackStatusJson.remediationTaskLedgerBaselineStatus.refreshGateDecision, "ready");
     assert.match(cliBridgeLifecycleStackStatusJson.markdown, /lifecycle stack status/i);
 
     const cliBridgeLifecycleStackRemediationPackResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-pack`);

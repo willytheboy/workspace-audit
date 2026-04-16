@@ -2655,3 +2655,11 @@
 - [x] Surface gate state, reasons, and blocked Accept Drift controls in Governance.
 - [x] Include gate details in report export, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Stage
+
+- [x] Promote remediation task ledger baseline status into the CLI bridge lifecycle stack status payload.
+- [x] Add a remediation task ledger baseline stage with ready, review, and hold decisions driven by the refresh gate.
+- [x] Feed the stage into the existing lifecycle remediation pack so non-ready baseline evidence becomes actionable work.
+- [x] Add parser and server test coverage for the fifth lifecycle stage.
+- [x] Validate, relaunch, commit, and push.

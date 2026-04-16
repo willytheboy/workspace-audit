@@ -2337,3 +2337,10 @@
 - [x] Preserve run history and Governance operation evidence for every target baseline refresh.
 - [x] Add an Agent Execution Queue button for refreshing stale, missing, or drifted run target baselines.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Bulk Refresh
+
+- [x] Add a visible-run bulk action for refreshing target baseline capture on filtered Agent Execution runs.
+- [x] Expose the action through the command palette/action registry for supervised batch remediation.
+- [x] Add parser coverage for the bulk target baseline refresh wiring.
+- [x] Validate, relaunch, commit, and push.

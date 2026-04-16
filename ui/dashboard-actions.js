@@ -119,6 +119,7 @@
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
+ *     refreshTargetBaselineAgentWorkOrderRuns: () => Promise<void>,
  *     blockStaleAgentWorkOrderRuns: () => Promise<void>,
  *     actionSlaBreaches: () => Promise<void>,
  *     resolveSlaBreaches: () => Promise<void>,
@@ -1013,6 +1014,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "queued", "start", "bulk"],
         run: () => handlers.startQueuedAgentWorkOrderRuns()
+      },
+      {
+        id: "refresh-agent-execution-target-baselines",
+        label: "Refresh agent execution target baselines",
+        description: "Recapture the current profile target task baseline on visible Agent Execution runs that need baseline review.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "refresh", "bulk"],
+        run: () => handlers.refreshTargetBaselineAgentWorkOrderRuns()
       },
       {
         id: "block-stale-agent-execution-runs",

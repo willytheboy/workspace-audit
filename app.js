@@ -635,6 +635,12 @@ async function startQueuedAgentWorkOrderRuns() {
   await views.startVisibleQueuedAgentWorkOrderRuns();
 }
 
+async function refreshTargetBaselineAgentWorkOrderRuns() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.refreshVisibleTargetBaselineAgentWorkOrderRuns();
+}
+
 async function blockStaleAgentWorkOrderRuns() {
   setView("governance");
   await views.renderGovernance();
@@ -803,6 +809,7 @@ const actionRegistry = createDashboardActionRegistry({
     executeGovernanceQueue,
     suppressGovernanceQueue,
     startQueuedAgentWorkOrderRuns,
+    refreshTargetBaselineAgentWorkOrderRuns,
     blockStaleAgentWorkOrderRuns,
     actionSlaBreaches,
     resolveSlaBreaches,

@@ -10558,6 +10558,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await renderGovernance();
   }
 
+  async function refreshVisibleTargetBaselineAgentWorkOrderRuns() {
+    const runs = (getFilteredGovernance()?.agentWorkOrderRuns || [])
+      .filter((run) => !run.archivedAt)
+      .filter((run) => (
+        (run.profileTargetTaskLedgerBaselineHealth || "missing") !== "healthy"
+          || (run.profileTargetTaskLedgerBaselineFreshness || "missing") !== "fresh"
+          || (run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0
+      ));
+    if (!runs.length) {
+      throw new Error("No visible Agent Execution runs require target baseline refresh.");
+    }
+
+    for (const run of runs) {
+      await api.refreshAgentWorkOrderRunTargetBaseline(run.id, {
+        notes: "Refreshed profile target task baseline capture from Governance bulk action."
+      });
+    }
+    await renderGovernance();
+  }
+
   async function blockVisibleStaleAgentWorkOrderRuns() {
     const staleThresholdHours = getGovernanceFilterState().staleThresholdHours || governanceExecutionPolicy.staleThresholdHours;
     const staleRuns = (getFilteredGovernance()?.agentWorkOrderRuns || [])
@@ -13214,6 +13234,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   return {
     blockVisibleStaleAgentWorkOrderRuns,
+    refreshVisibleTargetBaselineAgentWorkOrderRuns,
     archiveVisibleCompletedAgentWorkOrderRuns,
     actionVisibleSlaBreaches,
     resolveVisibleSlaBreaches,

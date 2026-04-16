@@ -2489,3 +2489,11 @@
 - [x] Include audit-baseline execution counts in bounded Codex and Claude runner dry-run prompts.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Audit Baseline Run Gate
+
+- [x] Add a structured audit-baseline run gate to CLI Bridge runner dry-run payloads.
+- [x] Add the gate to command envelopes for Codex and Claude adapters.
+- [x] Add audit-baseline run gate Markdown and review reasons for non-ready run evidence.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

@@ -2253,3 +2253,10 @@
 - [x] Surface saved target task ledger snapshots in Governance registry filtering and reports.
 - [x] Add toolbar and command-palette actions for saving target task ledger snapshots.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Snapshot Drift
+
+- [x] Add a latest-or-specific snapshot drift API for Governance profile target task ledgers.
+- [x] Compare saved target task baselines against live open/closed/task-kind/project/test-file state.
+- [x] Surface the drift payload in Governance cards, summaries, reports, toolbar actions, and command palette.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

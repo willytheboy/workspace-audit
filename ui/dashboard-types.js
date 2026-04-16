@@ -1752,6 +1752,21 @@
  *   createdAt: string
  * }} PersistedGovernanceProfileTargetTaskLedgerSnapshot
  * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: Record<string, unknown> | null,
+ *   snapshotSummary: Record<string, unknown> | null,
+ *   markdown: string
+ * }} GovernanceProfileTargetTaskLedgerSnapshotDiffPayload
+ * @typedef {{
  *   id: string,
  *   projectId: string,
  *   projectName: string,
@@ -2236,6 +2251,9 @@
  *     governanceProfileTargetOpenTaskCount: number,
  *     governanceProfileTargetMissingTaskCount: number,
  *     governanceProfileTargetTaskLedgerSnapshotCount: number,
+ *     governanceProfileTargetTaskLedgerSnapshotHasDrift: boolean,
+ *     governanceProfileTargetTaskLedgerSnapshotDriftScore: number,
+ *     governanceProfileTargetTaskLedgerSnapshotDriftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *     actionQueueItems: number,
  *     suppressedQueueItems: number,
  *     governanceOperationCount: number,
@@ -2386,6 +2404,7 @@
  *   profileTargets: GovernanceProfileTarget[],
  *   profileTargetTasks: PersistedTask[],
  *   governanceProfileTargetTaskLedgerSnapshots: PersistedGovernanceProfileTargetTaskLedgerSnapshot[],
+ *   governanceProfileTargetTaskLedgerSnapshotDiff?: GovernanceProfileTargetTaskLedgerSnapshotDiffPayload | null,
  *   profileHistory: PersistedProjectProfileHistory[],
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],

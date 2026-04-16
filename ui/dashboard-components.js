@@ -2288,6 +2288,103 @@ export function createGovernanceDeck(governance) {
       ])
     ])
   ]));
+  const profileTargetTaskSnapshotDiff = governance.governanceProfileTargetTaskLedgerSnapshotDiff;
+  const profileTargetTaskSnapshotDiffEntries = profileTargetTaskSnapshotDiff ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.3rem"
+          }
+        }, [
+          createElement("div", {
+            text: profileTargetTaskSnapshotDiff.snapshotTitle || "Governance Profile Target Task Ledger Snapshot Drift",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: profileTargetTaskSnapshotDiff.recommendedAction || "Save or refresh the profile target task snapshot before the next supervised build.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createElement("div", {
+          className: "tags",
+          style: {
+            justifyContent: "flex-end"
+          }
+        }, [
+          createTag(profileTargetTaskSnapshotDiff.driftSeverity || "missing-snapshot", {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: profileTargetTaskSnapshotDiff.driftSeverity === "high" ? "var(--danger)" : profileTargetTaskSnapshotDiff.driftSeverity === "medium" ? "var(--warning)" : "var(--text-muted)"
+          }),
+          createTag(`score ${profileTargetTaskSnapshotDiff.driftScore || 0}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: "var(--text-muted)"
+          })
+        ])
+      ]),
+      createElement("div", {
+        text: `${(profileTargetTaskSnapshotDiff.driftItems || []).length} drift item(s) • created ${profileTargetTaskSnapshotDiff.snapshotCreatedAt ? new Date(profileTargetTaskSnapshotDiff.snapshotCreatedAt).toLocaleString() : "not recorded"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gap: "0.4rem"
+        }
+      }, (profileTargetTaskSnapshotDiff.driftItems || []).slice(0, 5).map((item) => createElement("div", {
+        className: "governance-gap-card",
+        style: {
+          padding: "0.7rem",
+          background: "var(--panel-soft)"
+        }
+      }, [
+        createElement("div", {
+          text: item.label || item.field || "Profile target task drift",
+          style: {
+            fontWeight: "700",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+            lineHeight: "1.45"
+          }
+        })
+      ])))
+    ])
+  ] : [];
 
   const gapEntries = governance.unprofiledProjects.map((project) => createElement("div", {
     className: "governance-gap-card",
@@ -14784,6 +14881,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
     createListSection("Governance Profile Target Tasks", "Deduplicated task ledger for profile test coverage and runtime target gaps.", profileTargetTaskEntries),
+    createListSection("Governance Profile Target Task Snapshot Drift", "Latest saved profile target task baseline compared with current live profile target tasks.", profileTargetTaskSnapshotDiffEntries),
     createListSection("Governance Profile Target Task Snapshots", "Saved baselines for the profile target task ledger.", profileTargetTaskSnapshotEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),

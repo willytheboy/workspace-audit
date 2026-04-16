@@ -1964,6 +1964,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchGovernanceProfileTargetTaskLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/governance/profile-target-task-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>}
    */

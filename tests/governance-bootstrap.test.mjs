@@ -257,11 +257,20 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerSnapshotJson.snapshot.testCoverageCount, 1);
     assert.match(profileTargetTaskLedgerSnapshotJson.snapshot.markdown, /Fixture Profile Target Task Ledger Snapshot|Governance Profile Target Task Ledger/);
 
+    const profileTargetTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(profileTargetTaskLedgerSnapshotDiffResponse.status, 200);
+    const profileTargetTaskLedgerSnapshotDiffJson = await profileTargetTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(profileTargetTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+    assert.equal(profileTargetTaskLedgerSnapshotDiffJson.driftScore, 0);
+    assert.match(profileTargetTaskLedgerSnapshotDiffJson.markdown, /Governance Profile Target Task Ledger Snapshot Drift/);
+
     const profileTargetSnapshotGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(profileTargetSnapshotGovernanceResponse.status, 200);
     const profileTargetSnapshotGovernanceJson = await profileTargetSnapshotGovernanceResponse.json();
     assert.equal(profileTargetSnapshotGovernanceJson.summary.governanceProfileTargetTaskLedgerSnapshotCount, 1);
+    assert.equal(profileTargetSnapshotGovernanceJson.summary.governanceProfileTargetTaskLedgerSnapshotDriftSeverity, "none");
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshots.length, 1);
+    assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshotDiff.driftScore, 0);
 
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",

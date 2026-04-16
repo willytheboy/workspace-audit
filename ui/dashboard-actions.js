@@ -114,6 +114,7 @@
  *     seedGovernanceProfileTargetTasks: () => Promise<void>,
  *     copyGovernanceProfileTargetTaskLedger: () => Promise<void>,
  *     saveGovernanceProfileTargetTaskLedgerSnapshot: () => Promise<void>,
+ *     copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift: () => Promise<void>,
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
@@ -963,6 +964,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "snapshot", "save"],
         run: () => handlers.saveGovernanceProfileTargetTaskLedgerSnapshot()
+      },
+      {
+        id: "copy-governance-profile-target-task-ledger-drift",
+        label: "Copy profile target task ledger drift",
+        description: "Copy the drift report comparing the latest profile target task snapshot to live Governance target tasks.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift()
       },
       {
         id: "execute-governance-queue",

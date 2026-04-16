@@ -2694,3 +2694,11 @@
 - [x] Surface copyable latest and per-snapshot drift controls in Governance.
 - [x] Include packet snapshot drift in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet Drift Checkpoints
+
+- [x] Add confirm, defer, and escalate checkpoint endpoints for lifecycle handoff packet drift items.
+- [x] Persist checkpoint decisions as non-secret Governance tasks excluded from live remediation ledgers.
+- [x] Add a copyable all/open/closed checkpoint ledger with task lifecycle controls.
+- [x] Surface checkpoint state in handoff packet drift items, Governance filtering, visible summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

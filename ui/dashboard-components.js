@@ -10783,10 +10783,180 @@ export function createGovernanceDeck(governance) {
               fontSize: "0.84rem",
               lineHeight: "1.45"
             }
-          })
+          }),
+          item.checkpointDecision ? createTag(`${item.checkpointDecision} / ${item.checkpointStatus || "open"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: item.checkpointDecision === "confirmed" ? "var(--success)" : item.checkpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+          }) : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-btn",
+              text: "Confirm",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketDriftSnapshotId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketDriftRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all",
+                cliBridgeLifecycleHandoffPacketDriftField: item.field || "",
+                cliBridgeLifecycleHandoffPacketDriftDecision: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-btn",
+              text: "Defer",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketDriftSnapshotId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketDriftRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all",
+                cliBridgeLifecycleHandoffPacketDriftField: item.field || "",
+                cliBridgeLifecycleHandoffPacketDriftDecision: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-btn",
+              text: "Escalate",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketDriftSnapshotId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketDriftRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all",
+                cliBridgeLifecycleHandoffPacketDriftField: item.field || "",
+                cliBridgeLifecycleHandoffPacketDriftDecision: "escalated"
+              }
+            })
+          ])
         ]))
       ]
     : [];
+
+  const cliBridgeLifecycleHandoffPacketDriftCheckpointLedger = governance.cliBridgeLifecycleHandoffPacketDriftCheckpointLedger || null;
+  const cliBridgeLifecycleHandoffPacketDriftCheckpointSummary = cliBridgeLifecycleHandoffPacketDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0,
+    openEscalated: 0
+  };
+  const cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerEntries = cliBridgeLifecycleHandoffPacketDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "CLI bridge handoff packet drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "850"
+        }
+      }),
+      createElement("div", {
+        text: `${cliBridgeLifecycleHandoffPacketDriftCheckpointSummary.visible || 0} visible | ${cliBridgeLifecycleHandoffPacketDriftCheckpointSummary.open || 0} open | ${cliBridgeLifecycleHandoffPacketDriftCheckpointSummary.closed || 0} closed | ${cliBridgeLifecycleHandoffPacketDriftCheckpointSummary.openEscalated || 0} open escalated`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(cliBridgeLifecycleHandoffPacketDriftCheckpointLedger.items || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-drift-checkpoint-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.45rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.cliBridgeLifecycleHandoffPacketDriftLabel || "CLI bridge handoff packet drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.cliBridgeLifecycleHandoffPacketSnapshotTitle || item.cliBridgeLifecycleHandoffPacketSnapshotId || "Snapshot not recorded"} | runner ${item.cliBridgeLifecycleHandoffPacketRunner || "all"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `${item.cliBridgeLifecycleHandoffPacketDriftBefore || "missing"} -> ${item.cliBridgeLifecycleHandoffPacketDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(`${item.cliBridgeLifecycleHandoffPacketDriftDecision || "deferred"} / ${item.status || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.cliBridgeLifecycleHandoffPacketDriftDecision === "confirmed" ? "var(--success)" : item.cliBridgeLifecycleHandoffPacketDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-drift-checkpoint-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskId: item.id || "",
+            cliBridgeLifecycleHandoffPacketDriftCheckpointTaskStatus: "blocked"
+          }
+        })
+      ])
+    ]))
+  ] : [];
 
   const cliBridgeLifecycleStackRemediationTaskLedger = governance.cliBridgeLifecycleStackRemediationTaskLedger;
   const cliBridgeLifecycleStackRemediationTaskLedgerItems = cliBridgeLifecycleStackRemediationTaskLedger?.items || [];
@@ -17904,6 +18074,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Remediation Pack", "Copyable operator handoff for non-ready dry-run and run-trace lifecycle stages.", cliBridgeLifecycleStackRemediationPackEntries),
     createListSection("CLI Bridge Lifecycle Handoff Packet", "Copyable non-secret launch brief that combines lifecycle gate, remediation, baseline, and runner instructions.", cliBridgeLifecycleHandoffPacketEntries),
     createListSection("CLI Bridge Lifecycle Handoff Packet Snapshots", "Persisted non-secret launch briefs for repeatable Codex CLI and Claude CLI handoff review.", [...cliBridgeLifecycleHandoffPacketSnapshotDiffEntries, ...cliBridgeLifecycleHandoffPacketSnapshotEntries]),
+    createListSection("CLI Bridge Lifecycle Handoff Packet Drift Checkpoints", "Operator decisions made against handoff packet drift before Codex or Claude launch packet reuse.", cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),

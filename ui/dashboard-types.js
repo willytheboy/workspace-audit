@@ -2803,6 +2803,7 @@
  *   cliBridgeLifecycleHandoffPacket?: CliBridgeLifecycleHandoffPacketPayload | null,
  *   cliBridgeLifecycleHandoffPacketSnapshots: PersistedCliBridgeLifecycleHandoffPacketSnapshot[],
  *   cliBridgeLifecycleHandoffPacketSnapshotDiff?: CliBridgeLifecycleHandoffPacketSnapshotDiffPayload | null,
+ *   cliBridgeLifecycleHandoffPacketDriftCheckpointLedger?: CliBridgeLifecycleHandoffPacketDriftCheckpointLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?: CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload | null,
@@ -3433,12 +3434,29 @@
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
  *   recommendedAction: string,
- *   driftItems: Array<{ field: string, label: string, weight: number, before: string | number | boolean, current: string | number | boolean, delta: number }>,
+ *   driftItems: Array<{ field: string, label: string, weight: number, before: string | number | boolean, current: string | number | boolean, delta: number, checkpointTaskId?: string, checkpointDecision?: string, checkpointStatus?: string, checkpointedAt?: string }>,
  *   liveSummary: Record<string, unknown> | null,
  *   snapshotSummary: Record<string, unknown> | null,
  *   secretPolicy: string,
  *   markdown: string
  * }} CliBridgeLifecycleHandoffPacketSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number,
+ *     openEscalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} CliBridgeLifecycleHandoffPacketDriftCheckpointLedgerPayload
  * @typedef {{
  *   generatedAt: string,
  *   status: "all" | "open" | "closed",

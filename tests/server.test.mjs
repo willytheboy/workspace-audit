@@ -2669,6 +2669,46 @@ export async function serverTest() {
     const createCliBridgeLifecycleRemediationFixtureTaskJson = await createCliBridgeLifecycleRemediationFixtureTaskResponse.json();
     assert.equal(createCliBridgeLifecycleRemediationFixtureTaskJson.success, true);
 
+    const cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskJson = await cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskJson.hasDrift, true);
+    const cliBridgeLifecycleHandoffPacketDriftField = cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskJson.driftItems[0]?.field;
+    assert.ok(cliBridgeLifecycleHandoffPacketDriftField);
+
+    const cliBridgeLifecycleHandoffPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id,
+        runner: "codex",
+        field: cliBridgeLifecycleHandoffPacketDriftField,
+        decision: "confirmed",
+        note: "Fixture non-secret handoff packet drift checkpoint"
+      })
+    });
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketDriftCheckpointJson = await cliBridgeLifecycleHandoffPacketDriftCheckpointResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointJson.success, true);
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointJson.decision, "confirmed");
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointJson.task.sourceType, "cli-bridge-lifecycle-handoff-packet-snapshot-drift-checkpoint");
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointJson.task.secretPolicy, "non-secret-cli-bridge-lifecycle-handoff-packet-drift-checkpoint-only");
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointJson.task.status, "resolved");
+
+    const cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-drift-checkpoint-ledger?status=all`);
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerJson = await cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.match(cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerJson.markdown, /CLI Bridge Lifecycle Handoff Packet Drift Checkpoint Ledger/);
+
+    const cliBridgeLifecycleHandoffPacketSnapshotDriftAfterCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDriftAfterCheckpointResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketSnapshotDriftAfterCheckpointJson = await cliBridgeLifecycleHandoffPacketSnapshotDriftAfterCheckpointResponse.json();
+    const checkpointedCliBridgeLifecycleHandoffPacketDriftItem = cliBridgeLifecycleHandoffPacketSnapshotDriftAfterCheckpointJson.driftItems.find((item) => item.field === cliBridgeLifecycleHandoffPacketDriftField);
+    assert.equal(checkpointedCliBridgeLifecycleHandoffPacketDriftItem.checkpointDecision, "confirmed");
+    assert.equal(checkpointedCliBridgeLifecycleHandoffPacketDriftItem.checkpointStatus, "resolved");
+
     const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse.status, 200);
     const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson = await cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse.json();

@@ -1603,6 +1603,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  checkpointCliBridgeLifecycleHandoffPacketDrift(payload) {
+    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketDriftCheckpointLedgerPayload>}
+   */
+  fetchCliBridgeLifecycleHandoffPacketDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-handoff-packet-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
    */

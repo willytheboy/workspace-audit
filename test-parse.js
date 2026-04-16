@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const html = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+const template = fs.readFileSync(path.join(__dirname, "template.html"), "utf8");
 const inventoryRaw = fs.readFileSync(path.join(__dirname, "inventory.json"), "utf8");
 const dashboardComponentsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-components.js"), "utf8");
 const dashboardViewsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-views.js"), "utf8");
@@ -253,6 +254,7 @@ try {
   console.log("Governance agent readiness actions:", dashboardComponentsSource.includes("readiness-action-btn") && dashboardComponentsSource.includes('"Seed Starter Pack"') ? "Present" : "Missing");
   console.log("Governance agent execution queue:", dashboardComponentsSource.includes('"Agent Execution Queue"') && dashboardComponentsSource.includes("agent-work-order-run-btn") && dashboardViewsSource.includes("bindAgentWorkOrderRunActions") && dashboardApiSource.includes("/api/agent-work-order-runs") ? "Present" : "Missing");
   console.log("Governance agent execution target baseline capture:", serverSource.includes("createAgentWorkOrderRunProfileTargetBaselineFields") && dashboardComponentsSource.includes("target ${run.profileTargetTaskLedgerBaselineHealth") && dashboardTypesSource.includes("profileTargetTaskLedgerBaselineCapturedAt?: string") && testsSource.includes("profileTargetTaskLedgerBaselineHealth") ? "Present" : "Missing");
+  console.log("Governance agent execution target baseline audit:", serverSource.includes("agentExecutionTargetBaselineReviewRequiredCount") && serverSource.includes("execution-target-baseline-review") && dashboardComponentsSource.includes("Target Baseline Audit") && dashboardViewsSource.includes("target-baseline-review") && html.includes('value="target-baseline-review"') && template.includes('value="target-baseline-review"') && testsSource.includes("targetBaselineReviewRequired") ? "Present" : "Missing");
   console.log("Governance execution event log:", dashboardComponentsSource.includes("Execution timeline") && dashboardViewsSource.includes("Events:") && dashboardTypesSource.includes("PersistedAgentWorkOrderRunEvent") ? "Present" : "Missing");
   console.log("Governance execution metrics:", dashboardComponentsSource.includes('"Agent Execution Metrics"') && dashboardViewsSource.includes("Agent execution health") && dashboardTypesSource.includes("GovernanceAgentExecutionMetrics") ? "Present" : "Missing");
   console.log("Governance execution timeline:", dashboardComponentsSource.includes("Execution timeline") && dashboardViewsSource.includes("Event timeline:") ? "Present" : "Missing");

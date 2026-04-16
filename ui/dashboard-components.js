@@ -107,6 +107,15 @@ function getAgentExecutionMetrics(governance) {
     staleStatuses: governance.agentExecutionPolicy?.staleStatuses || ["queued", "running", "blocked"],
     completionRate: 0,
     failureRate: 0,
+    targetBaselineCaptured: governance.summary.agentExecutionTargetBaselineCapturedCount || 0,
+    targetBaselineMissing: governance.summary.agentExecutionTargetBaselineMissingCount || 0,
+    targetBaselineHealthy: governance.summary.agentExecutionTargetBaselineHealthyCount || 0,
+    targetBaselineStale: governance.summary.agentExecutionTargetBaselineStaleCount || 0,
+    targetBaselineDrifted: governance.summary.agentExecutionTargetBaselineDriftedCount || 0,
+    targetBaselineDriftReviewRequired: governance.summary.agentExecutionTargetBaselineDriftReviewRequiredCount || 0,
+    targetBaselineReviewRequired: governance.summary.agentExecutionTargetBaselineReviewRequiredCount || 0,
+    targetBaselineUncheckpointedDriftRuns: governance.summary.agentExecutionTargetBaselineUncheckpointedDriftRunCount || 0,
+    targetBaselineUncheckpointedDriftItems: governance.summary.agentExecutionTargetBaselineUncheckpointedDriftItemCount || 0,
     latestEventAt: "",
     latestEventNote: "",
     latestEventStatus: "",
@@ -14242,6 +14251,11 @@ export function createGovernanceDeck(governance) {
           detail: `${executionMetrics.completed} completed out of ${executionMetrics.total} total Agent Work Order runs`
         },
         {
+          label: "Target Baseline Audit",
+          value: `${executionMetrics.targetBaselineReviewRequired || 0} review / ${executionMetrics.targetBaselineHealthy || 0} healthy`,
+          detail: `${executionMetrics.targetBaselineCaptured || 0} captured, ${executionMetrics.targetBaselineMissing || 0} missing, ${executionMetrics.targetBaselineUncheckpointedDriftItems || 0} uncheckpointed drift item(s)`
+        },
+        {
           label: "Stale Active Runs",
           value: String(executionMetrics.staleActive),
           detail: `Active runs older than ${executionMetrics.staleThresholdHours} hours and likely needing review`
@@ -14473,6 +14487,14 @@ export function createGovernanceDeck(governance) {
           }
         })
       : null,
+    createElement("div", {
+      text: `Target baseline audit: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} | drift ${run.profileTargetTaskLedgerBaselineDriftSeverity || "missing-snapshot"} | ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s) | captured ${run.profileTargetTaskLedgerBaselineCapturedAt ? new Date(run.profileTargetTaskLedgerBaselineCapturedAt).toLocaleString() : "not captured"}`,
+      style: {
+        color: run.profileTargetTaskLedgerBaselineHealth === "healthy" && run.profileTargetTaskLedgerBaselineFreshness === "fresh" ? "var(--success)" : "var(--warning)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
     run.validationCommands.length
       ? createElement("div", {
           style: {
@@ -14946,6 +14968,9 @@ export function createGovernanceDeck(governance) {
   }
   if ((executionMetrics.staleActive || 0) > 0) {
     cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.staleActive} stale active Agent Execution run(s) should be cleared before unattended CLI work.` });
+  }
+  if ((executionMetrics.targetBaselineReviewRequired || 0) > 0) {
+    cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.targetBaselineReviewRequired} Agent Execution run(s) were queued against a missing, stale, or drifted profile target task baseline.` });
   }
   const cliRunnerGateDecision = cliRunnerGateReasons.some((reason) => reason.severity === "hold")
     ? "hold"

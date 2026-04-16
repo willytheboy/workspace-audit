@@ -1294,11 +1294,16 @@ export async function serverTest() {
     assert.equal(governanceAfterWorkOrderRunJson.summary.activeAgentWorkOrderRunCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.summary.blockedAgentWorkOrderRunCount, 0);
     assert.equal(governanceAfterWorkOrderRunJson.summary.staleAgentWorkOrderRunCount, 0);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineMissingCount, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineReviewRequiredCount, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineUncheckpointedDriftItemCount, 0);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.total, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.active, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.statusCounts.queued, 1);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.statusCounts.running, 1);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.statusCounts.blocked, 0);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.targetBaselineMissing, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.targetBaselineReviewRequired, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.latestEventStatus, "running");
     assert.equal(governanceAfterWorkOrderRunJson.agentWorkOrderRuns.length, 2);
     const governanceOperationTypes = governanceAfterWorkOrderRunJson.operationLog.map((operation) => operation.type);
@@ -1852,6 +1857,8 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.slaLedger.total, 1);
     assert.equal(agentControlPlaneJson.slaLedgerSnapshots.length, 1);
     assert.equal(agentControlPlaneJson.agentExecutionMetrics.slaResolved, 1);
+    assert.ok(agentControlPlaneJson.agentExecutionMetrics.targetBaselineReviewRequired > 0);
+    assert.match(agentControlPlaneJson.markdown, /Target baseline audit:/);
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.decision, "ready");
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.total, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.review, 0);

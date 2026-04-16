@@ -483,6 +483,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (executionStatus === "completed") return ["passed", "failed", "cancelled"].includes(run.status);
       if (executionStatus === "sla-breached") return Boolean(run.slaBreachedAt && !run.slaResolvedAt);
       if (executionStatus === "sla-resolved") return Boolean(run.slaResolvedAt);
+      if (executionStatus === "target-baseline-review") return (run.profileTargetTaskLedgerBaselineHealth || "missing") !== "healthy" || (run.profileTargetTaskLedgerBaselineFreshness || "missing") !== "fresh" || (run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0;
+      if (executionStatus === "target-baseline-missing") return (run.profileTargetTaskLedgerBaselineHealth || "missing") === "missing";
+      if (executionStatus === "target-baseline-stale") return (run.profileTargetTaskLedgerBaselineHealth || "missing") === "stale" || (run.profileTargetTaskLedgerBaselineFreshness || "missing") === "stale";
+      if (executionStatus === "target-baseline-drift") return ["drifted", "drift-review-required"].includes(run.profileTargetTaskLedgerBaselineHealth || "missing") || (run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0;
       return run.status === executionStatus;
     }
 
@@ -1286,7 +1290,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         : null,
       agentWorkOrderRuns: filterAndSort(
         governance.agentWorkOrderRuns,
-        (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.history.map((event) => event.note).join(" ")],
+        (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.profileTargetTaskLedgerBaselineHealth || "", run.profileTargetTaskLedgerBaselineFreshness || "", run.profileTargetTaskLedgerBaselineDriftSeverity || "", String(run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0), run.history.map((event) => event.note).join(" ")],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ).filter(matchesExecutionArchive).filter(matchesExecutionStatus),
       agentExecutionSlaLedger: filterAndSort(
@@ -8013,6 +8017,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     lines.push("", "## Agent Execution Metrics");
     lines.push(`- Status split: ${executionStatusCounts.queued ?? 0} queued | ${executionStatusCounts.running ?? 0} running | ${executionStatusCounts.blocked ?? 0} blocked | ${executionStatusCounts.passed ?? 0} passed | ${executionStatusCounts.failed ?? 0} failed | ${executionStatusCounts.cancelled ?? 0} cancelled`);
     lines.push(`- Active health: ${executionMetrics?.active ?? 0} active | ${executionMetrics?.staleActive ?? 0} stale active after ${staleThresholdHours}h | ${executionMetrics?.slaBreached ?? 0} SLA breached | ${executionMetrics?.slaResolved ?? 0} SLA resolved | ${executionMetrics?.slaAverageResolutionHours ?? 0}h avg SLA resolution | ${executionMetrics?.completionRate ?? 0}% complete | ${executionMetrics?.failureRate ?? 0}% failure rate | ${executionMetrics?.archived ?? 0} archived`);
+    lines.push(`- Target baseline audit: ${executionMetrics?.targetBaselineReviewRequired ?? 0} review | ${executionMetrics?.targetBaselineHealthy ?? 0} healthy | ${executionMetrics?.targetBaselineMissing ?? 0} missing | ${executionMetrics?.targetBaselineCaptured ?? 0} captured | ${executionMetrics?.targetBaselineUncheckpointedDriftItems ?? 0} uncheckpointed drift item(s)`);
     lines.push(`- SLA policy: stale after ${staleThresholdHours} hour(s) for ${governanceExecutionPolicy.staleStatuses.join(", ")}`);
     lines.push(`- Retention policy: keep ${executionRetention} completed run(s) before archiving older visible completed runs`);
     if (executionMetrics?.latestEventAt) {
@@ -8029,6 +8034,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         lines.push(`  Archived: ${run.archivedAt ? `yes (${new Date(run.archivedAt).toLocaleString()})` : "no"}`);
         lines.push(`  SLA breached: ${run.slaBreachedAt ? `${run.slaResolvedAt ? "resolved" : "open"} (${new Date(run.slaBreachedAt).toLocaleString()}, ${run.slaAction || "actioned"}, count ${run.slaEscalationCount || 1}${run.slaResolvedAt ? `, resolved ${new Date(run.slaResolvedAt).toLocaleString()}` : ""})` : "no"}`);
         lines.push(`  Stale active: ${isStaleAgentWorkOrderRun(run, staleThresholdHours, governanceExecutionPolicy.staleStatuses) ? "yes" : "no"}`);
+        lines.push(`  Target baseline: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} / ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s)`);
         lines.push(`  Objective: ${run.objective}`);
         lines.push(`  Validation: ${run.validationCommands.length ? run.validationCommands.join(" | ") : "none recorded"}`);
         lines.push(`  Blockers: ${run.blockers.length ? run.blockers.join(", ") : "none"}`);

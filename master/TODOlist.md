@@ -2323,3 +2323,10 @@
 - [x] Apply the same capture to snapshot batches, CLI bridge follow-up runs, convergence runs, and launch-stack remediation runs.
 - [x] Surface captured target baseline health in the Agent Execution Queue and parser checks.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit
+
+- [x] Add execution metrics and summary counts for run-level profile target baseline capture, health, drift, and review state.
+- [x] Add Governance execution filters, queue card details, and report evidence for target baseline review cases.
+- [x] Feed run-level target baseline review state into Agent Control Plane and CLI runner readiness gates.
+- [x] Validate, relaunch, commit, and push.

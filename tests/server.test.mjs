@@ -1262,6 +1262,7 @@ export async function serverTest() {
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-target-baseline-audit-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Execution audit snapshot baseline runs:/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Target baseline audit gate: review/);
     assert.match(codexCliBridgeDryRunJson.markdown, /# CLI Bridge Runner Dry Run/);
     assert.match(codexCliBridgeDryRunJson.markdown, /## Target Baseline Audit Gate/);
@@ -2119,11 +2120,14 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.ok(cliBridgeContextJson.controlPlaneDecision.targetBaselineAuditLedgerBaselineHealth);
+    assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
+    assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineHealthyCount, "number");
     assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
     assert.match(cliBridgeContextJson.secretPolicy, /Do not include passwords/);
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
     assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Target baseline audit baseline health:/);
+    assert.match(cliBridgeContextJson.markdown, /Execution audit snapshot baseline runs:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
 

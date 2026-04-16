@@ -2481,3 +2481,11 @@
 - [x] Include captured, missing, healthy, review-required, and uncheckpointed drift item counts in snapshot drift deltas.
 - [x] Add parser and server test coverage for audit-baseline snapshot drift visibility.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Audit Baseline Decision Context
+
+- [x] Add Agent Control Plane audit-baseline execution counts to CLI Bridge context payloads.
+- [x] Surface audit-baseline execution counts in CLI Bridge context Markdown.
+- [x] Include audit-baseline execution counts in bounded Codex and Claude runner dry-run prompts.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

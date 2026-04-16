@@ -2607,3 +2607,11 @@
 - [x] Surface the task ledger in Governance with summary cards and copy controls.
 - [x] Add parser, server test, and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots
+
+- [x] Add persisted snapshot records for the CLI bridge lifecycle remediation task ledger.
+- [x] Expose GET/POST snapshot APIs with non-secret ledger payload capture.
+- [x] Surface save and copy controls in Governance with snapshot cards.
+- [x] Include snapshots in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

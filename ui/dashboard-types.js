@@ -2801,6 +2801,7 @@
  *   cliBridgeLifecycleStackStatus?: CliBridgeLifecycleStackStatusPayload | null,
  *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
+ *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3377,6 +3378,26 @@
  *   items: Array<{ id: string, title: string, status: string, priority: string, projectId: string, projectName: string, stageId: string, description: string, createdAt: string, updatedAt: string }>,
  *   markdown: string
  * }} CliBridgeLifecycleStackRemediationTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   highCount: number,
+ *   mediumCount: number,
+ *   lowCount: number,
+ *   latestTaskId: string,
+ *   latestTitle: string,
+ *   latestUpdatedAt: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: CliBridgeLifecycleStackRemediationTaskLedgerPayload["items"],
+ *   createdAt: string
+ * }} PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

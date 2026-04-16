@@ -239,6 +239,8 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleStackStatus: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackStatusPayload>,
  *     fetchCliBridgeLifecycleStackRemediationPack: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationPackPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedger: (options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>,
+ *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>,
+ *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
  *     fetchCliBridgeRunTraceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>,
  *     fetchCliBridgeRunTraceSnapshotBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotBaselineStatusPayload>,
  *     createCliBridgeRunTraceSnapshot: (runId: string, payload?: { title?: string }) => Promise<unknown>,
@@ -1434,6 +1436,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.cliBridgeLifecycleStackRemediationTaskLedger
         : null,
+      cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: filterAndSort(
+        governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || [],
+        (snapshot) => [
+          "cli bridge lifecycle stack remediation task ledger snapshots",
+          snapshot.title || "",
+          snapshot.statusFilter || "",
+          snapshot.latestTitle || "",
+          snapshot.secretPolicy || "",
+          ...(snapshot.items || []).map((item) => `${item.title || ""} ${item.status || ""} ${item.priority || ""} ${item.stageId || ""} ${item.projectName || ""}`)
+        ],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       agentWorkOrderRuns: filterAndSort(
         governance.agentWorkOrderRuns,
         (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.profileTargetTaskLedgerBaselineHealth || "", run.profileTargetTaskLedgerBaselineFreshness || "", run.profileTargetTaskLedgerBaselineDriftSeverity || "", String(run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0), run.targetBaselineAuditLedgerBaselineHealth || "", run.targetBaselineAuditLedgerBaselineFreshness || "", run.targetBaselineAuditLedgerBaselineDriftSeverity || "", String(run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0), run.history.map((event) => event.note).join(" ")],
@@ -1557,6 +1571,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.cliBridgeLifecycleStackStatus = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationPack = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedger = null;
+      if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots = [];
       if (scope !== "sla-ledger") filtered.agentExecutionSlaLedger = [];
       if (scope !== "sla-ledger") filtered.agentExecutionSlaLedgerSnapshots = [];
       if (scope !== "decisions") filtered.decisions = [];
@@ -7774,6 +7789,56 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot({
+            title: "CLI Bridge Lifecycle Stack Remediation Task Ledger",
+            status: "all",
+            limit: 100
+          });
+          await renderGovernance();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-copy-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCopyId || "";
+        const originalLabel = element.textContent || "";
+        try {
+          const snapshot = governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.find((item) => item.id === snapshotId);
+          if (!snapshot) throw new Error("CLI bridge lifecycle remediation task ledger snapshot not found.");
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyText(snapshot.markdown || "");
+          element.textContent = "Copied Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-run-trace-lifecycle-ledger-task]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8269,6 +8334,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible CLI bridge lifecycle stack status: ${governance.cliBridgeLifecycleStackStatus?.decision || "not-loaded"}`,
       `Visible CLI bridge lifecycle remediation items: ${(governance.cliBridgeLifecycleStackRemediationPack?.workItems || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length}`,
+      `Visible CLI bridge lifecycle remediation task ledger snapshots: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length}`,
       `Visible agent execution runs: ${governance.agentWorkOrderRuns.length}`,
       `Visible activity items: ${governance.recentActivity.length}`,
       `Visible registry entries: ${governance.profiles.length}`,
@@ -8383,6 +8449,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- CLI bridge lifecycle stack: ${governanceCache?.cliBridgeLifecycleStackStatus?.decision || "not-loaded"} (${governanceCache?.cliBridgeLifecycleStackStatus?.readyCount ?? 0} ready / ${governanceCache?.cliBridgeLifecycleStackStatus?.reviewCount ?? 0} review / ${governanceCache?.cliBridgeLifecycleStackStatus?.holdCount ?? 0} hold)`,
       `- CLI bridge lifecycle remediation pack: ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.workItemCount ?? 0} work item(s), ready to run ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.readyToRun ? "yes" : "no"}`,
       `- CLI bridge lifecycle remediation task ledger: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.open ?? 0} open / ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.total ?? 0} total`,
+      `- CLI bridge lifecycle remediation task ledger snapshots: ${governanceCache?.summary?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCount ?? governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.length ?? 0}`,
       `- Agent execution runs: ${governanceCache?.summary.activeAgentWorkOrderRunCount ?? 0}/${governanceCache?.summary.agentWorkOrderRunCount ?? 0}`,
       `- Agent execution SLA ledger records: ${governanceCache?.summary.agentExecutionSlaLedgerCount ?? 0}`,
       `- Agent execution health: ${executionMetrics?.completionRate ?? 0}% complete | ${executionMetrics?.staleActive ?? 0} stale active after ${staleThresholdHours}h | ${executionMetrics?.slaBreached ?? 0} SLA breached | ${executionMetrics?.slaResolved ?? 0} SLA resolved | ${executionMetrics?.slaAverageResolutionHours ?? 0}h avg SLA resolution | ${executionMetrics?.failureRate ?? 0}% failure rate | ${executionMetrics?.archived ?? 0} archived`,
@@ -9022,6 +9089,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible CLI bridge lifecycle remediation task ledger.");
+    }
+
+    lines.push("", "## CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots");
+    if (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.length) {
+      for (const snapshot of governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots.slice(0, 8)) {
+        lines.push(`- ${snapshot.title || snapshot.id}: ${snapshot.openCount || 0} open / ${snapshot.total || 0} total`);
+        lines.push(`  Captured: ${snapshot.createdAt || "unknown"} | Filter: ${snapshot.statusFilter || "all"} | Latest: ${snapshot.latestTitle || snapshot.latestTaskId || "none"}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge lifecycle remediation task ledger snapshots.");
     }
 
     lines.push("", "## CLI Bridge Run Trace Snapshot Drift Details");
@@ -11371,6 +11448,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (cliBridgeLifecycleStackRemediationPack?.workItems || []).length
         + (cliBridgeLifecycleStackRemediationTaskLedger ? 1 : 0)
         + (cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length
+        + (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length
         + (governance.agentExecutionSlaLedger || []).length
         + governance.agentWorkOrderRuns.length
         + governance.unprofiledProjects.length

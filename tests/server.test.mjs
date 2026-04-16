@@ -2530,6 +2530,41 @@ export async function serverTest() {
     assert.ok(Array.isArray(cliBridgeLifecycleStackRemediationTaskLedgerJson.items));
     assert.match(cliBridgeLifecycleStackRemediationTaskLedgerJson.markdown, /lifecycle stack remediation task ledger/i);
 
+    const initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots`);
+    assert.equal(initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse.status, 200);
+    const initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson = await initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse.json();
+    assert.equal(initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson.length, 0);
+
+    const createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture CLI Bridge Lifecycle Remediation Task Ledger",
+        status: "all",
+        limit: 100
+      })
+    });
+    assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 200);
+    const createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson = await createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.json();
+    assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.success, true);
+    assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.title, "Fixture CLI Bridge Lifecycle Remediation Task Ledger");
+    assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.statusFilter, "all");
+    assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.total, 0);
+    assert.match(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.markdown, /lifecycle stack remediation task ledger/i);
+
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson = await cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson.length, 1);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson[0].title, "Fixture CLI Bridge Lifecycle Remediation Task Ledger");
+
+    const governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 200);
+    const governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson = await governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.json();
+    assert.equal(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.summary.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots[0].title, "Fixture CLI Bridge Lifecycle Remediation Task Ledger");
+    assert.ok(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.operationLog.some((operation) => operation.type === "cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-created"));
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

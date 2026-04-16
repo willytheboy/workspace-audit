@@ -10585,11 +10585,96 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeLifecycleStackRemediationTaskLedgerCopy: "true"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-btn",
+              text: "Save Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshot: "true"
+              }
             })
           ])
         ])
       ]
     : [];
+
+  const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries = (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).slice(0, 8).map((snapshot) => createElement("div", {
+    className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "CLI bridge lifecycle remediation task ledger snapshot",
+          style: {
+            color: "var(--text)",
+            fontWeight: "850"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.statusFilter || "all"} | ${snapshot.createdAt ? new Date(snapshot.createdAt).toLocaleString() : "saved"} | ${snapshot.latestTitle || snapshot.latestTaskId || "no latest task"}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.28rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(`${snapshot.openCount || 0} open`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.openCount ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(`total ${snapshot.total || 0}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(`visible ${snapshot.visibleCount || 0}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.visibleCount || 0) ? "var(--primary)" : "var(--text-muted)"
+      }),
+      createTag(`high ${snapshot.highCount || 0}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.highCount ? "var(--danger)" : "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      text: snapshot.secretPolicy || "Non-secret CLI bridge lifecycle remediation task metadata only.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.82rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("button", {
+      className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-copy-btn",
+      text: "Copy Snapshot",
+      attrs: { type: "button" },
+      dataset: {
+        cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCopyId: snapshot.id
+      }
+    })
+  ]));
 
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
@@ -17015,6 +17100,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Status", "Single ready/review/hold rollup for dry-run and run-trace lifecycle evidence.", cliBridgeLifecycleStackStatusEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Pack", "Copyable operator handoff for non-ready dry-run and run-trace lifecycle stages.", cliBridgeLifecycleStackRemediationPackEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
+    createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

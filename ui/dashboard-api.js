@@ -1572,6 +1572,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>}
+   */
+  fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots() {
+    return fetchJson("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>}
+   */
+  createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

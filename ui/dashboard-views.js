@@ -5220,6 +5220,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.targetBaselineAuditLedgerSnapshotRefreshId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          element.textContent = await refreshAgentExecutionTargetBaselineAuditLedgerSnapshot(snapshotId);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -12783,6 +12806,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Target Baseline Audit Snapshot";
   }
 
+  async function refreshAgentExecutionTargetBaselineAuditLedgerSnapshot(snapshotId = "latest") {
+    const snapshot = snapshotId === "latest"
+      ? (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0]
+      : (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || []).find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available to refresh.");
+    await api.refreshAgentExecutionTargetBaselineAuditLedgerSnapshot({
+      snapshotId: snapshot.id,
+      title: `Refreshed ${snapshot.title || "Target Baseline Audit Ledger"}`,
+      state: snapshot.stateFilter || "review",
+      limit: snapshot.limit || 100
+    });
+    await renderGovernance();
+    return "Refreshed Snapshot";
+  }
+
   async function copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift() {
     const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0];
     if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available.");
@@ -13573,6 +13611,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveAgentControlPlaneBaselineSnapshot,
     saveSlaLedgerSnapshot,
     saveAgentExecutionTargetBaselineAuditLedgerSnapshot,
+    refreshAgentExecutionTargetBaselineAuditLedgerSnapshot,
     saveAgentExecutionPolicy,
     saveGovernanceExecutionView,
     startVisibleQueuedAgentWorkOrderRuns,

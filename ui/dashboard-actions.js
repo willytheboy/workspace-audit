@@ -112,6 +112,7 @@
  *     saveAgentWorkOrderSnapshot: () => Promise<void>,
  *     saveSlaLedgerSnapshot: () => Promise<void>,
  *     saveAgentExecutionTargetBaselineAuditLedgerSnapshot: () => Promise<void>,
+ *     refreshAgentExecutionTargetBaselineAuditLedgerSnapshot: () => Promise<void>,
  *     seedGovernanceProfiles: () => Promise<void>,
  *     seedGovernanceStarterPacks: () => Promise<void>,
  *     refreshGovernanceProfileTargets: () => Promise<void>,
@@ -914,6 +915,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "save"],
         run: () => handlers.saveAgentExecutionTargetBaselineAuditLedgerSnapshot()
+      },
+      {
+        id: "refresh-agent-execution-target-baseline-audit-ledger-snapshot",
+        label: "Refresh target baseline audit snapshot",
+        description: "Save a refreshed Agent Execution target-baseline audit ledger snapshot from the latest saved snapshot settings.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "refresh"],
+        run: () => handlers.refreshAgentExecutionTargetBaselineAuditLedgerSnapshot()
       },
       {
         id: "save-data-sources-access-task-ledger-snapshot",

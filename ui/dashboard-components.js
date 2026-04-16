@@ -10180,6 +10180,14 @@ export function createGovernanceDeck(governance) {
         dataset: {
           targetBaselineAuditLedgerSnapshotDriftTaskId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-refresh-btn",
+        text: "Refresh Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotRefreshId: snapshot.id
+        }
       })
     ])
   ]));

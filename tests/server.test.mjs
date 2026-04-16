@@ -1386,6 +1386,28 @@ export async function serverTest() {
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 1);
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerSnapshots.length, 1);
 
+    const refreshTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createTargetBaselineAuditLedgerSnapshotJson.snapshot.id,
+        title: "Fixture Refreshed Target Baseline Audit Ledger"
+      })
+    });
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotResponse.status, 200);
+    const refreshTargetBaselineAuditLedgerSnapshotJson = await refreshTargetBaselineAuditLedgerSnapshotResponse.json();
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotJson.success, true);
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotJson.previousSnapshotId, createTargetBaselineAuditLedgerSnapshotJson.snapshot.id);
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotJson.snapshot.title, "Fixture Refreshed Target Baseline Audit Ledger");
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotJson.snapshot.stateFilter, "review");
+    assert.equal(refreshTargetBaselineAuditLedgerSnapshotJson.snapshot.total, 2);
+
+    const governanceAfterTargetBaselineAuditSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshResponse.status, 200);
+    const governanceAfterTargetBaselineAuditSnapshotRefreshJson = await governanceAfterTargetBaselineAuditSnapshotRefreshResponse.json();
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 2);
+    assert.ok(governanceAfterTargetBaselineAuditSnapshotRefreshJson.operationLog.some((operation) => operation.type === "agent-execution-target-baseline-audit-ledger-snapshot-refreshed"));
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

@@ -2372,3 +2372,10 @@
 - [x] Add command-palette support for tracking latest target baseline audit drift.
 - [x] Preserve no-secret drift summaries in created task descriptions.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Ledger Snapshot Refresh
+
+- [x] Add a server refresh API that saves a fresh target-baseline audit ledger from an existing snapshot's filter and limit.
+- [x] Record Governance operation evidence for every refreshed target-baseline audit snapshot.
+- [x] Surface per-snapshot and command-palette refresh controls.
+- [x] Validate, relaunch, commit, and push.

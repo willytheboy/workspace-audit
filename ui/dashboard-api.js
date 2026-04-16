@@ -1850,6 +1850,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot, agentExecutionTargetBaselineAuditLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[] }>}
+   */
+  refreshAgentExecutionTargetBaselineAuditLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} snapshotId
    * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerSnapshotDriftPayload>}
    */

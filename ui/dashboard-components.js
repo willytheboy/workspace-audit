@@ -9261,6 +9261,124 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const cliBridgeRunnerDryRunSnapshotBaselineStatus = governance.cliBridgeRunnerDryRunSnapshotBaselineStatus;
+  const cliBridgeRunnerDryRunSnapshotBaselineStatusEntries = cliBridgeRunnerDryRunSnapshotBaselineStatus
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-runner-dry-run-baseline-status-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: cliBridgeRunnerDryRunSnapshotBaselineStatus.hasBaseline
+                  ? (cliBridgeRunnerDryRunSnapshotBaselineStatus.title || "CLI Bridge Runner Dry-Run Baseline")
+                  : "No CLI bridge runner dry-run baseline selected",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeRunnerDryRunSnapshotBaselineStatus.hasBaseline && cliBridgeRunnerDryRunSnapshotBaselineStatus.createdAt
+                  ? `${new Date(cliBridgeRunnerDryRunSnapshotBaselineStatus.createdAt).toLocaleString()} | ${cliBridgeRunnerDryRunSnapshotBaselineStatus.runner || "codex"} | ${cliBridgeRunnerDryRunSnapshotBaselineStatus.selectedWorkOrderProjectName || cliBridgeRunnerDryRunSnapshotBaselineStatus.selectedWorkOrderId || "fallback"}`
+                  : `${cliBridgeRunnerDryRunSnapshotBaselineStatus.snapshotCount || 0} saved dry-run snapshot(s) available`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeRunnerDryRunSnapshotBaselineStatus.health || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunnerDryRunSnapshotBaselineStatus.health === "healthy"
+                ? "var(--success)"
+                : cliBridgeRunnerDryRunSnapshotBaselineStatus.health === "drifted" || cliBridgeRunnerDryRunSnapshotBaselineStatus.health === "missing"
+                  ? "var(--danger)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(cliBridgeRunnerDryRunSnapshotBaselineStatus.hasBaseline ? "BASELINE SET" : "BASELINE MISSING", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunnerDryRunSnapshotBaselineStatus.hasBaseline ? "var(--success)" : "var(--warning)"
+            }),
+            createTag((cliBridgeRunnerDryRunSnapshotBaselineStatus.freshness || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunnerDryRunSnapshotBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+            }),
+            createTag(`drift ${cliBridgeRunnerDryRunSnapshotBaselineStatus.driftScore || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunnerDryRunSnapshotBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+            }),
+            createTag((cliBridgeRunnerDryRunSnapshotBaselineStatus.driftSeverity || "missing-baseline").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeRunnerDryRunSnapshotBaselineStatus.driftSeverity === "none" ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: cliBridgeRunnerDryRunSnapshotBaselineStatus.hasBaseline
+              ? `Freshness: ${cliBridgeRunnerDryRunSnapshotBaselineStatus.ageHours || 0}h old | stale after ${cliBridgeRunnerDryRunSnapshotBaselineStatus.freshnessThresholdHours || 24}h`
+              : `Freshness: missing | stale threshold ${cliBridgeRunnerDryRunSnapshotBaselineStatus.freshnessThresholdHours || 24}h`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Baseline health: ${cliBridgeRunnerDryRunSnapshotBaselineStatus.health || "missing"} | ${cliBridgeRunnerDryRunSnapshotBaselineStatus.recommendedAction || "Save a CLI bridge runner dry-run snapshot before relying on runner baseline drift."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Drift action: ${cliBridgeRunnerDryRunSnapshotBaselineStatus.driftRecommendedAction || "Save a CLI bridge runner dry-run snapshot before comparing drift."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-baseline-status-copy-btn",
+              text: "Copy Baseline Status",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunBaselineStatusCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeRunnerDryRunSnapshotDiffActionId = governance.cliBridgeRunnerDryRunSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunnerDryRunSnapshotDiffEntries = governance.cliBridgeRunnerDryRunSnapshotDiff
     ? [
@@ -16080,6 +16198,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
     createListSection("CLI Bridge Runner Dry Run Snapshots", "Persisted non-secret Codex and Claude dry-run contracts before supervised CLI execution.", cliBridgeRunnerDryRunSnapshotEntries),
+    createListSection("CLI Bridge Runner Dry Run Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge runner dry-run baseline.", cliBridgeRunnerDryRunSnapshotBaselineStatusEntries),
     createListSection("CLI Bridge Runner Dry Run Snapshot Drift", "Latest saved Codex or Claude dry-run contract compared with the current live dry-run gate.", cliBridgeRunnerDryRunSnapshotDiffEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),

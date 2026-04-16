@@ -2528,3 +2528,11 @@
 - [x] Convert checkpoint decisions into non-secret Governance tasks scoped to the selected work order when available.
 - [x] Refresh the dry-run snapshot baseline when drift is accepted.
 - [x] Add parser and milestone coverage, validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Baseline Status
+
+- [x] Add a baseline-status endpoint for the latest saved Codex or Claude dry-run snapshot.
+- [x] Report baseline freshness, health, drift score, drift severity, and recommended action.
+- [x] Surface the baseline-status card and copy control in Governance.
+- [x] Include baseline status in Governance filtering, summary, and report exports.
+- [x] Add type, parser, server test, and milestone coverage; validate, relaunch, commit, and push.

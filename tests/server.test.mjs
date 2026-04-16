@@ -1327,6 +1327,19 @@ export async function serverTest() {
     assert.match(cliBridgeDryRunSnapshotDiffJson.recommendedAction, /dry-run drift|No live CLI Bridge runner dry-run drift/);
     assert.match(cliBridgeDryRunSnapshotDiffJson.markdown, /CLI Bridge Runner Dry-Run Snapshot Drift/);
 
+    const cliBridgeDryRunSnapshotBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/baseline-status`);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusResponse.status, 200);
+    const cliBridgeDryRunSnapshotBaselineStatusJson = await cliBridgeDryRunSnapshotBaselineStatusResponse.json();
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.hasBaseline, true);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.baselineSnapshotId, createCliBridgeDryRunSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.snapshotId, createCliBridgeDryRunSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.runner, "codex");
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.freshness, "fresh");
+    assert.ok(["healthy", "changed", "drifted", "stale"].includes(cliBridgeDryRunSnapshotBaselineStatusJson.health));
+    assert.ok(Number.isFinite(cliBridgeDryRunSnapshotBaselineStatusJson.driftScore));
+    assert.match(cliBridgeDryRunSnapshotBaselineStatusJson.markdown, /# CLI Bridge Runner Dry-Run Baseline Status/);
+
     const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
     assert.equal(claudeCliBridgeDryRunResponse.status, 200);
     const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();

@@ -1476,6 +1476,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotBaselineStatusPayload>}
+   */
+  fetchCliBridgeRunnerDryRunSnapshotBaselineStatus() {
+    return fetchJson("/api/cli-bridge/runner-dry-run-snapshots/baseline-status");
+  },
+
+  /**
    * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot, cliBridgeRunnerDryRunSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[], governanceOperationCount: number }>}
    */

@@ -1540,6 +1540,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotLifecycleLedgerPayload>}
+   */
+  fetchCliBridgeRunTraceSnapshotLifecycleLedger(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/run-trace-snapshots/lifecycle-ledger", options));
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

@@ -2797,6 +2797,7 @@
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
+ *   cliBridgeRunTraceSnapshotLifecycleLedger?: CliBridgeRunTraceSnapshotLifecycleLedgerPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3276,6 +3277,51 @@
  *   secretPolicy: string,
  *   markdown: string
  * }} CliBridgeRunTraceSnapshotBaselineStatusPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   limit: number,
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     available: number,
+ *     ready: number,
+ *     review: number,
+ *     hold: number,
+ *     acceptedDrift: number,
+ *     latestSnapshotId: string,
+ *     latestTitle: string,
+ *     latestRunId: string,
+ *     latestProjectId: string,
+ *     latestProjectName: string,
+ *     latestCreatedAt: string
+ *   },
+ *   secretPolicy: string,
+ *   items: Array<{
+ *     snapshotId: string,
+ *     title: string,
+ *     lifecycleAction: string,
+ *     createdAt: string,
+ *     runId: string,
+ *     projectId: string,
+ *     projectName: string,
+ *     traceDecision: string,
+ *     profileTargetTaskLedgerBaselineHealth: string,
+ *     profileTargetTaskLedgerBaselineFreshness: string,
+ *     profileTargetTaskLedgerBaselineDriftSeverity: string,
+ *     profileTargetTaskLedgerBaselineUncheckpointedDriftCount: number,
+ *     targetBaselineAuditLedgerBaselineHealth: string,
+ *     targetBaselineAuditLedgerBaselineFreshness: string,
+ *     targetBaselineAuditLedgerBaselineDriftSeverity: string,
+ *     targetBaselineAuditLedgerBaselineUncheckpointedDriftCount: number,
+ *     relatedHandoffCount: number,
+ *     latestCliBridgeResultHandoffId: string,
+ *     latestCliBridgeReviewHandoffId: string,
+ *     operationId: string,
+ *     operationSummary: string,
+ *     operationCreatedAt: string
+ *   }>,
+ *   markdown: string
+ * }} CliBridgeRunTraceSnapshotLifecycleLedgerPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

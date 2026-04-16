@@ -2559,3 +2559,11 @@
 - [x] Generate non-secret Governance task descriptions from lifecycle metadata and decisions.
 - [x] Add parser and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Lifecycle Ledger
+
+- [x] Add a derived lifecycle ledger API for saved CLI bridge run trace snapshots.
+- [x] Join saved trace snapshots with governance operation metadata where available.
+- [x] Surface a copyable run-trace lifecycle ledger in Governance.
+- [x] Include trace lifecycle data in Governance filtering, summaries, and reports.
+- [x] Add parser, server test, and milestone coverage; validate, relaunch, commit, and push.

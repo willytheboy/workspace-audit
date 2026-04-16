@@ -2497,6 +2497,17 @@ export async function serverTest() {
     assert.equal(cliBridgeRunTraceSnapshotBaselineStatusJson.driftSeverity, "none");
     assert.match(cliBridgeRunTraceSnapshotBaselineStatusJson.markdown, /# CLI Bridge Run Trace Baseline Status/);
 
+    const cliBridgeRunTraceSnapshotLifecycleLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/run-trace-snapshots/lifecycle-ledger`);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerResponse.status, 200);
+    const cliBridgeRunTraceSnapshotLifecycleLedgerJson = await cliBridgeRunTraceSnapshotLifecycleLedgerResponse.json();
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.summary.total, 1);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.summary.visible, 1);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.summary.ready, 1);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.items[0].snapshotId, cliBridgeRunTraceSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.items[0].runId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeRunTraceSnapshotLifecycleLedgerJson.items[0].traceDecision, "ready");
+    assert.match(cliBridgeRunTraceSnapshotLifecycleLedgerJson.markdown, /run trace lifecycle ledger/i);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

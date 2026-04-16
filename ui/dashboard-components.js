@@ -9999,6 +9999,151 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeRunTraceSnapshotLifecycleLedger = governance.cliBridgeRunTraceSnapshotLifecycleLedger;
+  const cliBridgeRunTraceSnapshotLifecycleLedgerItems = cliBridgeRunTraceSnapshotLifecycleLedger?.items || [];
+  const cliBridgeRunTraceSnapshotLifecycleLedgerEntries = cliBridgeRunTraceSnapshotLifecycleLedger
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-run-trace-lifecycle-ledger-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: "Run trace lifecycle ledger",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeRunTraceSnapshotLifecycleLedgerItems.length
+                  ? `Latest: ${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.latestTitle || cliBridgeRunTraceSnapshotLifecycleLedger.summary?.latestSnapshotId || "saved trace"}`
+                  : "No saved CLI bridge run trace lifecycle records matched this view.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag(`${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.visible || 0} visible`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeRunTraceSnapshotLifecycleLedger.summary?.visible || 0) ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(`total ${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.total || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--text-muted)"
+            }),
+            createTag(`ready ${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.ready || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--success)"
+            }),
+            createTag(`review ${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.review || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--warning)"
+            }),
+            createTag(`accepted drift ${cliBridgeRunTraceSnapshotLifecycleLedger.summary?.acceptedDrift || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeRunTraceSnapshotLifecycleLedger.summary?.acceptedDrift || 0) ? "var(--warning)" : "var(--success)"
+            })
+          ]),
+          cliBridgeRunTraceSnapshotLifecycleLedgerItems.length
+            ? createElement("div", {
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem"
+                }
+              }, cliBridgeRunTraceSnapshotLifecycleLedgerItems.slice(0, 6).map((item) => createElement("div", {
+                className: "governance-gap-card",
+                dataset: item.projectId ? { openAppId: encodeAppId(item.projectId) } : undefined,
+                title: item.projectId ? "Open project workbench" : undefined,
+                style: {
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.45rem",
+                  padding: "0.7rem",
+                  background: "var(--bg)"
+                }
+              }, [
+                createElement("div", {
+                  style: {
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: "0.6rem",
+                    alignItems: "flex-start"
+                  }
+                }, [
+                  createElement("div", {
+                    text: item.title || "CLI Bridge Run Trace",
+                    style: {
+                      color: "var(--text)",
+                      fontWeight: "800"
+                    }
+                  }),
+                  createTag(item.lifecycleAction || "snapshot-saved", {
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    color: item.lifecycleAction === "accepted-drift-baseline" ? "var(--warning)" : "var(--success)"
+                  })
+                ]),
+                createElement("div", {
+                  text: `${item.traceDecision || "review"} | ${item.createdAt ? new Date(item.createdAt).toLocaleString() : "saved"} | ${item.projectName || item.projectId || "Portfolio"} | run ${item.runId || "unknown"}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.84rem",
+                    lineHeight: "1.45"
+                  }
+                }),
+                createElement("div", {
+                  text: `Baselines: profile ${item.profileTargetTaskLedgerBaselineHealth || "missing"} | audit ${item.targetBaselineAuditLedgerBaselineHealth || "missing"} | handoffs ${item.relatedHandoffCount || 0}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.82rem",
+                    lineHeight: "1.45"
+                  }
+                })
+              ])))
+            : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-run-trace-lifecycle-ledger-copy-btn",
+              text: "Copy Trace Ledger",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunTraceLifecycleLedgerCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
     ? [
@@ -16419,6 +16564,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Runner Dry Run Snapshot Drift", "Latest saved Codex or Claude dry-run contract compared with the current live dry-run gate.", cliBridgeRunnerDryRunSnapshotDiffEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),
+    createListSection("CLI Bridge Run Trace Lifecycle Ledger", "Copyable audit trail for saved and accepted CLI bridge run trace baselines.", cliBridgeRunTraceSnapshotLifecycleLedgerEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

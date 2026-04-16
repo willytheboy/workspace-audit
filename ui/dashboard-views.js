@@ -10908,6 +10908,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await renderGovernance();
   }
 
+  async function refreshVisibleTargetBaselineAuditAgentWorkOrderRuns() {
+    const runs = (getFilteredGovernance()?.agentWorkOrderRuns || [])
+      .filter((run) => !run.archivedAt)
+      .filter((run) => (
+        (run.targetBaselineAuditLedgerBaselineHealth || "missing") !== "healthy"
+          || (run.targetBaselineAuditLedgerBaselineFreshness || "missing") !== "fresh"
+          || (run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0) > 0
+      ));
+    if (!runs.length) {
+      throw new Error("No visible Agent Execution runs require target baseline audit refresh.");
+    }
+
+    for (const run of runs) {
+      await api.refreshAgentWorkOrderRunTargetBaselineAudit(run.id, {
+        notes: "Refreshed target baseline audit capture from Governance bulk action."
+      });
+    }
+    await renderGovernance();
+  }
+
   async function blockVisibleStaleAgentWorkOrderRuns() {
     const staleThresholdHours = getGovernanceFilterState().staleThresholdHours || governanceExecutionPolicy.staleThresholdHours;
     const staleRuns = (getFilteredGovernance()?.agentWorkOrderRuns || [])
@@ -13695,6 +13715,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   return {
     blockVisibleStaleAgentWorkOrderRuns,
     refreshVisibleTargetBaselineAgentWorkOrderRuns,
+    refreshVisibleTargetBaselineAuditAgentWorkOrderRuns,
     archiveVisibleCompletedAgentWorkOrderRuns,
     actionVisibleSlaBreaches,
     resolveVisibleSlaBreaches,

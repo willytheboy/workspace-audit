@@ -127,6 +127,7 @@
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
  *     refreshTargetBaselineAgentWorkOrderRuns: () => Promise<void>,
+ *     refreshTargetBaselineAuditAgentWorkOrderRuns: () => Promise<void>,
  *     blockStaleAgentWorkOrderRuns: () => Promise<void>,
  *     actionSlaBreaches: () => Promise<void>,
  *     resolveSlaBreaches: () => Promise<void>,
@@ -1085,6 +1086,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "refresh", "bulk"],
         run: () => handlers.refreshTargetBaselineAgentWorkOrderRuns()
+      },
+      {
+        id: "refresh-agent-execution-target-baseline-audits",
+        label: "Refresh agent execution target baseline audits",
+        description: "Recapture the current target-baseline audit snapshot on visible Agent Execution runs that need audit-baseline review.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "refresh", "bulk"],
+        run: () => handlers.refreshTargetBaselineAuditAgentWorkOrderRuns()
       },
       {
         id: "block-stale-agent-execution-runs",

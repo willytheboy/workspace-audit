@@ -2432,3 +2432,11 @@
 - [x] Add an Agent Execution Queue control for refreshing stale, missing, or drifted audit-baseline capture.
 - [x] Add parser and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Work Order Audit Baseline Bulk Refresh
+
+- [x] Add a visible-run bulk action for refreshing target-baseline audit capture on filtered Agent Execution runs.
+- [x] Expose the action through the command palette/action registry for supervised batch remediation.
+- [x] Reuse the no-secret audit refresh API and preserve per-run history evidence.
+- [x] Add parser coverage for the bulk audit-baseline refresh wiring.
+- [x] Validate, relaunch, commit, and push.

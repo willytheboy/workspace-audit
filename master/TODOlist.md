@@ -2671,3 +2671,10 @@
 - [x] Include a non-secret handoff checklist and reasons for blocked or review-only launches.
 - [x] Surface handoff gate state in Governance, report export, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet
+
+- [x] Add a packet API combining lifecycle gate, remediation, baseline status, and CLI bridge context.
+- [x] Surface copyable all-runner, Codex, and Claude handoff packets in Governance.
+- [x] Include packet state in Governance filtering, visible summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

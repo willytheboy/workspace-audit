@@ -2592,6 +2592,20 @@ export async function serverTest() {
     assert.ok(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateReasons.length >= 1);
     assert.match(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.markdown, /# CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Status/);
 
+    const cliBridgeLifecycleHandoffPacketResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet?runner=codex&limit=25`);
+    assert.equal(cliBridgeLifecycleHandoffPacketResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketJson = await cliBridgeLifecycleHandoffPacketResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.protocolVersion, "cli-bridge-lifecycle-handoff-packet.v1");
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.runner, "codex");
+    assert.ok(["ready", "review", "hold"].includes(cliBridgeLifecycleHandoffPacketJson.packetDecision));
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.readyToLaunch, cliBridgeLifecycleHandoffPacketJson.handoffGate.allowed === true && cliBridgeLifecycleHandoffPacketJson.packetDecision === "ready");
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.handoffGate.checklist.length, 5);
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.lifecycleStackStatus.stages.length, 5);
+    assert.equal(cliBridgeLifecycleHandoffPacketJson.remediationTaskLedgerBaselineStatus.refreshGateDecision, "ready");
+    assert.ok(Array.isArray(cliBridgeLifecycleHandoffPacketJson.runnerInstructions));
+    assert.ok(Array.isArray(cliBridgeLifecycleHandoffPacketJson.validationLoop));
+    assert.match(cliBridgeLifecycleHandoffPacketJson.markdown, /# CLI Bridge Lifecycle Handoff Packet/);
+
     const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

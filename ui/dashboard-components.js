@@ -10474,6 +10474,127 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeLifecycleHandoffPacket = governance.cliBridgeLifecycleHandoffPacket;
+  const cliBridgeLifecycleHandoffPacketColor = cliBridgeLifecycleHandoffPacket?.packetDecision === "ready"
+    ? "var(--success)"
+    : cliBridgeLifecycleHandoffPacket?.packetDecision === "hold"
+      ? "var(--danger)"
+      : "var(--warning)";
+  const cliBridgeLifecycleHandoffPacketEntries = cliBridgeLifecycleHandoffPacket
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: "CLI bridge lifecycle handoff packet",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeLifecycleHandoffPacket.recommendedAction || "Review CLI bridge lifecycle handoff packet before runner work.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeLifecycleHandoffPacket.packetDecision || "review").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketColor
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(cliBridgeLifecycleHandoffPacket.readyToLaunch ? "READY TO LAUNCH" : "LAUNCH BLOCKED", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacket.readyToLaunch ? "var(--success)" : "var(--danger)"
+            }),
+            createTag(`runner ${cliBridgeLifecycleHandoffPacket.runner || "all"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: "var(--primary)"
+            }),
+            createTag(`${cliBridgeLifecycleHandoffPacket.remediationPack?.workItemCount || 0} work item(s)`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeLifecycleHandoffPacket.remediationPack?.workItemCount || 0) ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`baseline ${cliBridgeLifecycleHandoffPacket.remediationTaskLedgerBaselineStatus?.health || "missing"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacket.remediationTaskLedgerBaselineStatus?.health === "healthy" ? "var(--success)" : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: `Handoff gate: ${cliBridgeLifecycleHandoffPacket.handoffGate?.decision || "review"} | ${cliBridgeLifecycleHandoffPacket.handoffGate?.recommendedAction || "Review CLI bridge lifecycle status before runner work."}`,
+            style: {
+              color: cliBridgeLifecycleHandoffPacket.readyToLaunch ? "var(--text-muted)" : "var(--warning)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            text: `Bridge context: ${cliBridgeLifecycleHandoffPacket.bridgeContext?.bridgeDecision || "review"} | executable work orders ${cliBridgeLifecycleHandoffPacket.bridgeContext?.executableWorkOrderCount || 0} | refresh gate ${cliBridgeLifecycleHandoffPacket.remediationTaskLedgerBaselineStatus?.refreshGateDecision || "hold"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-copy-btn",
+              text: "Copy Packet",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketRunner: cliBridgeLifecycleHandoffPacket.runner || "all"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-copy-btn",
+              text: "Copy Codex Packet",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketRunner: "codex"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-copy-btn",
+              text: "Copy Claude Packet",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketRunner: "claude"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeLifecycleStackRemediationTaskLedger = governance.cliBridgeLifecycleStackRemediationTaskLedger;
   const cliBridgeLifecycleStackRemediationTaskLedgerItems = cliBridgeLifecycleStackRemediationTaskLedger?.items || [];
   const cliBridgeLifecycleStackRemediationTaskLedgerEntries = cliBridgeLifecycleStackRemediationTaskLedger
@@ -17588,6 +17709,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Run Trace Lifecycle Ledger", "Copyable audit trail for saved and accepted CLI bridge run trace baselines.", cliBridgeRunTraceSnapshotLifecycleLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Status", "Single ready/review/hold rollup for dry-run and run-trace lifecycle evidence.", cliBridgeLifecycleStackStatusEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Pack", "Copyable operator handoff for non-ready dry-run and run-trace lifecycle stages.", cliBridgeLifecycleStackRemediationPackEntries),
+    createListSection("CLI Bridge Lifecycle Handoff Packet", "Copyable non-secret launch brief that combines lifecycle gate, remediation, baseline, and runner instructions.", cliBridgeLifecycleHandoffPacketEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),

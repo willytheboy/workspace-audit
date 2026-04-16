@@ -1564,6 +1564,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketPayload>}
+   */
+  fetchCliBridgeLifecycleHandoffPacket(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-handoff-packet", options));
+  },
+
+  /**
    * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
    */

@@ -2800,6 +2800,7 @@
  *   cliBridgeRunTraceSnapshotLifecycleLedger?: CliBridgeRunTraceSnapshotLifecycleLedgerPayload | null,
  *   cliBridgeLifecycleStackStatus?: CliBridgeLifecycleStackStatusPayload | null,
  *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
+ *   cliBridgeLifecycleHandoffPacket?: CliBridgeLifecycleHandoffPacketPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?: CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload | null,
@@ -3370,6 +3371,25 @@
  *   stackStatus: CliBridgeLifecycleStackStatusPayload,
  *   markdown: string
  * }} CliBridgeLifecycleStackRemediationPackPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: "cli-bridge-lifecycle-handoff-packet.v1",
+ *   runner: "all" | "codex" | "claude",
+ *   packetDecision: "ready" | "review" | "hold",
+ *   readyToLaunch: boolean,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   handoffGate: CliBridgeLifecycleStackStatusPayload["handoffGate"],
+ *   lifecycleStackStatus: CliBridgeLifecycleStackStatusPayload,
+ *   remediationPack: CliBridgeLifecycleStackRemediationPackPayload,
+ *   remediationTaskLedger: CliBridgeLifecycleStackRemediationTaskLedgerPayload,
+ *   remediationTaskLedgerBaselineStatus: CliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusPayload,
+ *   bridgeContext: CliBridgeContextPayload,
+ *   runnerInstructions: string[],
+ *   validationLoop: string[],
+ *   resultIntake: string[],
+ *   markdown: string
+ * }} CliBridgeLifecycleHandoffPacketPayload
  * @typedef {{
  *   generatedAt: string,
  *   status: "all" | "open" | "closed",

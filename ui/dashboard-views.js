@@ -7699,6 +7699,50 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-pack-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeLifecycleStackRemediationPackReviewTask();
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-item-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const itemId = element.dataset.cliBridgeLifecycleStackRemediationItemTaskId || "";
+        if (!itemId) return;
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Tracking";
+          const label = await createCliBridgeLifecycleStackRemediationItemReviewTask(itemId);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-run-trace-lifecycle-ledger-task]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -12052,6 +12096,77 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review CLI trace lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
       description: buildCliBridgeRunTraceLifecycleItemTaskDescription(item),
       priority: getCliBridgeRunTraceLifecycleItemPriority(item),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Tracked Item";
+  }
+
+  function getCliBridgeLifecycleStackRemediationPackTaskPriority(pack) {
+    if ((pack?.nonReadyStages || []).some((stage) => stage.decision === "hold")) return "high";
+    if ((pack?.nonReadyCount || 0) > 0) return "medium";
+    return "low";
+  }
+
+  function buildCliBridgeLifecycleStackRemediationPackTaskDescription(pack) {
+    const lines = [
+      "Review CLI bridge lifecycle stack remediation pack.",
+      `Stack decision: ${pack.decision || "review"}; ready to run: ${pack.readyToRun ? "yes" : "no"}.`,
+      `Non-ready stages: ${pack.nonReadyCount || 0}; work items: ${pack.workItemCount || 0}.`,
+      `Recommended action: ${pack.recommendedAction || "Review CLI bridge lifecycle remediation before runner work."}`,
+      "Secret policy: non-secret CLI bridge lifecycle remediation only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ];
+
+    if ((pack.workItems || []).length) {
+      lines.push("Work items:");
+      for (const item of pack.workItems.slice(0, 8)) {
+        lines.push(`- ${item.title || item.id || "work item"}: ${item.priority || "medium"} / ${item.recommendedAction || "Review and resolve."}`);
+      }
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createCliBridgeLifecycleStackRemediationPackReviewTask() {
+    const pack = await api.fetchCliBridgeLifecycleStackRemediationPack({ limit: 50 });
+    await api.createTask({
+      projectId: "cli-bridge",
+      projectName: "CLI Bridge",
+      title: "Review CLI bridge lifecycle stack remediation pack",
+      description: buildCliBridgeLifecycleStackRemediationPackTaskDescription(pack),
+      priority: getCliBridgeLifecycleStackRemediationPackTaskPriority(pack),
+      status: "open"
+    });
+    await renderGovernance();
+    return `Tracked ${pack.workItemCount || 0}`;
+  }
+
+  function buildCliBridgeLifecycleStackRemediationItemTaskDescription(item, pack) {
+    return [
+      `Resolve CLI bridge lifecycle remediation item ${item.title || item.id || "work item"}.`,
+      `Stage ID: ${item.stageId || "unknown"}.`,
+      `Priority: ${item.priority || "medium"}.`,
+      `Description: ${item.description || "No stage detail recorded."}`,
+      `Recommended action: ${item.recommendedAction || "Review and resolve before continuing."}`,
+      `Runner hint: ${item.runnerHint || "Operator-supervised CLI bridge work only."}`,
+      `Stack decision: ${pack.decision || "review"}; ready to run: ${pack.readyToRun ? "yes" : "no"}.`,
+      "Secret policy: non-secret CLI bridge lifecycle remediation only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ].join("\n");
+  }
+
+  async function createCliBridgeLifecycleStackRemediationItemReviewTask(itemId) {
+    const pack = governanceCache?.cliBridgeLifecycleStackRemediationPack?.workItems?.length
+      ? governanceCache.cliBridgeLifecycleStackRemediationPack
+      : await api.fetchCliBridgeLifecycleStackRemediationPack({ limit: 100 });
+    const item = (pack.workItems || []).find((candidate) => candidate.id === itemId);
+    if (!item) throw new Error(`CLI bridge lifecycle remediation item not found: ${itemId}`);
+
+    await api.createTask({
+      projectId: "cli-bridge",
+      projectName: "CLI Bridge",
+      title: `${item.title || item.id || "CLI bridge lifecycle remediation"}`.slice(0, 140),
+      description: buildCliBridgeLifecycleStackRemediationItemTaskDescription(item, pack),
+      priority: item.priority || "medium",
       status: "open"
     });
     await renderGovernance();

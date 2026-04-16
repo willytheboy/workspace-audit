@@ -2591,3 +2591,11 @@
 - [x] Surface the remediation pack in Governance with Markdown copy controls.
 - [x] Add parser, server test, and milestone coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Controls
+
+- [x] Add Track Pack controls for creating a Governance task from the full remediation pack.
+- [x] Add per-work-item Track Item controls for non-ready lifecycle stages.
+- [x] Generate non-secret task descriptions from stage details, recommended actions, and runner hints.
+- [x] Add parser and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

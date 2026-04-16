@@ -10415,7 +10415,19 @@ export function createGovernanceDeck(governance) {
                     fontSize: "0.82rem",
                     lineHeight: "1.45"
                   }
-                })
+                }),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-item-task-btn",
+                    text: "Track Item",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeLifecycleStackRemediationItemTaskId: item.id || ""
+                    }
+                  })
+                ])
               ])))
             : createElement("div", {
                 text: "No remediation work items are required for the current lifecycle stack.",
@@ -10434,6 +10446,14 @@ export function createGovernanceDeck(governance) {
               attrs: { type: "button" },
               dataset: {
                 cliBridgeLifecycleStackRemediationPackCopy: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-pack-task-btn",
+              text: "Track Pack",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationPackTask: "true"
               }
             })
           ])

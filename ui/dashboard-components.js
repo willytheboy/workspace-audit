@@ -12088,6 +12088,10 @@ export function createGovernanceDeck(governance) {
   const controlPlaneTargetBaselineAuditHealth = controlPlaneDecision?.targetBaselineAuditLedgerBaselineHealth || "missing";
   const controlPlaneTargetBaselineAuditFreshness = controlPlaneDecision?.targetBaselineAuditLedgerBaselineFreshness || "missing";
   const controlPlaneTargetBaselineAuditUncheckpointedDriftCount = controlPlaneDecision?.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0;
+  const controlPlaneAuditBaselineRunReviewCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount || 0;
+  const controlPlaneAuditBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineHealthyCount || 0;
+  const controlPlaneAuditBaselineRunMissingCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineMissingCount || 0;
+  const controlPlaneAuditBaselineRunCapturedCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineCapturedCount || 0;
   const controlPlaneProfileTargetBaselineColor = controlPlaneProfileTargetBaselineHealth === "healthy"
     ? "var(--success)"
     : controlPlaneProfileTargetBaselineHealth === "missing" || controlPlaneProfileTargetBaselineHealth === "drift-review-required"
@@ -12167,6 +12171,11 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: controlPlaneTargetBaselineAuditColor
               }),
+              createTag(`AUDIT RUNS ${controlPlaneAuditBaselineRunReviewCount} REVIEW`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneAuditBaselineRunReviewCount > 0 ? "var(--warning)" : "var(--success)"
+              }),
               createTag(`READY ${controlPlaneDecision.agentReadyProjects || 0}/${controlPlaneDecision.agentReadinessItems || 0}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
@@ -12203,7 +12212,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",

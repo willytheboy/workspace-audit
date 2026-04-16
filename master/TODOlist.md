@@ -2497,3 +2497,10 @@
 - [x] Add audit-baseline run gate Markdown and review reasons for non-ready run evidence.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Audit Baseline Run Visibility
+
+- [x] Add audit-baseline run review counts to Agent Control Plane decision tags.
+- [x] Add captured, missing, healthy, and review-required audit-baseline run counts to the decision detail line.
+- [x] Add parser coverage for the dashboard visibility wiring.
+- [x] Validate, relaunch, commit, and push.

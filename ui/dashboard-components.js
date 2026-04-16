@@ -9050,8 +9050,32 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: (handoff.changedFiles || []).length ? "var(--warning)" : "var(--text-muted)"
+        }),
+        createTag(`audit ${handoff.targetBaselineAuditLedgerBaselineHealth || "missing"}/${handoff.targetBaselineAuditLedgerBaselineFreshness || "missing"}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: handoff.targetBaselineAuditLedgerBaselineHealth === "healthy"
+            ? "var(--success)"
+            : handoff.targetBaselineAuditLedgerBaselineHealth === "missing"
+              ? "var(--danger)"
+              : "var(--warning)"
+        }),
+        createTag(`audit drift ${handoff.targetBaselineAuditLedgerBaselineDriftSeverity || "missing-snapshot"}:${handoff.targetBaselineAuditLedgerBaselineDriftScore || 0}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: (handoff.targetBaselineAuditLedgerBaselineDriftScore || 0) > 0 ? "var(--warning)" : "var(--text-muted)"
         })
       ]),
+      handoff.targetBaselineAuditLedgerBaselineRecommendedAction
+        ? createElement("div", {
+            text: `Audit baseline action: ${handoff.targetBaselineAuditLedgerBaselineRecommendedAction}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        : null,
       handoff.nextAction
         ? createElement("div", {
             text: `Next action: ${handoff.nextAction}`,

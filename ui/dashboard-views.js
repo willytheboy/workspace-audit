@@ -1286,6 +1286,25 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus
         : null,
+      cliBridgeHandoffs: filterAndSort(
+        governance.cliBridgeHandoffs || [],
+        (handoff) => [
+          handoff.title || "",
+          handoff.sourceRunner || "",
+          handoff.targetRunner || "",
+          handoff.status || "",
+          handoff.resultType || "",
+          handoff.projectName || "",
+          handoff.summary || "",
+          handoff.validationSummary || "",
+          handoff.nextAction || "",
+          handoff.targetBaselineAuditLedgerBaselineHealth || "",
+          handoff.targetBaselineAuditLedgerBaselineFreshness || "",
+          handoff.targetBaselineAuditLedgerBaselineDriftSeverity || "",
+          handoff.targetBaselineAuditLedgerBaselineRecommendedAction || ""
+        ],
+        (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
+      ),
       cliBridgeRunTraceSnapshots: filterAndSort(
         governance.cliBridgeRunTraceSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
@@ -1427,6 +1446,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
+      if (scope !== "execution") filtered.cliBridgeHandoffs = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotBaselineStatus = null;
@@ -7698,6 +7718,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible readiness items: ${governance.agentReadinessMatrix.length}`,
       `Visible work order snapshots: ${governance.agentWorkOrderSnapshots.length}`,
       `Visible SLA ledger snapshots: ${(governance.agentExecutionSlaLedgerSnapshots || []).length}`,
+      `Visible CLI bridge handoffs: ${(governance.cliBridgeHandoffs || []).length}`,
+      `Visible CLI bridge handoff audit baseline states: ${(governance.cliBridgeHandoffs || []).map((handoff) => handoff.targetBaselineAuditLedgerBaselineHealth || "missing").join(", ") || "none"}`,
       `Visible CLI bridge run trace snapshots: ${(governance.cliBridgeRunTraceSnapshots || []).length}`,
       `Visible CLI bridge run trace baseline status: ${governance.cliBridgeRunTraceSnapshotBaselineStatus ? "yes" : "no"}`,
       `Visible CLI bridge run trace snapshot drift items: ${(governance.cliBridgeRunTraceSnapshotDiff?.driftItems || []).length}`,
@@ -8296,6 +8318,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible agent execution runs.");
+    }
+
+    lines.push("", "## CLI Bridge Handoff Ledger");
+    if ((governance.cliBridgeHandoffs || []).length) {
+      for (const handoff of governance.cliBridgeHandoffs) {
+        lines.push(`- ${handoff.title || "CLI Bridge Handoff"}: ${handoff.sourceRunner || "operator"} -> ${handoff.targetRunner || "operator"} / ${handoff.status || "needs-review"}`);
+        lines.push(`  Audit baseline: ${handoff.targetBaselineAuditLedgerBaselineHealth || "missing"} / ${handoff.targetBaselineAuditLedgerBaselineFreshness || "missing"} / ${handoff.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s)`);
+        lines.push(`  Audit drift: ${handoff.targetBaselineAuditLedgerBaselineDriftSeverity || "missing-snapshot"} / score ${handoff.targetBaselineAuditLedgerBaselineDriftScore || 0}`);
+        lines.push(`  Next action: ${handoff.nextAction || "Review before creating a follow-up work order."}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge handoffs.");
     }
 
     lines.push("", "## CLI Bridge Run Trace Snapshots");

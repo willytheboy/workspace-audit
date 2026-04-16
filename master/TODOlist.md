@@ -2400,3 +2400,11 @@
 - [x] Add review reasons for missing, stale, drifted, or uncheckpointed audit baselines.
 - [x] Carry audit-baseline readiness into CLI bridge context and dry-run prompts.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Target Baseline Audit Context
+
+- [x] Capture target-baseline audit baseline health, freshness, drift, checkpoint, snapshot, and recommended action context on CLI bridge handoffs.
+- [x] Apply the same audit-baseline context to CLI runner result intake handoffs.
+- [x] Surface handoff audit-baseline evidence in CLI bridge ledger Markdown, Governance cards, summary text, and report export.
+- [x] Add parser checks and server test coverage for handoff audit-baseline evidence.
+- [x] Validate, relaunch, commit, and push.

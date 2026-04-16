@@ -2121,7 +2121,10 @@ export async function serverTest() {
     assert.equal(createCliBridgeHandoffJson.handoff.sourceRunner, "codex");
     assert.equal(createCliBridgeHandoffJson.handoff.targetRunner, "claude");
     assert.match(createCliBridgeHandoffJson.handoff.secretPolicy, /Non-secret CLI bridge handoff/);
+    assert.ok(["healthy", "missing", "stale", "drifted", "drift-review-required"].includes(createCliBridgeHandoffJson.handoff.targetBaselineAuditLedgerBaselineHealth));
+    assert.ok(createCliBridgeHandoffJson.handoff.targetBaselineAuditLedgerBaselineFreshness);
     assert.equal(createCliBridgeHandoffJson.ledger.total, 1);
+    assert.match(createCliBridgeHandoffJson.ledger.markdown, /Target baseline audit baseline:/);
 
     const acceptCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeHandoffJson.handoff.id}`, {
       method: "PATCH",
@@ -2148,6 +2151,7 @@ export async function serverTest() {
     assert.equal(acceptedCliBridgeHandoffsJson.total, 1);
     assert.equal(acceptedCliBridgeHandoffsJson.summary.accepted, 1);
     assert.match(acceptedCliBridgeHandoffsJson.markdown, /Status filter: accepted/);
+    assert.match(acceptedCliBridgeHandoffsJson.markdown, /Target baseline audit baseline:/);
 
     const acceptedCliBridgeWorkOrderDraftResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeHandoffJson.handoff.id}/work-order-draft?runner=claude`);
     assert.equal(acceptedCliBridgeWorkOrderDraftResponse.status, 200);
@@ -2157,6 +2161,7 @@ export async function serverTest() {
     assert.equal(acceptedCliBridgeWorkOrderDraftJson.runner, "claude");
     assert.equal(acceptedCliBridgeWorkOrderDraftJson.handoffId, createCliBridgeHandoffJson.handoff.id);
     assert.equal(acceptedCliBridgeWorkOrderDraftJson.sourceHandoff.status, "accepted");
+    assert.ok(acceptedCliBridgeWorkOrderDraftJson.sourceHandoff.targetBaselineAuditLedgerBaselineHealth);
     assert.match(acceptedCliBridgeWorkOrderDraftJson.draft.prompt, /Codex completed the bounded fixture implementation slice/);
     assert.match(acceptedCliBridgeWorkOrderDraftJson.markdown, /# CLI Bridge Follow-up Work-Order Draft/);
 
@@ -2182,7 +2187,9 @@ export async function serverTest() {
     const claudeCliBridgeHandoffsJson = await claudeCliBridgeHandoffsResponse.json();
     assert.equal(claudeCliBridgeHandoffsJson.total, 1);
     assert.equal(claudeCliBridgeHandoffsJson.items[0].targetRunner, "claude");
+    assert.ok(claudeCliBridgeHandoffsJson.items[0].targetBaselineAuditLedgerBaselineHealth);
     assert.match(claudeCliBridgeHandoffsJson.markdown, /Codex implementation handoff for Claude review/);
+    assert.match(claudeCliBridgeHandoffsJson.markdown, /Target baseline audit baseline:/);
 
     const governanceAfterCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterCliBridgeHandoffResponse.status, 200);
@@ -2192,6 +2199,7 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].sourceRunner, "codex");
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].followUpWorkOrderRunId, queueCliBridgeWorkOrderRunJson.run.id);
     assert.equal(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].followUpWorkOrderRunner, "claude");
+    assert.ok(governanceAfterCliBridgeHandoffJson.cliBridgeHandoffs[0].targetBaselineAuditLedgerBaselineHealth);
     assert.ok(governanceAfterCliBridgeHandoffJson.operationLog.some((operation) => operation.type === "cli-bridge-handoff-recorded"));
 
     const createCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-results`, {
@@ -2216,12 +2224,14 @@ export async function serverTest() {
     assert.equal(createCliBridgeRunnerResultJson.handoff.targetRunner, "operator");
     assert.equal(createCliBridgeRunnerResultJson.handoff.resultStatus, "changed");
     assert.equal(createCliBridgeRunnerResultJson.handoff.handoffRecommendation, "operator");
+    assert.ok(createCliBridgeRunnerResultJson.handoff.targetBaselineAuditLedgerBaselineHealth);
     assert.equal(createCliBridgeRunnerResultJson.linkedRun.id, createAgentWorkOrderRunJson.run.id);
     assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultHandoffId, createCliBridgeRunnerResultJson.handoff.id);
     assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultStatus, "changed");
     assert.equal(createCliBridgeRunnerResultJson.linkedRun.latestCliBridgeResultRunner, "claude");
     assert.equal(createCliBridgeRunnerResultJson.ledger.total, 2);
     assert.ok(createCliBridgeRunnerResultJson.ledger.markdown.includes("runner-result:changed"));
+    assert.ok(createCliBridgeRunnerResultJson.ledger.markdown.includes("Target baseline audit baseline:"));
 
     const escalateCliBridgeRunnerResultResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeRunnerResultJson.handoff.id}`, {
       method: "PATCH",
@@ -2251,6 +2261,7 @@ export async function serverTest() {
     assert.equal(needsReviewCliBridgeHandoffsJson.available, 2);
     assert.equal(needsReviewCliBridgeHandoffsJson.summary.reviewQueue, 1);
     assert.equal(needsReviewCliBridgeHandoffsJson.items[0].reviewAction, "escalate");
+    assert.ok(needsReviewCliBridgeHandoffsJson.items[0].targetBaselineAuditLedgerBaselineHealth);
 
     const escalatedCliBridgeWorkOrderDraftResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs/${createCliBridgeRunnerResultJson.handoff.id}/work-order-draft?runner=codex`);
     assert.equal(escalatedCliBridgeWorkOrderDraftResponse.status, 200);
@@ -2258,6 +2269,7 @@ export async function serverTest() {
     assert.equal(escalatedCliBridgeWorkOrderDraftJson.runner, "codex");
     assert.equal(escalatedCliBridgeWorkOrderDraftJson.draftDecision, "review");
     assert.equal(escalatedCliBridgeWorkOrderDraftJson.sourceHandoff.reviewAction, "escalate");
+    assert.ok(escalatedCliBridgeWorkOrderDraftJson.sourceHandoff.targetBaselineAuditLedgerBaselineHealth);
     assert.ok(escalatedCliBridgeWorkOrderDraftJson.reasons.some((reason) => reason.code === "cli-bridge-handoff-not-accepted"));
     assert.match(escalatedCliBridgeWorkOrderDraftJson.markdown, /Do not free-chat with another runner/);
 

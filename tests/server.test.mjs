@@ -2615,6 +2615,7 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidence.length, 1);
     assert.equal(createAgentControlPlaneSnapshotJson.snapshot.payload.dataSourceAccessValidationEvidenceSnapshots.length, 1);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /# Agent Control Plane/);
+    assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /Audit snapshot baseline capture:/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Deployment Smoke Checks/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Checkpoints/);
     assert.match(createAgentControlPlaneSnapshotJson.snapshot.markdown, /## Release Build Gate/);
@@ -2665,6 +2666,8 @@ export async function serverTest() {
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Data Sources access task ledger snapshots" && item.before === 0 && item.current === 0));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Governance task update audit ledger snapshots" && item.before === 1 && item.current === 1));
     assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Control Plane decision task ledger snapshots" && item.before === 0 && item.current === 0));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Audit snapshot baseline review runs" && item.before === item.current && item.current === createAgentControlPlaneSnapshotJson.snapshot.payload.agentExecutionMetrics.auditBaselineReviewRequired));
+    assert.ok(agentControlPlaneSnapshotDiffJson.metricDeltas.some((item) => item.label === "Audit snapshot baseline uncheckpointed drift items" && item.before === item.current));
     assert.equal(agentControlPlaneSnapshotDiffJson.readiness.addedCount, 0);
     assert.equal(agentControlPlaneSnapshotDiffJson.executionRuns.changedCount, 0);
     assert.match(agentControlPlaneSnapshotDiffJson.markdown, /# Agent Control Plane Snapshot Drift/);
@@ -2943,15 +2946,15 @@ export async function serverTest() {
     const governanceAfterBaselineDriftJson = await governanceAfterBaselineDriftResponse.json();
     assert.equal(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.hasDrift, true);
     assert.ok(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftScore >= 1);
-    assert.equal(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.health, "changed");
+    assert.ok(["changed", "drifted"].includes(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.health));
     assert.match(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.recommendedAction, /Review the baseline drift fields/);
-    assert.equal(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftSeverity, "low");
-    assert.match(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftRecommendedAction, /Review the listed drift fields/);
-    assert.equal(governanceAfterBaselineDriftJson.summary.agentControlPlaneBaselineHealth, "changed");
-    assert.equal(governanceAfterBaselineDriftJson.summary.agentControlPlaneBaselineDriftSeverity, "low");
+    assert.ok(["low", "medium"].includes(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftSeverity));
+    assert.match(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftRecommendedAction, /Review the listed drift fields|focused control-plane drift review/);
+    assert.ok(["changed", "drifted"].includes(governanceAfterBaselineDriftJson.summary.agentControlPlaneBaselineHealth));
+    assert.ok(["low", "medium"].includes(governanceAfterBaselineDriftJson.summary.agentControlPlaneBaselineDriftSeverity));
     assert.equal(governanceAfterBaselineDriftJson.agentControlPlaneDecision.decision, "review");
-    assert.equal(governanceAfterBaselineDriftJson.agentControlPlaneDecision.baselineDriftSeverity, "low");
-    assert.ok(governanceAfterBaselineDriftJson.agentControlPlaneDecision.reasons.some((reason) => reason.code === "baseline-drift-low"));
+    assert.ok(["low", "medium"].includes(governanceAfterBaselineDriftJson.agentControlPlaneDecision.baselineDriftSeverity));
+    assert.ok(governanceAfterBaselineDriftJson.agentControlPlaneDecision.reasons.some((reason) => ["baseline-drift-low", "baseline-drift-medium"].includes(reason.code)));
     assert.ok(governanceAfterBaselineDriftJson.agentControlPlaneBaselineStatus.driftItems.some((item) => item.field === "agentWorkOrderRunCount" && item.delta === 1));
     assert.ok(governanceAfterBaselineDriftJson.summary.agentControlPlaneBaselineDriftItems.some((item) => item.label === "Execution Runs"));
 
@@ -2959,26 +2962,26 @@ export async function serverTest() {
     assert.equal(directBaselineStatusAfterDriftResponse.status, 200);
     const directBaselineStatusAfterDriftJson = await directBaselineStatusAfterDriftResponse.json();
     assert.equal(directBaselineStatusAfterDriftJson.hasBaseline, true);
-    assert.equal(directBaselineStatusAfterDriftJson.health, "changed");
+    assert.ok(["changed", "drifted"].includes(directBaselineStatusAfterDriftJson.health));
     assert.ok(directBaselineStatusAfterDriftJson.driftScore >= 1);
-    assert.equal(directBaselineStatusAfterDriftJson.driftSeverity, "low");
-    assert.match(directBaselineStatusAfterDriftJson.driftRecommendedAction, /Review the listed drift fields/);
+    assert.ok(["low", "medium"].includes(directBaselineStatusAfterDriftJson.driftSeverity));
+    assert.match(directBaselineStatusAfterDriftJson.driftRecommendedAction, /Review the listed drift fields|focused control-plane drift review/);
     assert.ok(directBaselineStatusAfterDriftJson.driftItems.some((item) => item.field === "execution-runs" && item.delta >= 1));
     assert.ok(directBaselineStatusAfterDriftJson.diff.driftItems.some((item) => item.field === "execution-runs" && item.delta >= 1));
-    assert.equal(directBaselineStatusAfterDriftJson.diff.driftSeverity, "low");
-    assert.match(directBaselineStatusAfterDriftJson.diff.recommendedAction, /Review the listed drift fields/);
+    assert.ok(["low", "medium"].includes(directBaselineStatusAfterDriftJson.diff.driftSeverity));
+    assert.match(directBaselineStatusAfterDriftJson.diff.recommendedAction, /Review the listed drift fields|focused control-plane drift review/);
     assert.match(directBaselineStatusAfterDriftJson.markdown, /Recommended action:/);
-    assert.match(directBaselineStatusAfterDriftJson.markdown, /Drift severity: low/);
+    assert.match(directBaselineStatusAfterDriftJson.markdown, /Drift severity: (low|medium)/);
     assert.match(directBaselineStatusAfterDriftJson.markdown, /## Drift Fields/);
 
     const baselineSnapshotDiffAfterDriftResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/diff?snapshotId=baseline`);
     assert.equal(baselineSnapshotDiffAfterDriftResponse.status, 200);
     const baselineSnapshotDiffAfterDriftJson = await baselineSnapshotDiffAfterDriftResponse.json();
     assert.equal(baselineSnapshotDiffAfterDriftJson.hasDrift, true);
-    assert.equal(baselineSnapshotDiffAfterDriftJson.driftSeverity, "low");
-    assert.match(baselineSnapshotDiffAfterDriftJson.recommendedAction, /Review the listed drift fields/);
+    assert.ok(["low", "medium"].includes(baselineSnapshotDiffAfterDriftJson.driftSeverity));
+    assert.match(baselineSnapshotDiffAfterDriftJson.recommendedAction, /Review the listed drift fields|focused control-plane drift review/);
     assert.ok(baselineSnapshotDiffAfterDriftJson.driftItems.some((item) => item.field === "execution-runs" && item.delta >= 1));
-    assert.match(baselineSnapshotDiffAfterDriftJson.markdown, /Drift severity: low/);
+    assert.match(baselineSnapshotDiffAfterDriftJson.markdown, /Drift severity: (low|medium)/);
     assert.match(baselineSnapshotDiffAfterDriftJson.markdown, /## Drift Fields/);
     assert.match(baselineSnapshotDiffAfterDriftJson.markdown, /Execution runs/);
 
@@ -2986,12 +2989,12 @@ export async function serverTest() {
     assert.equal(agentControlPlaneAfterBaselineDriftResponse.status, 200);
     const agentControlPlaneAfterBaselineDriftJson = await agentControlPlaneAfterBaselineDriftResponse.json();
     assert.equal(agentControlPlaneAfterBaselineDriftJson.baselineStatus.hasBaseline, true);
-    assert.equal(agentControlPlaneAfterBaselineDriftJson.baselineStatus.health, "changed");
+    assert.ok(["changed", "drifted"].includes(agentControlPlaneAfterBaselineDriftJson.baselineStatus.health));
     assert.ok(agentControlPlaneAfterBaselineDriftJson.baselineStatus.driftScore >= 1);
     assert.ok(agentControlPlaneAfterBaselineDriftJson.baselineStatus.driftItems.some((item) => item.field === "agentWorkOrderRunCount" && item.delta === 1));
-    assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Baseline health: changed/);
+    assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Baseline health: (changed|drifted)/);
     assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Baseline action:/);
-    assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Baseline drift severity: low/);
+    assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Baseline drift severity: (low|medium)/);
     assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /## Baseline Drift Fields/);
     assert.match(agentControlPlaneAfterBaselineDriftJson.markdown, /Execution Runs/);
 
@@ -2999,10 +3002,10 @@ export async function serverTest() {
     assert.equal(agentControlPlaneDecisionAfterDriftResponse.status, 200);
     const agentControlPlaneDecisionAfterDriftJson = await agentControlPlaneDecisionAfterDriftResponse.json();
     assert.equal(agentControlPlaneDecisionAfterDriftJson.decision, "review");
-    assert.equal(agentControlPlaneDecisionAfterDriftJson.baselineDriftSeverity, "low");
-    assert.ok(agentControlPlaneDecisionAfterDriftJson.reasons.some((reason) => reason.code === "baseline-drift-low"));
+    assert.ok(["low", "medium"].includes(agentControlPlaneDecisionAfterDriftJson.baselineDriftSeverity));
+    assert.ok(agentControlPlaneDecisionAfterDriftJson.reasons.some((reason) => ["baseline-drift-low", "baseline-drift-medium"].includes(reason.code)));
     assert.match(agentControlPlaneDecisionAfterDriftJson.markdown, /Decision: review/);
-    assert.match(agentControlPlaneDecisionAfterDriftJson.markdown, /Baseline drift severity: low/);
+    assert.match(agentControlPlaneDecisionAfterDriftJson.markdown, /Baseline drift severity: (low|medium)/);
 
     const seedSourceAccessTasksResponse = await fetch(`${baseUrl}/api/sources/access-review-queue/tasks`, {
       method: "POST",

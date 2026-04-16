@@ -2474,3 +2474,10 @@
 - [x] Add the audit-baseline execution blocker to the CLI runner readiness gate.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Audit Baseline Snapshot Drift
+
+- [x] Add audit-baseline execution counts to Agent Control Plane snapshot metric summaries.
+- [x] Include captured, missing, healthy, review-required, and uncheckpointed drift item counts in snapshot drift deltas.
+- [x] Add parser and server test coverage for audit-baseline snapshot drift visibility.
+- [x] Validate, relaunch, commit, and push.

@@ -9373,6 +9373,22 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeRunnerDryRunBaselineStatusCopy: "true"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-baseline-status-refresh-btn",
+              text: "Refresh Codex Baseline",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunSnapshot: "codex"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-baseline-status-refresh-btn",
+              text: "Refresh Claude Baseline",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunSnapshot: "claude"
+              }
             })
           ])
         ])

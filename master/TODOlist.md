@@ -2536,3 +2536,10 @@
 - [x] Surface the baseline-status card and copy control in Governance.
 - [x] Include baseline status in Governance filtering, summary, and report exports.
 - [x] Add type, parser, server test, and milestone coverage; validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Baseline Refresh Controls
+
+- [x] Add direct Codex and Claude baseline refresh actions to the dry-run baseline-status card.
+- [x] Reuse the existing non-secret runner dry-run snapshot save flow for refresh actions.
+- [x] Add parser and milestone coverage.
+- [x] Validate, relaunch, commit, and push.

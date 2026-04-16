@@ -205,6 +205,7 @@ function createEmptyTableRow(message) {
  *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
@@ -5393,6 +5394,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-governance-profile-target-task-ledger-drift-checkpoint-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const ledger = await api.fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger(status);
+          await copyText(ledger.markdown);
+          element.textContent = `Copied ${ledger.summary.visible}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -7368,6 +7392,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible profile target task rows: ${governance.profileTargetTasks?.length || 0}`,
       `Visible profile target task snapshots: ${governance.governanceProfileTargetTaskLedgerSnapshots?.length || 0}`,
       `Visible profile target task snapshot drift: ${governance.governanceProfileTargetTaskLedgerSnapshotDiff ? "yes" : "no"}`,
+      `Visible profile target task drift checkpoints: ${governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger?.items?.length || 0}`,
       `Visible history entries: ${governance.profileHistory.length}`,
       `Visible decisions: ${governance.decisions.length}`,
       `Visible milestones: ${governance.milestoneFocus.length}`,
@@ -7417,6 +7442,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Governance profile target tasks: ${governanceCache?.summary.governanceProfileTargetOpenTaskCount ?? 0} open; ${governanceCache?.summary.governanceProfileTargetMissingTaskCount ?? 0} missing`,
       `- Governance profile target task snapshots: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotCount ?? 0}`,
       `- Governance profile target task snapshot drift: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotDriftSeverity || "missing-snapshot"} (${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotDriftScore ?? 0})`,
+      `- Governance profile target task drift checkpoints: ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointCount ?? 0} total; ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointOpenCount ?? 0} open; ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointEscalatedCount ?? 0} escalated`,
       `- App-development profile gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? 0}`,
       `- Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `- Action queue items: ${governanceCache?.summary.actionQueueItems ?? 0}`,
@@ -7534,6 +7560,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No profile target task snapshot drift payload is visible.");
+    }
+
+    lines.push("", "## Governance Profile Target Task Drift Checkpoints");
+    if (governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger?.items?.length) {
+      for (const checkpoint of governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger.items) {
+        lines.push(`- ${checkpoint.title || "Profile target task drift checkpoint"}: ${checkpoint.decision || "tracked"} / ${checkpoint.status || "open"} / ${checkpoint.priority || "normal"}`);
+        lines.push(`  Field: ${checkpoint.field || checkpoint.label || "not recorded"} | Snapshot: ${checkpoint.snapshotTitle || checkpoint.snapshotId || "not recorded"}`);
+        lines.push(`  Drift: ${checkpoint.before || "none"} -> ${checkpoint.current || "none"} | Delta: ${checkpoint.delta || 0}`);
+      }
+    } else {
+      lines.push("- No profile target task drift checkpoints are visible.");
     }
 
     lines.push("", "## Action Queue");

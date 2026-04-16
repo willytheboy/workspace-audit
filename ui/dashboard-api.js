@@ -2008,6 +2008,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger(status = "all") {
+    return fetchJson(`/api/governance/profile-target-task-ledger-drift-checkpoints?status=${encodeURIComponent(status)}`);
+  },
+
+  /**
    * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
    */
   executeGovernanceQueue(payload) {

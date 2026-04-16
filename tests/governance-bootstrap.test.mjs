@@ -318,6 +318,26 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerDriftCheckpointJson.task.sourceType, "governance-profile-target-task-ledger-snapshot-drift-checkpoint");
     assert.equal(profileTargetTaskLedgerDriftCheckpointJson.task.governanceProfileTargetTaskLedgerDriftField, "open");
 
+    const profileTargetTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-drift-checkpoints?status=all`);
+    assert.equal(profileTargetTaskLedgerDriftCheckpointLedgerResponse.status, 200);
+    const profileTargetTaskLedgerDriftCheckpointLedgerJson = await profileTargetTaskLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(profileTargetTaskLedgerDriftCheckpointLedgerJson.summary.total, 1);
+    assert.equal(profileTargetTaskLedgerDriftCheckpointLedgerJson.summary.confirmed, 1);
+    assert.equal(profileTargetTaskLedgerDriftCheckpointLedgerJson.items.length, 1);
+    assert.equal(profileTargetTaskLedgerDriftCheckpointLedgerJson.items[0].field, "open");
+    assert.match(profileTargetTaskLedgerDriftCheckpointLedgerJson.markdown, /Governance Profile Target Task Ledger Drift Checkpoints/);
+
+    const profileTargetTaskLedgerClosedDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-drift-checkpoints?status=closed`);
+    assert.equal(profileTargetTaskLedgerClosedDriftCheckpointLedgerResponse.status, 200);
+    const profileTargetTaskLedgerClosedDriftCheckpointLedgerJson = await profileTargetTaskLedgerClosedDriftCheckpointLedgerResponse.json();
+    assert.equal(profileTargetTaskLedgerClosedDriftCheckpointLedgerJson.summary.visible, 1);
+
+    const profileTargetTaskLedgerCheckpointGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(profileTargetTaskLedgerCheckpointGovernanceResponse.status, 200);
+    const profileTargetTaskLedgerCheckpointGovernanceJson = await profileTargetTaskLedgerCheckpointGovernanceResponse.json();
+    assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.summary.governanceProfileTargetTaskLedgerDriftCheckpointCount, 1);
+    assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.governanceProfileTargetTaskLedgerDriftCheckpointLedger.items.length, 1);
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

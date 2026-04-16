@@ -2274,3 +2274,10 @@
 - [x] Preserve snapshot ID, drift field, before/current values, decision, and no-secrets metadata on checkpoint tasks.
 - [x] Surface checkpoint actions on Governance profile target task drift rows.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Drift Checkpoint Ledger
+
+- [x] Add a copyable API ledger for Governance profile target task ledger drift checkpoint tasks.
+- [x] Surface checkpoint totals, decisions, and open/closed filters in Governance.
+- [x] Add Governance report lines for target drift checkpoint decisions.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

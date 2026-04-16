@@ -2431,6 +2431,129 @@ export function createGovernanceDeck(governance) {
               }
             })
           : null
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn governance-profile-target-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Checkpoint Ledger",
+          attrs: { type: "button" },
+          dataset: { governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        })
+      ])
+    ])
+  ] : [];
+
+  const profileTargetTaskDriftCheckpointLedger = governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger;
+  const profileTargetTaskDriftCheckpointLedgerEntries = profileTargetTaskDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Profile target task drift checkpoint ledger",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${profileTargetTaskDriftCheckpointLedger.summary?.total || 0} checkpoint task(s) | ${profileTargetTaskDriftCheckpointLedger.summary?.open || 0} open | ${profileTargetTaskDriftCheckpointLedger.summary?.escalated || 0} escalated`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createElement("div", {
+          className: "governance-actions",
+          style: {
+            justifyContent: "flex-end"
+          }
+        }, [
+          createElement("button", {
+            className: "btn governance-action-btn governance-profile-target-task-ledger-drift-checkpoint-ledger-copy-btn",
+            text: "Copy All",
+            attrs: { type: "button" },
+            dataset: { governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy: "all" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn governance-profile-target-task-ledger-drift-checkpoint-ledger-copy-btn",
+            text: "Copy Open",
+            attrs: { type: "button" },
+            dataset: { governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy: "open" }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn governance-profile-target-task-ledger-drift-checkpoint-ledger-copy-btn",
+            text: "Copy Closed",
+            attrs: { type: "button" },
+            dataset: { governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy: "closed" }
+          })
+        ])
+      ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gap: "0.45rem"
+        }
+      }, [
+        ...(profileTargetTaskDriftCheckpointLedger.items || []).slice(0, 6).map((item) => createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            padding: "0.7rem",
+            background: "var(--panel-soft)"
+          }
+        }, [
+          createElement("div", {
+            text: item.title || "Profile target task drift checkpoint",
+            style: {
+              fontWeight: "700",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${item.decision || "tracked"} | ${item.field || item.label || "field not recorded"} | ${item.status || "open"} / ${item.priority || "normal"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before || "none"} -> ${item.current || "none"} | snapshot ${item.snapshotTitle || item.snapshotId || "not recorded"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          })
+        ])),
+        !(profileTargetTaskDriftCheckpointLedger.items || []).length
+          ? createElement("div", {
+              text: "No profile target task drift checkpoints have been recorded yet.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.82rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null
       ])
     ])
   ] : [];
@@ -14931,6 +15054,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
     createListSection("Governance Profile Target Tasks", "Deduplicated task ledger for profile test coverage and runtime target gaps.", profileTargetTaskEntries),
     createListSection("Governance Profile Target Task Snapshot Drift", "Latest saved profile target task baseline compared with current live profile target tasks.", profileTargetTaskSnapshotDiffEntries),
+    createListSection("Governance Profile Target Task Drift Checkpoints", "Operator decisions made against profile target task ledger drift before refreshing the accepted baseline.", profileTargetTaskDriftCheckpointLedgerEntries),
     createListSection("Governance Profile Target Task Snapshots", "Saved baselines for the profile target task ledger.", profileTargetTaskSnapshotEntries),
     createListSection("Profile History", "Recent ownership, lifecycle, and status changes captured over time.", historyEntries),
     createListSection("Decision Log", "Persisted decision notes that define portfolio direction.", decisionEntries),

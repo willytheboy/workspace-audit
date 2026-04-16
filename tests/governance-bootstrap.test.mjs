@@ -272,6 +272,8 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshots.length, 1);
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshotDiff.driftScore, 0);
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerBaselineStatus.health, "healthy");
+    assert.equal(profileTargetSnapshotGovernanceJson.agentControlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "healthy");
+    assert.equal(profileTargetSnapshotGovernanceJson.agentControlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
 
     const profileTargetTaskLedgerBaselineStatusResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-baseline-status`);
     assert.equal(profileTargetTaskLedgerBaselineStatusResponse.status, 200);
@@ -316,6 +318,13 @@ export async function governanceBootstrapTest() {
     const profileTargetTaskLedgerBaselineStatusAfterDriftJson = await profileTargetTaskLedgerBaselineStatusAfterDriftResponse.json();
     assert.equal(profileTargetTaskLedgerBaselineStatusAfterDriftJson.health, "drift-review-required");
     assert.equal(profileTargetTaskLedgerBaselineStatusAfterDriftJson.uncheckpointedDriftItemCount > 0, true);
+
+    const profileTargetTaskLedgerGovernanceAfterDriftResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(profileTargetTaskLedgerGovernanceAfterDriftResponse.status, 200);
+    const profileTargetTaskLedgerGovernanceAfterDriftJson = await profileTargetTaskLedgerGovernanceAfterDriftResponse.json();
+    assert.equal(profileTargetTaskLedgerGovernanceAfterDriftJson.agentControlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "drift-review-required");
+    assert.ok(profileTargetTaskLedgerGovernanceAfterDriftJson.agentControlPlaneDecision.reasons.some((reason) => reason.code === "profile-target-task-baseline-drift-review"));
+    assert.match(profileTargetTaskLedgerGovernanceAfterDriftJson.agentControlPlaneDecision.markdown, /Profile target task baseline health: drift-review-required/);
 
     const profileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
       method: "POST",

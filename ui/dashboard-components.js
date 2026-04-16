@@ -11755,6 +11755,12 @@ export function createGovernanceDeck(governance) {
     : controlPlaneDecision?.decision === "review"
       ? "var(--warning)"
       : "var(--success)";
+  const controlPlaneProfileTargetBaselineHealth = controlPlaneDecision?.profileTargetTaskLedgerBaselineHealth || "missing";
+  const controlPlaneProfileTargetBaselineColor = controlPlaneProfileTargetBaselineHealth === "healthy"
+    ? "var(--success)"
+    : controlPlaneProfileTargetBaselineHealth === "missing" || controlPlaneProfileTargetBaselineHealth === "drift-review-required"
+      ? "var(--danger)"
+      : "var(--warning)";
   const agentControlPlaneDecisionEntries = controlPlaneDecision
     ? [
         createElement("div", {
@@ -11814,6 +11820,11 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: controlPlaneDecision.baselineDriftSeverity === "none" ? "var(--success)" : "var(--warning)"
               }),
+              createTag(`TARGET BASELINE ${controlPlaneProfileTargetBaselineHealth.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneProfileTargetBaselineColor
+              }),
               createTag(`READY ${controlPlaneDecision.agentReadyProjects || 0}/${controlPlaneDecision.agentReadinessItems || 0}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
@@ -11850,7 +11861,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneDecision.profileTargetTaskLedgerBaselineFreshness || "missing"} / ${controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",

@@ -2295,3 +2295,10 @@
 - [x] Surface baseline status in Governance with copyable Markdown handoff controls.
 - [x] Add toolbar and command-palette actions for copying the target task baseline status.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Agent Control Plane Profile Target Baseline Gate
+
+- [x] Feed profile target task ledger baseline status into Agent Control Plane decisions.
+- [x] Add review reasons for missing, stale, drifted, and uncheckpointed target task baselines.
+- [x] Surface target baseline health in the decision card, report, snapshot payload, and parser checks.
+- [x] Validate, relaunch, commit, and push.

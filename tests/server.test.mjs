@@ -1249,6 +1249,7 @@ export async function serverTest() {
     assert.equal(codexCliBridgeDryRunJson.selectedWorkOrder.id, createAgentWorkOrderRunJson.run.id);
     assert.equal(codexCliBridgeDryRunJson.commandEnvelope.adapterId, "codex");
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
     assert.match(codexCliBridgeDryRunJson.markdown, /# CLI Bridge Runner Dry Run/);
     assert.match(codexCliBridgeDryRunJson.markdown, /Do not use or request secrets/);
 
@@ -1931,9 +1932,12 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.workOrders.total, 1);
     assert.equal(cliBridgeContextJson.executableWorkOrderCount, 1);
     assert.equal(cliBridgeContextJson.controlPlaneDecision.decision, "hold");
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "missing");
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
     assert.match(cliBridgeContextJson.secretPolicy, /Do not include passwords/);
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
+    assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
 

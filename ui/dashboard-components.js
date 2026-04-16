@@ -11756,6 +11756,8 @@ export function createGovernanceDeck(governance) {
       ? "var(--warning)"
       : "var(--success)";
   const controlPlaneProfileTargetBaselineHealth = controlPlaneDecision?.profileTargetTaskLedgerBaselineHealth || "missing";
+  const controlPlaneProfileTargetBaselineFreshness = controlPlaneDecision?.profileTargetTaskLedgerBaselineFreshness || "missing";
+  const controlPlaneProfileTargetBaselineUncheckpointedDriftCount = controlPlaneDecision?.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0;
   const controlPlaneProfileTargetBaselineColor = controlPlaneProfileTargetBaselineHealth === "healthy"
     ? "var(--success)"
     : controlPlaneProfileTargetBaselineHealth === "missing" || controlPlaneProfileTargetBaselineHealth === "drift-review-required"
@@ -11861,7 +11863,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneDecision.profileTargetTaskLedgerBaselineFreshness || "missing"} / ${controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",
@@ -14923,6 +14925,9 @@ export function createGovernanceDeck(governance) {
   if (controlPlaneGateDecision !== "ready") {
     cliRunnerGateReasons.push({ severity: controlPlaneGateDecision === "hold" ? "hold" : "review", message: `Agent Control Plane decision is ${controlPlaneGateDecision}.` });
   }
+  if (controlPlaneProfileTargetBaselineHealth !== "healthy") {
+    cliRunnerGateReasons.push({ severity: "review", message: `Profile target task baseline is ${controlPlaneProfileTargetBaselineHealth}.` });
+  }
   if (releaseBuildGateDecision !== "ready") {
     cliRunnerGateReasons.push({ severity: releaseBuildGateDecision === "hold" ? "hold" : "review", message: `Release Build Gate is ${releaseBuildGateDecision}.` });
   }
@@ -15006,6 +15011,11 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: controlPlaneGateDecision === "ready" ? "var(--success)" : controlPlaneGateDecision === "hold" ? "var(--danger)" : "var(--warning)"
+        }),
+        createTag(`Target ${controlPlaneProfileTargetBaselineHealth}/${controlPlaneProfileTargetBaselineFreshness}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: controlPlaneProfileTargetBaselineColor
         }),
         createTag(`Release ${releaseBuildGateDecision}`, {
           background: "var(--bg)",

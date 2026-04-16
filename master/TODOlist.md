@@ -2302,3 +2302,10 @@
 - [x] Add review reasons for missing, stale, drifted, and uncheckpointed target task baselines.
 - [x] Surface target baseline health in the decision card, report, snapshot payload, and parser checks.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Profile Target Baseline Context
+
+- [x] Add profile target task baseline health to CLI bridge context payloads.
+- [x] Include profile target task baseline evidence in CLI bridge Markdown and dry-run prompts.
+- [x] Surface target baseline status in the CLI runner readiness gate.
+- [x] Validate, relaunch, commit, and push.

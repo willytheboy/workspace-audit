@@ -2565,6 +2565,14 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots[0].title, "Fixture CLI Bridge Lifecycle Remediation Task Ledger");
     assert.ok(governanceAfterCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.operationLog.some((operation) => operation.type === "cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-created"));
 
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffResponse.status, 200);
+    const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson = await cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffResponse.json();
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.hasDrift, false);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.driftSeverity, "none");
+    assert.match(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffJson.markdown, /# CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift/);
+
     const initialAgentControlPlaneSnapshotsResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`);
     assert.equal(initialAgentControlPlaneSnapshotsResponse.status, 200);
     const initialAgentControlPlaneSnapshotsJson = await initialAgentControlPlaneSnapshotsResponse.json();

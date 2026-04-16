@@ -2802,6 +2802,7 @@
  *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
+ *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?: CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload | null,
  *   agentExecutionSlaLedger: GovernanceAgentExecutionSlaLedgerItem[],
  *   agentExecutionMetrics: GovernanceAgentExecutionMetrics,
  *   agentExecutionPolicy: GovernanceAgentExecutionPolicy,
@@ -3398,6 +3399,22 @@
  *   items: CliBridgeLifecycleStackRemediationTaskLedgerPayload["items"],
  *   createdAt: string
  * }} PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, highCount: number, mediumCount: number, lowCount: number, latestTaskId: string, latestTitle: string, latestUpdatedAt: string } | null,
+ *   snapshotSummary: { total: number, openCount: number, closedCount: number, visibleCount: number, highCount: number, mediumCount: number, lowCount: number, latestTaskId: string, latestTitle: string, latestUpdatedAt: string } | null,
+ *   markdown: string
+ * }} CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   severity: "review" | "hold",
  *   code: string,

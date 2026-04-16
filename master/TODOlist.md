@@ -2615,3 +2615,11 @@
 - [x] Surface save and copy controls in Governance with snapshot cards.
 - [x] Include snapshots in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift
+
+- [x] Add a diff endpoint comparing saved remediation task ledger snapshots with the current live ledger.
+- [x] Report task-count, priority-count, visibility, and latest-task drift with severity scoring.
+- [x] Surface latest and per-snapshot copy controls in Governance.
+- [x] Include drift in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

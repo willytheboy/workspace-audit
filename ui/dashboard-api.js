@@ -1592,6 +1592,19 @@ export const dashboardApi = {
 
   /**
    * @param {string} [snapshotId]
+   * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff", {
+      snapshotId,
+      status: options.status,
+      limit: options.limit
+    }));
+  },
+
+  /**
+   * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */
   fetchCliBridgeRunTraceSnapshotDiff(snapshotId = "latest") {

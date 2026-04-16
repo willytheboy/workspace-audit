@@ -10182,6 +10182,33 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-drift-checkpoint-btn",
+        text: "Confirm Drift",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotDriftCheckpointId: snapshot.id,
+          targetBaselineAuditLedgerSnapshotDriftCheckpointDecision: "confirmed"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-drift-checkpoint-btn",
+        text: "Defer Drift",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotDriftCheckpointId: snapshot.id,
+          targetBaselineAuditLedgerSnapshotDriftCheckpointDecision: "deferred"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-drift-checkpoint-btn",
+        text: "Escalate Drift",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotDriftCheckpointId: snapshot.id,
+          targetBaselineAuditLedgerSnapshotDriftCheckpointDecision: "escalated"
+        }
+      }),
+      createElement("button", {
         className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-refresh-btn",
         text: "Refresh Snapshot",
         attrs: { type: "button" },
@@ -10191,6 +10218,99 @@ export function createGovernanceDeck(governance) {
       })
     ])
   ]));
+
+  const agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger || null;
+  const agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries = agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Target baseline audit drift checkpoint ledger",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary?.total || 0} checkpoint task(s) | ${agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary?.open || 0} open | ${agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary?.escalated || 0} escalated`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary?.confirmed || 0} confirmed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gap: "0.45rem"
+        }
+      }, [
+        ...(agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.items || []).slice(0, 6).map((item) => createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            padding: "0.7rem",
+            background: "var(--panel-soft)"
+          }
+        }, [
+          createElement("div", {
+            text: item.title || "Target baseline audit drift checkpoint",
+            style: {
+              fontWeight: "700",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${item.decision || "tracked"} | ${item.field || item.label || "field not recorded"} | ${item.status || "open"} / ${item.priority || "normal"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before || "none"} -> ${item.current || "none"} | snapshot ${item.snapshotTitle || item.snapshotId || "not recorded"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          })
+        ])),
+        !(agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.items || []).length
+          ? createElement("div", {
+              text: "No target baseline audit drift checkpoints have been recorded yet.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.82rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null
+      ])
+    ])
+  ] : [];
 
   const dataSourcesAccessReviewQueue = governance.dataSourcesAccessReviewQueue;
   const dataSourcesAccessReviewQueueItems = Array.isArray(dataSourcesAccessReviewQueue?.items)
@@ -15541,6 +15661,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
+    createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),
     createListSection("SLA Ledger Snapshots", "Persisted SLA Breach Ledger exports for external audit handoffs.", agentExecutionSlaLedgerSnapshotEntries),

@@ -2379,3 +2379,10 @@
 - [x] Record Governance operation evidence for every refreshed target-baseline audit snapshot.
 - [x] Surface per-snapshot and command-palette refresh controls.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Drift Checkpoints
+
+- [x] Add Confirm, Defer, and Escalate checkpoint handling for target-baseline audit snapshot drift.
+- [x] Store checkpoint decisions as non-secret Governance tasks with ledger evidence.
+- [x] Surface per-snapshot checkpoint controls and a command-palette confirm action.
+- [x] Validate, relaunch, commit, and push.

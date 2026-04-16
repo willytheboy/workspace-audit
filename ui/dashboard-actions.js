@@ -113,6 +113,7 @@
  *     saveSlaLedgerSnapshot: () => Promise<void>,
  *     saveAgentExecutionTargetBaselineAuditLedgerSnapshot: () => Promise<void>,
  *     refreshAgentExecutionTargetBaselineAuditLedgerSnapshot: () => Promise<void>,
+ *     checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     seedGovernanceProfiles: () => Promise<void>,
  *     seedGovernanceStarterPacks: () => Promise<void>,
  *     refreshGovernanceProfileTargets: () => Promise<void>,
@@ -923,6 +924,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "refresh"],
         run: () => handlers.refreshAgentExecutionTargetBaselineAuditLedgerSnapshot()
+      },
+      {
+        id: "checkpoint-latest-agent-execution-target-baseline-audit-ledger-snapshot-drift",
+        label: "Confirm target baseline audit drift",
+        description: "Create or update a confirmed checkpoint for the latest target-baseline audit snapshot drift.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "drift", "checkpoint", "confirm"],
+        run: () => handlers.checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift()
       },
       {
         id: "save-data-sources-access-task-ledger-snapshot",

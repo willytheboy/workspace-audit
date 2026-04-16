@@ -563,6 +563,12 @@ async function refreshAgentExecutionTargetBaselineAuditLedgerSnapshot() {
   await views.refreshAgentExecutionTargetBaselineAuditLedgerSnapshot();
 }
 
+async function checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift();
+}
+
 async function saveDataSourcesAccessTaskLedgerSnapshot() {
   setView("governance");
   await views.renderGovernance();
@@ -832,6 +838,7 @@ const actionRegistry = createDashboardActionRegistry({
     saveSlaLedgerSnapshot,
     saveAgentExecutionTargetBaselineAuditLedgerSnapshot,
     refreshAgentExecutionTargetBaselineAuditLedgerSnapshot,
+    checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     seedGovernanceProfiles,
     seedGovernanceStarterPacks,
     refreshGovernanceProfileTargets,

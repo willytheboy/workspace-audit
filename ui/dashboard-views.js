@@ -1264,6 +1264,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.reviewCount), String(snapshot.missingCount), String(snapshot.healthyCount), String(snapshot.staleCount), String(snapshot.driftCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger: governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger && matchesSearch([
+        "agent execution target baseline audit drift checkpoints",
+        governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.markdown || "",
+        ...(governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.items || []).map((item) => `${item.title || ""} ${item.decision || ""} ${item.field || ""} ${item.status || ""} ${item.snapshotTitle || ""}`)
+      ])
+        ? governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger
+        : null,
       cliBridgeRunTraceSnapshots: filterAndSort(
         governance.cliBridgeRunTraceSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
@@ -1403,6 +1410,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
+      if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotBaselineStatus = null;
@@ -5221,6 +5229,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-checkpoint-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.targetBaselineAuditLedgerSnapshotDriftCheckpointId || "";
+        const decision = element.dataset.targetBaselineAuditLedgerSnapshotDriftCheckpointDecision || "confirmed";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          element.textContent = await checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshotId, decision);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-refresh-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8286,6 +8318,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible target baseline audit ledger snapshots.");
+    }
+
+    lines.push("", "## Agent Execution Target Baseline Audit Drift Checkpoints");
+    if (governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger) {
+      const ledger = governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger;
+      lines.push(`- Checkpoints: ${ledger.summary?.total || 0} total | ${ledger.summary?.open || 0} open | ${ledger.summary?.escalated || 0} escalated`);
+      for (const item of (ledger.items || []).slice(0, 8)) {
+        lines.push(`- ${item.decision || "tracked"} ${item.field || item.label || "snapshot-drift"}: ${item.status || "open"} / ${item.priority || "normal"}`);
+        lines.push(`  Snapshot: ${item.snapshotTitle || item.snapshotId || "not recorded"} | ${item.before || "none"} -> ${item.current || "none"}`);
+      }
+    } else {
+      lines.push("- No visible target baseline audit drift checkpoints.");
     }
 
     lines.push("", "## SLA Breach Ledger");
@@ -12875,10 +12919,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return diff.hasDrift ? "Created Drift Task" : "Recorded Clean Drift";
   }
 
+  async function checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshotId, decision = "confirmed", field = "snapshot-drift") {
+    const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])
+      .find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error(`Target baseline audit ledger snapshot not found: ${snapshotId}`);
+
+    const response = await api.checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift({
+      snapshotId,
+      field,
+      decision,
+      note: "Operator checkpointed target-baseline audit snapshot drift from Governance."
+    });
+    await renderGovernance();
+    return `${response.decisionLabel || "Checkpointed"} Drift`;
+  }
+
   async function createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask() {
     const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0];
     if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available.");
     return createAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask(snapshot.id);
+  }
+
+  async function checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift() {
+    const snapshot = (governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No target baseline audit ledger snapshot is available.");
+    return checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(snapshot.id, "confirmed");
   }
 
   function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
@@ -13582,6 +13647,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentExecutionTargetBaselineAuditLedger,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,
+    checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     copyGovernanceSummary,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,

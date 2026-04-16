@@ -2218,6 +2218,48 @@
  * @typedef {{
  *   id: string,
  *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   stateFilter: string,
+ *   field: string,
+ *   label: string,
+ *   decision: "confirmed" | "deferred" | "escalated" | string,
+ *   severity: string,
+ *   before: string,
+ *   current: string,
+ *   delta: number,
+ *   driftScore: number,
+ *   checkpointedAt: string,
+ *   note: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} AgentExecutionTargetBaselineAuditLedgerDriftCheckpoint
+ * @typedef {{
+ *   total: number,
+ *   open: number,
+ *   closed: number,
+ *   visible: number,
+ *   confirmed: number,
+ *   deferred: number,
+ *   escalated: number,
+ *   snapshotCount: number,
+ *   fieldCount: number
+ * }} AgentExecutionTargetBaselineAuditLedgerDriftCheckpointSummary
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: AgentExecutionTargetBaselineAuditLedgerDriftCheckpointSummary,
+ *   items: AgentExecutionTargetBaselineAuditLedgerDriftCheckpoint[],
+ *   markdown: string
+ * }} AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
  *   stateFilter: "all" | "open" | "resolved",
  *   limit: number,
  *   available: number,
@@ -2685,6 +2727,7 @@
  *   convergenceTaskLedgerDriftCheckpointFilter?: "all" | "uncheckpointed" | "confirmed" | "deferred" | "escalated",
  *   agentExecutionSlaLedgerSnapshots: PersistedAgentExecutionSlaLedgerSnapshot[],
  *   agentExecutionTargetBaselineAuditLedgerSnapshots: PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[],
+ *   agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger?: AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload | null,
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],

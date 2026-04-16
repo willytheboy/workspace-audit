@@ -1380,11 +1380,37 @@ export async function serverTest() {
     assert.equal(targetBaselineAuditLedgerSnapshotDriftJson.driftSeverity, "none");
     assert.match(targetBaselineAuditLedgerSnapshotDriftJson.markdown, /# Agent Execution Target Baseline Audit Ledger Snapshot Drift/);
 
+    const targetBaselineAuditLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createTargetBaselineAuditLedgerSnapshotJson.snapshot.id,
+        field: "snapshot-clean",
+        decision: "confirmed",
+        note: "Fixture checkpoint for clean target baseline audit drift."
+      })
+    });
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointResponse.status, 200);
+    const targetBaselineAuditLedgerDriftCheckpointJson = await targetBaselineAuditLedgerDriftCheckpointResponse.json();
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointJson.success, true);
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointJson.decision, "confirmed");
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointJson.field, "snapshot-clean");
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointJson.ledger.summary.total, 1);
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointJson.ledger.summary.confirmed, 1);
+
+    const targetBaselineAuditLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-drift-checkpoints?status=all&limit=5`);
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointLedgerResponse.status, 200);
+    const targetBaselineAuditLedgerDriftCheckpointLedgerJson = await targetBaselineAuditLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(targetBaselineAuditLedgerDriftCheckpointLedgerJson.summary.total, 1);
+    assert.match(targetBaselineAuditLedgerDriftCheckpointLedgerJson.markdown, /# Agent Execution Target Baseline Audit Ledger Drift Checkpoints/);
+
     const governanceAfterTargetBaselineAuditSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterTargetBaselineAuditSnapshotResponse.status, 200);
     const governanceAfterTargetBaselineAuditSnapshotJson = await governanceAfterTargetBaselineAuditSnapshotResponse.json();
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.summary.agentExecutionTargetBaselineAuditLedgerDriftCheckpointCount, 1);
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerSnapshots.length, 1);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary.confirmed, 1);
 
     const refreshTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh`, {
       method: "POST",
@@ -1407,6 +1433,7 @@ export async function serverTest() {
     const governanceAfterTargetBaselineAuditSnapshotRefreshJson = await governanceAfterTargetBaselineAuditSnapshotRefreshResponse.json();
     assert.equal(governanceAfterTargetBaselineAuditSnapshotRefreshJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 2);
     assert.ok(governanceAfterTargetBaselineAuditSnapshotRefreshJson.operationLog.some((operation) => operation.type === "agent-execution-target-baseline-audit-ledger-snapshot-refreshed"));
+    assert.ok(governanceAfterTargetBaselineAuditSnapshotRefreshJson.operationLog.some((operation) => operation.type === "agent-execution-target-baseline-audit-ledger-drift-checkpoint-upserted"));
 
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",

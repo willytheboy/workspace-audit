@@ -1862,6 +1862,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, field?: string, decision?: string, note?: string }} [payload]
+   * @returns {Promise<{ success: true, mode: string, decision: string, field: string, task: import("./dashboard-types.js").PersistedTask, ledger: import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload }>}
+   */
+  checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/target-baseline-audit-ledger-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} snapshotId
    * @returns {Promise<import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerSnapshotDriftPayload>}
    */

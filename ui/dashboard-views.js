@@ -9335,6 +9335,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Health: ${status.health || "missing"} | Freshness: ${status.freshness || "missing"} (${status.ageHours || 0}h old)`);
       lines.push(`- Drift: ${status.driftSeverity || "missing-baseline"} / score ${status.driftScore || 0}`);
       lines.push(`- Checkpoints: ${status.checkpointedDriftItemCount || 0}/${status.driftItemCount || 0}; uncheckpointed ${status.uncheckpointedDriftItemCount || 0}; open escalated ${status.openEscalatedCheckpointCount || 0}`);
+      lines.push(`- Refresh gate: ${status.refreshGateDecision || "hold"}; allowed ${status.refreshAllowed ? "yes" : "no"}`);
+      for (const reason of (status.refreshGateReasons || []).slice(0, 4)) {
+        lines.push(`- Refresh reason: ${reason}`);
+      }
       lines.push(`- Action: ${status.recommendedAction || "Save a CLI bridge lifecycle remediation task ledger snapshot."}`);
     } else {
       lines.push("- No visible CLI bridge lifecycle remediation task ledger baseline status.");

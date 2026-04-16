@@ -2647,3 +2647,11 @@
 - [x] Surface Refresh Baseline and Accept Drift controls across snapshot, drift, and baseline-status cards.
 - [x] Add parser and server test coverage for the baseline refresh flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Refresh Gate
+
+- [x] Add refresh gate decision fields to remediation task ledger baseline status.
+- [x] Classify baseline refresh as ready, review, or hold using drift, checkpoint coverage, open escalations, and freshness.
+- [x] Surface gate state, reasons, and blocked Accept Drift controls in Governance.
+- [x] Include gate details in report export, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

@@ -2582,6 +2582,9 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.freshness, "fresh");
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.driftScore, 0);
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.checkpointedDriftItemCount, 0);
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateDecision, "ready");
+    assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshAllowed, true);
+    assert.ok(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateReasons.length >= 1);
     assert.match(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.markdown, /# CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Status/);
 
     const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
@@ -2648,6 +2651,9 @@ export async function serverTest() {
     assert.ok(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.driftItemCount >= 1);
     assert.ok(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.checkpointedDriftItemCount >= 1);
     assert.equal(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.openEscalatedCheckpointCount, 1);
+    assert.equal(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateDecision, "hold");
+    assert.equal(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshAllowed, false);
+    assert.ok(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateReasons.some((reason) => /drift field/i.test(reason)));
 
     const refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/refresh`, {
       method: "POST",
@@ -2680,6 +2686,8 @@ export async function serverTest() {
     assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.baselineSnapshotId, refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id);
     assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.health, "healthy");
     assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.driftScore, 0);
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateDecision, "ready");
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshAllowed, true);
 
     const resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${encodeURIComponent(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.id)}`, {
       method: "PATCH",

@@ -10599,6 +10599,12 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed = governance.cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus?.refreshAllowed !== false;
+  const cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshDecision = governance.cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus?.refreshGateDecision || "review";
+  const cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshTitle = cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed
+    ? "Refresh the saved remediation task ledger baseline from the current live ledger."
+    : governance.cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus?.refreshGateRecommendedAction || "Resolve remediation task ledger refresh gate holds before accepting drift.";
+
   const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries = (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).slice(0, 8).map((snapshot) => createElement("div", {
     className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-card",
     style: {
@@ -10687,8 +10693,12 @@ export function createGovernanceDeck(governance) {
       }),
       createElement("button", {
         className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
-        text: "Refresh Baseline",
-        attrs: { type: "button" },
+        text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed ? "Refresh Baseline" : "Gate Hold",
+        title: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshTitle,
+        attrs: {
+          type: "button",
+          ...(cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed ? {} : { disabled: "true" })
+        },
         dataset: {
           cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: snapshot.id,
           cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: snapshot.statusFilter || "all"
@@ -10767,8 +10777,14 @@ export function createGovernanceDeck(governance) {
             }),
             createElement("button", {
               className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
-              text: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.hasSnapshot ? "Accept Drift" : "Save Baseline",
-              attrs: { type: "button" },
+              text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed
+                ? (cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.hasSnapshot ? "Accept Drift" : "Save Baseline")
+                : "Gate Hold",
+              title: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshTitle,
+              attrs: {
+                type: "button",
+                ...(cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed ? {} : { disabled: "true" })
+              },
               dataset: {
                 cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest",
                 cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.status || "all"
@@ -11052,6 +11068,15 @@ export function createGovernanceDeck(governance) {
               background: "var(--bg)",
               border: "1px solid var(--border)",
               color: (cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.openEscalatedCheckpointCount || 0) > 0 ? "var(--danger)" : "var(--success)"
+            }),
+            createTag(`refresh ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateDecision || "hold"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateDecision === "ready"
+                ? "var(--success)"
+                : cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateDecision === "hold"
+                  ? "var(--danger)"
+                  : "var(--warning)"
             })
           ]),
           createElement("div", {
@@ -11081,6 +11106,22 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
+            text: `Refresh gate: ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateDecision || "hold"} | ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateRecommendedAction || "Review remediation task ledger drift before refreshing the baseline."}`,
+            style: {
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateDecision === "hold" ? "var(--danger)" : "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Refresh reasons: ${(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.refreshGateReasons || []).slice(0, 3).join(" | ") || "No refresh gate reasons recorded."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
             className: "governance-actions"
           }, [
             createElement("button", {
@@ -11093,8 +11134,14 @@ export function createGovernanceDeck(governance) {
             }),
             createElement("button", {
               className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
-              text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline ? "Refresh Baseline" : "Save Baseline",
-              attrs: { type: "button" },
+              text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed
+                ? (cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline ? "Refresh Baseline" : "Save Baseline")
+                : "Gate Hold",
+              title: cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshTitle,
+              attrs: {
+                type: "button",
+                ...(cliBridgeLifecycleStackRemediationTaskLedgerBaselineRefreshAllowed ? {} : { disabled: "true" })
+              },
               dataset: {
                 cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.snapshotId || "latest",
                 cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.status || "all"

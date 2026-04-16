@@ -2309,3 +2309,10 @@
 - [x] Include profile target task baseline evidence in CLI bridge Markdown and dry-run prompts.
 - [x] Surface target baseline status in the CLI runner readiness gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Profile Target Baseline
+
+- [x] Add profile target task baseline health to CLI bridge run traces.
+- [x] Persist target baseline state on CLI bridge run trace snapshots.
+- [x] Include target baseline state in run trace Markdown, snapshot cards, parser checks, and tests.
+- [x] Validate, relaunch, commit, and push.

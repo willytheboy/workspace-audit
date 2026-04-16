@@ -2138,8 +2138,11 @@ export async function serverTest() {
     assert.equal(cliBridgeRunTraceJson.executionMode, "non-executing");
     assert.equal(cliBridgeRunTraceJson.runId, createAgentWorkOrderRunJson.run.id);
     assert.equal(cliBridgeRunTraceJson.traceDecision, "ready");
+    assert.equal(cliBridgeRunTraceJson.profileTargetTaskLedgerBaselineHealth, "missing");
+    assert.equal(cliBridgeRunTraceJson.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.ok(cliBridgeRunTraceJson.relatedHandoffCount >= 2);
     assert.match(cliBridgeRunTraceJson.markdown, /# CLI Bridge Run Trace/);
+    assert.match(cliBridgeRunTraceJson.markdown, /Profile Target Task Baseline/);
     assert.match(cliBridgeRunTraceJson.markdown, /CLI bridge handoff review recorded/);
 
     const cliBridgeRunTraceSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runs/${createAgentWorkOrderRunJson.run.id}/trace-snapshots`, {
@@ -2154,6 +2157,7 @@ export async function serverTest() {
     assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.title, "Fixture CLI bridge run trace");
     assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.runId, createAgentWorkOrderRunJson.run.id);
     assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.traceDecision, "ready");
+    assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.relatedHandoffCount, cliBridgeRunTraceJson.relatedHandoffCount);
     assert.equal(cliBridgeRunTraceSnapshotJson.snapshot.secretPolicy, cliBridgeRunTraceJson.secretPolicy);
     assert.match(cliBridgeRunTraceSnapshotJson.snapshot.markdown, /# CLI Bridge Run Trace/);

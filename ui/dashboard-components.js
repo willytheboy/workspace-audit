@@ -9213,6 +9213,11 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: snapshot.profileTargetTaskLedgerBaselineHealth === "healthy" ? "var(--success)" : snapshot.profileTargetTaskLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
       }),
+      createTag(`audit ${snapshot.targetBaselineAuditLedgerBaselineHealth || "missing"}/${snapshot.targetBaselineAuditLedgerBaselineFreshness || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.targetBaselineAuditLedgerBaselineHealth === "healthy" ? "var(--success)" : snapshot.targetBaselineAuditLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
+      }),
       snapshot.latestCliBridgeResultHandoffId
         ? createTag(`result ${snapshot.latestCliBridgeResultHandoffId}`, {
             background: "var(--bg)",

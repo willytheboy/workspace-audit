@@ -2440,3 +2440,12 @@
 - [x] Reuse the no-secret audit refresh API and preserve per-run history evidence.
 - [x] Add parser coverage for the bulk audit-baseline refresh wiring.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Run Trace Audit Baseline
+
+- [x] Add target-baseline audit snapshot baseline status to CLI bridge run trace payloads.
+- [x] Include audit-baseline health, freshness, drift, checkpoint, snapshot, and action context in CLI trace Markdown.
+- [x] Persist audit-baseline state on CLI bridge run trace snapshots and drift summaries.
+- [x] Surface audit-baseline status in CLI trace snapshot cards.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

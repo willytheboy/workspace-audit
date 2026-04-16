@@ -3028,6 +3028,11 @@
  *   profileTargetTaskLedgerBaselineDriftSeverity: string,
  *   profileTargetTaskLedgerBaselineUncheckpointedDriftCount: number,
  *   profileTargetTaskLedgerBaselineStatus: GovernanceProfileTargetTaskLedgerBaselineStatusPayload,
+ *   targetBaselineAuditLedgerBaselineHealth: string,
+ *   targetBaselineAuditLedgerBaselineFreshness: string,
+ *   targetBaselineAuditLedgerBaselineDriftSeverity: string,
+ *   targetBaselineAuditLedgerBaselineUncheckpointedDriftCount: number,
+ *   targetBaselineAuditLedgerBaselineStatus: AgentExecutionTargetBaselineAuditLedgerBaselineStatusPayload,
  *   run: PersistedAgentWorkOrderRun | Record<string, never>,
  *   relatedHandoffs: PersistedCliBridgeHandoff[],
  *   relatedHandoffCount: number,
@@ -3044,6 +3049,10 @@
  *   profileTargetTaskLedgerBaselineFreshness: string,
  *   profileTargetTaskLedgerBaselineDriftSeverity: string,
  *   profileTargetTaskLedgerBaselineUncheckpointedDriftCount: number,
+ *   targetBaselineAuditLedgerBaselineHealth: string,
+ *   targetBaselineAuditLedgerBaselineFreshness: string,
+ *   targetBaselineAuditLedgerBaselineDriftSeverity: string,
+ *   targetBaselineAuditLedgerBaselineUncheckpointedDriftCount: number,
  *   relatedHandoffCount: number,
  *   latestCliBridgeResultHandoffId?: string,
  *   latestCliBridgeReviewHandoffId?: string,
@@ -3064,8 +3073,8 @@
  *   recommendedAction: string,
  *   secretPolicy: string,
  *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
- *   liveSummary: { traceDecision: string, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
- *   snapshotSummary: { traceDecision: string, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
+ *   liveSummary: { traceDecision: string, targetBaselineAuditLedgerBaselineHealth: string, targetBaselineAuditLedgerBaselineFreshness: string, targetBaselineAuditLedgerBaselineDriftSeverity: string, targetBaselineAuditLedgerBaselineUncheckpointedDriftCount: number, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
+ *   snapshotSummary: { traceDecision: string, targetBaselineAuditLedgerBaselineHealth: string, targetBaselineAuditLedgerBaselineFreshness: string, targetBaselineAuditLedgerBaselineDriftSeverity: string, targetBaselineAuditLedgerBaselineUncheckpointedDriftCount: number, runStatus: string, relatedHandoffCount: number, latestCliBridgeResultHandoffId: string, latestCliBridgeReviewHandoffId: string, relatedHandoffIds: string } | null,
  *   markdown: string
  * }} CliBridgeRunTraceSnapshotDiffPayload
  * @typedef {{

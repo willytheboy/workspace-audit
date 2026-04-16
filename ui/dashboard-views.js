@@ -4800,6 +4800,75 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunnerDryRunSnapshotDriftTaskId || "latest";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await createCliBridgeRunnerDryRunSnapshotDriftReviewTask(snapshotId);
+          element.textContent = "Tracked";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot-drift-accept-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunnerDryRunSnapshotDriftAcceptId || "latest";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Accepting";
+          await acceptCliBridgeRunnerDryRunSnapshotDrift(snapshotId);
+          element.textContent = "Accepted";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.cliBridgeRunnerDryRunSnapshotDriftItemField || "";
+        const decision = element.dataset.cliBridgeRunnerDryRunSnapshotDriftItemDecision || "confirmed";
+        if (!field) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          const label = await updateCliBridgeRunnerDryRunSnapshotDriftItemCheckpoint(field, decision);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-handoff-work-order-draft]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -11453,6 +11522,146 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchGovernanceTaskUpdateLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
     return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
+  function findCliBridgeRunnerDryRunSnapshot(snapshotId) {
+    const snapshots = Array.isArray(governanceCache?.cliBridgeRunnerDryRunSnapshots)
+      ? governanceCache.cliBridgeRunnerDryRunSnapshots
+      : [];
+    if (snapshotId === "latest") {
+      return [...snapshots].sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())[0] || null;
+    }
+    return snapshots.find((snapshot) => snapshot.id === snapshotId) || null;
+  }
+
+  function getCliBridgeRunnerDryRunSnapshotDriftTaskPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium" || severity === "missing-snapshot") return "medium";
+    return "low";
+  }
+
+  function getCliBridgeRunnerDryRunSnapshotTaskProject(diff, snapshot) {
+    const liveSummary = diff?.liveSummary || {};
+    const snapshotSummary = diff?.snapshotSummary || {};
+    return {
+      projectId: liveSummary.selectedWorkOrderProjectId || snapshot?.selectedWorkOrderProjectId || snapshotSummary.selectedWorkOrderProjectId || "cli-bridge",
+      projectName: liveSummary.selectedWorkOrderProjectName || snapshot?.selectedWorkOrderProjectName || snapshotSummary.selectedWorkOrderProjectName || "CLI Bridge"
+    };
+  }
+
+  function buildCliBridgeRunnerDryRunSnapshotDriftTaskDescription(snapshot, diff) {
+    const driftItems = Array.isArray(diff.driftItems) ? diff.driftItems : [];
+    const snapshotSummary = diff.snapshotSummary || {};
+    const liveSummary = diff.liveSummary || {};
+    const lines = [
+      `Review CLI bridge runner dry-run snapshot drift from ${diff.snapshotTitle || snapshot?.title || diff.snapshotId || "latest snapshot"}.`,
+      `Snapshot ID: ${diff.snapshotId || snapshot?.id || "missing"}.`,
+      `Runner: ${diff.runner || snapshot?.runner || "codex"}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review CLI bridge runner dry-run drift before accepting the live dry-run contract as the new baseline."}`,
+      `Dry-run decision: ${snapshotSummary.dryRunDecision || "missing"} -> ${liveSummary.dryRunDecision || "missing"}.`,
+      `Context decision: ${snapshotSummary.contextDecision || "missing"} -> ${liveSummary.contextDecision || "missing"}.`,
+      `Selected work order: ${snapshotSummary.selectedWorkOrderId || "missing"} -> ${liveSummary.selectedWorkOrderId || "missing"}.`,
+      `Target baseline audit gate: ${snapshotSummary.targetBaselineAuditGateDecision || "missing"} -> ${liveSummary.targetBaselineAuditGateDecision || "missing"}.`,
+      `Audit baseline run gate: ${snapshotSummary.auditBaselineRunGateDecision || "missing"} -> ${liveSummary.auditBaselineRunGateDecision || "missing"}.`,
+      `Reason count: ${snapshotSummary.reasonCount ?? 0} -> ${liveSummary.reasonCount ?? 0}.`,
+      "Secret policy: non-secret CLI bridge runner dry-run drift metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ];
+
+    if (driftItems.length) {
+      lines.push("Drift fields:");
+      driftItems.slice(0, 10).forEach((item) => {
+        const delta = Number(item.delta || 0);
+        lines.push(`- ${item.label || item.field || "CLI bridge runner dry-run drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"} (${delta >= 0 ? "+" : ""}${delta})`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createCliBridgeRunnerDryRunSnapshotDriftReviewTask(snapshotId) {
+    const snapshot = findCliBridgeRunnerDryRunSnapshot(snapshotId);
+    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest");
+    const project = getCliBridgeRunnerDryRunSnapshotTaskProject(diff, snapshot);
+    const title = `Review CLI bridge runner dry-run drift: ${diff.snapshotTitle || snapshot?.title || diff.snapshotId || "latest snapshot"}`;
+    await api.createTask({
+      projectId: project.projectId,
+      projectName: project.projectName,
+      title: title.slice(0, 140),
+      description: buildCliBridgeRunnerDryRunSnapshotDriftTaskDescription(snapshot, diff),
+      priority: getCliBridgeRunnerDryRunSnapshotDriftTaskPriority(diff.driftSeverity),
+      status: "open"
+    });
+    await renderGovernance();
+    return "Created CLI bridge runner dry-run drift review task";
+  }
+
+  async function acceptCliBridgeRunnerDryRunSnapshotDrift(snapshotId) {
+    const snapshot = findCliBridgeRunnerDryRunSnapshot(snapshotId);
+    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest");
+    if (diff.status !== "ready" && !snapshot) {
+      throw new Error("Cannot accept CLI bridge runner dry-run drift before a saved snapshot exists.");
+    }
+
+    const liveSummary = diff.liveSummary || {};
+    const runner = diff.runner || snapshot?.runner || "codex";
+    const runId = liveSummary.requestedRunId || liveSummary.selectedWorkOrderId || snapshot?.requestedRunId || snapshot?.selectedWorkOrderId || "";
+    const sourceTitle = diff.snapshotTitle || snapshot?.title || snapshotId || "latest snapshot";
+    const payload = {
+      runner,
+      limit: 12,
+      title: `Accepted CLI bridge runner dry-run drift as current baseline: ${sourceTitle}`.slice(0, 120)
+    };
+    if (runId) payload.runId = runId;
+
+    await api.createCliBridgeRunnerDryRunSnapshot(payload);
+    await renderGovernance();
+    return "Accepted CLI bridge runner dry-run drift as current baseline";
+  }
+
+  function findCliBridgeRunnerDryRunSnapshotDriftItem(field) {
+    const diff = governanceCache?.cliBridgeRunnerDryRunSnapshotDiff || null;
+    const driftItems = Array.isArray(diff?.driftItems) ? diff.driftItems : [];
+    const item = driftItems.find((candidate) => candidate.field === field || candidate.label === field) || null;
+    return { diff, item };
+  }
+
+  function getCliBridgeRunnerDryRunSnapshotDriftItemDecision(decision) {
+    if (decision === "escalated") return { status: "blocked", priority: "high", label: "Escalated" };
+    if (decision === "deferred") return { status: "deferred", priority: "medium", label: "Deferred" };
+    return { status: "resolved", priority: "low", label: "Confirmed" };
+  }
+
+  function buildCliBridgeRunnerDryRunSnapshotDriftItemDescription(decision, diff, item) {
+    const label = item?.label || item?.field || "CLI bridge runner dry-run drift";
+    return [
+      `Operator ${decision.label.toLowerCase()} CLI bridge runner dry-run drift item ${label}.`,
+      `Snapshot: ${diff?.snapshotTitle || diff?.snapshotId || "latest CLI bridge runner dry-run snapshot"}.`,
+      `Runner: ${diff?.runner || "codex"}.`,
+      `Field: ${item?.field || label}.`,
+      `Previous: ${item?.before ?? "none"}; current: ${item?.current ?? "none"}; delta: ${item?.delta ?? 0}.`,
+      `Drift severity: ${diff?.driftSeverity || "none"}; score: ${diff?.driftScore || 0}.`,
+      "Secret policy: non-secret CLI bridge runner dry-run drift metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
+    ].join(" ");
+  }
+
+  async function updateCliBridgeRunnerDryRunSnapshotDriftItemCheckpoint(field, checkpointDecision) {
+    const { diff, item } = findCliBridgeRunnerDryRunSnapshotDriftItem(field);
+    if (!diff) throw new Error("CLI bridge runner dry-run snapshot drift is not loaded.");
+    if (!item) throw new Error(`CLI bridge runner dry-run drift item not found: ${field}`);
+
+    const decision = getCliBridgeRunnerDryRunSnapshotDriftItemDecision(checkpointDecision);
+    const project = getCliBridgeRunnerDryRunSnapshotTaskProject(diff, null);
+    await api.createTask({
+      projectId: project.projectId,
+      projectName: project.projectName,
+      title: `CLI dry-run drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
+      description: buildCliBridgeRunnerDryRunSnapshotDriftItemDescription(decision, diff, item),
+      priority: decision.priority,
+      status: decision.status
+    });
+    await renderGovernance();
+    return decision.label;
   }
 
   function findCliBridgeRunTraceSnapshot(snapshotId) {

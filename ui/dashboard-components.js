@@ -9261,6 +9261,7 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const cliBridgeRunnerDryRunSnapshotDiffActionId = governance.cliBridgeRunnerDryRunSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunnerDryRunSnapshotDiffEntries = governance.cliBridgeRunnerDryRunSnapshotDiff
     ? [
         createElement("div", {
@@ -9339,13 +9340,55 @@ export function createGovernanceDeck(governance) {
                   gap: "0.45rem"
                 }
               }, governance.cliBridgeRunnerDryRunSnapshotDiff.driftItems.slice(0, 6).map((item) => createElement("div", {
-                text: `${item.label || item.field}: ${item.before ?? ""} -> ${item.current ?? ""}`,
                 style: {
-                  color: "var(--text-muted)",
-                  fontSize: "0.84rem",
-                  lineHeight: "1.45"
+                  display: "grid",
+                  gap: "0.5rem",
+                  padding: "0.65rem",
+                  border: "1px solid var(--border)",
+                  borderRadius: "0.75rem",
+                  background: "var(--surface)"
                 }
-              })))
+              }, [
+                createElement("div", {
+                  text: `${item.label || item.field}: ${item.before ?? ""} -> ${item.current ?? ""}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.84rem",
+                    lineHeight: "1.45"
+                  }
+                }),
+                createElement("div", {
+                  className: "governance-actions"
+                }, [
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-drift-item-confirm-btn",
+                    text: "Confirm",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunnerDryRunSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunnerDryRunSnapshotDriftItemDecision: "confirmed"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-drift-item-defer-btn",
+                    text: "Defer",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunnerDryRunSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunnerDryRunSnapshotDriftItemDecision: "deferred"
+                    }
+                  }),
+                  createElement("button", {
+                    className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-drift-item-escalate-btn",
+                    text: "Escalate",
+                    attrs: { type: "button" },
+                    dataset: {
+                      cliBridgeRunnerDryRunSnapshotDriftItemField: item.field || item.label || "",
+                      cliBridgeRunnerDryRunSnapshotDriftItemDecision: "escalated"
+                    }
+                  })
+                ])
+              ])))
             : null,
           createElement("div", {
             className: "governance-actions"
@@ -9357,7 +9400,25 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeRunnerDryRunSnapshotDiffCopy: "true"
               }
-            })
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-drift-task-btn",
+              text: "Track Drift",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeRunnerDryRunSnapshotDriftTaskId: cliBridgeRunnerDryRunSnapshotDiffActionId
+              }
+            }),
+            governance.cliBridgeRunnerDryRunSnapshotDiff.status === "ready"
+              ? createElement("button", {
+                  className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-drift-accept-btn",
+                  text: "Accept Drift",
+                  attrs: { type: "button" },
+                  dataset: {
+                    cliBridgeRunnerDryRunSnapshotDriftAcceptId: cliBridgeRunnerDryRunSnapshotDiffActionId
+                  }
+                })
+              : null
           ])
         ])
       ]

@@ -2520,3 +2520,11 @@
 - [x] Surface drift severity, score, items, recommended action, and copyable Markdown in Governance.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Snapshot Drift Checkpoints
+
+- [x] Add Track Drift and Accept Drift controls to the runner dry-run snapshot drift card.
+- [x] Add per-field Confirm, Defer, and Escalate checkpoint controls for dry-run drift items.
+- [x] Convert checkpoint decisions into non-secret Governance tasks scoped to the selected work order when available.
+- [x] Refresh the dry-run snapshot baseline when drift is accepted.
+- [x] Add parser and milestone coverage, validate, relaunch, commit, and push.

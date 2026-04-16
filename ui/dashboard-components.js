@@ -2360,29 +2360,78 @@ export function createGovernanceDeck(governance) {
           display: "grid",
           gap: "0.4rem"
         }
-      }, (profileTargetTaskSnapshotDiff.driftItems || []).slice(0, 5).map((item) => createElement("div", {
-        className: "governance-gap-card",
-        style: {
-          padding: "0.7rem",
-          background: "var(--panel-soft)"
-        }
       }, [
-        createElement("div", {
-          text: item.label || item.field || "Profile target task drift",
+        ...(profileTargetTaskSnapshotDiff.driftItems || []).slice(0, 5).map((item) => createElement("div", {
+          className: "governance-gap-card",
           style: {
-            fontWeight: "700",
-            color: "var(--text)"
+            padding: "0.7rem",
+            background: "var(--panel-soft)"
           }
-        }),
-        createElement("div", {
-          text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
-          style: {
-            color: "var(--text-muted)",
-            fontSize: "0.82rem",
-            lineHeight: "1.45"
-          }
-        })
-      ])))
+        }, [
+          createElement("div", {
+            text: item.label || item.field || "Profile target task drift",
+            style: {
+              fontWeight: "700",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions",
+            style: {
+              marginTop: "0.5rem"
+            }
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-confirm-btn",
+              text: "Confirm",
+              attrs: { type: "button" },
+              dataset: {
+                governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
+                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemDecision: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-defer-btn",
+              text: "Defer",
+              attrs: { type: "button" },
+              dataset: {
+                governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
+                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemDecision: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-escalate-btn",
+              text: "Escalate",
+              attrs: { type: "button" },
+              dataset: {
+                governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
+                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemDecision: "escalated"
+              }
+            })
+          ])
+        ])),
+        !(profileTargetTaskSnapshotDiff.driftItems || []).length
+          ? createElement("div", {
+              text: "No profile target task drift items require checkpoint decisions.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.82rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null
+      ])
     ])
   ] : [];
 

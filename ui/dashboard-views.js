@@ -204,6 +204,7 @@ function createEmptyTableRow(message) {
  *     fetchGovernanceProfileTargetTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerSnapshotDiffPayload>,
  *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
+ *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
@@ -5361,6 +5362,42 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindGovernanceProfileTargetTaskLedgerSnapshotActions(container) {
+    container.querySelectorAll("[data-governance-profile-target-task-ledger-drift-item-field]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const field = element.dataset.governanceProfileTargetTaskLedgerDriftItemField || "";
+        const decision = element.dataset.governanceProfileTargetTaskLedgerDriftItemDecision || "";
+        const snapshotId = element.dataset.governanceProfileTargetTaskLedgerDriftSnapshotId || "latest";
+        if (!field || !decision) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          const response = await api.checkpointGovernanceProfileTargetTaskLedgerDrift({
+            snapshotId,
+            field,
+            decision
+          });
+          element.textContent = response.decisionLabel || "Updated";
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindGovernanceTaskUpdateLedgerSnapshotActions(container) {
     container.querySelectorAll("[data-governance-task-update-ledger-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -7172,6 +7209,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindSlaLedgerSnapshotActions(container);
     bindSlaLedgerItemActions(container);
     bindGovernanceTaskUpdateLedgerActions(container);
+    bindGovernanceProfileTargetTaskLedgerSnapshotActions(container);
     bindGovernanceTaskUpdateLedgerSnapshotActions(container);
     bindDataSourcesAccessTaskLedgerSnapshotActions(container);
     bindDataSourcesAccessValidationEvidenceSnapshotActions(container);

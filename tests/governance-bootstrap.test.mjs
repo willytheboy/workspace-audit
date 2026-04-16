@@ -286,6 +286,38 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerSnapshotRefreshJson.snapshot.openCount, 1);
     assert.equal(profileTargetTaskLedgerSnapshotRefreshJson.governanceProfileTargetTaskLedgerSnapshots.length, 2);
 
+    const updateProfileTargetTaskResponse = await fetch(`${baseUrl}/api/tasks/${encodeURIComponent(seedProfileTargetTasksJson.createdTasks[0].id)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "resolved"
+      })
+    });
+    assert.equal(updateProfileTargetTaskResponse.status, 200);
+
+    const profileTargetTaskLedgerDriftAfterUpdateResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(profileTargetTaskLedgerDriftAfterUpdateResponse.status, 200);
+    const profileTargetTaskLedgerDriftAfterUpdateJson = await profileTargetTaskLedgerDriftAfterUpdateResponse.json();
+    assert.equal(profileTargetTaskLedgerDriftAfterUpdateJson.hasDrift, true);
+    assert.ok(profileTargetTaskLedgerDriftAfterUpdateJson.driftItems.some((item) => item.field === "open"));
+
+    const profileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        field: "open",
+        decision: "confirmed",
+        note: "Fixture checkpoint for target task ledger drift"
+      })
+    });
+    assert.equal(profileTargetTaskLedgerDriftCheckpointResponse.status, 200);
+    const profileTargetTaskLedgerDriftCheckpointJson = await profileTargetTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(profileTargetTaskLedgerDriftCheckpointJson.success, true);
+    assert.equal(profileTargetTaskLedgerDriftCheckpointJson.decision, "confirmed");
+    assert.equal(profileTargetTaskLedgerDriftCheckpointJson.task.sourceType, "governance-profile-target-task-ledger-snapshot-drift-checkpoint");
+    assert.equal(profileTargetTaskLedgerDriftCheckpointJson.task.governanceProfileTargetTaskLedgerDriftField, "open");
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -310,7 +342,7 @@ export async function governanceBootstrapTest() {
     const suppressedGovernanceJson = await suppressedGovernanceResponse.json();
     assert.equal(suppressedGovernanceJson.summary.actionQueueItems, 0);
     assert.equal(suppressedGovernanceJson.summary.suppressedQueueItems, 1);
-    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 9);
+    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 11);
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
@@ -331,7 +363,7 @@ export async function governanceBootstrapTest() {
     const restoredGovernanceJson = await restoredGovernanceResponse.json();
     assert.equal(restoredGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(restoredGovernanceJson.summary.suppressedQueueItems, 0);
-    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 10);
+    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 12);
     assert.equal(restoredGovernanceJson.actionQueue.length, 1);
     assert.equal(restoredGovernanceJson.operationLog[0].type, "queue-restore");
   } finally {

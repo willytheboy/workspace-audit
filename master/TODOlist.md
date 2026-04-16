@@ -2267,3 +2267,10 @@
 - [x] Preserve previous snapshot lineage and record a Governance operation for every baseline refresh.
 - [x] Add toolbar and command-palette actions for refreshing the target task baseline.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Drift Checkpoints
+
+- [x] Add task-backed Confirm, Defer, and Escalate checkpoints for profile target task ledger drift items.
+- [x] Preserve snapshot ID, drift field, before/current values, decision, and no-secrets metadata on checkpoint tasks.
+- [x] Surface checkpoint actions on Governance profile target task drift rows.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

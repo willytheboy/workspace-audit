@@ -2606,6 +2606,42 @@ export async function serverTest() {
     assert.ok(Array.isArray(cliBridgeLifecycleHandoffPacketJson.validationLoop));
     assert.match(cliBridgeLifecycleHandoffPacketJson.markdown, /# CLI Bridge Lifecycle Handoff Packet/);
 
+    const initialCliBridgeLifecycleHandoffPacketSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`);
+    assert.equal(initialCliBridgeLifecycleHandoffPacketSnapshotsResponse.status, 200);
+    const initialCliBridgeLifecycleHandoffPacketSnapshotsJson = await initialCliBridgeLifecycleHandoffPacketSnapshotsResponse.json();
+    assert.equal(initialCliBridgeLifecycleHandoffPacketSnapshotsJson.length, 0);
+
+    const createCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture CLI Bridge Lifecycle Handoff Packet",
+        runner: "codex",
+        limit: 25
+      })
+    });
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotResponse.status, 200);
+    const createCliBridgeLifecycleHandoffPacketSnapshotJson = await createCliBridgeLifecycleHandoffPacketSnapshotResponse.json();
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotJson.success, true);
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.title, "Fixture CLI Bridge Lifecycle Handoff Packet");
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.protocolVersion, "cli-bridge-lifecycle-handoff-packet.v1");
+    assert.equal(createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.packetDecision, cliBridgeLifecycleHandoffPacketJson.packetDecision);
+    assert.match(createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.markdown, /# CLI Bridge Lifecycle Handoff Packet/);
+
+    const cliBridgeLifecycleHandoffPacketSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotsResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketSnapshotsJson = await cliBridgeLifecycleHandoffPacketSnapshotsResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotsJson.length, 1);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotsJson[0].title, "Fixture CLI Bridge Lifecycle Handoff Packet");
+
+    const governanceAfterCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotResponse.status, 200);
+    const governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson = await governanceAfterCliBridgeLifecycleHandoffPacketSnapshotResponse.json();
+    assert.equal(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson.summary.cliBridgeLifecycleHandoffPacketSnapshotCount, 1);
+    assert.equal(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson.cliBridgeLifecycleHandoffPacketSnapshots[0].title, "Fixture CLI Bridge Lifecycle Handoff Packet");
+    assert.ok(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson.operationLog.some((operation) => operation.type === "cli-bridge-lifecycle-handoff-packet-snapshot-created"));
+
     const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

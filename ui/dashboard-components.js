@@ -10589,11 +10589,97 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeLifecycleHandoffPacketRunner: "claude"
               }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-btn",
+              text: "Save Snapshot",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketSnapshotRunner: cliBridgeLifecycleHandoffPacket.runner || "all"
+              }
             })
           ])
         ])
       ]
     : [];
+
+  const cliBridgeLifecycleHandoffPacketSnapshotEntries = (governance.cliBridgeLifecycleHandoffPacketSnapshots || []).slice(0, 8).map((snapshot) => createElement("div", {
+    className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.65rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "CLI bridge lifecycle handoff packet snapshot",
+          style: {
+            color: "var(--text)",
+            fontWeight: "850"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.runner || "all"} | ${snapshot.createdAt ? new Date(snapshot.createdAt).toLocaleString() : "saved"} | ${snapshot.recommendedAction || "Review packet before runner work."}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.28rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(snapshot.packetDecision || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.packetDecision === "ready" ? "var(--success)" : snapshot.packetDecision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(snapshot.readyToLaunch ? "launch allowed" : "launch blocked", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.readyToLaunch ? "var(--success)" : "var(--danger)"
+      }),
+      createTag(`${snapshot.remediationWorkItemCount || 0} work item(s)`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.remediationWorkItemCount || 0) ? "var(--warning)" : "var(--success)"
+      }),
+      createTag(`baseline ${snapshot.remediationBaselineHealth || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.remediationBaselineHealth === "healthy" ? "var(--success)" : "var(--warning)"
+      }),
+      createTag(`bridge ${snapshot.bridgeDecision || "review"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.bridgeDecision === "ready" ? "var(--success)" : snapshot.bridgeDecision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeLifecycleHandoffPacketSnapshotCopyId: snapshot.id
+        }
+      })
+    ])
+  ]));
 
   const cliBridgeLifecycleStackRemediationTaskLedger = governance.cliBridgeLifecycleStackRemediationTaskLedger;
   const cliBridgeLifecycleStackRemediationTaskLedgerItems = cliBridgeLifecycleStackRemediationTaskLedger?.items || [];
@@ -17710,6 +17796,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Status", "Single ready/review/hold rollup for dry-run and run-trace lifecycle evidence.", cliBridgeLifecycleStackStatusEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Pack", "Copyable operator handoff for non-ready dry-run and run-trace lifecycle stages.", cliBridgeLifecycleStackRemediationPackEntries),
     createListSection("CLI Bridge Lifecycle Handoff Packet", "Copyable non-secret launch brief that combines lifecycle gate, remediation, baseline, and runner instructions.", cliBridgeLifecycleHandoffPacketEntries),
+    createListSection("CLI Bridge Lifecycle Handoff Packet Snapshots", "Persisted non-secret launch briefs for repeatable Codex CLI and Claude CLI handoff review.", cliBridgeLifecycleHandoffPacketSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),

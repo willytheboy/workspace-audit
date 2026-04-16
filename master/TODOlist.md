@@ -2678,3 +2678,11 @@
 - [x] Surface copyable all-runner, Codex, and Claude handoff packets in Governance.
 - [x] Include packet state in Governance filtering, visible summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet Snapshots
+
+- [x] Add snapshot APIs for saving and listing non-secret CLI bridge lifecycle handoff packets.
+- [x] Persist packet decision, runner, launch gate, lifecycle, remediation, baseline, and bridge-context summary fields.
+- [x] Surface save/copy snapshot controls in Governance.
+- [x] Include packet snapshots in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

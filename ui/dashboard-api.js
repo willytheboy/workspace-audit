@@ -1572,6 +1572,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[]>}
+   */
+  fetchCliBridgeLifecycleHandoffPacketSnapshots() {
+    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>}
+   */
+  createCliBridgeLifecycleHandoffPacketSnapshot(payload = {}) {
+    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
    */

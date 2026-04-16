@@ -239,6 +239,8 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleStackStatus: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackStatusPayload>,
  *     fetchCliBridgeLifecycleStackRemediationPack: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationPackPayload>,
  *     fetchCliBridgeLifecycleHandoffPacket: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketPayload>,
+ *     fetchCliBridgeLifecycleHandoffPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[]>,
+ *     createCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedger: (options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>,
  *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
@@ -1451,6 +1453,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.cliBridgeLifecycleHandoffPacket
         : null,
+      cliBridgeLifecycleHandoffPacketSnapshots: filterAndSort(
+        governance.cliBridgeLifecycleHandoffPacketSnapshots || [],
+        (snapshot) => [
+          "cli bridge lifecycle handoff packet snapshots",
+          snapshot.title || "",
+          snapshot.runner || "",
+          snapshot.packetDecision || "",
+          snapshot.readyToLaunch ? "ready to launch" : "launch blocked",
+          snapshot.handoffGateDecision || "",
+          snapshot.lifecycleDecision || "",
+          snapshot.remediationBaselineHealth || "",
+          snapshot.remediationBaselineRefreshGateDecision || "",
+          snapshot.bridgeDecision || "",
+          snapshot.recommendedAction || ""
+        ],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       cliBridgeLifecycleStackRemediationTaskLedger: governance.cliBridgeLifecycleStackRemediationTaskLedger && matchesSearch([
         "cli bridge lifecycle stack remediation task ledger",
         governance.cliBridgeLifecycleStackRemediationTaskLedger.summary?.latestTitle || "",
@@ -1624,6 +1643,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.cliBridgeLifecycleStackStatus = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationPack = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleHandoffPacket = null;
+      if (scope !== "execution") filtered.cliBridgeLifecycleHandoffPacketSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedger = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff = null;
@@ -7804,6 +7824,58 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-lifecycle-handoff-packet-snapshot-runner]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const requestedRunner = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotRunner || "all";
+        const runner = requestedRunner === "codex" || requestedRunner === "claude" ? requestedRunner : "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createCliBridgeLifecycleHandoffPacketSnapshot({
+            title: "CLI Bridge Lifecycle Handoff Packet",
+            runner,
+            limit: 50
+          });
+          await renderGovernance();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-lifecycle-handoff-packet-snapshot-copy-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotCopyId || "";
+        const originalLabel = element.textContent || "";
+        try {
+          const snapshot = governanceCache?.cliBridgeLifecycleHandoffPacketSnapshots?.find((item) => item.id === snapshotId);
+          if (!snapshot) throw new Error("CLI bridge lifecycle handoff packet snapshot not found.");
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyText(snapshot.markdown || snapshot.packet?.markdown || "");
+          element.textContent = "Copied Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-pack-task]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8571,6 +8643,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible CLI bridge lifecycle stack status: ${governance.cliBridgeLifecycleStackStatus?.decision || "not-loaded"}`,
       `Visible CLI bridge lifecycle remediation items: ${(governance.cliBridgeLifecycleStackRemediationPack?.workItems || []).length}`,
       `Visible CLI bridge lifecycle handoff packet: ${governance.cliBridgeLifecycleHandoffPacket?.packetDecision || "not-loaded"} / launch ${governance.cliBridgeLifecycleHandoffPacket?.readyToLaunch ? "allowed" : "blocked"}`,
+      `Visible CLI bridge lifecycle handoff packet snapshots: ${(governance.cliBridgeLifecycleHandoffPacketSnapshots || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshots: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshot drift items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftItems || []).length}`,
@@ -8690,6 +8763,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- CLI bridge lifecycle stack: ${governanceCache?.cliBridgeLifecycleStackStatus?.decision || "not-loaded"} (${governanceCache?.cliBridgeLifecycleStackStatus?.readyCount ?? 0} ready / ${governanceCache?.cliBridgeLifecycleStackStatus?.reviewCount ?? 0} review / ${governanceCache?.cliBridgeLifecycleStackStatus?.holdCount ?? 0} hold)`,
       `- CLI bridge lifecycle remediation pack: ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.workItemCount ?? 0} work item(s), ready to run ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.readyToRun ? "yes" : "no"}`,
       `- CLI bridge lifecycle handoff packet: ${governanceCache?.cliBridgeLifecycleHandoffPacket?.packetDecision || "not-loaded"} / launch ${governanceCache?.cliBridgeLifecycleHandoffPacket?.readyToLaunch ? "allowed" : "blocked"} / runner ${governanceCache?.cliBridgeLifecycleHandoffPacket?.runner || "all"}`,
+      `- CLI bridge lifecycle handoff packet snapshots: ${governanceCache?.summary?.cliBridgeLifecycleHandoffPacketSnapshotCount ?? governanceCache?.cliBridgeLifecycleHandoffPacketSnapshots?.length ?? 0}`,
       `- CLI bridge lifecycle remediation task ledger: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.open ?? 0} open / ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.total ?? 0} total`,
       `- CLI bridge lifecycle remediation task ledger snapshots: ${governanceCache?.summary?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCount ?? governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.length ?? 0}`,
       `- CLI bridge lifecycle remediation task ledger snapshot drift: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftScore ?? 0})`,
@@ -9340,6 +9414,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible CLI bridge lifecycle handoff packet.");
+    }
+
+    lines.push("", "## CLI Bridge Lifecycle Handoff Packet Snapshots");
+    if (governance.cliBridgeLifecycleHandoffPacketSnapshots?.length) {
+      for (const snapshot of governance.cliBridgeLifecycleHandoffPacketSnapshots.slice(0, 8)) {
+        lines.push(`- ${snapshot.title || snapshot.id}: ${snapshot.packetDecision || "review"} / runner ${snapshot.runner || "all"} / launch ${snapshot.readyToLaunch ? "allowed" : "blocked"}`);
+        lines.push(`  Saved: ${snapshot.createdAt || "unknown"} | Baseline: ${snapshot.remediationBaselineHealth || "missing"} | Bridge: ${snapshot.bridgeDecision || "review"} | Work items: ${snapshot.remediationWorkItemCount || 0}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge lifecycle handoff packet snapshots.");
     }
 
     lines.push("", "## CLI Bridge Lifecycle Stack Remediation Task Ledger");
@@ -11763,6 +11847,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (cliBridgeLifecycleHandoffPacket ? 1 : 0)
         + (cliBridgeLifecycleHandoffPacket?.runnerInstructions || []).length
         + (cliBridgeLifecycleHandoffPacket?.validationLoop || []).length
+        + (governance.cliBridgeLifecycleHandoffPacketSnapshots || []).length
         + (cliBridgeLifecycleStackRemediationTaskLedger ? 1 : 0)
         + (cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length
         + (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length

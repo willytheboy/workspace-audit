@@ -2289,6 +2289,50 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
   const profileTargetTaskSnapshotDiff = governance.governanceProfileTargetTaskLedgerSnapshotDiff;
+  const profileTargetTaskDriftCheckpointLedger = governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger;
+  const profileTargetTaskDriftItems = Array.isArray(profileTargetTaskSnapshotDiff?.driftItems)
+    ? profileTargetTaskSnapshotDiff.driftItems
+    : [];
+  const profileTargetTaskDriftCheckpointFilter = ["all", "uncheckpointed", "confirmed", "deferred", "escalated"].includes(governance.profileTargetTaskLedgerDriftCheckpointFilter)
+    ? governance.profileTargetTaskLedgerDriftCheckpointFilter
+    : "all";
+  const profileTargetTaskDriftCheckpointByField = new Map();
+  if (profileTargetTaskSnapshotDiff?.snapshotId) {
+    (profileTargetTaskDriftCheckpointLedger?.items || []).forEach((checkpoint) => {
+      if (checkpoint.snapshotId !== profileTargetTaskSnapshotDiff.snapshotId) return;
+      const field = checkpoint.field || "";
+      if (!field) return;
+      profileTargetTaskDriftCheckpointByField.set(field, checkpoint);
+    });
+  }
+  const profileTargetTaskDriftRecords = profileTargetTaskDriftItems.map((item) => {
+    const field = item.field || item.label || "";
+    const checkpoint = profileTargetTaskDriftCheckpointByField.get(field);
+    return {
+      item,
+      field,
+      checkpoint,
+      checkpointStatus: checkpoint?.decision || "uncheckpointed"
+    };
+  });
+  const profileTargetTaskDriftCheckpointCounts = profileTargetTaskDriftRecords.reduce((counts, record) => {
+    counts.all += 1;
+    if (record.checkpointStatus === "confirmed") counts.confirmed += 1;
+    else if (record.checkpointStatus === "deferred") counts.deferred += 1;
+    else if (record.checkpointStatus === "escalated") counts.escalated += 1;
+    else counts.uncheckpointed += 1;
+    return counts;
+  }, { all: 0, uncheckpointed: 0, confirmed: 0, deferred: 0, escalated: 0 });
+  const profileTargetTaskVisibleDriftRecords = profileTargetTaskDriftCheckpointFilter === "all"
+    ? profileTargetTaskDriftRecords
+    : profileTargetTaskDriftRecords.filter((record) => record.checkpointStatus === profileTargetTaskDriftCheckpointFilter);
+  const profileTargetTaskDriftFilterOptions = [
+    ["all", "All"],
+    ["uncheckpointed", "Uncheckpointed"],
+    ["confirmed", "Confirmed"],
+    ["deferred", "Deferred"],
+    ["escalated", "Escalated"]
+  ];
   const profileTargetTaskSnapshotDiffEntries = profileTargetTaskSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card",
@@ -2348,20 +2392,37 @@ export function createGovernanceDeck(governance) {
         ])
       ]),
       createElement("div", {
-        text: `${(profileTargetTaskSnapshotDiff.driftItems || []).length} drift item(s) • created ${profileTargetTaskSnapshotDiff.snapshotCreatedAt ? new Date(profileTargetTaskSnapshotDiff.snapshotCreatedAt).toLocaleString() : "not recorded"}`,
+        text: `${profileTargetTaskVisibleDriftRecords.length}/${profileTargetTaskDriftItems.length} drift item(s) shown | ${profileTargetTaskDriftCheckpointCounts.confirmed} confirmed, ${profileTargetTaskDriftCheckpointCounts.deferred} deferred, ${profileTargetTaskDriftCheckpointCounts.escalated} escalated, ${profileTargetTaskDriftCheckpointCounts.uncheckpointed} uncheckpointed | created ${profileTargetTaskSnapshotDiff.snapshotCreatedAt ? new Date(profileTargetTaskSnapshotDiff.snapshotCreatedAt).toLocaleString() : "not recorded"}`,
         style: {
           color: "var(--text-muted)",
           fontSize: "0.84rem",
           lineHeight: "1.45"
         }
       }),
+      profileTargetTaskDriftItems.length
+        ? createElement("div", {
+            className: "governance-actions"
+          }, profileTargetTaskDriftFilterOptions.map(([filter, label]) => createElement("button", {
+            className: "btn governance-action-btn governance-profile-target-task-ledger-drift-checkpoint-filter-btn",
+            text: `${label} (${profileTargetTaskDriftCheckpointCounts[filter] || 0})`,
+            attrs: { type: "button" },
+            dataset: {
+              governanceProfileTargetTaskLedgerDriftCheckpointFilter: filter
+            },
+            style: {
+              borderColor: profileTargetTaskDriftCheckpointFilter === filter ? "var(--primary)" : "var(--border)",
+              color: profileTargetTaskDriftCheckpointFilter === filter ? "var(--primary)" : "var(--text)",
+              fontWeight: profileTargetTaskDriftCheckpointFilter === filter ? "800" : "600"
+            }
+          })))
+        : null,
       createElement("div", {
         style: {
           display: "grid",
           gap: "0.4rem"
         }
       }, [
-        ...(profileTargetTaskSnapshotDiff.driftItems || []).slice(0, 5).map((item) => createElement("div", {
+        ...profileTargetTaskVisibleDriftRecords.slice(0, 6).map(({ item, field, checkpoint, checkpointStatus }) => createElement("div", {
           className: "governance-gap-card",
           style: {
             padding: "0.7rem",
@@ -2383,6 +2444,32 @@ export function createGovernanceDeck(governance) {
               lineHeight: "1.45"
             }
           }),
+          checkpoint ? createElement("div", {
+            style: {
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0.45rem",
+              alignItems: "center",
+              color: "var(--text-muted)",
+              fontSize: "0.78rem",
+              lineHeight: "1.4"
+            }
+          }, [
+            createTag(`CHECKPOINT ${String(checkpointStatus || "tracked").toUpperCase()}`, {
+              border: "1px solid var(--border)",
+              background: "var(--bg)",
+              color: checkpointStatus === "escalated" ? "var(--danger)" : checkpointStatus === "deferred" ? "var(--warning)" : "var(--success)"
+            }),
+            createElement("span", {
+              text: `${checkpoint.status || "open"} / ${checkpoint.priority || "normal"} | ${checkpoint.updatedAt || checkpoint.createdAt || "not recorded"}`
+            })
+          ]) : createElement("div", {
+            text: "Checkpoint: not recorded",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.78rem"
+            }
+          }),
           createElement("div", {
             className: "governance-actions",
             style: {
@@ -2391,39 +2478,39 @@ export function createGovernanceDeck(governance) {
           }, [
             createElement("button", {
               className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-confirm-btn",
-              text: "Confirm",
+              text: checkpoint ? "Update Confirm" : "Confirm",
               attrs: { type: "button" },
               dataset: {
                 governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
-                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemField: field || "",
                 governanceProfileTargetTaskLedgerDriftItemDecision: "confirmed"
               }
             }),
             createElement("button", {
               className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-defer-btn",
-              text: "Defer",
+              text: checkpoint ? "Update Defer" : "Defer",
               attrs: { type: "button" },
               dataset: {
                 governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
-                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemField: field || "",
                 governanceProfileTargetTaskLedgerDriftItemDecision: "deferred"
               }
             }),
             createElement("button", {
               className: "btn governance-action-btn governance-profile-target-task-ledger-drift-item-escalate-btn",
-              text: "Escalate",
+              text: checkpoint ? "Update Escalate" : "Escalate",
               attrs: { type: "button" },
               dataset: {
                 governanceProfileTargetTaskLedgerDriftSnapshotId: profileTargetTaskSnapshotDiff.snapshotId || "latest",
-                governanceProfileTargetTaskLedgerDriftItemField: item.field || "",
+                governanceProfileTargetTaskLedgerDriftItemField: field || "",
                 governanceProfileTargetTaskLedgerDriftItemDecision: "escalated"
               }
             })
           ])
         ])),
-        !(profileTargetTaskSnapshotDiff.driftItems || []).length
+        !profileTargetTaskVisibleDriftRecords.length
           ? createElement("div", {
-              text: "No profile target task drift items require checkpoint decisions.",
+              text: `No ${profileTargetTaskDriftCheckpointFilter} profile target task drift checkpoints match the current filter.`,
               style: {
                 color: "var(--text-muted)",
                 fontSize: "0.82rem",
@@ -2440,12 +2527,17 @@ export function createGovernanceDeck(governance) {
           text: "Copy Checkpoint Ledger",
           attrs: { type: "button" },
           dataset: { governanceProfileTargetTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn governance-profile-target-task-ledger-baseline-refresh-btn",
+          text: "Accept Live Baseline",
+          attrs: { type: "button" },
+          dataset: { governanceProfileTargetTaskLedgerBaselineRefresh: "true" }
         })
       ])
     ])
   ] : [];
 
-  const profileTargetTaskDriftCheckpointLedger = governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger;
   const profileTargetTaskDriftCheckpointLedgerEntries = profileTargetTaskDriftCheckpointLedger ? [
     createElement("div", {
       className: "governance-gap-card",

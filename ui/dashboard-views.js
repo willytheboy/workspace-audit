@@ -251,6 +251,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     updatedAt: ""
   };
   let convergenceTaskLedgerDriftCheckpointFilter = "all";
+  let profileTargetTaskLedgerDriftCheckpointFilter = "all";
   let governanceControlsBound = false;
 
   /**
@@ -5395,6 +5396,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-governance-profile-target-task-ledger-drift-checkpoint-filter]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const filter = element.dataset.governanceProfileTargetTaskLedgerDriftCheckpointFilter || "all";
+        profileTargetTaskLedgerDriftCheckpointFilter = ["all", "uncheckpointed", "confirmed", "deferred", "escalated"].includes(filter) ? filter : "all";
+        renderGovernanceFromCache();
+      };
+    });
+
     container.querySelectorAll("[data-governance-profile-target-task-ledger-drift-checkpoint-ledger-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -5409,6 +5422,33 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const ledger = await api.fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger(status);
           await copyText(ledger.markdown);
           element.textContent = `Copied ${ledger.summary.visible}`;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-governance-profile-target-task-ledger-baseline-refresh]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.refreshGovernanceProfileTargetTaskLedgerSnapshot({
+            snapshotId: "latest",
+            title: "Accepted Governance Profile Target Task Ledger Baseline",
+            status: "all",
+            limit: 100
+          });
+          element.textContent = "Baseline Saved";
+          await renderGovernance();
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -7221,6 +7261,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!container) return;
     const governance = applyGovernanceFilters(governanceCache);
     governance.convergenceTaskLedgerDriftCheckpointFilter = convergenceTaskLedgerDriftCheckpointFilter;
+    governance.profileTargetTaskLedgerDriftCheckpointFilter = profileTargetTaskLedgerDriftCheckpointFilter;
     container.replaceChildren(
       createGovernanceSummaryGrid(governanceCache),
       createGovernanceDeck(governance)

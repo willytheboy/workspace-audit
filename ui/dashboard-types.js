@@ -2467,6 +2467,7 @@
  *   governanceProfileTargetTaskLedgerSnapshots: PersistedGovernanceProfileTargetTaskLedgerSnapshot[],
  *   governanceProfileTargetTaskLedgerSnapshotDiff?: GovernanceProfileTargetTaskLedgerSnapshotDiffPayload | null,
  *   governanceProfileTargetTaskLedgerDriftCheckpointLedger?: GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload | null,
+ *   profileTargetTaskLedgerDriftCheckpointFilter?: "all" | "uncheckpointed" | "confirmed" | "deferred" | "escalated",
  *   profileHistory: PersistedProjectProfileHistory[],
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],

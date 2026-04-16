@@ -2281,3 +2281,10 @@
 - [x] Surface checkpoint totals, decisions, and open/closed filters in Governance.
 - [x] Add Governance report lines for target drift checkpoint decisions.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Drift Checkpoint Review Controls
+
+- [x] Show existing checkpoint decisions directly on profile target task drift rows.
+- [x] Add all, uncheckpointed, confirmed, deferred, and escalated filters to the drift card.
+- [x] Add a drift-card action to accept the live profile target task ledger as the refreshed baseline.
+- [x] Add parser checks, validation, relaunch, commit, and push.

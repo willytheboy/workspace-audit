@@ -2424,3 +2424,11 @@
 - [x] Surface captured audit baseline state in Agent Execution Queue cards.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Work Order Audit Baseline Refresh
+
+- [x] Add a run-level API action to recapture the current target-baseline audit snapshot baseline.
+- [x] Preserve run history and Governance operation evidence for every audit-baseline refresh.
+- [x] Add an Agent Execution Queue control for refreshing stale, missing, or drifted audit-baseline capture.
+- [x] Add parser and server test coverage.
+- [x] Validate, relaunch, commit, and push.

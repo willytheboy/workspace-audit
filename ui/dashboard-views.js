@@ -220,6 +220,7 @@ function createEmptyTableRow(message) {
  *     createAgentWorkOrderRunsFromSnapshot: (payload: { snapshotId: string }) => Promise<unknown>,
  *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean }) => Promise<unknown>,
  *     refreshAgentWorkOrderRunTargetBaseline: (runId: string, payload?: { notes?: string }) => Promise<unknown>,
+ *     refreshAgentWorkOrderRunTargetBaselineAudit: (runId: string, payload?: { notes?: string }) => Promise<unknown>,
  *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[] }) => Promise<unknown>,
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string }) => Promise<unknown>,
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
@@ -7124,6 +7125,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Refreshing";
           await api.refreshAgentWorkOrderRunTargetBaseline(runId, {
             notes: "Refreshed profile target task baseline capture from Governance."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-agent-work-order-run-target-baseline-audit-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.agentWorkOrderRunTargetBaselineAuditRefreshId || "";
+        if (!runId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          await api.refreshAgentWorkOrderRunTargetBaselineAudit(runId, {
+            notes: "Refreshed target baseline audit capture from Governance."
           });
           await renderGovernance();
         } catch (error) {

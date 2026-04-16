@@ -1457,6 +1457,26 @@ export async function serverTest() {
     assert.equal(targetBaselineAuditLedgerBaselineStatusJson.driftScore, 0);
     assert.match(targetBaselineAuditLedgerBaselineStatusJson.markdown, /# Agent Execution Target Baseline Audit Ledger Baseline Status/);
 
+    const refreshBatchRunTargetBaselineAuditResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${batchAgentWorkOrderRunsJson.queuedRuns[0].id}/target-baseline-audit-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: "Fixture target baseline audit recapture."
+      })
+    });
+    assert.equal(refreshBatchRunTargetBaselineAuditResponse.status, 200);
+    const refreshBatchRunTargetBaselineAuditJson = await refreshBatchRunTargetBaselineAuditResponse.json();
+    assert.equal(refreshBatchRunTargetBaselineAuditJson.success, true);
+    assert.equal(refreshBatchRunTargetBaselineAuditJson.run.id, batchAgentWorkOrderRunsJson.queuedRuns[0].id);
+    assert.equal(refreshBatchRunTargetBaselineAuditJson.run.targetBaselineAuditLedgerBaselineHealth, "healthy");
+    assert.equal(refreshBatchRunTargetBaselineAuditJson.run.targetBaselineAuditLedgerBaselineFreshness, "fresh");
+    assert.equal(refreshBatchRunTargetBaselineAuditJson.run.history[0].note, "Fixture target baseline audit recapture.");
+
+    const governanceAfterTargetBaselineAuditRefreshResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterTargetBaselineAuditRefreshResponse.status, 200);
+    const governanceAfterTargetBaselineAuditRefreshJson = await governanceAfterTargetBaselineAuditRefreshResponse.json();
+    assert.ok(governanceAfterTargetBaselineAuditRefreshJson.operationLog.some((operation) => operation.type === "agent-work-order-run-target-baseline-audit-refreshed"));
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

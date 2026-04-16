@@ -15145,6 +15145,20 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      !run.archivedAt && (
+        run.targetBaselineAuditLedgerBaselineHealth !== "healthy"
+          || run.targetBaselineAuditLedgerBaselineFreshness !== "fresh"
+          || (run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0) > 0
+      )
+        ? createElement("button", {
+            className: "btn governance-action-btn agent-work-order-run-target-baseline-audit-refresh-btn",
+            text: "Refresh Audit",
+            attrs: { type: "button" },
+            dataset: {
+              agentWorkOrderRunTargetBaselineAuditRefreshId: run.id
+            }
+          })
+        : null,
       run.cliBridgeHandoffId
         ? createElement("button", {
             className: "btn governance-action-btn cli-bridge-runner-contract-copy-btn",

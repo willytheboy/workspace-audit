@@ -2260,3 +2260,10 @@
 - [x] Compare saved target task baselines against live open/closed/task-kind/project/test-file state.
 - [x] Surface the drift payload in Governance cards, summaries, reports, toolbar actions, and command palette.
 - [x] Add parser checks, server coverage, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Baseline Refresh
+
+- [x] Add an API action to accept the live Governance profile target task ledger as a refreshed snapshot baseline.
+- [x] Preserve previous snapshot lineage and record a Governance operation for every baseline refresh.
+- [x] Add toolbar and command-palette actions for refreshing the target task baseline.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

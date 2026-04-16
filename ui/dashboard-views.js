@@ -203,6 +203,7 @@ function createEmptyTableRow(message) {
  *     fetchGovernanceProfileTargetTaskLedger: (status?: "all" | "open" | "closed") => Promise<{ summary: Record<string, number | string>, items: import("./dashboard-types.js").PersistedTask[], markdown: string, secretPolicy: string, generatedAt: string }>,
  *     fetchGovernanceProfileTargetTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerSnapshotDiffPayload>,
  *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
+ *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
@@ -10295,6 +10296,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied Target Drift ${payload.driftSeverity || "missing-snapshot"}`;
   }
 
+  async function refreshGovernanceProfileTargetTaskLedgerSnapshot() {
+    await api.refreshGovernanceProfileTargetTaskLedgerSnapshot({
+      snapshotId: "latest",
+      title: "Accepted Governance Profile Target Task Ledger Baseline",
+      status: "all",
+      limit: 100
+    });
+    await renderGovernance();
+    return "Refreshed Target Baseline";
+  }
+
   async function executeVisibleGovernanceQueue() {
     const items = getVisibleGovernanceQueue()
       .filter((item) => item.actionType !== "open-project")
@@ -13087,6 +13099,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyGovernanceProfileTargetTaskLedger,
     saveGovernanceProfileTargetTaskLedgerSnapshot,
     copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift,
+    refreshGovernanceProfileTargetTaskLedgerSnapshot,
     executeVisibleGovernanceQueue,
     exportGovernanceReport,
     renderApps,

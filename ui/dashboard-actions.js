@@ -115,6 +115,7 @@
  *     copyGovernanceProfileTargetTaskLedger: () => Promise<void>,
  *     saveGovernanceProfileTargetTaskLedgerSnapshot: () => Promise<void>,
  *     copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift: () => Promise<void>,
+ *     refreshGovernanceProfileTargetTaskLedgerSnapshot: () => Promise<void>,
  *     executeGovernanceQueue: () => Promise<void>,
  *     suppressGovernanceQueue: () => Promise<void>,
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
@@ -972,6 +973,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "snapshot", "drift", "copy"],
         run: () => handlers.copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift()
+      },
+      {
+        id: "refresh-governance-profile-target-task-ledger-snapshot",
+        label: "Refresh profile target task baseline",
+        description: "Accept the live profile target task ledger as a new non-secret snapshot baseline.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "snapshot", "baseline", "refresh"],
+        run: () => handlers.refreshGovernanceProfileTargetTaskLedgerSnapshot()
       },
       {
         id: "execute-governance-queue",

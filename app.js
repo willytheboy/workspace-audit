@@ -605,6 +605,12 @@ async function copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift() {
   return views.copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift();
 }
 
+async function refreshGovernanceProfileTargetTaskLedgerSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  return views.refreshGovernanceProfileTargetTaskLedgerSnapshot();
+}
+
 async function executeGovernanceQueue() {
   setView("governance");
   await views.renderGovernance();
@@ -786,6 +792,7 @@ const actionRegistry = createDashboardActionRegistry({
     copyGovernanceProfileTargetTaskLedger,
     saveGovernanceProfileTargetTaskLedgerSnapshot,
     copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift,
+    refreshGovernanceProfileTargetTaskLedgerSnapshot,
     executeGovernanceQueue,
     suppressGovernanceQueue,
     startQueuedAgentWorkOrderRuns,
@@ -1124,6 +1131,12 @@ function bindEventListeners() {
     /** @type {HTMLButtonElement} */ (document.getElementById("copy-governance-profile-target-task-ledger-drift-btn")),
     "Copying...",
     () => copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift()
+  );
+
+  bindAsyncButton(
+    /** @type {HTMLButtonElement} */ (document.getElementById("refresh-governance-profile-target-task-ledger-snapshot-btn")),
+    "Refreshing...",
+    () => refreshGovernanceProfileTargetTaskLedgerSnapshot()
   );
 
   bindAsyncButton(

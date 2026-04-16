@@ -272,6 +272,20 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshots.length, 1);
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshotDiff.driftScore, 0);
 
+    const profileTargetTaskLedgerSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        title: "Fixture Refreshed Profile Target Task Ledger Baseline"
+      })
+    });
+    assert.equal(profileTargetTaskLedgerSnapshotRefreshResponse.status, 200);
+    const profileTargetTaskLedgerSnapshotRefreshJson = await profileTargetTaskLedgerSnapshotRefreshResponse.json();
+    assert.equal(profileTargetTaskLedgerSnapshotRefreshJson.success, true);
+    assert.equal(profileTargetTaskLedgerSnapshotRefreshJson.snapshot.openCount, 1);
+    assert.equal(profileTargetTaskLedgerSnapshotRefreshJson.governanceProfileTargetTaskLedgerSnapshots.length, 2);
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -296,7 +310,7 @@ export async function governanceBootstrapTest() {
     const suppressedGovernanceJson = await suppressedGovernanceResponse.json();
     assert.equal(suppressedGovernanceJson.summary.actionQueueItems, 0);
     assert.equal(suppressedGovernanceJson.summary.suppressedQueueItems, 1);
-    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 8);
+    assert.equal(suppressedGovernanceJson.summary.governanceOperationCount, 9);
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
@@ -317,7 +331,7 @@ export async function governanceBootstrapTest() {
     const restoredGovernanceJson = await restoredGovernanceResponse.json();
     assert.equal(restoredGovernanceJson.summary.actionQueueItems, 1);
     assert.equal(restoredGovernanceJson.summary.suppressedQueueItems, 0);
-    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 9);
+    assert.equal(restoredGovernanceJson.summary.governanceOperationCount, 10);
     assert.equal(restoredGovernanceJson.actionQueue.length, 1);
     assert.equal(restoredGovernanceJson.operationLog[0].type, "queue-restore");
   } finally {

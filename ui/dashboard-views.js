@@ -704,6 +704,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineFreshness || "",
         governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineDriftSeverity || "",
         String(governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0),
+        governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineHealth || "",
+        governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "",
+        governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineDriftSeverity || "",
+        String(governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0),
         String(governance.agentControlPlaneDecision.activeRuns || 0),
         String(governance.agentControlPlaneDecision.staleActiveRuns || 0),
         String(governance.agentControlPlaneDecision.slaBreachedRuns || 0),
@@ -7966,6 +7970,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Profile target task baseline health: ${governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineHealth || "missing"}`);
       lines.push(`- Profile target task baseline freshness: ${governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineFreshness || "missing"}`);
       lines.push(`- Profile target task baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0}`);
+      lines.push(`- Target baseline audit baseline health: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineHealth || "missing"}`);
+      lines.push(`- Target baseline audit baseline freshness: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "missing"}`);
+      lines.push(`- Target baseline audit baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0}`);
       lines.push(`- Agent-ready projects: ${governance.agentControlPlaneDecision.agentReadyProjects || 0}/${governance.agentControlPlaneDecision.agentReadinessItems || 0}`);
       lines.push(`- Release build gate: ${governance.agentControlPlaneDecision.releaseBuildGateDecision || governance.releaseBuildGate?.decision || "not-evaluated"} (risk ${governance.agentControlPlaneDecision.releaseBuildGateRiskScore ?? governance.releaseBuildGate?.riskScore ?? 0})`);
       lines.push(`- Release Control tasks: ${governance.agentControlPlaneDecision.releaseControlOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.releaseControlTaskCount || 0} total`);

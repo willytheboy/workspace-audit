@@ -2393,3 +2393,10 @@
 - [x] Surface baseline health in Governance summary, report, deck card, and command palette copy action.
 - [x] Add parser and server test coverage for healthy refreshed audit baselines.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Target Baseline Audit Gate
+
+- [x] Feed target-baseline audit snapshot baseline health into Agent Control Plane decisions.
+- [x] Add review reasons for missing, stale, drifted, or uncheckpointed audit baselines.
+- [x] Carry audit-baseline readiness into CLI bridge context and dry-run prompts.
+- [x] Validate, relaunch, commit, and push.

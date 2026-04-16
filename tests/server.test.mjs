@@ -1993,6 +1993,9 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.agentExecutionMetrics.slaResolved, 1);
     assert.ok(agentControlPlaneJson.agentExecutionMetrics.targetBaselineReviewRequired > 0);
     assert.match(agentControlPlaneJson.markdown, /Target baseline audit:/);
+    assert.equal(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.hasBaseline, true);
+    assert.ok(["healthy", "stale", "drifted", "drift-review-required"].includes(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.health));
+    assert.match(agentControlPlaneJson.markdown, /Target baseline audit baseline:/);
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.decision, "ready");
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.total, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.review, 0);
@@ -2079,10 +2082,12 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.controlPlaneDecision.decision, "hold");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
+    assert.ok(cliBridgeContextJson.controlPlaneDecision.targetBaselineAuditLedgerBaselineHealth);
     assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
     assert.match(cliBridgeContextJson.secretPolicy, /Do not include passwords/);
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
     assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
+    assert.match(cliBridgeContextJson.markdown, /Target baseline audit baseline health:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
 

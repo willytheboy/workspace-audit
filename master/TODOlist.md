@@ -2686,3 +2686,11 @@
 - [x] Surface save/copy snapshot controls in Governance.
 - [x] Include packet snapshots in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet Snapshot Drift
+
+- [x] Add a diff API comparing the latest saved lifecycle handoff packet against the current live packet.
+- [x] Score drift across launch gate, lifecycle, remediation, baseline, bridge, and runner fields.
+- [x] Surface copyable latest and per-snapshot drift controls in Governance.
+- [x] Include packet snapshot drift in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

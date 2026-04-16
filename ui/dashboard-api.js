@@ -1591,6 +1591,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>}
+   */
+  fetchCliBridgeLifecycleHandoffPacketSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-handoff-packet-snapshots/diff", {
+      ...options,
+      snapshotId
+    }));
+  },
+
+  /**
    * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
    */

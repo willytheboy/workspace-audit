@@ -2802,6 +2802,7 @@
  *   cliBridgeLifecycleStackRemediationPack?: CliBridgeLifecycleStackRemediationPackPayload | null,
  *   cliBridgeLifecycleHandoffPacket?: CliBridgeLifecycleHandoffPacketPayload | null,
  *   cliBridgeLifecycleHandoffPacketSnapshots: PersistedCliBridgeLifecycleHandoffPacketSnapshot[],
+ *   cliBridgeLifecycleHandoffPacketSnapshotDiff?: CliBridgeLifecycleHandoffPacketSnapshotDiffPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedger?: CliBridgeLifecycleStackRemediationTaskLedgerPayload | null,
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[],
  *   cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?: CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload | null,
@@ -3422,6 +3423,22 @@
  *   packet: CliBridgeLifecycleHandoffPacketPayload,
  *   createdAt: string
  * }} PersistedCliBridgeLifecycleHandoffPacketSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   runner: "all" | "codex" | "claude",
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, weight: number, before: string | number | boolean, current: string | number | boolean, delta: number }>,
+ *   liveSummary: Record<string, unknown> | null,
+ *   snapshotSummary: Record<string, unknown> | null,
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} CliBridgeLifecycleHandoffPacketSnapshotDiffPayload
  * @typedef {{
  *   generatedAt: string,
  *   status: "all" | "open" | "closed",

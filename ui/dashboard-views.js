@@ -241,6 +241,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleHandoffPacket: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketPayload>,
  *     fetchCliBridgeLifecycleHandoffPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[]>,
  *     createCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
+ *     fetchCliBridgeLifecycleHandoffPacketSnapshotDiff: (snapshotId?: string, options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedger: (options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>,
  *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
@@ -1470,6 +1471,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         ],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      cliBridgeLifecycleHandoffPacketSnapshotDiff: governance.cliBridgeLifecycleHandoffPacketSnapshotDiff && matchesSearch([
+        "cli bridge lifecycle handoff packet snapshot drift",
+        governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotTitle || "",
+        governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "",
+        governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.driftSeverity || "",
+        governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.recommendedAction || "",
+        governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.cliBridgeLifecycleHandoffPacketSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.cliBridgeLifecycleHandoffPacketSnapshotDiff
+        : null,
       cliBridgeLifecycleStackRemediationTaskLedger: governance.cliBridgeLifecycleStackRemediationTaskLedger && matchesSearch([
         "cli bridge lifecycle stack remediation task ledger",
         governance.cliBridgeLifecycleStackRemediationTaskLedger.summary?.latestTitle || "",
@@ -1644,6 +1656,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationPack = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleHandoffPacket = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleHandoffPacketSnapshots = [];
+      if (scope !== "execution") filtered.cliBridgeLifecycleHandoffPacketSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedger = null;
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff = null;
@@ -7876,6 +7889,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-lifecycle-handoff-packet-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotDriftId || "latest";
+        const requestedRunner = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotDriftRunner || "all";
+        const runner = requestedRunner === "codex" || requestedRunner === "claude" ? requestedRunner : "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const diff = await api.fetchCliBridgeLifecycleHandoffPacketSnapshotDiff(snapshotId || "latest", { runner, limit: 50 });
+          await copyText(diff.markdown || "");
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-pack-task]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8644,6 +8682,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible CLI bridge lifecycle remediation items: ${(governance.cliBridgeLifecycleStackRemediationPack?.workItems || []).length}`,
       `Visible CLI bridge lifecycle handoff packet: ${governance.cliBridgeLifecycleHandoffPacket?.packetDecision || "not-loaded"} / launch ${governance.cliBridgeLifecycleHandoffPacket?.readyToLaunch ? "allowed" : "blocked"}`,
       `Visible CLI bridge lifecycle handoff packet snapshots: ${(governance.cliBridgeLifecycleHandoffPacketSnapshots || []).length}`,
+      `Visible CLI bridge lifecycle handoff packet snapshot drift items: ${(governance.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftItems || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshots: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshot drift items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftItems || []).length}`,
@@ -8764,6 +8803,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- CLI bridge lifecycle remediation pack: ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.workItemCount ?? 0} work item(s), ready to run ${governanceCache?.cliBridgeLifecycleStackRemediationPack?.readyToRun ? "yes" : "no"}`,
       `- CLI bridge lifecycle handoff packet: ${governanceCache?.cliBridgeLifecycleHandoffPacket?.packetDecision || "not-loaded"} / launch ${governanceCache?.cliBridgeLifecycleHandoffPacket?.readyToLaunch ? "allowed" : "blocked"} / runner ${governanceCache?.cliBridgeLifecycleHandoffPacket?.runner || "all"}`,
       `- CLI bridge lifecycle handoff packet snapshots: ${governanceCache?.summary?.cliBridgeLifecycleHandoffPacketSnapshotCount ?? governanceCache?.cliBridgeLifecycleHandoffPacketSnapshots?.length ?? 0}`,
+      `- CLI bridge lifecycle handoff packet snapshot drift: ${governanceCache?.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftScore ?? 0})`,
       `- CLI bridge lifecycle remediation task ledger: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.open ?? 0} open / ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.total ?? 0} total`,
       `- CLI bridge lifecycle remediation task ledger snapshots: ${governanceCache?.summary?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCount ?? governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.length ?? 0}`,
       `- CLI bridge lifecycle remediation task ledger snapshot drift: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftScore ?? 0})`,
@@ -9424,6 +9464,21 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible CLI bridge lifecycle handoff packet snapshots.");
+    }
+
+    lines.push("", "## CLI Bridge Lifecycle Handoff Packet Snapshot Drift");
+    if (governance.cliBridgeLifecycleHandoffPacketSnapshotDiff) {
+      const diff = governance.cliBridgeLifecycleHandoffPacketSnapshotDiff;
+      lines.push(`- Snapshot: ${diff.snapshotTitle || diff.snapshotId || "missing"}`);
+      lines.push(`- Runner: ${diff.runner || "all"}`);
+      lines.push(`- Drift severity: ${diff.driftSeverity || "missing-snapshot"}`);
+      lines.push(`- Drift score: ${diff.driftScore || 0}`);
+      lines.push(`- Recommended action: ${diff.recommendedAction || "Save a lifecycle handoff packet snapshot before comparing drift."}`);
+      for (const item of (diff.driftItems || []).slice(0, 8)) {
+        lines.push(`- Drift item: ${item.label || item.field} ${item.before ?? ""} -> ${item.current ?? ""}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge lifecycle handoff packet snapshot drift.");
     }
 
     lines.push("", "## CLI Bridge Lifecycle Stack Remediation Task Ledger");
@@ -11602,7 +11657,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }));
 
     try {
-      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunnerDryRunSnapshotDiff, cliBridgeRunnerDryRunSnapshotBaselineStatus, cliBridgeRunnerDryRunSnapshotLifecycleLedger, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, cliBridgeRunTraceSnapshotLifecycleLedger, cliBridgeLifecycleStackStatus, cliBridgeLifecycleStackRemediationPack, cliBridgeLifecycleHandoffPacket, cliBridgeLifecycleStackRemediationTaskLedger, cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff, cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger, cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunnerDryRunSnapshotDiff, cliBridgeRunnerDryRunSnapshotBaselineStatus, cliBridgeRunnerDryRunSnapshotLifecycleLedger, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, cliBridgeRunTraceSnapshotLifecycleLedger, cliBridgeLifecycleStackStatus, cliBridgeLifecycleStackRemediationPack, cliBridgeLifecycleHandoffPacket, cliBridgeLifecycleHandoffPacketSnapshotDiff, cliBridgeLifecycleStackRemediationTaskLedger, cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff, cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger, cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchGovernanceExecutionViews(),
         api.fetchGovernanceExecutionPolicy(),
@@ -11624,6 +11679,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchCliBridgeLifecycleStackStatus({ limit: 50 }),
         api.fetchCliBridgeLifecycleStackRemediationPack({ limit: 50 }),
         api.fetchCliBridgeLifecycleHandoffPacket({ runner: "all", limit: 50 }),
+        api.fetchCliBridgeLifecycleHandoffPacketSnapshotDiff("latest", { runner: "all", limit: 50 }),
         api.fetchCliBridgeLifecycleStackRemediationTaskLedger({ status: "all", limit: 100 }),
         api.fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff("latest"),
         api.fetchCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger("all"),
@@ -11710,6 +11766,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         cliBridgeLifecycleStackStatus,
         cliBridgeLifecycleStackRemediationPack,
         cliBridgeLifecycleHandoffPacket,
+        cliBridgeLifecycleHandoffPacketSnapshotDiff,
         cliBridgeLifecycleStackRemediationTaskLedger,
         cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff,
         cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger,
@@ -11848,6 +11905,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (cliBridgeLifecycleHandoffPacket?.runnerInstructions || []).length
         + (cliBridgeLifecycleHandoffPacket?.validationLoop || []).length
         + (governance.cliBridgeLifecycleHandoffPacketSnapshots || []).length
+        + (cliBridgeLifecycleHandoffPacketSnapshotDiff ? 1 : 0)
+        + (cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftItems || []).length
         + (cliBridgeLifecycleStackRemediationTaskLedger ? 1 : 0)
         + (cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length
         + (governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length

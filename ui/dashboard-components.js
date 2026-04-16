@@ -10677,9 +10677,116 @@ export function createGovernanceDeck(governance) {
         dataset: {
           cliBridgeLifecycleHandoffPacketSnapshotCopyId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-diff-copy-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeLifecycleHandoffPacketSnapshotDriftId: snapshot.id,
+          cliBridgeLifecycleHandoffPacketSnapshotDriftRunner: snapshot.runner || "all"
+        }
       })
     ])
   ]));
+
+  const cliBridgeLifecycleHandoffPacketSnapshotDiff = governance.cliBridgeLifecycleHandoffPacketSnapshotDiff || null;
+  const cliBridgeLifecycleHandoffPacketSnapshotDiffEntries = cliBridgeLifecycleHandoffPacketSnapshotDiff
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-snapshot-drift-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.7rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: cliBridgeLifecycleHandoffPacketSnapshotDiff.hasSnapshot
+                  ? (cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotTitle || "Latest lifecycle handoff packet snapshot")
+                  : "No lifecycle handoff packet snapshot",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "850"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeLifecycleHandoffPacketSnapshotDiff.recommendedAction || "Save a CLI bridge lifecycle handoff packet snapshot before comparing drift.",
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.84rem",
+                  marginTop: "0.28rem",
+                  lineHeight: "1.45"
+                }
+              })
+            ]),
+            createTag(cliBridgeLifecycleHandoffPacketSnapshotDiff.driftSeverity || "missing-snapshot", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketSnapshotDiff.driftSeverity === "high" || cliBridgeLifecycleHandoffPacketSnapshotDiff.driftSeverity === "missing-snapshot"
+                ? "var(--danger)"
+                : cliBridgeLifecycleHandoffPacketSnapshotDiff.driftSeverity === "none"
+                  ? "var(--success)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            text: `${cliBridgeLifecycleHandoffPacketSnapshotDiff.driftScore || 0} drift score | ${(cliBridgeLifecycleHandoffPacketSnapshotDiff.driftItems || []).length} drift item(s) | runner ${cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-diff-copy-btn",
+              text: "Copy Latest Drift",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketSnapshotDriftId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketSnapshotDriftRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all"
+              }
+            })
+          ])
+        ]),
+        ...(cliBridgeLifecycleHandoffPacketSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-snapshot-drift-item-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.35rem"
+          }
+        }, [
+          createElement("div", {
+            text: item.label || item.field || "Lifecycle handoff packet drift",
+            style: {
+              color: "var(--text)",
+              fontWeight: "800"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before ?? "missing"} -> ${item.current ?? "missing"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]))
+      ]
+    : [];
 
   const cliBridgeLifecycleStackRemediationTaskLedger = governance.cliBridgeLifecycleStackRemediationTaskLedger;
   const cliBridgeLifecycleStackRemediationTaskLedgerItems = cliBridgeLifecycleStackRemediationTaskLedger?.items || [];
@@ -17796,7 +17903,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Status", "Single ready/review/hold rollup for dry-run and run-trace lifecycle evidence.", cliBridgeLifecycleStackStatusEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Pack", "Copyable operator handoff for non-ready dry-run and run-trace lifecycle stages.", cliBridgeLifecycleStackRemediationPackEntries),
     createListSection("CLI Bridge Lifecycle Handoff Packet", "Copyable non-secret launch brief that combines lifecycle gate, remediation, baseline, and runner instructions.", cliBridgeLifecycleHandoffPacketEntries),
-    createListSection("CLI Bridge Lifecycle Handoff Packet Snapshots", "Persisted non-secret launch briefs for repeatable Codex CLI and Claude CLI handoff review.", cliBridgeLifecycleHandoffPacketSnapshotEntries),
+    createListSection("CLI Bridge Lifecycle Handoff Packet Snapshots", "Persisted non-secret launch briefs for repeatable Codex CLI and Claude CLI handoff review.", [...cliBridgeLifecycleHandoffPacketSnapshotDiffEntries, ...cliBridgeLifecycleHandoffPacketSnapshotEntries]),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),

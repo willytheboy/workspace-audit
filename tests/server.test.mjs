@@ -2642,6 +2642,17 @@ export async function serverTest() {
     assert.equal(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson.cliBridgeLifecycleHandoffPacketSnapshots[0].title, "Fixture CLI Bridge Lifecycle Handoff Packet");
     assert.ok(governanceAfterCliBridgeLifecycleHandoffPacketSnapshotJson.operationLog.some((operation) => operation.type === "cli-bridge-lifecycle-handoff-packet-snapshot-created"));
 
+    const cliBridgeLifecycleHandoffPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffResponse.status, 200);
+    const cliBridgeLifecycleHandoffPacketSnapshotDiffJson = await cliBridgeLifecycleHandoffPacketSnapshotDiffResponse.json();
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.hasSnapshot, true);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.snapshotId, createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.runner, "codex");
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.hasDrift, false);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.driftScore, 0);
+    assert.equal(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.driftSeverity, "none");
+    assert.match(cliBridgeLifecycleHandoffPacketSnapshotDiffJson.markdown, /# CLI Bridge Lifecycle Handoff Packet Snapshot Drift/);
+
     const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

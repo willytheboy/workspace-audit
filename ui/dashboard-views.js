@@ -1337,7 +1337,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         : null,
       agentWorkOrderRuns: filterAndSort(
         governance.agentWorkOrderRuns,
-        (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.profileTargetTaskLedgerBaselineHealth || "", run.profileTargetTaskLedgerBaselineFreshness || "", run.profileTargetTaskLedgerBaselineDriftSeverity || "", String(run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0), run.history.map((event) => event.note).join(" ")],
+        (run) => [run.projectName || "", run.title || "", run.status || "", run.archivedAt ? "archived" : "active", run.slaBreachedAt && !run.slaResolvedAt ? "sla breached" : "", run.slaResolvedAt ? "sla resolved" : "", run.slaAction || "", String(run.slaEscalationCount || ""), run.readinessStatus || "", run.objective || "", run.blockers.join(" "), run.notes || "", run.profileTargetTaskLedgerBaselineHealth || "", run.profileTargetTaskLedgerBaselineFreshness || "", run.profileTargetTaskLedgerBaselineDriftSeverity || "", String(run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0), run.targetBaselineAuditLedgerBaselineHealth || "", run.targetBaselineAuditLedgerBaselineFreshness || "", run.targetBaselineAuditLedgerBaselineDriftSeverity || "", String(run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0), run.history.map((event) => event.note).join(" ")],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ).filter(matchesExecutionArchive).filter(matchesExecutionStatus),
       agentExecutionSlaLedger: filterAndSort(
@@ -8303,7 +8303,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         lines.push(`  Archived: ${run.archivedAt ? `yes (${new Date(run.archivedAt).toLocaleString()})` : "no"}`);
         lines.push(`  SLA breached: ${run.slaBreachedAt ? `${run.slaResolvedAt ? "resolved" : "open"} (${new Date(run.slaBreachedAt).toLocaleString()}, ${run.slaAction || "actioned"}, count ${run.slaEscalationCount || 1}${run.slaResolvedAt ? `, resolved ${new Date(run.slaResolvedAt).toLocaleString()}` : ""})` : "no"}`);
         lines.push(`  Stale active: ${isStaleAgentWorkOrderRun(run, staleThresholdHours, governanceExecutionPolicy.staleStatuses) ? "yes" : "no"}`);
-        lines.push(`  Target baseline: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} / ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s)`);
+        lines.push(`  Profile target baseline: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} / ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s)`);
+        lines.push(`  Target baseline audit snapshot: ${run.targetBaselineAuditLedgerBaselineHealth || "missing"} / ${run.targetBaselineAuditLedgerBaselineFreshness || "missing"} / ${run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s)`);
         lines.push(`  Objective: ${run.objective}`);
         lines.push(`  Validation: ${run.validationCommands.length ? run.validationCommands.join(" | ") : "none recorded"}`);
         lines.push(`  Blockers: ${run.blockers.length ? run.blockers.join(", ") : "none"}`);

@@ -1192,6 +1192,8 @@ export async function serverTest() {
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].agentPolicyCheckpointStatus, "approved");
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].targetBaselineAuditLedgerBaselineHealth, "missing");
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].targetBaselineAuditLedgerBaselineUncheckpointedDriftCount, 0);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history.length, 1);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history[0].status, "queued");
 
@@ -1241,6 +1243,8 @@ export async function serverTest() {
     assert.equal(createAgentWorkOrderRunJson.run.agentRole, approvedAgentWorkOrdersJson.items[0].agentPolicy.role);
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineFreshness, "missing");
+    assert.equal(createAgentWorkOrderRunJson.run.targetBaselineAuditLedgerBaselineHealth, "missing");
+    assert.equal(createAgentWorkOrderRunJson.run.targetBaselineAuditLedgerBaselineFreshness, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.history.length, 1);
     assert.equal(createAgentWorkOrderRunJson.run.history[0].status, "queued");
 
@@ -2186,6 +2190,7 @@ export async function serverTest() {
     assert.equal(queueCliBridgeWorkOrderRunJson.run.cliBridgeHandoffId, createCliBridgeHandoffJson.handoff.id);
     assert.equal(queueCliBridgeWorkOrderRunJson.run.cliBridgeRunner, "claude");
     assert.equal(queueCliBridgeWorkOrderRunJson.run.profileTargetTaskLedgerBaselineHealth, "missing");
+    assert.ok(["healthy", "missing", "stale", "drifted", "drift-review-required"].includes(queueCliBridgeWorkOrderRunJson.run.targetBaselineAuditLedgerBaselineHealth));
     assert.equal(queueCliBridgeWorkOrderRunJson.run.status, "queued");
     assert.match(queueCliBridgeWorkOrderRunJson.run.notes, /Fixture queued/);
 

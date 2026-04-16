@@ -14901,9 +14901,17 @@ export function createGovernanceDeck(governance) {
         })
       : null,
     createElement("div", {
-      text: `Target baseline audit: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} | drift ${run.profileTargetTaskLedgerBaselineDriftSeverity || "missing-snapshot"} | ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s) | captured ${run.profileTargetTaskLedgerBaselineCapturedAt ? new Date(run.profileTargetTaskLedgerBaselineCapturedAt).toLocaleString() : "not captured"}`,
+      text: `Profile target baseline: ${run.profileTargetTaskLedgerBaselineHealth || "missing"} / ${run.profileTargetTaskLedgerBaselineFreshness || "missing"} | drift ${run.profileTargetTaskLedgerBaselineDriftSeverity || "missing-snapshot"} | ${run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s) | captured ${run.profileTargetTaskLedgerBaselineCapturedAt ? new Date(run.profileTargetTaskLedgerBaselineCapturedAt).toLocaleString() : "not captured"}`,
       style: {
         color: run.profileTargetTaskLedgerBaselineHealth === "healthy" && run.profileTargetTaskLedgerBaselineFreshness === "fresh" ? "var(--success)" : "var(--warning)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
+    createElement("div", {
+      text: `Target baseline audit snapshot: ${run.targetBaselineAuditLedgerBaselineHealth || "missing"} / ${run.targetBaselineAuditLedgerBaselineFreshness || "missing"} | drift ${run.targetBaselineAuditLedgerBaselineDriftSeverity || "missing-snapshot"} | ${run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed drift item(s) | captured ${run.targetBaselineAuditLedgerBaselineCapturedAt ? new Date(run.targetBaselineAuditLedgerBaselineCapturedAt).toLocaleString() : "not captured"}`,
+      style: {
+        color: run.targetBaselineAuditLedgerBaselineHealth === "healthy" && run.targetBaselineAuditLedgerBaselineFreshness === "fresh" ? "var(--success)" : "var(--warning)",
         fontSize: "0.84rem",
         lineHeight: "1.45"
       }
@@ -14972,6 +14980,11 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: run.profileTargetTaskLedgerBaselineHealth === "healthy" ? "var(--success)" : run.profileTargetTaskLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
+      }),
+      createTag(`audit ${run.targetBaselineAuditLedgerBaselineHealth || "missing"}/${run.targetBaselineAuditLedgerBaselineFreshness || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: run.targetBaselineAuditLedgerBaselineHealth === "healthy" ? "var(--success)" : run.targetBaselineAuditLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
       }),
       run.agentPolicyId
         ? createTag(`policy ${run.agentPolicyCheckpointStatus || "needs-review"}`, {

@@ -2416,3 +2416,11 @@
 - [x] Surface the audit gate in the Governance CLI runner readiness card.
 - [x] Add parser checks and server test coverage for the dry-run audit gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Work Order Audit Baseline Capture
+
+- [x] Capture target-baseline audit baseline state on newly queued Agent Work Order runs.
+- [x] Apply capture to snapshot batch, CLI bridge follow-up, convergence, and remediation queue paths.
+- [x] Surface captured audit baseline state in Agent Execution Queue cards.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

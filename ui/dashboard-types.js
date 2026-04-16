@@ -3338,6 +3338,14 @@
  *   holdCount: number,
  *   recommendedAction: string,
  *   secretPolicy: string,
+ *   handoffGate: {
+ *     mode: string,
+ *     decision: "ready" | "review" | "hold",
+ *     allowed: boolean,
+ *     recommendedAction: string,
+ *     checklist: Array<{ id: string, label: string, status: "ready" | "review" | "hold", detail: string, action: string }>,
+ *     reasons: Array<{ severity: "review" | "hold", code: string, message: string }>
+ *   },
  *   stages: Array<{ id: string, label: string, decision: "ready" | "review" | "hold", detail: string, action: string }>,
  *   reasons: Array<{ severity: "review" | "hold", code: string, message: string }>,
  *   dryRunBaselineStatus: CliBridgeRunnerDryRunSnapshotBaselineStatusPayload,

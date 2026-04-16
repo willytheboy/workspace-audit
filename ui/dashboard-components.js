@@ -10230,8 +10230,21 @@ export function createGovernanceDeck(governance) {
               background: "var(--bg)",
               border: "1px solid var(--border)",
               color: (cliBridgeLifecycleStackStatus.holdCount || 0) ? "var(--danger)" : "var(--text-muted)"
+            }),
+            createTag(cliBridgeLifecycleStackStatus.handoffGate?.allowed ? "HANDOFF ALLOWED" : "HANDOFF BLOCKED", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackStatus.handoffGate?.allowed ? "var(--success)" : "var(--danger)"
             })
           ]),
+          createElement("div", {
+            text: `Handoff gate: ${cliBridgeLifecycleStackStatus.handoffGate?.decision || "review"} | ${cliBridgeLifecycleStackStatus.handoffGate?.recommendedAction || "Review CLI bridge lifecycle status before runner work."}`,
+            style: {
+              color: cliBridgeLifecycleStackStatus.handoffGate?.allowed ? "var(--text-muted)" : "var(--warning)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            }
+          }),
           createElement("div", {
             style: {
               display: "flex",

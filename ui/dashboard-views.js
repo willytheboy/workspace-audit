@@ -9255,6 +9255,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       const status = governance.cliBridgeLifecycleStackStatus;
       lines.push(`- Decision: ${status.decision || "review"}`);
       lines.push(`- Counts: ${status.readyCount || 0} ready | ${status.reviewCount || 0} review | ${status.holdCount || 0} hold`);
+      lines.push(`- Handoff gate: ${status.handoffGate?.decision || "review"}; allowed ${status.handoffGate?.allowed ? "yes" : "no"}`);
+      lines.push(`- Handoff action: ${status.handoffGate?.recommendedAction || "Review CLI bridge lifecycle status before runner work."}`);
       lines.push(`- Action: ${status.recommendedAction || "Review CLI bridge lifecycle status before runner work."}`);
       for (const stage of (status.stages || []).slice(0, 8)) {
         lines.push(`- ${stage.label || stage.id}: ${stage.decision || "review"}`);

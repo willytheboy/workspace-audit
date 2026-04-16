@@ -2663,3 +2663,11 @@
 - [x] Feed the stage into the existing lifecycle remediation pack so non-ready baseline evidence becomes actionable work.
 - [x] Add parser and server test coverage for the fifth lifecycle stage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Handoff Gate
+
+- [x] Add a machine-readable handoff gate to the lifecycle stack status payload.
+- [x] Mark CLI runner handoff as allowed only when all lifecycle stages are ready.
+- [x] Include a non-secret handoff checklist and reasons for blocked or review-only launches.
+- [x] Surface handoff gate state in Governance, report export, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

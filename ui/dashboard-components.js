@@ -14533,6 +14533,11 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       }),
+      createTag(`target ${run.profileTargetTaskLedgerBaselineHealth || "missing"}/${run.profileTargetTaskLedgerBaselineFreshness || "missing"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: run.profileTargetTaskLedgerBaselineHealth === "healthy" ? "var(--success)" : run.profileTargetTaskLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
+      }),
       run.agentPolicyId
         ? createTag(`policy ${run.agentPolicyCheckpointStatus || "needs-review"}`, {
             background: "var(--bg)",

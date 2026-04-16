@@ -2316,3 +2316,10 @@
 - [x] Persist target baseline state on CLI bridge run trace snapshots.
 - [x] Include target baseline state in run trace Markdown, snapshot cards, parser checks, and tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Profile Target Baseline Capture
+
+- [x] Capture profile target task baseline health on newly queued Agent Work Order runs.
+- [x] Apply the same capture to snapshot batches, CLI bridge follow-up runs, convergence runs, and launch-stack remediation runs.
+- [x] Surface captured target baseline health in the Agent Execution Queue and parser checks.
+- [x] Validate, relaunch, commit, and push.

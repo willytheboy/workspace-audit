@@ -2504,3 +2504,11 @@
 - [x] Add captured, missing, healthy, and review-required audit-baseline run counts to the decision detail line.
 - [x] Add parser coverage for the dashboard visibility wiring.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Snapshots
+
+- [x] Add persistent non-secret Codex and Claude runner dry-run snapshot storage.
+- [x] Add API routes for listing and saving dry-run snapshots from the current CLI Bridge dry-run contract.
+- [x] Surface saved dry-run snapshots in Governance with copy controls and summary counts.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

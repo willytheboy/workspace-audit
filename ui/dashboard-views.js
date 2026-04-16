@@ -226,6 +226,8 @@ function createEmptyTableRow(message) {
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
  *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
  *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
+ *     fetchCliBridgeRunnerDryRunSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[]>,
+ *     createCliBridgeRunnerDryRunSnapshot: (payload?: { title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<unknown>,
  *     fetchCliBridgeFollowUpWorkOrderDraft: (handoffId: string, options?: { runner?: "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>,
  *     queueCliBridgeFollowUpWorkOrderRun: (handoffId: string, payload?: { runner?: "codex" | "claude", status?: string, notes?: string, limit?: number }) => Promise<unknown>,
  *     fetchCliBridgeRunTrace: (runId: string) => Promise<import("./dashboard-types.js").CliBridgeRunTracePayload>,
@@ -1310,6 +1312,20 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         ],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
+      cliBridgeRunnerDryRunSnapshots: filterAndSort(
+        governance.cliBridgeRunnerDryRunSnapshots || [],
+        (snapshot) => [
+          snapshot.title || "",
+          snapshot.runner || "",
+          snapshot.dryRunDecision || "",
+          snapshot.selectedWorkOrderProjectName || "",
+          snapshot.selectedWorkOrderId || "",
+          snapshot.recommendedAction || "",
+          (snapshot.reasonCodes || []).join(" "),
+          snapshot.markdown || ""
+        ],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       cliBridgeRunTraceSnapshots: filterAndSort(
         governance.cliBridgeRunTraceSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
@@ -1452,6 +1468,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
       if (scope !== "execution") filtered.cliBridgeHandoffs = [];
+      if (scope !== "execution") filtered.cliBridgeRunnerDryRunSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotBaselineStatus = null;
@@ -4699,6 +4716,55 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runner = element.dataset.cliBridgeRunnerDryRunSnapshot || "codex";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await api.createCliBridgeRunnerDryRunSnapshot({
+            runner,
+            limit: 24,
+            title: `CLI bridge ${runner} runner dry run`
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.textContent = originalLabel;
+          element.disabled = false;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-runner-dry-run-snapshot-copy-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeRunnerDryRunSnapshotCopyId || "";
+        const snapshot = governanceCache?.cliBridgeRunnerDryRunSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown || snapshot.dryRun?.markdown || "");
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-handoff-work-order-draft]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -7750,6 +7816,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible SLA ledger snapshots: ${(governance.agentExecutionSlaLedgerSnapshots || []).length}`,
       `Visible CLI bridge handoffs: ${(governance.cliBridgeHandoffs || []).length}`,
       `Visible CLI bridge handoff audit baseline states: ${(governance.cliBridgeHandoffs || []).map((handoff) => handoff.targetBaselineAuditLedgerBaselineHealth || "missing").join(", ") || "none"}`,
+      `Visible CLI bridge runner dry-run snapshots: ${(governance.cliBridgeRunnerDryRunSnapshots || []).length}`,
       `Visible CLI bridge run trace snapshots: ${(governance.cliBridgeRunTraceSnapshots || []).length}`,
       `Visible CLI bridge run trace baseline status: ${governance.cliBridgeRunTraceSnapshotBaselineStatus ? "yes" : "no"}`,
       `Visible CLI bridge run trace snapshot drift items: ${(governance.cliBridgeRunTraceSnapshotDiff?.driftItems || []).length}`,
@@ -7857,6 +7924,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Agent policy executable work orders: ${governanceCache?.summary.agentPolicyExecutableCount ?? 0}/${governanceCache?.summary.agentReadinessItems ?? 0}`,
       `- Work order snapshots: ${governanceCache?.summary.agentWorkOrderSnapshotCount ?? 0}`,
       `- SLA ledger snapshots: ${governanceCache?.summary.agentExecutionSlaLedgerSnapshotCount ?? 0}`,
+      `- CLI bridge runner dry-run snapshots: ${governanceCache?.summary.cliBridgeRunnerDryRunSnapshotCount ?? 0}`,
       `- CLI bridge run trace snapshots: ${governanceCache?.summary.cliBridgeRunTraceSnapshotCount ?? 0}`,
       `- CLI bridge run trace baseline: ${governanceCache?.cliBridgeRunTraceSnapshotBaselineStatus?.health || "missing"} | ${governanceCache?.cliBridgeRunTraceSnapshotBaselineStatus?.freshness || "missing"} | drift ${governanceCache?.cliBridgeRunTraceSnapshotBaselineStatus?.driftScore ?? 0}`,
       `- CLI bridge run trace snapshot drift: ${governanceCache?.cliBridgeRunTraceSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeRunTraceSnapshotDiff?.driftScore ?? 0})`,
@@ -8362,6 +8430,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible CLI bridge handoffs.");
+    }
+
+    lines.push("", "## CLI Bridge Runner Dry Run Snapshots");
+    if ((governance.cliBridgeRunnerDryRunSnapshots || []).length) {
+      for (const snapshot of governance.cliBridgeRunnerDryRunSnapshots) {
+        lines.push(`- ${snapshot.title || "CLI Bridge Runner Dry Run"}: ${snapshot.runner || "runner"} / ${snapshot.dryRunDecision || "review"}`);
+        lines.push(`  Work order: ${snapshot.selectedWorkOrderId || "fallback"} | Project: ${snapshot.selectedWorkOrderProjectName || snapshot.selectedWorkOrderProjectId || "Portfolio"}`);
+        lines.push(`  Gates: target ${snapshot.targetBaselineAuditGateDecision || "review"} | audit runs ${snapshot.auditBaselineRunGateDecision || "review"} | reasons ${snapshot.reasonCount || 0}`);
+        lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
+      }
+    } else {
+      lines.push("- No visible CLI bridge runner dry-run snapshots.");
     }
 
     lines.push("", "## CLI Bridge Run Trace Snapshots");
@@ -10702,6 +10782,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + governance.agentReadinessMatrix.length
         + governance.agentWorkOrderSnapshots.length
         + (governance.agentExecutionSlaLedgerSnapshots || []).length
+        + (governance.cliBridgeRunnerDryRunSnapshots || []).length
         + (governance.cliBridgeRunTraceSnapshots || []).length
         + (cliBridgeRunTraceSnapshotDiff ? 1 : 0)
         + (cliBridgeRunTraceSnapshotDiff?.driftItems || []).length

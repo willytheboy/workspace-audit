@@ -1461,6 +1461,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[]>}
+   */
+  fetchCliBridgeRunnerDryRunSnapshots() {
+    return fetchJson("/api/cli-bridge/runner-dry-run-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot, cliBridgeRunnerDryRunSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[], governanceOperationCount: number }>}
+   */
+  createCliBridgeRunnerDryRunSnapshot(payload = {}) {
+    return fetchJson("/api/cli-bridge/runner-dry-run-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {string} handoffId
    * @param {{ runner?: "codex" | "claude", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>}

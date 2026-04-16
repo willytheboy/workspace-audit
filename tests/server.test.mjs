@@ -1274,6 +1274,40 @@ export async function serverTest() {
     assert.match(codexCliBridgeDryRunJson.markdown, /## Audit Baseline Run Gate/);
     assert.match(codexCliBridgeDryRunJson.markdown, /Do not use or request secrets/);
 
+    const initialCliBridgeDryRunSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`);
+    assert.equal(initialCliBridgeDryRunSnapshotsResponse.status, 200);
+    const initialCliBridgeDryRunSnapshotsJson = await initialCliBridgeDryRunSnapshotsResponse.json();
+    assert.deepEqual(initialCliBridgeDryRunSnapshotsJson, []);
+
+    const createCliBridgeDryRunSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Codex dry-run snapshot",
+        runner: "codex",
+        runId: createAgentWorkOrderRunJson.run.id,
+        limit: 12
+      })
+    });
+    assert.equal(createCliBridgeDryRunSnapshotResponse.status, 200);
+    const createCliBridgeDryRunSnapshotJson = await createCliBridgeDryRunSnapshotResponse.json();
+    assert.equal(createCliBridgeDryRunSnapshotJson.success, true);
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.dryRunDecision, codexCliBridgeDryRunJson.dryRunDecision);
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.targetBaselineAuditGateDecision, "review");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.auditBaselineRunGateDecision, "review");
+    assert.ok(createCliBridgeDryRunSnapshotJson.snapshot.reasonCodes.includes("cli-bridge-target-baseline-audit-gate"));
+    assert.ok(createCliBridgeDryRunSnapshotJson.snapshot.reasonCodes.includes("cli-bridge-audit-baseline-run-gate"));
+    assert.match(createCliBridgeDryRunSnapshotJson.snapshot.markdown, /# CLI Bridge Runner Dry Run/);
+    assert.match(createCliBridgeDryRunSnapshotJson.snapshot.dryRun.markdown, /## Audit Baseline Run Gate/);
+
+    const cliBridgeDryRunSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`);
+    assert.equal(cliBridgeDryRunSnapshotsResponse.status, 200);
+    const cliBridgeDryRunSnapshotsJson = await cliBridgeDryRunSnapshotsResponse.json();
+    assert.equal(cliBridgeDryRunSnapshotsJson.length, 1);
+    assert.equal(cliBridgeDryRunSnapshotsJson[0].id, createCliBridgeDryRunSnapshotJson.snapshot.id);
+
     const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
     assert.equal(claudeCliBridgeDryRunResponse.status, 200);
     const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();
@@ -1316,6 +1350,9 @@ export async function serverTest() {
     assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineMissingCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineReviewRequiredCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineUncheckpointedDriftItemCount, 0);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.cliBridgeRunnerDryRunSnapshotCount, 1);
+    assert.equal(governanceAfterWorkOrderRunJson.cliBridgeRunnerDryRunSnapshots.length, 1);
+    assert.equal(governanceAfterWorkOrderRunJson.cliBridgeRunnerDryRunSnapshots[0].selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.total, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.active, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.statusCounts.queued, 1);
@@ -1335,6 +1372,7 @@ export async function serverTest() {
     assert.ok(governanceOperationTypes.includes("agent-work-order-run-created"));
     assert.ok(governanceOperationTypes.includes("agent-work-order-run-status-updated"));
     assert.ok(governanceOperationTypes.includes("agent-policy-checkpoint-recorded"));
+    assert.ok(governanceOperationTypes.includes("cli-bridge-runner-dry-run-snapshot-created"));
 
     const refreshBatchRunTargetBaselineResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${batchAgentWorkOrderRunsJson.queuedRuns[0].id}/target-baseline-refresh`, {
       method: "POST",

@@ -2790,6 +2790,7 @@
  *   agentExecutionTargetBaselineAuditLedgerBaselineStatus?: AgentExecutionTargetBaselineAuditLedgerBaselineStatusPayload | null,
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
+ *   cliBridgeRunnerDryRunSnapshots: PersistedCliBridgeRunnerDryRunSnapshot[],
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
@@ -3015,6 +3016,29 @@
  *   validationLoop: string[],
  *   markdown: string
  * }} CliBridgeRunnerDryRunPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   runner: "codex" | "claude",
+ *   requestedRunId: string,
+ *   dryRunDecision: "ready" | "review" | "hold",
+ *   recommendedAction: string,
+ *   contextDecision: "ready" | "review" | "hold",
+ *   selectedWorkOrderId: string,
+ *   selectedWorkOrderProjectId: string,
+ *   selectedWorkOrderProjectName: string,
+ *   selectedWorkOrderSourceType: string,
+ *   reasonCount: number,
+ *   reasonCodes: string[],
+ *   targetBaselineAuditGate: CliBridgeTargetBaselineAuditGate,
+ *   auditBaselineRunGate: CliBridgeAuditBaselineRunGate,
+ *   targetBaselineAuditGateDecision: string,
+ *   auditBaselineRunGateDecision: string,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   dryRun: CliBridgeRunnerDryRunPayload,
+ *   createdAt: string
+ * }} PersistedCliBridgeRunnerDryRunSnapshot
  * @typedef {{
  *   sourceType: "cli-bridge-handoff",
  *   sourceHandoffId: string,

@@ -1842,6 +1842,12 @@ export function createGovernanceSummaryGrid(governance) {
       detail: `${executionMetrics.staleActive} stale after ${executionMetrics.staleThresholdHours}h | ${executionMetrics.slaBreached || 0} SLA breached | ${executionMetrics.failureRate}% failure rate | ${executionMetrics.archived || 0} archived`
     }),
     createKpiCard({
+      accentColor: (summary.cliBridgeRunnerDryRunSnapshotCount || 0) ? "var(--success)" : "var(--primary)",
+      label: "CLI Dry Runs",
+      value: String(summary.cliBridgeRunnerDryRunSnapshotCount || 0),
+      detail: "Saved non-secret Codex and Claude runner dry-run contracts"
+    }),
+    createKpiCard({
       accentColor: (summary.cliBridgeRunTraceSnapshotCount || 0) ? "var(--success)" : "var(--primary)",
       label: "CLI Trace Snapshots",
       value: String(summary.cliBridgeRunTraceSnapshotCount || 0),
@@ -9154,8 +9160,106 @@ export function createGovernanceDeck(governance) {
           }
         })
       ])
-    ]))
+  ]))
   ];
+
+  const cliBridgeRunnerDryRunSnapshotEntries = (governance.cliBridgeRunnerDryRunSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card cli-bridge-runner-dry-run-snapshot-card",
+    dataset: snapshot.selectedWorkOrderProjectId ? { openAppId: encodeAppId(snapshot.selectedWorkOrderProjectId) } : undefined,
+    title: snapshot.selectedWorkOrderProjectId ? "Open project workbench" : undefined,
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: snapshot.title || "CLI Bridge Runner Dry Run",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.selectedWorkOrderProjectName || snapshot.selectedWorkOrderProjectId || "Portfolio"} | ${new Date(snapshot.createdAt).toLocaleString()}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(snapshot.dryRunDecision || "review", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.dryRunDecision === "ready" ? "var(--success)" : snapshot.dryRunDecision === "hold" ? "var(--danger)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      text: snapshot.recommendedAction || "Review the dry-run contract before supervised CLI execution.",
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "tags"
+    }, [
+      createTag(snapshot.runner || "runner", {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--primary)"
+      }),
+      createTag(`work order ${snapshot.selectedWorkOrderId || "fallback"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: "var(--text-muted)"
+      }),
+      createTag(`reasons ${snapshot.reasonCount || 0}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.reasonCount || 0) ? "var(--warning)" : "var(--success)"
+      }),
+      createTag(`target ${snapshot.targetBaselineAuditGateDecision || snapshot.targetBaselineAuditGate?.decision || "review"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.targetBaselineAuditGateDecision || snapshot.targetBaselineAuditGate?.decision) === "ready" ? "var(--success)" : "var(--warning)"
+      }),
+      createTag(`audit runs ${snapshot.auditBaselineRunGateDecision || snapshot.auditBaselineRunGate?.decision || "review"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.auditBaselineRunGateDecision || snapshot.auditBaselineRunGate?.decision) === "ready" ? "var(--success)" : "var(--warning)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeRunnerDryRunSnapshotCopyId: snapshot.id || ""
+        }
+      })
+    ])
+  ]));
 
   const cliBridgeRunTraceSnapshotEntries = (governance.cliBridgeRunTraceSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card cli-bridge-run-trace-snapshot-card",
@@ -15727,11 +15831,27 @@ export function createGovernanceDeck(governance) {
           }
         }),
         createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-btn",
+          text: "Save Codex Dry Run",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerDryRunSnapshot: "codex"
+          }
+        }),
+        createElement("button", {
           className: "btn governance-action-btn cli-bridge-runner-dry-run-copy-btn",
           text: "Copy Claude Dry Run",
           attrs: { type: "button" },
           dataset: {
             cliBridgeRunnerDryRun: "claude"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn cli-bridge-runner-dry-run-snapshot-btn",
+          text: "Save Claude Dry Run",
+          attrs: { type: "button" },
+          dataset: {
+            cliBridgeRunnerDryRunSnapshot: "claude"
           }
         })
       ])
@@ -15796,6 +15916,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Runner Readiness Gate", "Readiness signal for a future supervised Codex CLI / Claude CLI work-order runner prototype.", cliRunnerReadinessEntries),
     createListSection("CLI Bridge Architecture", "Recommended non-executing integration path for Codex CLI and Claude CLI through app-owned work orders and sanitized handoffs.", cliBridgeArchitectureEntries),
     createListSection("CLI Bridge Handoff Ledger", "App-owned non-secret mailbox for Codex, Claude, operator, and Workspace Audit handoff summaries.", cliBridgeHandoffLedgerEntries),
+    createListSection("CLI Bridge Runner Dry Run Snapshots", "Persisted non-secret Codex and Claude dry-run contracts before supervised CLI execution.", cliBridgeRunnerDryRunSnapshotEntries),
     createListSection("CLI Bridge Run Trace Snapshots", "Persisted non-secret trace packs from CLI-linked Agent Execution runs.", cliBridgeRunTraceSnapshotEntries),
     createListSection("CLI Bridge Run Trace Baseline Status", "Freshness, health, and drift state for the latest saved CLI bridge trace baseline.", cliBridgeRunTraceSnapshotBaselineStatusEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),

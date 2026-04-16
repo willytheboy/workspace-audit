@@ -489,6 +489,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (executionStatus === "target-baseline-missing") return (run.profileTargetTaskLedgerBaselineHealth || "missing") === "missing";
       if (executionStatus === "target-baseline-stale") return (run.profileTargetTaskLedgerBaselineHealth || "missing") === "stale" || (run.profileTargetTaskLedgerBaselineFreshness || "missing") === "stale";
       if (executionStatus === "target-baseline-drift") return ["drifted", "drift-review-required"].includes(run.profileTargetTaskLedgerBaselineHealth || "missing") || (run.profileTargetTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0;
+      if (executionStatus === "audit-baseline-review") return (run.targetBaselineAuditLedgerBaselineHealth || "missing") !== "healthy" || (run.targetBaselineAuditLedgerBaselineFreshness || "missing") !== "fresh" || (run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0) > 0;
+      if (executionStatus === "audit-baseline-missing") return (run.targetBaselineAuditLedgerBaselineHealth || "missing") === "missing";
+      if (executionStatus === "audit-baseline-stale") return (run.targetBaselineAuditLedgerBaselineHealth || "missing") === "stale" || (run.targetBaselineAuditLedgerBaselineFreshness || "missing") === "stale";
+      if (executionStatus === "audit-baseline-drift") return ["drifted", "drift-review-required"].includes(run.targetBaselineAuditLedgerBaselineHealth || "missing") || (run.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0) > 0;
       return run.status === executionStatus;
     }
 

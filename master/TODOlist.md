@@ -2449,3 +2449,11 @@
 - [x] Surface audit-baseline status in CLI trace snapshot cards.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Audit Baseline Execution Filters
+
+- [x] Add execution status filters for audit-baseline review, missing, stale, and drift states.
+- [x] Keep audit-baseline filters separate from profile target-baseline filters.
+- [x] Apply filters to visible Agent Execution runs in Governance.
+- [x] Add parser coverage for the new filter options and matching logic.
+- [x] Validate, relaunch, commit, and push.

@@ -2937,8 +2937,20 @@
  *   promptMode: string,
  *   workingDirectory: string,
  *   invocationPolicy: string,
+ *   targetBaselineAuditGate?: CliBridgeTargetBaselineAuditGate,
  *   prompt: string
  * }} CliBridgeRunnerCommandEnvelope
+ * @typedef {{
+ *   decision: "ready" | "review",
+ *   hasBaseline: boolean,
+ *   health: string,
+ *   freshness: string,
+ *   driftSeverity: string,
+ *   driftScore: number,
+ *   uncheckpointedDriftCount: number,
+ *   recommendedAction: string,
+ *   runnerPolicy: string
+ * }} CliBridgeTargetBaselineAuditGate
  * @typedef {{
  *   generatedAt: string,
  *   protocolVersion: string,
@@ -2951,6 +2963,7 @@
  *   secretPolicy: string,
  *   reasons: AgentControlPlaneDecisionReason[],
  *   contextDecision: "ready" | "review" | "hold",
+ *   targetBaselineAuditGate: CliBridgeTargetBaselineAuditGate,
  *   selectedWorkOrder: CliBridgeRunnerWorkOrderContract,
  *   commandEnvelope: CliBridgeRunnerCommandEnvelope,
  *   expectedOutputSchema: Record<string, string>,

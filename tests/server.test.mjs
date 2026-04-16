@@ -1252,9 +1252,15 @@ export async function serverTest() {
     assert.equal(codexCliBridgeDryRunJson.runner, "codex");
     assert.equal(codexCliBridgeDryRunJson.selectedWorkOrder.id, createAgentWorkOrderRunJson.run.id);
     assert.equal(codexCliBridgeDryRunJson.commandEnvelope.adapterId, "codex");
+    assert.equal(codexCliBridgeDryRunJson.targetBaselineAuditGate.health, "missing");
+    assert.equal(codexCliBridgeDryRunJson.targetBaselineAuditGate.decision, "review");
+    assert.equal(codexCliBridgeDryRunJson.commandEnvelope.targetBaselineAuditGate.health, "missing");
+    assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-target-baseline-audit-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Target baseline audit gate: review/);
     assert.match(codexCliBridgeDryRunJson.markdown, /# CLI Bridge Runner Dry Run/);
+    assert.match(codexCliBridgeDryRunJson.markdown, /## Target Baseline Audit Gate/);
     assert.match(codexCliBridgeDryRunJson.markdown, /Do not use or request secrets/);
 
     const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
@@ -1262,6 +1268,7 @@ export async function serverTest() {
     const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();
     assert.equal(claudeCliBridgeDryRunJson.runner, "claude");
     assert.equal(claudeCliBridgeDryRunJson.commandEnvelope.adapterId, "claude");
+    assert.equal(claudeCliBridgeDryRunJson.targetBaselineAuditGate.health, "missing");
     assert.match(claudeCliBridgeDryRunJson.commandEnvelope.displayCommand, /claude -p/);
     assert.match(claudeCliBridgeDryRunJson.expectedOutputSchema.handoffRecommendation, /codex/);
 

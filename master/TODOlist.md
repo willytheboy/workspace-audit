@@ -2408,3 +2408,11 @@
 - [x] Surface handoff audit-baseline evidence in CLI bridge ledger Markdown, Governance cards, summary text, and report export.
 - [x] Add parser checks and server test coverage for handoff audit-baseline evidence.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Runner Dry-Run Audit Baseline Gate
+
+- [x] Add an explicit target-baseline audit gate to CLI runner dry-run payloads.
+- [x] Include the audit gate in dry-run Markdown, command envelopes, and runner prompts.
+- [x] Surface the audit gate in the Governance CLI runner readiness card.
+- [x] Add parser checks and server test coverage for the dry-run audit gate.
+- [x] Validate, relaunch, commit, and push.

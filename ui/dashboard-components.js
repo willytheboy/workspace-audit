@@ -15387,6 +15387,12 @@ export function createGovernanceDeck(governance) {
   if (controlPlaneProfileTargetBaselineHealth !== "healthy") {
     cliRunnerGateReasons.push({ severity: "review", message: `Profile target task baseline is ${controlPlaneProfileTargetBaselineHealth}.` });
   }
+  if (controlPlaneTargetBaselineAuditHealth !== "healthy" || controlPlaneTargetBaselineAuditFreshness !== "fresh" || controlPlaneTargetBaselineAuditUncheckpointedDriftCount > 0) {
+    cliRunnerGateReasons.push({
+      severity: "review",
+      message: `Target baseline audit is ${controlPlaneTargetBaselineAuditHealth}/${controlPlaneTargetBaselineAuditFreshness} with ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed drift item(s).`
+    });
+  }
   if (releaseBuildGateDecision !== "ready") {
     cliRunnerGateReasons.push({ severity: releaseBuildGateDecision === "hold" ? "hold" : "review", message: `Release Build Gate is ${releaseBuildGateDecision}.` });
   }
@@ -15478,6 +15484,11 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: controlPlaneProfileTargetBaselineColor
+        }),
+        createTag(`Audit ${controlPlaneTargetBaselineAuditHealth}/${controlPlaneTargetBaselineAuditFreshness}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: controlPlaneTargetBaselineAuditColor
         }),
         createTag(`Release ${releaseBuildGateDecision}`, {
           background: "var(--bg)",

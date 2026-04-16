@@ -10951,6 +10951,125 @@ export function createGovernanceDeck(governance) {
     ]))
   ] : [];
 
+  const cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus = governance.cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus || null;
+  const cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusEntries = cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-baseline-status-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline
+                  ? (cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.title || "CLI Bridge Remediation Task Ledger Baseline")
+                  : "No CLI bridge remediation task ledger baseline selected",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline && cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.createdAt
+                  ? `${new Date(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.createdAt).toLocaleString()} | ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.status || "all"}`
+                  : `${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.snapshotCount || 0} saved remediation task ledger snapshot(s) available`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.health || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.health === "healthy"
+                ? "var(--success)"
+                : cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.health === "drifted" || cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.health === "missing"
+                  ? "var(--danger)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline ? "BASELINE SET" : "BASELINE MISSING", {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline ? "var(--success)" : "var(--warning)"
+            }),
+            createTag((cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.freshness || "missing").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+            }),
+            createTag(`drift ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.driftScore || 0}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.checkpointedDriftItemCount || 0}/${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.driftItemCount || 0} checkpointed`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.uncheckpointedDriftItemCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.openEscalatedCheckpointCount || 0} open escalated`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.openEscalatedCheckpointCount || 0) > 0 ? "var(--danger)" : "var(--success)"
+            })
+          ]),
+          createElement("div", {
+            text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline
+              ? `Freshness: ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.ageHours || 0}h old | stale after ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.freshnessThresholdHours || 24}h`
+              : `Freshness: missing | stale threshold ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.freshnessThresholdHours || 24}h`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Baseline health: ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.health || "missing"} | ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.recommendedAction || "Save a CLI bridge lifecycle remediation task ledger snapshot before relying on remediation baselines."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("div", {
+            text: `Drift action: ${cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.driftRecommendedAction || "Save a CLI bridge lifecycle remediation task ledger snapshot before comparing drift."}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.88rem",
+              lineHeight: "1.5"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-baseline-status-copy-btn",
+            text: "Copy Baseline Status",
+            attrs: { type: "button" },
+            dataset: {
+              cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusCopy: "true"
+            }
+          })
+        ])
+      ]
+    : [];
+
   const cliBridgeRunTraceSnapshotDiffActionId = governance.cliBridgeRunTraceSnapshotDiff?.snapshotId || "latest";
   const cliBridgeRunTraceSnapshotDiffEntries = governance.cliBridgeRunTraceSnapshotDiff
     ? [
@@ -17378,6 +17497,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Drift Checkpoints", "Operator decisions made against remediation task ledger drift before CLI bridge handoff reuse.", cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerEntries),
+    createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Status", "Freshness, drift health, and checkpoint coverage for the latest saved remediation task ledger baseline.", cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusEntries),
     createListSection("CLI Bridge Run Trace Snapshot Drift", "Latest saved CLI bridge run trace snapshot compared with the current live trace state.", cliBridgeRunTraceSnapshotDiffEntries),
     createListSection("Workflow Runbook", "Supervised workflow and agent-readiness checkpoints derived from active project workflows.", workflowRunbookEntries),
     createListSection("Agent Sessions", "Prepared supervised agent handoff sessions captured from project workbenches.", agentSessionEntries),

@@ -2631,3 +2631,11 @@
 - [x] Add a copyable all/open/closed checkpoint ledger with lifecycle controls.
 - [x] Surface checkpoint state in drift items, Governance filtering, visible summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Status
+
+- [x] Add a baseline-status API for the latest saved CLI bridge lifecycle remediation task ledger snapshot.
+- [x] Report baseline freshness, health, drift score, drift severity, checkpoint coverage, and open escalated checkpoint count.
+- [x] Surface the baseline-status card and copy control in Governance.
+- [x] Include baseline status in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

@@ -1624,6 +1624,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusPayload>}
+   */
+  fetchCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus() {
+    return fetchJson("/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/baseline-status");
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>}
    */

@@ -2016,6 +2016,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerBaselineStatusPayload>}
+   */
+  fetchGovernanceProfileTargetTaskLedgerBaselineStatus() {
+    return fetchJson("/api/governance/profile-target-task-ledger-baseline-status");
+  },
+
+  /**
    * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
    */
   executeGovernanceQueue(payload) {

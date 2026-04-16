@@ -2290,6 +2290,7 @@ export function createGovernanceDeck(governance) {
   ]));
   const profileTargetTaskSnapshotDiff = governance.governanceProfileTargetTaskLedgerSnapshotDiff;
   const profileTargetTaskDriftCheckpointLedger = governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger;
+  const profileTargetTaskLedgerBaselineStatus = governance.governanceProfileTargetTaskLedgerBaselineStatus;
   const profileTargetTaskDriftItems = Array.isArray(profileTargetTaskSnapshotDiff?.driftItems)
     ? profileTargetTaskSnapshotDiff.driftItems
     : [];
@@ -2333,6 +2334,145 @@ export function createGovernanceDeck(governance) {
     ["deferred", "Deferred"],
     ["escalated", "Escalated"]
   ];
+  const profileTargetTaskLedgerBaselineStatusEntries = profileTargetTaskLedgerBaselineStatus ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: profileTargetTaskLedgerBaselineStatus.hasBaseline
+              ? (profileTargetTaskLedgerBaselineStatus.title || "Governance Profile Target Task Ledger Baseline")
+              : "No Governance Profile Target Task baseline saved",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: profileTargetTaskLedgerBaselineStatus.hasBaseline
+              ? `${profileTargetTaskLedgerBaselineStatus.createdAt ? new Date(profileTargetTaskLedgerBaselineStatus.createdAt).toLocaleString() : "created date missing"} | ${profileTargetTaskLedgerBaselineStatus.snapshotId || "snapshot id missing"}`
+              : `${profileTargetTaskLedgerBaselineStatus.snapshotCount || 0} saved target task snapshot(s) available`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createElement("div", {
+          style: {
+            display: "flex",
+            gap: "0.35rem",
+            flexWrap: "wrap",
+            justifyContent: "flex-end"
+          }
+        }, [
+          createTag(profileTargetTaskLedgerBaselineStatus.hasBaseline ? "BASELINE SET" : "BASELINE MISSING", {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: profileTargetTaskLedgerBaselineStatus.hasBaseline ? "var(--success)" : "var(--warning)"
+          }),
+          createTag((profileTargetTaskLedgerBaselineStatus.freshness || "missing").toUpperCase(), {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: profileTargetTaskLedgerBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+          }),
+          createTag(`DRIFT ${profileTargetTaskLedgerBaselineStatus.driftScore || 0}`, {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: profileTargetTaskLedgerBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`HEALTH ${(profileTargetTaskLedgerBaselineStatus.health || "missing").toUpperCase()}`, {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: profileTargetTaskLedgerBaselineStatus.health === "healthy" ? "var(--success)" : "var(--warning)"
+          })
+        ])
+      ]),
+      createElement("div", {
+        text: profileTargetTaskLedgerBaselineStatus.hasBaseline
+          ? `Freshness: ${profileTargetTaskLedgerBaselineStatus.ageHours || 0}h old | stale after ${profileTargetTaskLedgerBaselineStatus.freshnessThresholdHours || 24}h | status filter ${profileTargetTaskLedgerBaselineStatus.statusFilter || "all"}`
+          : `Freshness: missing | stale threshold ${profileTargetTaskLedgerBaselineStatus.freshnessThresholdHours || 24}h`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        text: `Baseline health: ${profileTargetTaskLedgerBaselineStatus.health || "missing"} | ${profileTargetTaskLedgerBaselineStatus.recommendedAction || "Save a Governance profile target task ledger snapshot before relying on target-task drift gates."}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        text: `Checkpoint coverage: ${profileTargetTaskLedgerBaselineStatus.checkpointedDriftItemCount || 0}/${profileTargetTaskLedgerBaselineStatus.driftItemCount || 0} drift item(s) checkpointed | ${profileTargetTaskLedgerBaselineStatus.uncheckpointedDriftItemCount || 0} unresolved`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      profileTargetTaskLedgerBaselineStatus.driftItems?.length
+        ? createElement("div", {
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.35rem",
+              padding: "0.7rem",
+              border: "1px solid var(--border)",
+              borderRadius: "0.85rem",
+              background: "color-mix(in srgb, var(--surface-hover) 45%, transparent 55%)"
+            }
+          }, [
+            createElement("div", {
+              text: "Baseline drift checkpoint coverage",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.78rem",
+                fontWeight: "800",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase"
+              }
+            }),
+            ...profileTargetTaskLedgerBaselineStatus.driftItems.slice(0, 6).map((item) => createElement("div", {
+              text: `${item.label || item.field}: ${item.before} -> ${item.current} | ${item.checkpointStatus || "uncheckpointed"}`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            }))
+          ])
+        : null,
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn governance-profile-target-task-ledger-baseline-status-copy-btn",
+          text: "Copy Baseline Status",
+          attrs: { type: "button" },
+          dataset: { governanceProfileTargetTaskLedgerBaselineStatusCopy: "true" }
+        })
+      ])
+    ])
+  ] : [];
   const profileTargetTaskSnapshotDiffEntries = profileTargetTaskSnapshotDiff ? [
     createElement("div", {
       className: "governance-gap-card",
@@ -15145,6 +15285,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),
     createListSection("Governance Profile Target Tasks", "Deduplicated task ledger for profile test coverage and runtime target gaps.", profileTargetTaskEntries),
+    createListSection("Governance Profile Target Task Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted profile target task baseline.", profileTargetTaskLedgerBaselineStatusEntries),
     createListSection("Governance Profile Target Task Snapshot Drift", "Latest saved profile target task baseline compared with current live profile target tasks.", profileTargetTaskSnapshotDiffEntries),
     createListSection("Governance Profile Target Task Drift Checkpoints", "Operator decisions made against profile target task ledger drift before refreshing the accepted baseline.", profileTargetTaskDriftCheckpointLedgerEntries),
     createListSection("Governance Profile Target Task Snapshots", "Saved baselines for the profile target task ledger.", profileTargetTaskSnapshotEntries),

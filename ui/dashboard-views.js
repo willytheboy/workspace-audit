@@ -206,6 +206,7 @@ function createEmptyTableRow(message) {
  *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
  *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload>,
+ *     fetchGovernanceProfileTargetTaskLedgerBaselineStatus: () => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerBaselineStatusPayload>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
@@ -5457,6 +5458,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         }
       };
     });
+
+    container.querySelectorAll("[data-governance-profile-target-task-ledger-baseline-status-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const status = await api.fetchGovernanceProfileTargetTaskLedgerBaselineStatus();
+          await copyText(status.markdown);
+          element.textContent = "Status Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
   }
 
   /**
@@ -7433,6 +7456,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible profile target task rows: ${governance.profileTargetTasks?.length || 0}`,
       `Visible profile target task snapshots: ${governance.governanceProfileTargetTaskLedgerSnapshots?.length || 0}`,
       `Visible profile target task snapshot drift: ${governance.governanceProfileTargetTaskLedgerSnapshotDiff ? "yes" : "no"}`,
+      `Visible profile target task baseline status: ${governance.governanceProfileTargetTaskLedgerBaselineStatus ? "yes" : "no"}`,
       `Visible profile target task drift checkpoints: ${governance.governanceProfileTargetTaskLedgerDriftCheckpointLedger?.items?.length || 0}`,
       `Visible history entries: ${governance.profileHistory.length}`,
       `Visible decisions: ${governance.decisions.length}`,
@@ -7484,6 +7508,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Governance profile target task snapshots: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotCount ?? 0}`,
       `- Governance profile target task snapshot drift: ${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotDriftSeverity || "missing-snapshot"} (${governanceCache?.summary.governanceProfileTargetTaskLedgerSnapshotDriftScore ?? 0})`,
       `- Governance profile target task drift checkpoints: ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointCount ?? 0} total; ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointOpenCount ?? 0} open; ${governanceCache?.summary.governanceProfileTargetTaskLedgerDriftCheckpointEscalatedCount ?? 0} escalated`,
+      `- Governance profile target task baseline: ${governanceCache?.summary.governanceProfileTargetTaskLedgerBaselineHealth || "missing"} | ${governanceCache?.summary.governanceProfileTargetTaskLedgerBaselineFreshness || "missing"} | ${governanceCache?.summary.governanceProfileTargetTaskLedgerBaselineAgeHours ?? 0}h old | ${governanceCache?.summary.governanceProfileTargetTaskLedgerBaselineUncheckpointedDriftCount ?? 0} uncheckpointed drift item(s)`,
       `- App-development profile gaps: ${governanceCache?.summary.governanceScopeProfileGapCount ?? 0}`,
       `- Non-target projects excluded from profile gaps: ${governanceCache?.summary.governanceScopeExcludedProjectCount ?? 0}`,
       `- Action queue items: ${governanceCache?.summary.actionQueueItems ?? 0}`,
@@ -7584,6 +7609,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible profile target task snapshots.");
+    }
+
+    lines.push("", "## Governance Profile Target Task Baseline Status");
+    if (governance.governanceProfileTargetTaskLedgerBaselineStatus) {
+      const status = governance.governanceProfileTargetTaskLedgerBaselineStatus;
+      lines.push(`- Baseline: ${status.hasBaseline ? status.title || status.snapshotId || "saved" : "missing"} | Health: ${status.health || "missing"} | Freshness: ${status.freshness || "missing"}`);
+      lines.push(`  Action: ${status.recommendedAction || "Save a Governance profile target task ledger snapshot."}`);
+      lines.push(`  Drift: ${status.driftSeverity || "missing-snapshot"} / score ${status.driftScore || 0} | Checkpoints: ${status.checkpointedDriftItemCount || 0}/${status.driftItemCount || 0}`);
+    } else {
+      lines.push("- No profile target task baseline status is visible.");
     }
 
     lines.push("", "## Governance Profile Target Task Snapshot Drift");
@@ -10423,6 +10458,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Refreshed Target Baseline";
   }
 
+  async function copyGovernanceProfileTargetTaskLedgerBaselineStatus() {
+    const payload = await api.fetchGovernanceProfileTargetTaskLedgerBaselineStatus();
+    await copyText(payload.markdown);
+    return `Copied Target Baseline ${payload.health || "missing"}`;
+  }
+
   async function executeVisibleGovernanceQueue() {
     const items = getVisibleGovernanceQueue()
       .filter((item) => item.actionType !== "open-project")
@@ -13216,6 +13257,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveGovernanceProfileTargetTaskLedgerSnapshot,
     copyLatestGovernanceProfileTargetTaskLedgerSnapshotDrift,
     refreshGovernanceProfileTargetTaskLedgerSnapshot,
+    copyGovernanceProfileTargetTaskLedgerBaselineStatus,
     executeVisibleGovernanceQueue,
     exportGovernanceReport,
     renderApps,

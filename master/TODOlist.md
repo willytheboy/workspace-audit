@@ -2288,3 +2288,10 @@
 - [x] Add all, uncheckpointed, confirmed, deferred, and escalated filters to the drift card.
 - [x] Add a drift-card action to accept the live profile target task ledger as the refreshed baseline.
 - [x] Add parser checks, validation, relaunch, commit, and push.
+
+## Next Governance Profile Target Task Ledger Baseline Status
+
+- [x] Add a profile target task ledger baseline status API with freshness, health, drift, and checkpoint coverage.
+- [x] Surface baseline status in Governance with copyable Markdown handoff controls.
+- [x] Add toolbar and command-palette actions for copying the target task baseline status.
+- [x] Add parser checks, server coverage, validation, relaunch, commit, and push.

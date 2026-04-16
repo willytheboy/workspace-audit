@@ -983,6 +983,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         run: () => handlers.refreshGovernanceProfileTargetTaskLedgerSnapshot()
       },
       {
+        id: "copy-governance-profile-target-task-ledger-baseline-status",
+        label: "Copy profile target task baseline status",
+        description: "Copy freshness, drift health, and checkpoint coverage for the accepted profile target task baseline.",
+        category: "Actions",
+        keywords: ["governance", "profiles", "coverage", "tests", "runtime", "targets", "tasks", "ledger", "baseline", "status", "health", "copy"],
+        run: () => handlers.copyGovernanceProfileTargetTaskLedgerBaselineStatus()
+      },
+      {
         id: "execute-governance-queue",
         label: "Execute visible governance queue",
         description: "Execute all currently visible queue items that can be handled automatically.",

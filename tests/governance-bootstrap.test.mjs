@@ -271,6 +271,16 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetSnapshotGovernanceJson.summary.governanceProfileTargetTaskLedgerSnapshotDriftSeverity, "none");
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshots.length, 1);
     assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerSnapshotDiff.driftScore, 0);
+    assert.equal(profileTargetSnapshotGovernanceJson.governanceProfileTargetTaskLedgerBaselineStatus.health, "healthy");
+
+    const profileTargetTaskLedgerBaselineStatusResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-baseline-status`);
+    assert.equal(profileTargetTaskLedgerBaselineStatusResponse.status, 200);
+    const profileTargetTaskLedgerBaselineStatusJson = await profileTargetTaskLedgerBaselineStatusResponse.json();
+    assert.equal(profileTargetTaskLedgerBaselineStatusJson.hasBaseline, true);
+    assert.equal(profileTargetTaskLedgerBaselineStatusJson.health, "healthy");
+    assert.equal(profileTargetTaskLedgerBaselineStatusJson.driftScore, 0);
+    assert.equal(profileTargetTaskLedgerBaselineStatusJson.uncheckpointedDriftItemCount, 0);
+    assert.match(profileTargetTaskLedgerBaselineStatusJson.markdown, /Governance Profile Target Task Ledger Baseline Status/);
 
     const profileTargetTaskLedgerSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/refresh`, {
       method: "POST",
@@ -300,6 +310,12 @@ export async function governanceBootstrapTest() {
     const profileTargetTaskLedgerDriftAfterUpdateJson = await profileTargetTaskLedgerDriftAfterUpdateResponse.json();
     assert.equal(profileTargetTaskLedgerDriftAfterUpdateJson.hasDrift, true);
     assert.ok(profileTargetTaskLedgerDriftAfterUpdateJson.driftItems.some((item) => item.field === "open"));
+
+    const profileTargetTaskLedgerBaselineStatusAfterDriftResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-baseline-status`);
+    assert.equal(profileTargetTaskLedgerBaselineStatusAfterDriftResponse.status, 200);
+    const profileTargetTaskLedgerBaselineStatusAfterDriftJson = await profileTargetTaskLedgerBaselineStatusAfterDriftResponse.json();
+    assert.equal(profileTargetTaskLedgerBaselineStatusAfterDriftJson.health, "drift-review-required");
+    assert.equal(profileTargetTaskLedgerBaselineStatusAfterDriftJson.uncheckpointedDriftItemCount > 0, true);
 
     const profileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
       method: "POST",
@@ -336,6 +352,7 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerCheckpointGovernanceResponse.status, 200);
     const profileTargetTaskLedgerCheckpointGovernanceJson = await profileTargetTaskLedgerCheckpointGovernanceResponse.json();
     assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.summary.governanceProfileTargetTaskLedgerDriftCheckpointCount, 1);
+    assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.summary.governanceProfileTargetTaskLedgerBaselineHealth, "drift-review-required");
     assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.governanceProfileTargetTaskLedgerDriftCheckpointLedger.items.length, 1);
 
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {

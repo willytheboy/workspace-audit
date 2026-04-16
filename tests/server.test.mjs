@@ -2649,6 +2649,38 @@ export async function serverTest() {
     assert.ok(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.checkpointedDriftItemCount >= 1);
     assert.equal(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.openEscalatedCheckpointCount, 1);
 
+    const refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id,
+        title: "Fixture Refreshed CLI Bridge Lifecycle Remediation Task Ledger",
+        status: "all",
+        limit: 100
+      })
+    });
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 200);
+    const refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson = await refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.json();
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.success, true);
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.previousSnapshotId, createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id);
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.title, "Fixture Refreshed CLI Bridge Lifecycle Remediation Task Ledger");
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.statusFilter, "all");
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.total, 1);
+    assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots.length, 2);
+
+    const refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftResponse.status, 200);
+    const refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftJson = await refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftResponse.json();
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftJson.hasDrift, false);
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftJson.driftSeverity, "none");
+
+    const refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/baseline-status`);
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusResponse.status, 200);
+    const refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson = await refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusResponse.json();
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.baselineSnapshotId, refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id);
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.health, "healthy");
+    assert.equal(refreshedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.driftScore, 0);
+
     const resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${encodeURIComponent(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.id)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

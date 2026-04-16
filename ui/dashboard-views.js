@@ -241,6 +241,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleStackRemediationTaskLedger: (options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>,
  *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
+ *     refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff: (snapshotId?: string, options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload>,
  *     checkpointCliBridgeLifecycleStackRemediationTaskLedgerDrift: (payload: { snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerPayload>,
@@ -7891,6 +7892,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const diff = await api.fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff(snapshotId || "latest");
           await copyText(diff.markdown || "");
           element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId || "latest";
+        const status = element.dataset.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          const response = await api.refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshot({
+            snapshotId,
+            status: status === "open" || status === "closed" ? status : "all",
+            title: "Accepted CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline",
+            limit: 100
+          });
+          await renderGovernance();
+          element.textContent = response.snapshot?.id ? "Accepted Drift" : "Refreshed";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));

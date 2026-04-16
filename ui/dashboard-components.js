@@ -10684,6 +10684,15 @@ export function createGovernanceDeck(governance) {
         dataset: {
           cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
+        text: "Refresh Baseline",
+        attrs: { type: "button" },
+        dataset: {
+          cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: snapshot.id,
+          cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: snapshot.statusFilter || "all"
+        }
       })
     ])
   ]));
@@ -10745,14 +10754,27 @@ export function createGovernanceDeck(governance) {
               lineHeight: "1.45"
             }
           }),
-          createElement("button", {
-            className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-diff-copy-btn",
-            text: "Copy Latest Drift",
-            attrs: { type: "button" },
-            dataset: {
-              cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest"
-            }
-          })
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-diff-copy-btn",
+              text: "Copy Latest Drift",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
+              text: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.hasSnapshot ? "Accept Drift" : "Save Baseline",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.status || "all"
+              }
+            })
+          ])
         ]),
         ...(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff.driftItems || []).slice(0, 8).map((item) => createElement("div", {
           className: "governance-gap-card cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-drift-item-card",
@@ -11058,14 +11080,27 @@ export function createGovernanceDeck(governance) {
               lineHeight: "1.5"
             }
           }),
-          createElement("button", {
-            className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-baseline-status-copy-btn",
-            text: "Copy Baseline Status",
-            attrs: { type: "button" },
-            dataset: {
-              cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusCopy: "true"
-            }
-          })
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-baseline-status-copy-btn",
+              text: "Copy Baseline Status",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusCopy: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-stack-remediation-task-ledger-snapshot-refresh-btn",
+              text: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.hasBaseline ? "Refresh Baseline" : "Save Baseline",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshId: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.snapshotId || "latest",
+                cliBridgeLifecycleStackRemediationTaskLedgerSnapshotRefreshStatus: cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus.status || "all"
+              }
+            })
+          ])
         ])
       ]
     : [];

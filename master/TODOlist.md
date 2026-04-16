@@ -2639,3 +2639,11 @@
 - [x] Surface the baseline-status card and copy control in Governance.
 - [x] Include baseline status in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline Refresh Controls
+
+- [x] Add a refresh endpoint that accepts the live remediation task ledger as a new saved baseline.
+- [x] Preserve previous snapshot linkage, status filters, limits, and governance operation evidence.
+- [x] Surface Refresh Baseline and Accept Drift controls across snapshot, drift, and baseline-status cards.
+- [x] Add parser and server test coverage for the baseline refresh flow.
+- [x] Validate, relaunch, commit, and push.

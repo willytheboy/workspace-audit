@@ -1279,6 +1279,12 @@ export async function serverTest() {
     const initialCliBridgeDryRunSnapshotsJson = await initialCliBridgeDryRunSnapshotsResponse.json();
     assert.deepEqual(initialCliBridgeDryRunSnapshotsJson, []);
 
+    const initialCliBridgeDryRunSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/diff`);
+    assert.equal(initialCliBridgeDryRunSnapshotDiffResponse.status, 200);
+    const initialCliBridgeDryRunSnapshotDiffJson = await initialCliBridgeDryRunSnapshotDiffResponse.json();
+    assert.equal(initialCliBridgeDryRunSnapshotDiffJson.status, "missing-snapshot");
+    assert.match(initialCliBridgeDryRunSnapshotDiffJson.markdown, /dry-run snapshot/i);
+
     const createCliBridgeDryRunSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1307,6 +1313,19 @@ export async function serverTest() {
     const cliBridgeDryRunSnapshotsJson = await cliBridgeDryRunSnapshotsResponse.json();
     assert.equal(cliBridgeDryRunSnapshotsJson.length, 1);
     assert.equal(cliBridgeDryRunSnapshotsJson[0].id, createCliBridgeDryRunSnapshotJson.snapshot.id);
+
+    const cliBridgeDryRunSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/diff?snapshotId=${createCliBridgeDryRunSnapshotJson.snapshot.id}`);
+    assert.equal(cliBridgeDryRunSnapshotDiffResponse.status, 200);
+    const cliBridgeDryRunSnapshotDiffJson = await cliBridgeDryRunSnapshotDiffResponse.json();
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.status, "ready");
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.snapshotId, createCliBridgeDryRunSnapshotJson.snapshot.id);
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.runner, "codex");
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.snapshotSummary.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.liveSummary.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.ok(Array.isArray(cliBridgeDryRunSnapshotDiffJson.driftItems));
+    assert.match(cliBridgeDryRunSnapshotDiffJson.secretPolicy, /dry-run snapshot drift/);
+    assert.match(cliBridgeDryRunSnapshotDiffJson.recommendedAction, /dry-run drift|No live CLI Bridge runner dry-run drift/);
+    assert.match(cliBridgeDryRunSnapshotDiffJson.markdown, /CLI Bridge Runner Dry-Run Snapshot Drift/);
 
     const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
     assert.equal(claudeCliBridgeDryRunResponse.status, 200);

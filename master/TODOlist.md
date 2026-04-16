@@ -2512,3 +2512,11 @@
 - [x] Surface saved dry-run snapshots in Governance with copy controls and summary counts.
 - [x] Add type, parser, and server test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Dry-Run Snapshot Drift
+
+- [x] Add a diff endpoint comparing the latest saved dry-run snapshot against the current live dry-run contract.
+- [x] Compare runner, selected work order, decisions, reason codes, target-baseline audit gate, and audit-baseline run gate fields.
+- [x] Surface drift severity, score, items, recommended action, and copyable Markdown in Governance.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

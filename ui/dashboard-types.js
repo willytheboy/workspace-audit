@@ -2791,6 +2791,7 @@
  *   agentWorkOrderRuns: PersistedAgentWorkOrderRun[],
  *   cliBridgeHandoffs: PersistedCliBridgeHandoff[],
  *   cliBridgeRunnerDryRunSnapshots: PersistedCliBridgeRunnerDryRunSnapshot[],
+ *   cliBridgeRunnerDryRunSnapshotDiff?: CliBridgeRunnerDryRunSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshots: PersistedCliBridgeRunTraceSnapshot[],
  *   cliBridgeRunTraceSnapshotDiff?: CliBridgeRunTraceSnapshotDiffPayload | null,
  *   cliBridgeRunTraceSnapshotBaselineStatus?: CliBridgeRunTraceSnapshotBaselineStatusPayload | null,
@@ -3039,6 +3040,44 @@
  *   dryRun: CliBridgeRunnerDryRunPayload,
  *   createdAt: string
  * }} PersistedCliBridgeRunnerDryRunSnapshot
+ * @typedef {{
+ *   runner: string,
+ *   requestedRunId: string,
+ *   dryRunDecision: string,
+ *   contextDecision: string,
+ *   selectedWorkOrderId: string,
+ *   selectedWorkOrderProjectId: string,
+ *   selectedWorkOrderProjectName: string,
+ *   selectedWorkOrderSourceType: string,
+ *   reasonCount: number,
+ *   reasonCodes: string,
+ *   targetBaselineAuditGateDecision: string,
+ *   targetBaselineAuditGateHealth: string,
+ *   targetBaselineAuditGateFreshness: string,
+ *   targetBaselineAuditGateDriftSeverity: string,
+ *   targetBaselineAuditGateUncheckpointedDriftCount: number,
+ *   auditBaselineRunGateDecision: string,
+ *   auditBaselineRunGateCapturedCount: number,
+ *   auditBaselineRunGateMissingCount: number,
+ *   auditBaselineRunGateReviewRequiredCount: number,
+ *   auditBaselineRunGateUncheckpointedDriftItemCount: number
+ * }} CliBridgeRunnerDryRunSnapshotSummary
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "ready" | "missing-snapshot",
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   runner: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: CliBridgeRunnerDryRunSnapshotSummary | null,
+ *   snapshotSummary: CliBridgeRunnerDryRunSnapshotSummary | null,
+ *   markdown: string
+ * }} CliBridgeRunnerDryRunSnapshotDiffPayload
  * @typedef {{
  *   sourceType: "cli-bridge-handoff",
  *   sourceHandoffId: string,

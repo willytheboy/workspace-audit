@@ -1468,6 +1468,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotDiffPayload>}
+   */
+  fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot, cliBridgeRunnerDryRunSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[], governanceOperationCount: number }>}
    */

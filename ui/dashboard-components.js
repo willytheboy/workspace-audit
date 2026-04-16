@@ -116,6 +116,15 @@ function getAgentExecutionMetrics(governance) {
     targetBaselineReviewRequired: governance.summary.agentExecutionTargetBaselineReviewRequiredCount || 0,
     targetBaselineUncheckpointedDriftRuns: governance.summary.agentExecutionTargetBaselineUncheckpointedDriftRunCount || 0,
     targetBaselineUncheckpointedDriftItems: governance.summary.agentExecutionTargetBaselineUncheckpointedDriftItemCount || 0,
+    auditBaselineCaptured: governance.summary.agentExecutionTargetBaselineAuditBaselineCapturedCount || 0,
+    auditBaselineMissing: governance.summary.agentExecutionTargetBaselineAuditBaselineMissingCount || 0,
+    auditBaselineHealthy: governance.summary.agentExecutionTargetBaselineAuditBaselineHealthyCount || 0,
+    auditBaselineStale: governance.summary.agentExecutionTargetBaselineAuditBaselineStaleCount || 0,
+    auditBaselineDrifted: governance.summary.agentExecutionTargetBaselineAuditBaselineDriftedCount || 0,
+    auditBaselineDriftReviewRequired: governance.summary.agentExecutionTargetBaselineAuditBaselineDriftReviewRequiredCount || 0,
+    auditBaselineReviewRequired: governance.summary.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount || 0,
+    auditBaselineUncheckpointedDriftRuns: governance.summary.agentExecutionTargetBaselineAuditBaselineUncheckpointedDriftRunCount || 0,
+    auditBaselineUncheckpointedDriftItems: governance.summary.agentExecutionTargetBaselineAuditBaselineUncheckpointedDriftItemCount || 0,
     latestEventAt: "",
     latestEventNote: "",
     latestEventStatus: "",
@@ -14571,6 +14580,11 @@ export function createGovernanceDeck(governance) {
           label: "Target Baseline Audit",
           value: `${executionMetrics.targetBaselineReviewRequired || 0} review / ${executionMetrics.targetBaselineHealthy || 0} healthy`,
           detail: `${executionMetrics.targetBaselineCaptured || 0} captured, ${executionMetrics.targetBaselineMissing || 0} missing, ${executionMetrics.targetBaselineUncheckpointedDriftItems || 0} uncheckpointed drift item(s)`
+        },
+        {
+          label: "Audit Snapshot Baseline",
+          value: `${executionMetrics.auditBaselineReviewRequired || 0} review / ${executionMetrics.auditBaselineHealthy || 0} healthy`,
+          detail: `${executionMetrics.auditBaselineCaptured || 0} captured, ${executionMetrics.auditBaselineMissing || 0} missing, ${executionMetrics.auditBaselineUncheckpointedDriftItems || 0} uncheckpointed drift item(s)`
         },
         {
           label: "Stale Active Runs",

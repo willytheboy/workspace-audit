@@ -1315,6 +1315,11 @@ export async function serverTest() {
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.statusCounts.blocked, 0);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.targetBaselineMissing, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.targetBaselineReviewRequired, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineCaptured, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineMissing, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineReviewRequired, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineAuditBaselineMissingCount, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.latestEventStatus, "running");
     assert.equal(governanceAfterWorkOrderRunJson.agentWorkOrderRuns.length, 2);
     const governanceOperationTypes = governanceAfterWorkOrderRunJson.operationLog.map((operation) => operation.type);

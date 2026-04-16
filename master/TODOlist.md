@@ -2457,3 +2457,11 @@
 - [x] Apply filters to visible Agent Execution runs in Governance.
 - [x] Add parser coverage for the new filter options and matching logic.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Audit Baseline Metrics
+
+- [x] Add portfolio-level metrics for run-level audit-baseline capture, missing, healthy, stale, drifted, and review-required states.
+- [x] Add summary counters for audit-baseline capture state in the Governance payload.
+- [x] Surface audit-baseline counts in Agent Execution Metrics and Governance report exports.
+- [x] Add type, parser, and server test coverage.
+- [x] Validate, relaunch, commit, and push.

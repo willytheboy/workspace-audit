@@ -1342,6 +1342,42 @@ export async function serverTest() {
     assert.match(targetBaselineAuditLedgerJson.markdown, /# Agent Execution Target Baseline Audit Ledger/);
     assert.match(targetBaselineAuditLedgerJson.markdown, /Secret policy/);
 
+    const initialTargetBaselineAuditLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`);
+    assert.equal(initialTargetBaselineAuditLedgerSnapshotsResponse.status, 200);
+    const initialTargetBaselineAuditLedgerSnapshotsJson = await initialTargetBaselineAuditLedgerSnapshotsResponse.json();
+    assert.equal(initialTargetBaselineAuditLedgerSnapshotsJson.length, 0);
+
+    const createTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Target Baseline Audit Ledger",
+        state: "review",
+        limit: 5
+      })
+    });
+    assert.equal(createTargetBaselineAuditLedgerSnapshotResponse.status, 200);
+    const createTargetBaselineAuditLedgerSnapshotJson = await createTargetBaselineAuditLedgerSnapshotResponse.json();
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.success, true);
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.snapshot.title, "Fixture Target Baseline Audit Ledger");
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.snapshot.stateFilter, "review");
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.snapshot.total, 2);
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.snapshot.reviewCount, 2);
+    assert.equal(createTargetBaselineAuditLedgerSnapshotJson.snapshot.missingCount, 2);
+    assert.match(createTargetBaselineAuditLedgerSnapshotJson.snapshot.markdown, /# Agent Execution Target Baseline Audit Ledger/);
+
+    const targetBaselineAuditLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`);
+    assert.equal(targetBaselineAuditLedgerSnapshotsResponse.status, 200);
+    const targetBaselineAuditLedgerSnapshotsJson = await targetBaselineAuditLedgerSnapshotsResponse.json();
+    assert.equal(targetBaselineAuditLedgerSnapshotsJson.length, 1);
+    assert.equal(targetBaselineAuditLedgerSnapshotsJson[0].title, "Fixture Target Baseline Audit Ledger");
+
+    const governanceAfterTargetBaselineAuditSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotResponse.status, 200);
+    const governanceAfterTargetBaselineAuditSnapshotJson = await governanceAfterTargetBaselineAuditSnapshotResponse.json();
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.summary.agentExecutionTargetBaselineAuditLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerSnapshots.length, 1);
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

@@ -1259,6 +1259,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.resolvedCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      agentExecutionTargetBaselineAuditLedgerSnapshots: filterAndSort(
+        governance.agentExecutionTargetBaselineAuditLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.reviewCount), String(snapshot.missingCount), String(snapshot.healthyCount), String(snapshot.staleCount), String(snapshot.driftCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       cliBridgeRunTraceSnapshots: filterAndSort(
         governance.cliBridgeRunTraceSnapshots || [],
         (snapshot) => [snapshot.title || "", snapshot.projectName || "", snapshot.traceDecision || "", snapshot.runId || "", snapshot.latestCliBridgeResultHandoffId || "", snapshot.latestCliBridgeReviewHandoffId || "", snapshot.markdown || ""],
@@ -1397,6 +1402,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "readiness") filtered.agentPolicyCheckpoints = [];
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
+      if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotDiff = null;
       if (scope !== "execution") filtered.cliBridgeRunTraceSnapshotBaselineStatus = null;
@@ -5142,6 +5148,35 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   /**
    * @param {HTMLElement} container
    */
+  function bindTargetBaselineAuditLedgerSnapshotActions(container) {
+    container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.targetBaselineAuditLedgerSnapshotId || "";
+        const snapshot = governanceCache?.agentExecutionTargetBaselineAuditLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   */
   function bindSlaLedgerItemActions(container) {
     container.querySelectorAll("[data-agent-execution-sla-ledger-item-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
@@ -6870,6 +6905,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-agent-execution-target-baseline-audit-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const state = element.dataset.agentExecutionTargetBaselineAuditLedgerSnapshotSave || "review";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          element.textContent = await saveAgentExecutionTargetBaselineAuditLedgerSnapshot(state);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-agent-work-order-run-copy-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -7351,6 +7407,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     bindCliBridgeContextActions(container);
     bindWorkOrderSnapshotActions(container);
     bindSlaLedgerSnapshotActions(container);
+    bindTargetBaselineAuditLedgerSnapshotActions(container);
     bindSlaLedgerItemActions(container);
     bindGovernanceTaskUpdateLedgerActions(container);
     bindGovernanceProfileTargetTaskLedgerSnapshotActions(container);
@@ -8147,6 +8204,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Drifted: ${(executionMetrics.targetBaselineDrifted || 0) + (executionMetrics.targetBaselineDriftReviewRequired || 0)}`);
       lines.push(`- Uncheckpointed drift items: ${executionMetrics.targetBaselineUncheckpointedDriftItems || 0}`);
       lines.push("- Use the Governance action card or command palette to copy the full non-secret run-level audit ledger.");
+    }
+
+    lines.push("", "## Agent Execution Target Baseline Audit Ledger Snapshots");
+    if ((governance.agentExecutionTargetBaselineAuditLedgerSnapshots || []).length) {
+      for (const snapshot of governance.agentExecutionTargetBaselineAuditLedgerSnapshots) {
+        lines.push(`- ${snapshot.title}: ${snapshot.total} record(s) (${snapshot.stateFilter})`);
+        lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
+        lines.push(`  State split: ${snapshot.reviewCount || 0} review | ${snapshot.missingCount || 0} missing | ${snapshot.healthyCount || 0} healthy | ${snapshot.staleCount || 0} stale | ${snapshot.driftCount || 0} drift`);
+      }
+    } else {
+      lines.push("- No visible target baseline audit ledger snapshots.");
     }
 
     lines.push("", "## SLA Breach Ledger");
@@ -12656,6 +12724,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.total} target baseline audit run${payload.total === 1 ? "" : "s"}`;
   }
 
+  async function saveAgentExecutionTargetBaselineAuditLedgerSnapshot(stateOverride = "review") {
+    const state = getAgentExecutionTargetBaselineAuditLedgerState(stateOverride);
+    await api.createAgentExecutionTargetBaselineAuditLedgerSnapshot({
+      title: `Target Baseline Audit Ledger: ${state}`,
+      state,
+      limit: 100
+    });
+    await renderGovernance();
+    return "Saved Target Baseline Audit Snapshot";
+  }
+
   function getAgentExecutionSlaLedgerItemCheckpointDecision(action) {
     if (action === "escalate") return { status: "blocked", priority: "high", label: "Escalated" };
     if (action === "defer") return { status: "deferred", priority: "medium", label: "Deferred" };
@@ -13383,6 +13462,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveAgentControlPlaneDecisionSnapshot,
     saveAgentControlPlaneBaselineSnapshot,
     saveSlaLedgerSnapshot,
+    saveAgentExecutionTargetBaselineAuditLedgerSnapshot,
     saveAgentExecutionPolicy,
     saveGovernanceExecutionView,
     startVisibleQueuedAgentWorkOrderRuns,

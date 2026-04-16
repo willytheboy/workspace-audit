@@ -2351,3 +2351,10 @@
 - [x] Surface copy controls in Governance and command palette for review/all baseline audit ledgers.
 - [x] Add Governance report evidence, parser checks, and server coverage for the target baseline audit ledger.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Target Baseline Audit Ledger Snapshots
+
+- [x] Add a persisted store collection and API for target baseline audit ledger snapshots.
+- [x] Surface snapshot save/copy controls in Governance and command palette.
+- [x] Add Governance report evidence, parser checks, and server coverage for snapshot persistence.
+- [x] Validate, relaunch, commit, and push.

@@ -10101,6 +10101,73 @@ export function createGovernanceDeck(governance) {
     ])
   ]));
 
+  const agentExecutionTargetBaselineAuditLedgerSnapshotEntries = (governance.agentExecutionTargetBaselineAuditLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.3rem"
+        }
+      }, [
+        createElement("div", {
+          text: snapshot.title,
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${new Date(snapshot.createdAt).toLocaleString()} - ${snapshot.stateFilter}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        })
+      ]),
+      createTag(`${snapshot.total} records`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: "var(--text-muted)"
+      })
+    ]),
+    createElement("div", {
+      text: `Review ${snapshot.reviewCount || 0} - Missing ${snapshot.missingCount || 0} - Healthy ${snapshot.healthyCount || 0} - Stale ${snapshot.staleCount || 0} - Drift ${snapshot.driftCount || 0}`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn target-baseline-audit-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          targetBaselineAuditLedgerSnapshotId: snapshot.id
+        }
+      })
+    ])
+  ]));
+
   const dataSourcesAccessReviewQueue = governance.dataSourcesAccessReviewQueue;
   const dataSourcesAccessReviewQueueItems = Array.isArray(dataSourcesAccessReviewQueue?.items)
     ? dataSourcesAccessReviewQueue.items
@@ -14402,6 +14469,14 @@ export function createGovernanceDeck(governance) {
           dataset: {
             agentExecutionTargetBaselineAuditLedgerCopy: "all"
           }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-execution-target-baseline-audit-ledger-snapshot-save-btn",
+          text: "Save Snapshot",
+          attrs: { type: "button" },
+          dataset: {
+            agentExecutionTargetBaselineAuditLedgerSnapshotSave: "review"
+          }
         })
       ])
     ])
@@ -15442,6 +15517,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
+    createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),
     createListSection("SLA Ledger Snapshots", "Persisted SLA Breach Ledger exports for external audit handoffs.", agentExecutionSlaLedgerSnapshotEntries),
     createListSection("Agent Execution Queue", "Queued and in-flight Agent Work Order runs with validation outcomes.", agentWorkOrderRunEntries),

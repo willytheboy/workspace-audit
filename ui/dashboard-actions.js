@@ -109,6 +109,7 @@
  *     saveAgentControlPlaneBaselineSnapshot: () => Promise<void>,
  *     saveAgentWorkOrderSnapshot: () => Promise<void>,
  *     saveSlaLedgerSnapshot: () => Promise<void>,
+ *     saveAgentExecutionTargetBaselineAuditLedgerSnapshot: () => Promise<void>,
  *     seedGovernanceProfiles: () => Promise<void>,
  *     seedGovernanceStarterPacks: () => Promise<void>,
  *     refreshGovernanceProfileTargets: () => Promise<void>,
@@ -887,6 +888,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "sla", "breach", "ledger", "snapshot", "save"],
         run: () => handlers.saveSlaLedgerSnapshot()
+      },
+      {
+        id: "save-agent-execution-target-baseline-audit-ledger-snapshot",
+        label: "Save target baseline audit snapshot",
+        description: "Persist the Agent Execution target baseline audit ledger as a markdown snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "ledger", "snapshot", "save"],
+        run: () => handlers.saveAgentExecutionTargetBaselineAuditLedgerSnapshot()
       },
       {
         id: "save-data-sources-access-task-ledger-snapshot",

@@ -1831,6 +1831,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[]>}
+   */
+  fetchAgentExecutionTargetBaselineAuditLedgerSnapshots() {
+    return fetchJson("/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot, agentExecutionTargetBaselineAuditLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[] }>}
+   */
+  createAgentExecutionTargetBaselineAuditLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionSlaLedgerSnapshot[]>}
    */
   fetchAgentExecutionSlaLedgerSnapshots() {

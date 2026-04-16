@@ -539,6 +539,12 @@ async function saveSlaLedgerSnapshot() {
   await views.saveSlaLedgerSnapshot();
 }
 
+async function saveAgentExecutionTargetBaselineAuditLedgerSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.saveAgentExecutionTargetBaselineAuditLedgerSnapshot();
+}
+
 async function saveDataSourcesAccessTaskLedgerSnapshot() {
   setView("governance");
   await views.renderGovernance();
@@ -804,6 +810,7 @@ const actionRegistry = createDashboardActionRegistry({
     saveAgentControlPlaneDecisionSnapshot,
     saveAgentControlPlaneBaselineSnapshot,
     saveSlaLedgerSnapshot,
+    saveAgentExecutionTargetBaselineAuditLedgerSnapshot,
     seedGovernanceProfiles,
     seedGovernanceStarterPacks,
     refreshGovernanceProfileTargets,

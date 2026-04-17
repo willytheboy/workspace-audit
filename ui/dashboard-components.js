@@ -9231,6 +9231,11 @@ export function createGovernanceDeck(governance) {
         border: "1px solid var(--border)",
         color: "var(--text-muted)"
       }),
+      createTag(`scope ${snapshot.scopeMode || "project"} / ${snapshot.activeProjectName || snapshot.activeProjectId || "none"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.scopeReady ? "var(--success)" : "var(--danger)"
+      }),
       createTag(`reasons ${snapshot.reasonCount || 0}`, {
         background: "var(--bg)",
         border: "1px solid var(--border)",

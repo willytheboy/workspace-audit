@@ -4935,7 +4935,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Preparing";
-          const payload = await api.fetchCliBridgeRunnerDryRun({ runner, limit: 24 });
+          const payload = await api.fetchCliBridgeRunnerDryRun({ runner, limit: 24, ...getCliBridgeScopeOptions() });
           await copyText(payload.markdown);
           element.textContent = payload.dryRunDecision === "ready" ? "Copied Ready" : `Copied ${payload.dryRunDecision}`;
         } catch (error) {
@@ -4961,7 +4961,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           await api.createCliBridgeRunnerDryRunSnapshot({
             runner,
             limit: 24,
-            title: `CLI bridge ${runner} runner dry run`
+            title: `CLI bridge ${runner} runner dry run`,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
         } catch (error) {
@@ -5028,7 +5029,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Copying";
-          const status = await api.fetchCliBridgeRunnerDryRunSnapshotBaselineStatus();
+          const status = await api.fetchCliBridgeRunnerDryRunSnapshotBaselineStatus(getCliBridgeScopeOptions());
           await copyText(status.markdown || "");
           element.textContent = status.hasBaseline ? `Copied ${status.health || "status"}` : "No Baseline";
         } catch (error) {
@@ -7656,7 +7657,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Preparing";
-          const payload = await api.fetchCliBridgeRunnerDryRun({ runner, runId, limit: 12 });
+          const payload = await api.fetchCliBridgeRunnerDryRun({ runner, runId, limit: 12, ...getCliBridgeScopeOptions() });
           await copyText(payload.markdown);
           element.textContent = payload.dryRunDecision === "ready" ? "Copied Ready" : `Copied ${payload.dryRunDecision}`;
         } catch (error) {
@@ -9502,6 +9503,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       for (const snapshot of governance.cliBridgeRunnerDryRunSnapshots) {
         lines.push(`- ${snapshot.title || "CLI Bridge Runner Dry Run"}: ${snapshot.runner || "runner"} / ${snapshot.dryRunDecision || "review"}`);
         lines.push(`  Work order: ${snapshot.selectedWorkOrderId || "fallback"} | Project: ${snapshot.selectedWorkOrderProjectName || snapshot.selectedWorkOrderProjectId || "Portfolio"}`);
+        lines.push(`  Scope: ${snapshot.scopeMode || "project"} / ${snapshot.scopeGuardDecision || "project-required"} / ${snapshot.activeProjectName || snapshot.activeProjectId || "none"}`);
         lines.push(`  Gates: target ${snapshot.targetBaselineAuditGateDecision || "review"} | audit runs ${snapshot.auditBaselineRunGateDecision || "review"} | reasons ${snapshot.reasonCount || 0}`);
         lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
       }
@@ -9542,6 +9544,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       const diff = governance.cliBridgeRunnerDryRunSnapshotDiff;
       lines.push(`- Snapshot: ${diff.snapshotTitle || diff.snapshotId || "latest snapshot"}`);
       lines.push(`- Runner: ${diff.runner || "codex"}`);
+      lines.push(`- Scope: ${diff.liveSummary?.scopeMode || "project"} / ${diff.liveSummary?.scopeGuardDecision || "project-required"} / ${diff.liveSummary?.activeProjectName || diff.liveSummary?.activeProjectId || "none"}`);
       lines.push(`- Drift: ${diff.driftSeverity || "missing-snapshot"} / score ${diff.driftScore || 0}`);
       lines.push(`- Action: ${diff.recommendedAction || "Save a CLI bridge runner dry-run snapshot before comparing drift."}`);
       if ((diff.driftItems || []).length) {
@@ -11898,8 +11901,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest"),
         api.fetchAgentExecutionResultTaskLedgerSnapshotDiff("latest"),
         api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest"),
-        api.fetchCliBridgeRunnerDryRunSnapshotDiff("latest"),
-        api.fetchCliBridgeRunnerDryRunSnapshotBaselineStatus(),
+        api.fetchCliBridgeRunnerDryRunSnapshotDiff("latest", cliBridgeScopeOptions),
+        api.fetchCliBridgeRunnerDryRunSnapshotBaselineStatus(cliBridgeScopeOptions),
         api.fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger({ runner: "all", limit: 50 }),
         api.fetchCliBridgeRunTraceSnapshotDiff("latest"),
         api.fetchCliBridgeRunTraceSnapshotBaselineStatus(),
@@ -13067,7 +13070,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function createCliBridgeRunnerDryRunSnapshotDriftReviewTask(snapshotId) {
     const snapshot = findCliBridgeRunnerDryRunSnapshot(snapshotId);
-    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest");
+    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest", getCliBridgeScopeOptions());
     const project = getCliBridgeRunnerDryRunSnapshotTaskProject(diff, snapshot);
     const title = `Review CLI bridge runner dry-run drift: ${diff.snapshotTitle || snapshot?.title || diff.snapshotId || "latest snapshot"}`;
     await api.createTask({
@@ -13084,7 +13087,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function acceptCliBridgeRunnerDryRunSnapshotDrift(snapshotId) {
     const snapshot = findCliBridgeRunnerDryRunSnapshot(snapshotId);
-    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest");
+    const diff = await api.fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId || "latest", getCliBridgeScopeOptions());
     if (diff.status !== "ready" && !snapshot) {
       throw new Error("Cannot accept CLI bridge runner dry-run drift before a saved snapshot exists.");
     }
@@ -13096,7 +13099,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = {
       runner,
       limit: 12,
-      title: `Accepted CLI bridge runner dry-run drift as current baseline: ${sourceTitle}`.slice(0, 120)
+      title: `Accepted CLI bridge runner dry-run drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      ...getCliBridgeScopeOptions()
     };
     if (runId) payload.runId = runId;
 

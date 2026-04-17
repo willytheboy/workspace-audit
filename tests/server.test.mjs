@@ -1248,12 +1248,30 @@ export async function serverTest() {
     assert.equal(createAgentWorkOrderRunJson.run.history.length, 1);
     assert.equal(createAgentWorkOrderRunJson.run.history[0].status, "queued");
 
-    const codexCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=codex&runId=${createAgentWorkOrderRunJson.run.id}`);
+    const cliBridgeRunnerDryRunScopeParams = "activeProjectId=alpha-app&scopeMode=project";
+    const cliBridgeRunnerDryRunScopePayload = {
+      activeProjectId: "alpha-app",
+      scopeMode: "project"
+    };
+    const unscopedCodexCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=codex&runId=${createAgentWorkOrderRunJson.run.id}`);
+    assert.equal(unscopedCodexCliBridgeDryRunResponse.status, 200);
+    const unscopedCodexCliBridgeDryRunJson = await unscopedCodexCliBridgeDryRunResponse.json();
+    assert.equal(unscopedCodexCliBridgeDryRunJson.dryRunDecision, "hold");
+    assert.equal(unscopedCodexCliBridgeDryRunJson.scopeContext.scopeReady, false);
+    assert.equal(unscopedCodexCliBridgeDryRunJson.scopeContext.guardDecision, "project-required");
+    assert.ok(unscopedCodexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-runner-scope-required"));
+    assert.match(unscopedCodexCliBridgeDryRunJson.markdown, /Scope Context/);
+
+    const codexCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=codex&runId=${createAgentWorkOrderRunJson.run.id}&${cliBridgeRunnerDryRunScopeParams}`);
     assert.equal(codexCliBridgeDryRunResponse.status, 200);
     const codexCliBridgeDryRunJson = await codexCliBridgeDryRunResponse.json();
     assert.equal(codexCliBridgeDryRunJson.protocolVersion, "cli-bridge-runner-dry-run.v1");
     assert.equal(codexCliBridgeDryRunJson.executionMode, "non-executing");
     assert.equal(codexCliBridgeDryRunJson.runner, "codex");
+    assert.equal(codexCliBridgeDryRunJson.scopeContext.scopeMode, "project");
+    assert.equal(codexCliBridgeDryRunJson.scopeContext.activeProjectId, "alpha-app");
+    assert.equal(codexCliBridgeDryRunJson.scopeContext.scopeReady, true);
+    assert.equal(codexCliBridgeDryRunJson.scopeContext.guardDecision, "project-ready");
     assert.equal(codexCliBridgeDryRunJson.selectedWorkOrder.id, createAgentWorkOrderRunJson.run.id);
     assert.equal(codexCliBridgeDryRunJson.commandEnvelope.adapterId, "codex");
     assert.equal(codexCliBridgeDryRunJson.targetBaselineAuditGate.health, "missing");
@@ -1266,6 +1284,7 @@ export async function serverTest() {
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-audit-baseline-run-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Scope mode: project/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Execution audit snapshot baseline runs:/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Target baseline audit gate: review/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Audit baseline run gate: review/);
@@ -1292,13 +1311,17 @@ export async function serverTest() {
         title: "Fixture Codex dry-run snapshot",
         runner: "codex",
         runId: createAgentWorkOrderRunJson.run.id,
-        limit: 12
+        limit: 12,
+        ...cliBridgeRunnerDryRunScopePayload
       })
     });
     assert.equal(createCliBridgeDryRunSnapshotResponse.status, 200);
     const createCliBridgeDryRunSnapshotJson = await createCliBridgeDryRunSnapshotResponse.json();
     assert.equal(createCliBridgeDryRunSnapshotJson.success, true);
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.runner, "codex");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.scopeMode, "project");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.activeProjectId, "alpha-app");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.scopeReady, true);
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.dryRunDecision, codexCliBridgeDryRunJson.dryRunDecision);
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.targetBaselineAuditGateDecision, "review");
@@ -1314,7 +1337,7 @@ export async function serverTest() {
     assert.equal(cliBridgeDryRunSnapshotsJson.length, 1);
     assert.equal(cliBridgeDryRunSnapshotsJson[0].id, createCliBridgeDryRunSnapshotJson.snapshot.id);
 
-    const cliBridgeDryRunSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/diff?snapshotId=${createCliBridgeDryRunSnapshotJson.snapshot.id}`);
+    const cliBridgeDryRunSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/diff?snapshotId=${createCliBridgeDryRunSnapshotJson.snapshot.id}&${cliBridgeRunnerDryRunScopeParams}`);
     assert.equal(cliBridgeDryRunSnapshotDiffResponse.status, 200);
     const cliBridgeDryRunSnapshotDiffJson = await cliBridgeDryRunSnapshotDiffResponse.json();
     assert.equal(cliBridgeDryRunSnapshotDiffJson.status, "ready");
@@ -1322,12 +1345,13 @@ export async function serverTest() {
     assert.equal(cliBridgeDryRunSnapshotDiffJson.runner, "codex");
     assert.equal(cliBridgeDryRunSnapshotDiffJson.snapshotSummary.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
     assert.equal(cliBridgeDryRunSnapshotDiffJson.liveSummary.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeDryRunSnapshotDiffJson.liveSummary.scopeGuardDecision, "project-ready");
     assert.ok(Array.isArray(cliBridgeDryRunSnapshotDiffJson.driftItems));
     assert.match(cliBridgeDryRunSnapshotDiffJson.secretPolicy, /dry-run snapshot drift/);
     assert.match(cliBridgeDryRunSnapshotDiffJson.recommendedAction, /dry-run drift|No live CLI Bridge runner dry-run drift/);
     assert.match(cliBridgeDryRunSnapshotDiffJson.markdown, /CLI Bridge Runner Dry-Run Snapshot Drift/);
 
-    const cliBridgeDryRunSnapshotBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/baseline-status`);
+    const cliBridgeDryRunSnapshotBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots/baseline-status?${cliBridgeRunnerDryRunScopeParams}`);
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusResponse.status, 200);
     const cliBridgeDryRunSnapshotBaselineStatusJson = await cliBridgeDryRunSnapshotBaselineStatusResponse.json();
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.hasBaseline, true);
@@ -1335,6 +1359,7 @@ export async function serverTest() {
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.snapshotId, createCliBridgeDryRunSnapshotJson.snapshot.id);
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.runner, "codex");
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.selectedWorkOrderId, createAgentWorkOrderRunJson.run.id);
+    assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.scopeGuardDecision, "project-ready");
     assert.equal(cliBridgeDryRunSnapshotBaselineStatusJson.freshness, "fresh");
     assert.ok(["healthy", "changed", "drifted", "stale"].includes(cliBridgeDryRunSnapshotBaselineStatusJson.health));
     assert.ok(Number.isFinite(cliBridgeDryRunSnapshotBaselineStatusJson.driftScore));
@@ -1352,7 +1377,7 @@ export async function serverTest() {
     assert.match(cliBridgeDryRunSnapshotLifecycleLedgerJson.items[0].lifecycleAction, /snapshot-saved|accepted-drift-baseline/);
     assert.match(cliBridgeDryRunSnapshotLifecycleLedgerJson.markdown, /dry-run baseline lifecycle ledger/i);
 
-    const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}`);
+    const claudeCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=claude&runId=${createAgentWorkOrderRunJson.run.id}&${cliBridgeRunnerDryRunScopeParams}`);
     assert.equal(claudeCliBridgeDryRunResponse.status, 200);
     const claudeCliBridgeDryRunJson = await claudeCliBridgeDryRunResponse.json();
     assert.equal(claudeCliBridgeDryRunJson.runner, "claude");

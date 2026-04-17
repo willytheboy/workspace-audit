@@ -2743,3 +2743,11 @@
 - [x] Include governance queue execution, agent run start/block/retry/archive, SLA actioning, and retention controls.
 - [x] Add parser coverage for the guarded control set.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Scope-Aware CLI Runner Dry-Run Contracts
+
+- [x] Add active project and portfolio scope context to CLI runner dry-run payloads.
+- [x] Hold dry-run contracts when scope is missing or the active project does not match the selected work order.
+- [x] Persist scope metadata into dry-run snapshots and snapshot drift summaries.
+- [x] Pass dashboard scope through dry-run copy, snapshot, drift, baseline, and run-linked contract actions.
+- [x] Validate, relaunch, commit, and push.

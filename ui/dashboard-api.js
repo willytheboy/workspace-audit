@@ -1453,7 +1453,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [options]
+   * @param {{ runner?: "codex" | "claude", runId?: string, status?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>}
    */
   fetchCliBridgeRunnerDryRun(options = {}) {
@@ -1469,17 +1469,19 @@ export const dashboardApi = {
 
   /**
    * @param {string} [snapshotId]
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotDiffPayload>}
    */
-  fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId = "latest") {
-    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run-snapshots/diff", { snapshotId }));
+  fetchCliBridgeRunnerDryRunSnapshotDiff(snapshotId = "latest", options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run-snapshots/diff", { ...options, snapshotId }));
   },
 
   /**
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotBaselineStatusPayload>}
    */
-  fetchCliBridgeRunnerDryRunSnapshotBaselineStatus() {
-    return fetchJson("/api/cli-bridge/runner-dry-run-snapshots/baseline-status");
+  fetchCliBridgeRunnerDryRunSnapshotBaselineStatus(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/runner-dry-run-snapshots/baseline-status", options));
   },
 
   /**
@@ -1491,7 +1493,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }} [payload]
+   * @param {{ title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot, cliBridgeRunnerDryRunSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[], governanceOperationCount: number }>}
    */
   createCliBridgeRunnerDryRunSnapshot(payload = {}) {

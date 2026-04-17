@@ -14762,7 +14762,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function seedAgentControlPlaneDecisionTasks(options = {}) {
     const reasons = getFilteredGovernance()?.agentControlPlaneDecision?.reasons || [];
     if (!reasons.length) return "No Decision Tasks";
-    const payload = { reasons };
+    const payload = { reasons, ...getCliBridgeScopeOptions() };
     if (options.saveSnapshot) {
       payload.saveSnapshot = true;
       payload.snapshotTitle = options.snapshotTitle || "Agent Control Plane Decision Task Ledger Auto Capture";
@@ -14798,7 +14798,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Agent Control Plane Decision Task Ledger Auto Capture: ${reason.code || reasonCode}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const taskLabel = `Created ${payload.totals.created} Decision Task${payload.totals.created === 1 ? "" : "s"}`;
@@ -15568,7 +15569,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function saveAgentControlPlaneDecisionSnapshot() {
     await api.createAgentControlPlaneDecisionSnapshot({
-      title: "Agent Control Plane Decision"
+      title: "Agent Control Plane Decision",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }

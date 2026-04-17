@@ -3256,10 +3256,22 @@ export async function serverTest() {
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Data Sources Access Validation Evidence/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Data Sources Access Tasks/);
 
+    const unscopedAgentControlPlaneDecisionSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Unscoped Control Plane Decision" })
+    });
+    assert.equal(unscopedAgentControlPlaneDecisionSnapshotResponse.status, 409);
+    const unscopedAgentControlPlaneDecisionSnapshotJson = await unscopedAgentControlPlaneDecisionSnapshotResponse.json();
+    assert.equal(unscopedAgentControlPlaneDecisionSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createAgentControlPlaneDecisionSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Fixture Control Plane Decision" })
+      body: JSON.stringify({
+        title: "Fixture Control Plane Decision",
+        ...alphaAgentExecutionScope
+      })
     });
     assert.equal(createAgentControlPlaneDecisionSnapshotResponse.status, 200);
     const createAgentControlPlaneDecisionSnapshotJson = await createAgentControlPlaneDecisionSnapshotResponse.json();
@@ -5704,10 +5716,23 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.match(decisionJson.markdown, /## Release Control Tasks/);
 
     const controlPlaneReason = decisionJson.reasons.find((reason) => reason.code === "release-control-open-tasks") || decisionJson.reasons[0];
-    const seedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
+    const agentControlPlaneDecisionScope = { scopeMode: "portfolio" };
+    const unscopedAgentControlPlaneDecisionTasksResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ reasons: [controlPlaneReason] })
+    });
+    assert.equal(unscopedAgentControlPlaneDecisionTasksResponse.status, 409);
+    const unscopedAgentControlPlaneDecisionTasksJson = await unscopedAgentControlPlaneDecisionTasksResponse.json();
+    assert.equal(unscopedAgentControlPlaneDecisionTasksJson.reasonCode, "agent-execution-scope-required");
+
+    const seedDecisionTaskResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reasons: [controlPlaneReason],
+        ...agentControlPlaneDecisionScope
+      })
     });
     assert.equal(seedDecisionTaskResponse.status, 200);
     const seedDecisionTaskJson = await seedDecisionTaskResponse.json();
@@ -5783,7 +5808,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         saveSnapshot: true,
         snapshotTitle: "Fixture Control Plane Decision Task Ledger Auto Capture",
         snapshotStatus: "open",
-        snapshotLimit: 5
+        snapshotLimit: 5,
+        ...agentControlPlaneDecisionScope
       })
     });
     assert.equal(repeatSeedDecisionTaskResponse.status, 200);

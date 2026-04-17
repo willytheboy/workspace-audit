@@ -1881,7 +1881,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }>, saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
+   * @param {{ reasons?: Array<{ severity?: string, code?: string, message?: string }>, saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ code: string, reason: string }>, snapshotCaptured: boolean, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot | null, totals: { requested: number, created: number, skipped: number }, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[], tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createAgentControlPlaneDecisionTasks(payload = {}) {
@@ -1900,7 +1900,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string }} [payload]
+   * @param {{ title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionSnapshot, agentControlPlaneDecisionSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionSnapshot[] }>}
    */
   createAgentControlPlaneDecisionSnapshot(payload = {}) {

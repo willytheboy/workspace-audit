@@ -2785,3 +2785,11 @@
 - [x] Pass dashboard scope metadata through control-plane snapshot and baseline actions.
 - [x] Add parser and server coverage for direct unscoped control-plane baseline writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Control Plane Decision Scope Guard
+
+- [x] Guard Agent Control Plane decision snapshots behind explicit project or portfolio scope.
+- [x] Guard Agent Control Plane decision task seeding and auto-capture behind the same scope requirement.
+- [x] Pass dashboard scope metadata through decision snapshot and task actions.
+- [x] Add parser and server coverage for direct unscoped decision writes.
+- [x] Validate, relaunch, commit, and push.

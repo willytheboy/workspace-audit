@@ -58,8 +58,8 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     fetchProjectProfileHistory: (projectId?: string) => Promise<PersistedProjectProfileHistory[]>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     fetchConvergenceCandidates: (filters?: { projectId?: string, status?: string, includeNotRelated?: boolean }) => Promise<import("./dashboard-types.js").ConvergenceCandidatesPayload>,
- *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string }) => Promise<unknown>,
- *     proposeConvergenceOverlap: (payload: { leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string }) => Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, candidates: ConvergenceCandidate[] }>
+ *     saveConvergenceReview: (payload: { leftId: string, rightId: string, leftName?: string, rightName?: string, score?: number, reasons?: string[], status: string, note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     proposeConvergenceOverlap: (payload: { leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, candidates: ConvergenceCandidate[] }>
  *   }
  * }} options
  */
@@ -690,7 +690,8 @@ export function createDashboardModal({ getData, api }) {
       status,
       note: status === "not-related"
         ? "Marked not related by operator from the project workbench."
-        : "Reviewed from the project workbench."
+        : "Reviewed from the project workbench.",
+      ...createProjectScopeOptions(project)
     });
     if (!currentProject || currentProject.id !== project.id) return;
     if (status === "not-related") {
@@ -730,7 +731,8 @@ export function createDashboardModal({ getData, api }) {
         leftId: project.id,
         rightId: targetId,
         operatorContext,
-        reviewer: "operator"
+        reviewer: "operator",
+        ...createProjectScopeOptions(project)
       });
       if (!currentProject || currentProject.id !== project.id) return;
       convergenceCandidates = result.candidates || (await api.fetchConvergenceCandidates({ projectId: project.id, status: "all", includeNotRelated: true })).candidates || [];

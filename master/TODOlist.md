@@ -2897,3 +2897,11 @@
 - [x] Pass project scope through workbench launchpad EventSource URLs.
 - [x] Add parser and server coverage for unscoped launch attempts that must not create script-run history.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Review Scope Guard
+
+- [x] Guard convergence review and operator proposal writes behind explicit project or portfolio scope.
+- [x] Allow project-scoped pair reviews only when the active project is one side of the convergence pair.
+- [x] Pass dashboard and workbench scope metadata through convergence review and proposal actions.
+- [x] Add parser and server coverage for direct unscoped convergence review/proposal writes.
+- [x] Validate, relaunch, commit, and push.

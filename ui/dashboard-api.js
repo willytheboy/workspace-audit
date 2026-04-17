@@ -884,7 +884,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string }} payload
+   * @param {Partial<import("./dashboard-types.js").ConvergenceReview> & { leftId: string, rightId: string, status: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */
   saveConvergenceReview(payload) {
@@ -896,7 +896,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string }} payload
+   * @param {{ leftId: string, rightId: string, operatorContext?: string, reviewer?: string, status?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, review: import("./dashboard-types.js").ConvergenceReview, candidates: import("./dashboard-types.js").ConvergenceCandidate[], reviews: import("./dashboard-types.js").ConvergenceReview[] }>}
    */
   proposeConvergenceOverlap(payload) {

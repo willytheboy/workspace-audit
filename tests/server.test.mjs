@@ -780,7 +780,7 @@ export async function serverTest() {
     const initialConvergenceReviewsJson = await initialConvergenceReviewsResponse.json();
     assert.deepEqual(initialConvergenceReviewsJson, []);
 
-    const createConvergenceReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+    const unscopedConvergenceReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -792,6 +792,25 @@ export async function serverTest() {
         reasons: ["React", "Vite"],
         status: "not-related",
         note: "Same stack but different product intent."
+      })
+    });
+    assert.equal(unscopedConvergenceReviewResponse.status, 409);
+    const unscopedConvergenceReviewJson = await unscopedConvergenceReviewResponse.json();
+    assert.equal(unscopedConvergenceReviewJson.reasonCode, "agent-execution-scope-required");
+
+    const createConvergenceReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        leftName: "Alpha App",
+        rightName: "Beta App",
+        score: 87,
+        reasons: ["React", "Vite"],
+        status: "not-related",
+        note: "Same stack but different product intent.",
+        ...activeProjectScope
       })
     });
     assert.equal(createConvergenceReviewResponse.status, 200);
@@ -4497,6 +4516,7 @@ export async function convergenceReviewSuppressionTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const convergenceScope = { activeProjectId: "alpha-app", scopeMode: "project" };
   const taskMutationScope = { scopeMode: "portfolio" };
 
   try {
@@ -4535,7 +4555,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.doesNotMatch(convergenceFindings[0].detail, /^Alpha App overlaps strongly with Alpha App/);
     assert.match(convergenceFindings[0].detail, /Alpha App \[alpha-app\] overlaps strongly with Alpha App \[beta-app\]/);
 
-    const createReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+    const unscopedReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4543,6 +4563,21 @@ export async function convergenceReviewSuppressionTest() {
         rightId: "beta-app",
         status: "not-related",
         note: "Different operator-confirmed product intent."
+      })
+    });
+    assert.equal(unscopedReviewResponse.status, 409);
+    const unscopedReviewJson = await unscopedReviewResponse.json();
+    assert.equal(unscopedReviewJson.reasonCode, "agent-execution-scope-required");
+
+    const createReviewResponse = await fetch(`${baseUrl}/api/convergence/reviews`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        status: "not-related",
+        note: "Different operator-confirmed product intent.",
+        ...convergenceScope
       })
     });
     assert.equal(createReviewResponse.status, 200);
@@ -4567,13 +4602,27 @@ export async function convergenceReviewSuppressionTest() {
     const allCandidatesJson = await allCandidatesResponse.json();
     assert.equal(allCandidatesJson.candidates.some((candidate) => candidate.pairId === "alpha-app__converges_with__beta-app"), true);
 
-    const operatorProposalResponse = await fetch(`${baseUrl}/api/convergence/proposals`, {
+    const unscopedOperatorProposalResponse = await fetch(`${baseUrl}/api/convergence/proposals`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         leftId: "alpha-app",
         rightId: "beta-app",
         operatorContext: "The operator knows these apps share the same generated Vite/React app shell and should be reviewed for assimilation."
+      })
+    });
+    assert.equal(unscopedOperatorProposalResponse.status, 409);
+    const unscopedOperatorProposalJson = await unscopedOperatorProposalResponse.json();
+    assert.equal(unscopedOperatorProposalJson.reasonCode, "agent-execution-scope-required");
+
+    const operatorProposalResponse = await fetch(`${baseUrl}/api/convergence/proposals`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        leftId: "alpha-app",
+        rightId: "beta-app",
+        operatorContext: "The operator knows these apps share the same generated Vite/React app shell and should be reviewed for assimilation.",
+        ...convergenceScope
       })
     });
     assert.equal(operatorProposalResponse.status, 200);

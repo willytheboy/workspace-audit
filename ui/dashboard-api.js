@@ -2611,6 +2611,21 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<{
+   *   generatedAt: string,
+   *   protocolVersion: string,
+   *   secretPolicy: string,
+   *   summary: { total: number, scopeRelevant: number, guarded: number, unguarded: number, utility: number, methodCounts: Record<string, number>, categoryCounts: Record<string, number> },
+   *   items: Array<{ method: string, route: string, routeKind: string, category: string, scopeRelevant: boolean, guarded: boolean, guardKind: string, sourceLine: number, recommendedAction?: string }>,
+   *   unguarded: Array<{ method: string, route: string, category: string, sourceLine: number, recommendedAction?: string }>,
+   *   markdown: string
+   * }>}
+   */
+  fetchMutationScopeInventory() {
+    return fetchJson("/api/diagnostics/mutation-scope");
+  },
+
+  /**
    * @param {{ type: string, url: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   addSource(payload) {

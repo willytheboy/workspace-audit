@@ -3003,3 +3003,11 @@
 - [x] Pass dashboard scope metadata through task seeding controls.
 - [x] Add parser and server coverage for direct unscoped review task creation.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Mutation Scope Inventory Diagnostics
+
+- [x] Add a server-generated mutation route inventory with scope guard detection.
+- [x] Expose the inventory through diagnostics for operator review.
+- [x] Surface guarded and unguarded mutation counts in Settings diagnostics.
+- [x] Add parser and server coverage for the mutation-scope inventory report.
+- [x] Validate, relaunch, commit, and push.

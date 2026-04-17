@@ -58,7 +58,12 @@ function createSettingRow(label, value) {
  *       storeFile: string,
  *       hasStoreFile: boolean,
  *       lastFindingsRefreshAt?: string | null,
- *       latestScanAt?: string | null
+ *       latestScanAt?: string | null,
+ *       mutationScope?: {
+ *         generatedAt: string,
+ *         summary: { total: number, scopeRelevant: number, guarded: number, unguarded: number, utility: number },
+ *         unguarded: Array<{ method: string, route: string, category: string, sourceLine: number, recommendedAction?: string }>
+ *       }
  *     }>
  *   },
  *   getData: () => AuditPayload,
@@ -195,7 +200,7 @@ export function createDashboardSettingsModal({
   }
 
   function renderDiagnosticsTab() {
-    return [
+    const nodes = [
       createSettingRow("Embedded shell", diagnostics?.hasBootstrappedShell ? "Present" : "Missing"),
       createSettingRow("Inventory file", diagnostics?.hasInventoryFile ? "Present" : "Missing"),
       createSettingRow("SQLite store", diagnostics?.databaseFile || "Unknown"),
@@ -211,6 +216,37 @@ export function createDashboardSettingsModal({
       createSettingRow("Panel sources state", getRuntime().panels.sources.status),
       createSettingRow("Panel governance state", getRuntime().panels.governance.status)
     ];
+
+    const mutationScope = diagnostics?.mutationScope;
+    if (!mutationScope) return nodes;
+
+    nodes.push(
+      createSettingRow("Mutation routes", String(mutationScope.summary.total)),
+      createSettingRow("Scope-relevant mutations", String(mutationScope.summary.scopeRelevant)),
+      createSettingRow("Guarded mutations", String(mutationScope.summary.guarded)),
+      createSettingRow("Unguarded mutations", String(mutationScope.summary.unguarded))
+    );
+
+    const unguarded = Array.isArray(mutationScope.unguarded) ? mutationScope.unguarded.slice(0, 8) : [];
+    const list = document.createElement("div");
+    list.className = "settings-source-list";
+    if (!unguarded.length) {
+      list.append(createTextBlock("settings-empty", "All scope-relevant mutation routes have explicit scope guards."));
+    } else {
+      for (const route of unguarded) {
+        const item = document.createElement("div");
+        item.className = "settings-source-item";
+        item.append(
+          createTextBlock("settings-source-type", `${route.method} ${route.category}`.toUpperCase()),
+          createTextBlock("settings-source-value", route.route),
+          createTextBlock("settings-source-meta", `Line ${route.sourceLine}: ${route.recommendedAction || "Scope guard review required."}`)
+        );
+        list.append(item);
+      }
+    }
+    nodes.push(createTextBlock("settings-about-title", "Mutation Scope Guard Coverage"), list);
+
+    return nodes;
   }
 
   function renderAboutTab() {

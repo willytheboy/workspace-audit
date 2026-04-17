@@ -85,6 +85,18 @@ export async function serverTest() {
     assert.equal(diagnosticsJson.hasDatabaseFile, true);
     assert.equal(diagnosticsJson.hasStoreFile, true);
     assert.ok(diagnosticsJson.latestScanAt);
+    assert.equal(diagnosticsJson.mutationScope.protocolVersion, "mutation-scope-inventory.v1");
+    assert.ok(diagnosticsJson.mutationScope.summary.total > 0);
+    assert.ok(diagnosticsJson.mutationScope.summary.scopeRelevant > 0);
+    assert.ok(diagnosticsJson.mutationScope.items.some((item) => item.method === "POST" && item.route === "/api/convergence/tasks" && item.guarded === true));
+
+    const mutationScopeResponse = await fetch(`${baseUrl}/api/diagnostics/mutation-scope`);
+    assert.equal(mutationScopeResponse.status, 200);
+    const mutationScopeJson = await mutationScopeResponse.json();
+    assert.equal(mutationScopeJson.protocolVersion, "mutation-scope-inventory.v1");
+    assert.ok(mutationScopeJson.summary.guarded > 0);
+    assert.ok(mutationScopeJson.items.some((item) => item.method === "POST" && item.route === "/api/findings/refresh"));
+    assert.match(mutationScopeJson.markdown, /# Mutation Scope Inventory/);
 
     const sourcesSummaryResponse = await fetch(`${baseUrl}/api/sources/summary`);
     assert.equal(sourcesSummaryResponse.status, 200);

@@ -3011,3 +3011,10 @@
 - [x] Surface guarded and unguarded mutation counts in Settings diagnostics.
 - [x] Add parser and server coverage for the mutation-scope inventory report.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Mutation Scope Enforcement Gate
+
+- [x] Promote mutation-scope inventory from visibility to regression enforcement.
+- [x] Fail server tests when any scope-relevant mutation route is unguarded.
+- [x] Add parser coverage for the zero-unguarded mutation gate.
+- [x] Validate, relaunch, commit, and push.

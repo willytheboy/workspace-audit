@@ -95,6 +95,8 @@ export async function serverTest() {
     const mutationScopeJson = await mutationScopeResponse.json();
     assert.equal(mutationScopeJson.protocolVersion, "mutation-scope-inventory.v1");
     assert.ok(mutationScopeJson.summary.guarded > 0);
+    assert.equal(mutationScopeJson.summary.unguarded, 0);
+    assert.equal(mutationScopeJson.unguarded.length, 0);
     assert.ok(mutationScopeJson.items.some((item) => item.method === "POST" && item.route === "/api/findings/refresh"));
     assert.match(mutationScopeJson.markdown, /# Mutation Scope Inventory/);
 

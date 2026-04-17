@@ -921,7 +921,7 @@ export async function serverTest() {
     assert.ok(taskUpdateLedgerSnapshotDiffJson.driftItems.some((item) => item.label === "Total task update audit operations" && item.before === 1 && item.current === 2));
     assert.match(taskUpdateLedgerSnapshotDiffJson.markdown, /# Governance Task Update Ledger Snapshot Drift/);
 
-    const createWorkflowResponse = await fetch(`${baseUrl}/api/workflows`, {
+    const unscopedCreateWorkflowResponse = await fetch(`${baseUrl}/api/workflows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -931,6 +931,23 @@ export async function serverTest() {
         status: "active",
         projectId: "alpha-app",
         projectName: "Alpha App"
+      })
+    });
+    assert.equal(unscopedCreateWorkflowResponse.status, 409);
+    const unscopedCreateWorkflowJson = await unscopedCreateWorkflowResponse.json();
+    assert.equal(unscopedCreateWorkflowJson.reasonCode, "agent-execution-scope-required");
+
+    const createWorkflowResponse = await fetch(`${baseUrl}/api/workflows`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Promote portfolio persistence",
+        brief: "Land persistence routes and UI findings view",
+        phase: "integration",
+        status: "active",
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        ...activeProjectScope
       })
     });
     assert.equal(createWorkflowResponse.status, 200);
@@ -970,7 +987,7 @@ export async function serverTest() {
     const initialAgentSessionsJson = await initialAgentSessionsResponse.json();
     assert.equal(initialAgentSessionsJson.length, 0);
 
-    const createAgentSessionResponse = await fetch(`${baseUrl}/api/agent-sessions`, {
+    const unscopedCreateAgentSessionResponse = await fetch(`${baseUrl}/api/agent-sessions`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -981,6 +998,24 @@ export async function serverTest() {
         summary: "Fixture handoff session",
         handoffPack: "# Agent Handoff Pack: Alpha App\n\nUse this fixture pack.",
         status: "prepared"
+      })
+    });
+    assert.equal(unscopedCreateAgentSessionResponse.status, 409);
+    const unscopedCreateAgentSessionJson = await unscopedCreateAgentSessionResponse.json();
+    assert.equal(unscopedCreateAgentSessionJson.reasonCode, "agent-execution-scope-required");
+
+    const createAgentSessionResponse = await fetch(`${baseUrl}/api/agent-sessions`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        relPath: "alpha-app",
+        title: "Agent handoff for Alpha App",
+        summary: "Fixture handoff session",
+        handoffPack: "# Agent Handoff Pack: Alpha App\n\nUse this fixture pack.",
+        status: "prepared",
+        ...activeProjectScope
       })
     });
     assert.equal(createAgentSessionResponse.status, 200);
@@ -995,14 +1030,38 @@ export async function serverTest() {
     assert.equal(agentSessionsJson[0].status, "prepared");
     assert.match(agentSessionsJson[0].handoffPack, /Agent Handoff Pack/);
 
-    const patchWorkflowResponse = await fetch(`${baseUrl}/api/workflows/${createWorkflowJson.workflow.id}`, {
+    const unscopedPatchWorkflowResponse = await fetch(`${baseUrl}/api/workflows/${createWorkflowJson.workflow.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" })
     });
+    assert.equal(unscopedPatchWorkflowResponse.status, 409);
+    const unscopedPatchWorkflowJson = await unscopedPatchWorkflowResponse.json();
+    assert.equal(unscopedPatchWorkflowJson.reasonCode, "agent-execution-scope-required");
+
+    const patchWorkflowResponse = await fetch(`${baseUrl}/api/workflows/${createWorkflowJson.workflow.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done", ...activeProjectScope })
+    });
     assert.equal(patchWorkflowResponse.status, 200);
     const patchWorkflowJson = await patchWorkflowResponse.json();
     assert.equal(patchWorkflowJson.workflow.status, "done");
+
+    const unscopedCreateNoteResponse = await fetch(`${baseUrl}/api/notes`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Project context",
+        body: "Alpha app is the fixture used for server integration tests.",
+        kind: "context",
+        projectId: "alpha-app",
+        projectName: "Alpha App"
+      })
+    });
+    assert.equal(unscopedCreateNoteResponse.status, 409);
+    const unscopedCreateNoteJson = await unscopedCreateNoteResponse.json();
+    assert.equal(unscopedCreateNoteJson.reasonCode, "agent-execution-scope-required");
 
     const createNoteResponse = await fetch(`${baseUrl}/api/notes`, {
       method: "POST",
@@ -1012,7 +1071,8 @@ export async function serverTest() {
         body: "Alpha app is the fixture used for server integration tests.",
         kind: "context",
         projectId: "alpha-app",
-        projectName: "Alpha App"
+        projectName: "Alpha App",
+        ...activeProjectScope
       })
     });
     assert.equal(createNoteResponse.status, 200);
@@ -1024,16 +1084,25 @@ export async function serverTest() {
     const notesJson = await notesResponse.json();
     assert.equal(notesJson.length, 1);
 
-    const patchNoteResponse = await fetch(`${baseUrl}/api/notes/${createNoteJson.note.id}`, {
+    const unscopedPatchNoteResponse = await fetch(`${baseUrl}/api/notes/${createNoteJson.note.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ kind: "decision" })
+    });
+    assert.equal(unscopedPatchNoteResponse.status, 409);
+    const unscopedPatchNoteJson = await unscopedPatchNoteResponse.json();
+    assert.equal(unscopedPatchNoteJson.reasonCode, "agent-execution-scope-required");
+
+    const patchNoteResponse = await fetch(`${baseUrl}/api/notes/${createNoteJson.note.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind: "decision", ...activeProjectScope })
     });
     assert.equal(patchNoteResponse.status, 200);
     const patchNoteJson = await patchNoteResponse.json();
     assert.equal(patchNoteJson.note.kind, "decision");
 
-    const createMilestoneResponse = await fetch(`${baseUrl}/api/milestones`, {
+    const unscopedCreateMilestoneResponse = await fetch(`${baseUrl}/api/milestones`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1045,6 +1114,23 @@ export async function serverTest() {
         projectName: "Alpha App"
       })
     });
+    assert.equal(unscopedCreateMilestoneResponse.status, 409);
+    const unscopedCreateMilestoneJson = await unscopedCreateMilestoneResponse.json();
+    assert.equal(unscopedCreateMilestoneJson.reasonCode, "agent-execution-scope-required");
+
+    const createMilestoneResponse = await fetch(`${baseUrl}/api/milestones`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture memory live",
+        detail: "Project memory routes are available for alpha-app.",
+        status: "planned",
+        targetDate: "2026-04-20",
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        ...activeProjectScope
+      })
+    });
     assert.equal(createMilestoneResponse.status, 200);
     const createMilestoneJson = await createMilestoneResponse.json();
     assert.equal(createMilestoneJson.success, true);
@@ -1054,10 +1140,19 @@ export async function serverTest() {
     const milestonesJson = await milestonesResponse.json();
     assert.equal(milestonesJson.length, 1);
 
-    const patchMilestoneResponse = await fetch(`${baseUrl}/api/milestones/${createMilestoneJson.milestone.id}`, {
+    const unscopedPatchMilestoneResponse = await fetch(`${baseUrl}/api/milestones/${createMilestoneJson.milestone.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" })
+    });
+    assert.equal(unscopedPatchMilestoneResponse.status, 409);
+    const unscopedPatchMilestoneJson = await unscopedPatchMilestoneResponse.json();
+    assert.equal(unscopedPatchMilestoneJson.reasonCode, "agent-execution-scope-required");
+
+    const patchMilestoneResponse = await fetch(`${baseUrl}/api/milestones/${createMilestoneJson.milestone.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done", ...activeProjectScope })
     });
     assert.equal(patchMilestoneResponse.status, 200);
     const patchMilestoneJson = await patchMilestoneResponse.json();

@@ -1791,7 +1791,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               status: "active",
               phase: "planning",
               projectId,
-              projectName
+              projectName,
+              ...getCliBridgeScopeOptions()
             });
           }
 
@@ -1809,7 +1810,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               body: "Confirm the target state, rationale, owner, and execution path for this project.",
               kind: "decision",
               projectId,
-              projectName
+              projectName,
+              ...getCliBridgeScopeOptions()
             });
           }
 

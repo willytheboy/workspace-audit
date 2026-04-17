@@ -2880,3 +2880,12 @@
 - [x] Pass dashboard and workbench scope metadata through all generic task create/update actions.
 - [x] Add parser and server coverage for direct unscoped generic task writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Project Memory Scope Guard
+
+- [x] Guard direct workflow, note, milestone, and agent-session creation behind explicit project or portfolio scope.
+- [x] Guard workflow, note, and milestone updates behind the same scope requirement and reject project-scope mismatches.
+- [x] Strip scope metadata from project-memory patch payloads before persistence.
+- [x] Pass dashboard and workbench scope metadata through all project-memory write actions.
+- [x] Add parser and server coverage for direct unscoped project-memory writes.
+- [x] Validate, relaunch, commit, and push.

@@ -2467,7 +2467,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }} payload
+   * @param {{ title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   createWorkflow(payload) {
     return fetchJson("/api/workflows", {
@@ -2479,7 +2479,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} workflowId
-   * @param {Partial<import("./dashboard-types.js").PersistedWorkflow>} payload
+   * @param {Partial<import("./dashboard-types.js").PersistedWorkflow> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   updateWorkflow(workflowId, payload) {
     return fetchJson(`/api/workflows/${encodeURIComponent(workflowId)}`, {
@@ -2506,7 +2506,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ projectId: string, projectName: string, relPath: string, title: string, summary?: string, handoffPack: string, status?: string }} payload
+   * @param {{ projectId: string, projectName: string, relPath: string, title: string, summary?: string, handoffPack: string, status?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   createAgentSession(payload) {
     return fetchJson("/api/agent-sessions", {
@@ -2525,7 +2525,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, body?: string, kind?: string, projectId?: string, projectName?: string }} payload
+   * @param {{ title: string, body?: string, kind?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   createNote(payload) {
     return fetchJson("/api/notes", {
@@ -2537,7 +2537,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} noteId
-   * @param {Partial<import("./dashboard-types.js").PersistedNote>} payload
+   * @param {Partial<import("./dashboard-types.js").PersistedNote> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   updateNote(noteId, payload) {
     return fetchJson(`/api/notes/${encodeURIComponent(noteId)}`, {
@@ -2556,7 +2556,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, detail?: string, status?: string, targetDate?: string, projectId?: string, projectName?: string }} payload
+   * @param {{ title: string, detail?: string, status?: string, targetDate?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   createMilestone(payload) {
     return fetchJson("/api/milestones", {
@@ -2568,7 +2568,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} milestoneId
-   * @param {Partial<import("./dashboard-types.js").PersistedMilestone>} payload
+   * @param {Partial<import("./dashboard-types.js").PersistedMilestone> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   updateMilestone(milestoneId, payload) {
     return fetchJson(`/api/milestones/${encodeURIComponent(milestoneId)}`, {

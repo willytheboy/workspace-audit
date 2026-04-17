@@ -43,17 +43,17 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     updateTask: (taskId: string, payload: Partial<PersistedTask> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchWorkflows: (projectId?: string) => Promise<PersistedWorkflow[]>,
- *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
- *     updateWorkflow: (workflowId: string, payload: Partial<PersistedWorkflow>) => Promise<unknown>,
+ *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     updateWorkflow: (workflowId: string, payload: Partial<PersistedWorkflow> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchScriptRuns: (projectId?: string) => Promise<PersistedScriptRun[]>,
  *     fetchAgentSessions: (projectId?: string) => Promise<PersistedAgentSession[]>,
- *     createAgentSession: (payload: { projectId: string, projectName: string, relPath: string, title: string, summary?: string, handoffPack: string, status?: string }) => Promise<unknown>,
+ *     createAgentSession: (payload: { projectId: string, projectName: string, relPath: string, title: string, summary?: string, handoffPack: string, status?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchNotes: (projectId?: string) => Promise<PersistedNote[]>,
- *     createNote: (payload: { title: string, body?: string, kind?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
- *     updateNote: (noteId: string, payload: Partial<PersistedNote>) => Promise<unknown>,
+ *     createNote: (payload: { title: string, body?: string, kind?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     updateNote: (noteId: string, payload: Partial<PersistedNote> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchMilestones: (projectId?: string) => Promise<PersistedMilestone[]>,
- *     createMilestone: (payload: { title: string, detail?: string, status?: string, targetDate?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
- *     updateMilestone: (milestoneId: string, payload: Partial<PersistedMilestone>) => Promise<unknown>,
+ *     createMilestone: (payload: { title: string, detail?: string, status?: string, targetDate?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     updateMilestone: (milestoneId: string, payload: Partial<PersistedMilestone> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchProjectProfiles: (projectId?: string) => Promise<PersistedProjectProfile[]>,
  *     fetchProjectProfileHistory: (projectId?: string) => Promise<PersistedProjectProfileHistory[]>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
@@ -1025,7 +1025,10 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.phase === "approval" && workflow.status !== "awaiting-approval" && workflow.status !== "approved" && workflow.status !== "done") {
         actions.push(createActionButton("Request Approval", async () => {
-          await api.updateWorkflow(workflow.id, { status: "awaiting-approval" });
+          await api.updateWorkflow(workflow.id, {
+            status: "awaiting-approval",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1034,7 +1037,10 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.phase === "approval" && workflow.status === "awaiting-approval") {
         actions.push(createActionButton("Approve", async () => {
-          await api.updateWorkflow(workflow.id, { status: "approved" });
+          await api.updateWorkflow(workflow.id, {
+            status: "approved",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1043,7 +1049,10 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.phase === "review" && workflow.status !== "in-review" && workflow.status !== "done") {
         actions.push(createActionButton("Set In Review", async () => {
-          await api.updateWorkflow(workflow.id, { status: "in-review" });
+          await api.updateWorkflow(workflow.id, {
+            status: "in-review",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1060,7 +1069,8 @@ export function createDashboardModal({ getData, api }) {
                 ? "in-review"
                 : nextPhase === "done"
                   ? "done"
-                  : "active"
+                  : "active",
+            ...createProjectScopeOptions(project)
           });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
@@ -1070,7 +1080,10 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.status !== "active" && workflow.status !== "done" && workflow.phase !== "approval") {
         actions.push(createActionButton("Set Active", async () => {
-          await api.updateWorkflow(workflow.id, { status: "active" });
+          await api.updateWorkflow(workflow.id, {
+            status: "active",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1079,7 +1092,11 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.status !== "done") {
         actions.push(createActionButton("Mark Done", async () => {
-          await api.updateWorkflow(workflow.id, { status: "done", phase: "done" });
+          await api.updateWorkflow(workflow.id, {
+            status: "done",
+            phase: "done",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1088,7 +1105,11 @@ export function createDashboardModal({ getData, api }) {
 
       if (workflow.status === "done" && workflow.phase === "done") {
         actions.push(createActionButton("Reopen", async () => {
-          await api.updateWorkflow(workflow.id, { status: "active", phase: "implementation" });
+          await api.updateWorkflow(workflow.id, {
+            status: "active",
+            phase: "implementation",
+            ...createProjectScopeOptions(project)
+          });
           if (currentProject?.id === project.id) {
             await loadWorkbenchState(project);
           }
@@ -1197,13 +1218,19 @@ export function createDashboardModal({ getData, api }) {
           ? []
           : [
               createActionButton("Set Active", async () => {
-                await api.updateMilestone(milestone.id, { status: "active" });
+                await api.updateMilestone(milestone.id, {
+                  status: "active",
+                  ...createProjectScopeOptions(project)
+                });
                 if (currentProject?.id === project.id) {
                   await loadWorkbenchState(project);
                 }
               }),
               createActionButton("Mark Done", async () => {
-                await api.updateMilestone(milestone.id, { status: "done" });
+                await api.updateMilestone(milestone.id, {
+                  status: "done",
+                  ...createProjectScopeOptions(project)
+                });
                 if (currentProject?.id === project.id) {
                   await loadWorkbenchState(project);
                 }
@@ -1307,7 +1334,8 @@ export function createDashboardModal({ getData, api }) {
         title: `Agent handoff for ${project.name}`,
         summary: `${findings.length} findings, ${tasks.length} tasks, ${workflows.length} workflows, ${scriptRuns.length} recent script runs.`,
         handoffPack,
-        status: "prepared"
+        status: "prepared",
+        ...createProjectScopeOptions(project)
       });
       await copyText(handoffPack);
       if (currentProject?.id === project.id) {
@@ -1477,7 +1505,8 @@ export function createDashboardModal({ getData, api }) {
       phase: phaseInput.value,
       status: statusInput.value,
       projectId: currentProject.id,
-      projectName: currentProject.name
+      projectName: currentProject.name,
+      ...createProjectScopeOptions(currentProject)
     });
 
     workflowForm.reset();
@@ -1499,7 +1528,8 @@ export function createDashboardModal({ getData, api }) {
       body: bodyInput.value,
       kind: kindInput.value,
       projectId: currentProject.id,
-      projectName: currentProject.name
+      projectName: currentProject.name,
+      ...createProjectScopeOptions(currentProject)
     });
 
     noteForm.reset();
@@ -1522,7 +1552,8 @@ export function createDashboardModal({ getData, api }) {
       status: statusInput.value,
       targetDate: dateInput.value,
       projectId: currentProject.id,
-      projectName: currentProject.name
+      projectName: currentProject.name,
+      ...createProjectScopeOptions(currentProject)
     });
 
     milestoneForm.reset();

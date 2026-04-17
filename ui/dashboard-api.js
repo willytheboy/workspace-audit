@@ -1515,7 +1515,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} handoffId
-   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string, limit?: number }} [payload]
+   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
    */
   queueCliBridgeFollowUpWorkOrderRun(handoffId, payload = {}) {
@@ -1740,7 +1740,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ title?: string }} [payload]
+   * @param {{ title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot, cliBridgeRunTraceSnapshots: import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[], governanceOperationCount: number }>}
    */
   createCliBridgeRunTraceSnapshot(runId, payload = {}) {
@@ -1752,7 +1752,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }} payload
+   * @param {{ runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */
   createCliBridgeRunnerResult(payload) {
@@ -1772,7 +1772,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ sourceRunner: string, targetRunner: string, status?: string, resultType?: string, projectId?: string, projectName?: string, workOrderRunId?: string, title?: string, summary: string, changedFiles?: string[], validationSummary?: string, nextAction?: string, notes?: string }} payload
+   * @param {{ sourceRunner: string, targetRunner: string, status?: string, resultType?: string, projectId?: string, projectName?: string, workOrderRunId?: string, title?: string, summary: string, changedFiles?: string[], validationSummary?: string, nextAction?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload }>}
    */
   createCliBridgeHandoff(payload) {
@@ -1785,7 +1785,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} handoffId
-   * @param {{ action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }} payload
+   * @param {{ action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, handoff: import("./dashboard-types.js").PersistedCliBridgeHandoff, createdTask?: import("./dashboard-types.js").PersistedTask | null, skippedTask?: { id: string, title: string, reason: string } | null, ledger: import("./dashboard-types.js").CliBridgeHandoffLedgerPayload, taskCount: number, governanceOperationCount: number }>}
    */
   reviewCliBridgeHandoff(handoffId, payload) {
@@ -2002,7 +2002,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runId: string, targetAction: "retry" | "archive" | "retention" | "resolve-sla" | "baseline-refresh", status?: "approved" | "deferred" | "dismissed" | "needs-review", reason?: string, note?: string, reviewer?: string, source?: string }} payload
+   * @param {{ runId: string, targetAction: "retry" | "archive" | "retention" | "resolve-sla" | "baseline-refresh", status?: "approved" | "deferred" | "dismissed" | "needs-review", reason?: string, note?: string, reviewer?: string, source?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").AgentExecutionResultCheckpoint, createdTask?: import("./dashboard-types.js").PersistedTask | null, skippedTask?: { id: string, title: string, reason: string } | null, summary: import("./dashboard-types.js").AgentExecutionResultCheckpointSummary, agentExecutionResultCheckpointCount: number, agentExecutionResultTaskCount: number, governanceOperationCount: number }>}
    */
   createAgentExecutionResultCheckpoint(payload) {

@@ -17,7 +17,7 @@ export async function serverTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
-  const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved") => {
+  const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved", scopePayload = { scopeMode: "portfolio" }) => {
     const checkpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -25,7 +25,8 @@ export async function serverTest() {
         runId,
         targetAction,
         status,
-        note: `Fixture ${targetAction} checkpoint.`
+        note: `Fixture ${targetAction} checkpoint.`,
+        ...scopePayload
       })
     });
     assert.equal(checkpointResponse.status, 200);
@@ -1277,6 +1278,20 @@ export async function serverTest() {
     assert.equal(createAgentWorkOrderRunJson.run.agentRole, approvedAgentWorkOrdersJson.items[0].agentPolicy.role);
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineFreshness, "missing");
+
+    const unscopedExecutionResultCheckpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runId: createAgentWorkOrderRunJson.run.id,
+        targetAction: "baseline-refresh",
+        status: "approved",
+        note: "Fixture unscoped execution-result checkpoint should be blocked."
+      })
+    });
+    assert.equal(unscopedExecutionResultCheckpointResponse.status, 409);
+    const unscopedExecutionResultCheckpointJson = await unscopedExecutionResultCheckpointResponse.json();
+    assert.equal(unscopedExecutionResultCheckpointJson.reasonCode, "agent-execution-scope-required");
     assert.equal(createAgentWorkOrderRunJson.run.targetBaselineAuditLedgerBaselineHealth, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.targetBaselineAuditLedgerBaselineFreshness, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.history.length, 1);
@@ -2303,6 +2318,41 @@ export async function serverTest() {
     assert.equal(initialCliBridgeHandoffsJson.total, 0);
     assert.match(initialCliBridgeHandoffsJson.markdown, /# CLI Bridge Handoff Ledger/);
 
+    const unscopedCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceRunner: "codex",
+        targetRunner: "claude",
+        status: "proposed",
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        workOrderRunId: createAgentWorkOrderRunJson.run.id,
+        summary: "Fixture unscoped handoff should be blocked."
+      })
+    });
+    assert.equal(unscopedCliBridgeHandoffResponse.status, 409);
+    const unscopedCliBridgeHandoffJson = await unscopedCliBridgeHandoffResponse.json();
+    assert.equal(unscopedCliBridgeHandoffJson.reasonCode, "agent-execution-scope-required");
+
+    const mismatchedCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceRunner: "codex",
+        targetRunner: "claude",
+        status: "proposed",
+        projectId: "beta-app",
+        projectName: "Beta App",
+        summary: "Fixture mismatched handoff should be blocked.",
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(mismatchedCliBridgeHandoffResponse.status, 409);
+    const mismatchedCliBridgeHandoffJson = await mismatchedCliBridgeHandoffResponse.json();
+    assert.equal(mismatchedCliBridgeHandoffJson.reasonCode, "agent-execution-scope-mismatch");
+    assert.deepEqual(mismatchedCliBridgeHandoffJson.mismatchedProjectIds, ["beta-app"]);
+
     const createCliBridgeHandoffResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2318,7 +2368,8 @@ export async function serverTest() {
         summary: "Codex completed the bounded fixture implementation slice and requests Claude review.",
         changedFiles: ["src/index.js"],
         validationSummary: "Fixture validation passed.",
-        nextAction: "Claude should review the summary and recommend follow-up work-order scope."
+        nextAction: "Claude should review the summary and recommend follow-up work-order scope.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createCliBridgeHandoffResponse.status, 200);
@@ -2337,7 +2388,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "accept",
-        note: "Fixture operator accepted the Codex to Claude handoff."
+        note: "Fixture operator accepted the Codex to Claude handoff.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(acceptCliBridgeHandoffResponse.status, 200);
@@ -2376,7 +2428,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
-        notes: "Fixture queued a CLI bridge follow-up work-order run."
+        notes: "Fixture queued a CLI bridge follow-up work-order run.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(queueCliBridgeWorkOrderRunResponse.status, 200);
@@ -2421,7 +2474,8 @@ export async function serverTest() {
         validationResults: "Fixture validation passed after runner review.",
         blockers: [],
         handoffRecommendation: "operator",
-        nextAction: "Operator should review and accept or request a follow-up work order."
+        nextAction: "Operator should review and accept or request a follow-up work order.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createCliBridgeRunnerResultResponse.status, 200);
@@ -2446,7 +2500,8 @@ export async function serverTest() {
       body: JSON.stringify({
         action: "escalate",
         createTask: true,
-        note: "Fixture operator escalated the runner result for follow-up."
+        note: "Fixture operator escalated the runner result for follow-up.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(escalateCliBridgeRunnerResultResponse.status, 200);
@@ -2522,7 +2577,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: "Fixture CLI bridge run trace"
+        title: "Fixture CLI bridge run trace",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(cliBridgeRunTraceSnapshotResponse.status, 200);

@@ -232,7 +232,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload>,
  *     createCliBridgeRunnerDryRunSnapshot: (payload?: { title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<unknown>,
  *     fetchCliBridgeFollowUpWorkOrderDraft: (handoffId: string, options?: { runner?: "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>,
- *     queueCliBridgeFollowUpWorkOrderRun: (handoffId: string, payload?: { runner?: "codex" | "claude", status?: string, notes?: string, limit?: number }) => Promise<unknown>,
+ *     queueCliBridgeFollowUpWorkOrderRun: (handoffId: string, payload?: { runner?: "codex" | "claude", status?: string, notes?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeRunTrace: (runId: string) => Promise<import("./dashboard-types.js").CliBridgeRunTracePayload>,
  *     fetchCliBridgeRunTraceSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeRunTraceSnapshot[]>,
  *     fetchCliBridgeRunTraceSnapshotLifecycleLedger: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotLifecycleLedgerPayload>,
@@ -256,10 +256,10 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusPayload>,
  *     fetchCliBridgeRunTraceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotDiffPayload>,
  *     fetchCliBridgeRunTraceSnapshotBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeRunTraceSnapshotBaselineStatusPayload>,
- *     createCliBridgeRunTraceSnapshot: (runId: string, payload?: { title?: string }) => Promise<unknown>,
+ *     createCliBridgeRunTraceSnapshot: (runId: string, payload?: { title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeHandoffs: (options?: { runner?: "all" | "codex" | "claude", status?: "all" | "proposed" | "accepted" | "rejected" | "needs-review", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeHandoffLedgerPayload>,
- *     createCliBridgeRunnerResult: (payload: { runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string }) => Promise<unknown>,
- *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean }) => Promise<unknown>
+ *     createCliBridgeRunnerResult: (payload: { runner: "codex" | "claude", workOrderRunId?: string, runId?: string, status?: string, projectId?: string, projectName?: string, title?: string, summary: string, changedFiles?: string[], validationResults?: string, validationSummary?: string, blockers?: string[], nextAction?: string, handoffRecommendation?: string, nextRunner?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     reviewCliBridgeHandoff: (handoffId: string, payload: { action: "accept" | "reject" | "escalate" | "needs-review", note?: string, notes?: string, reviewer?: string, nextAction?: string, createTask?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>
  *   },
  *   openModal: (id: string) => void
  * }} options
@@ -5219,6 +5219,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Queueing";
           await api.queueCliBridgeFollowUpWorkOrderRun(handoffId, {
+            ...getCliBridgeScopeOptions(),
             runner,
             status: "queued",
             notes: "Queued from the Governance CLI bridge handoff ledger."
@@ -5270,6 +5271,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Recording";
           await api.createCliBridgeRunnerResult({
+            ...getCliBridgeScopeOptions(),
             runner,
             status: "needs-review",
             summary: summary.trim(),
@@ -5301,6 +5303,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = action === "accept" ? "Accepting" : action === "reject" ? "Rejecting" : "Escalating";
           await api.reviewCliBridgeHandoff(handoffId, {
+            ...getCliBridgeScopeOptions(),
             action,
             createTask: action === "escalate",
             note: `Operator selected ${action} from the Governance CLI bridge handoff ledger.`
@@ -7505,6 +7508,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           await api.createAgentExecutionResultCheckpoint({
+            ...getCliBridgeScopeOptions(),
             runId,
             targetAction,
             status,
@@ -7711,6 +7715,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           await api.createCliBridgeRunTraceSnapshot(runId, {
+            ...getCliBridgeScopeOptions(),
             title: `CLI bridge run trace: ${run?.title || runId}`
           });
           await renderGovernance();
@@ -8527,6 +8532,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Recording";
           await api.createCliBridgeRunnerResult({
+            ...getCliBridgeScopeOptions(),
             runner,
             workOrderRunId: run.id,
             projectId: run.projectId,
@@ -13234,6 +13240,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     const sourceTitle = diff.snapshotTitle || snapshot?.title || snapshotId || "latest snapshot";
     await api.createCliBridgeRunTraceSnapshot(runId, {
+      ...getCliBridgeScopeOptions(),
       title: `Accepted CLI bridge run trace drift as current baseline: ${sourceTitle}`.slice(0, 120)
     });
     await renderGovernance();

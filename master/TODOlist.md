@@ -2760,3 +2760,11 @@
 - [x] Pass dashboard scope metadata through create, batch, patch, refresh, retention, and SLA mutation calls.
 - [x] Add parser and server test coverage for required-scope and mismatch failures.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side CLI Bridge Evidence Scope Guard
+
+- [x] Guard CLI bridge handoff creation, handoff review, runner result intake, follow-up work-order queueing, and run-trace snapshots.
+- [x] Guard execution-result checkpoint mutations used to approve retry, archive, retention, SLA, and baseline-refresh actions.
+- [x] Pass dashboard scope metadata through all guarded CLI bridge and execution-result evidence controls.
+- [x] Add required-scope and mismatch coverage for direct CLI bridge evidence API calls.
+- [x] Validate, relaunch, commit, and push.

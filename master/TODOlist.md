@@ -2863,3 +2863,11 @@
 - [x] Pass dashboard scope metadata through governance profile target, bootstrap, snapshot, baseline, and drift checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped Governance profile target writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Governance Queue Scope Guard
+
+- [x] Guard Governance queue execute, suppress, and restore writes behind explicit project or portfolio scope.
+- [x] Guard task-seeding checkpoint writes behind the same scope requirement.
+- [x] Pass dashboard scope metadata through queue, suppression, restore, and task-seeding checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped Governance queue writes.
+- [x] Validate, relaunch, commit, and push.

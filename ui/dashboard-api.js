@@ -2345,7 +2345,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }} payload
+   * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">>, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   executeGovernanceQueue(payload) {
     return fetchJson("/api/governance/queue/execute", {
@@ -2356,7 +2356,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }} payload
+   * @param {{ items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   suppressGovernanceQueue(payload) {
     return fetchJson("/api/governance/queue/suppress", {
@@ -2367,7 +2367,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ ids: string[] }} payload
+   * @param {{ ids: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   restoreGovernanceQueue(payload) {
     return fetchJson("/api/governance/queue/restore", {
@@ -2378,7 +2378,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }} payload
+   * @param {{ batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").TaskSeedingCheckpoint, taskSeedingCheckpointCount: number, governanceOperationCount: number }>}
    */
   createTaskSeedingCheckpoint(payload) {

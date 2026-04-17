@@ -207,10 +207,10 @@ function createEmptyTableRow(message) {
  *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload>,
  *     fetchGovernanceProfileTargetTaskLedgerBaselineStatus: () => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerBaselineStatusPayload>,
- *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
- *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
- *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
- *     createTaskSeedingCheckpoint: (payload: { batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }) => Promise<unknown>,
+ *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">>, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     restoreGovernanceQueue: (payload: { ids: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     createTaskSeedingCheckpoint: (payload: { batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     createAgentPolicyCheckpoint: (payload: { policyId: string, projectId: string, projectName?: string, relPath?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", role?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], source?: string, reason?: string, note?: string, reviewer?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
@@ -1734,7 +1734,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           if (element.dataset.governanceAction === "restore-suppressed") {
             const queueItemId = element.dataset.queueItemId ?? "";
             if (!queueItemId) return;
-            await api.restoreGovernanceQueue({ ids: [queueItemId] });
+            await api.restoreGovernanceQueue({ ids: [queueItemId], ...getCliBridgeScopeOptions() });
             await renderGovernance();
             return;
           }
@@ -1752,7 +1752,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
                 kind: queueKind,
                 title: queueTitle
               }],
-              reason: "Marked not actionable from the Governance queue checkpoint."
+              reason: "Marked not actionable from the Governance queue checkpoint.",
+              ...getCliBridgeScopeOptions()
             });
             await renderGovernance();
             return;
@@ -1796,7 +1797,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           if (element.dataset.governanceAction === "create-starter-pack") {
             await api.bootstrapGovernance({
               mode: "starter-pack",
-              projectIds: [projectId]
+              projectIds: [projectId],
+              ...getCliBridgeScopeOptions()
             });
           }
 
@@ -1848,7 +1850,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             title,
             source,
             itemCount,
-            note
+            note,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
         } catch (error) {
@@ -12324,7 +12327,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       throw new Error("No executable visible queue items are available. Ownership items require opening the workbench manually.");
     }
 
-    await api.executeGovernanceQueue({ items });
+    await api.executeGovernanceQueue({ items, ...getCliBridgeScopeOptions() });
     await renderGovernance();
   }
 
@@ -12343,7 +12346,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     await api.suppressGovernanceQueue({
       items,
-      reason: "Suppressed from the Governance view"
+      reason: "Suppressed from the Governance view",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }
@@ -13484,7 +13488,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       source,
       status: checkpointStatus,
       itemCount,
-      note
+      note,
+      ...getCliBridgeScopeOptions()
     });
     if (renderTarget === "sources") {
       await renderSources();

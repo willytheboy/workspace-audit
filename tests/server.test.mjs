@@ -6192,7 +6192,7 @@ export async function releaseBuildGateTaskSeedingTest() {
       && operation.details.nextStatus === "blocked"
     )));
 
-    const taskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`, {
+    const unscopedTaskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -6202,6 +6202,23 @@ export async function releaseBuildGateTaskSeedingTest() {
         status: "deferred",
         itemCount: 2,
         note: "Fixture non-secret task seeding checkpoint."
+      })
+    });
+    assert.equal(unscopedTaskSeedingCheckpointResponse.status, 409);
+    const unscopedTaskSeedingCheckpointJson = await unscopedTaskSeedingCheckpointResponse.json();
+    assert.equal(unscopedTaskSeedingCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const taskSeedingCheckpointResponse = await fetch(`${baseUrl}/api/governance/task-seeding-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        batchId: "fixture-generated-task-batch",
+        title: "Fixture Generated Task Batch",
+        source: "fixture",
+        status: "deferred",
+        itemCount: 2,
+        note: "Fixture non-secret task seeding checkpoint.",
+        ...releaseControlScope
       })
     });
     assert.equal(taskSeedingCheckpointResponse.status, 200);
@@ -6220,7 +6237,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         source: "sources-access-validation-workflow",
         status: "dismissed",
         itemCount: 1,
-        note: "Fixture non-secret source workflow task seeding checkpoint."
+        note: "Fixture non-secret source workflow task seeding checkpoint.",
+        ...releaseControlScope
       })
     });
     assert.equal(sourceTaskSeedingCheckpointResponse.status, 200);
@@ -6238,7 +6256,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         source: "sources-access-review-queue",
         status: "approved",
         itemCount: 1,
-        note: "Fixture non-secret source review item checkpoint before task creation."
+        note: "Fixture non-secret source review item checkpoint before task creation.",
+        ...releaseControlScope
       })
     });
     assert.equal(sourceItemTaskSeedingCheckpointResponse.status, 200);
@@ -6256,7 +6275,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         source: "sources-access-validation-evidence-coverage",
         status: "needs-review",
         itemCount: 1,
-        note: "Fixture unresolved source evidence coverage checkpoint before task creation."
+        note: "Fixture unresolved source evidence coverage checkpoint before task creation.",
+        ...releaseControlScope
       })
     });
     assert.equal(sourceCoverageTaskSeedingCheckpointResponse.status, 200);
@@ -6278,7 +6298,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         source: "sources-access-review-queue",
         status: "deferred",
         itemCount: 1,
-        note: "fixture-source-card-checkpoint unresolved source card checkpoint drilldown."
+        note: "fixture-source-card-checkpoint unresolved source card checkpoint drilldown.",
+        ...releaseControlScope
       })
     });
     assert.equal(sourceCardTaskSeedingCheckpointResponse.status, 200);

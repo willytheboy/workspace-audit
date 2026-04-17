@@ -110,10 +110,19 @@ export async function governanceBootstrapTest() {
         kind: item.kind,
         actionType: item.actionType
       }));
-    const executeQueueResponse = await fetch(`${baseUrl}/api/governance/queue/execute`, {
+    const unscopedExecuteQueueResponse = await fetch(`${baseUrl}/api/governance/queue/execute`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: executableQueueItems })
+    });
+    assert.equal(unscopedExecuteQueueResponse.status, 409);
+    const unscopedExecuteQueueJson = await unscopedExecuteQueueResponse.json();
+    assert.equal(unscopedExecuteQueueJson.reasonCode, "agent-execution-scope-required");
+
+    const executeQueueResponse = await fetch(`${baseUrl}/api/governance/queue/execute`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: executableQueueItems, ...governanceScope })
     });
     assert.equal(executeQueueResponse.status, 200);
     const executeQueueJson = await executeQueueResponse.json();
@@ -440,18 +449,32 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.summary.governanceProfileTargetTaskLedgerBaselineHealth, "drift-review-required");
     assert.equal(profileTargetTaskLedgerCheckpointGovernanceJson.governanceProfileTargetTaskLedgerDriftCheckpointLedger.items.length, 1);
 
+    const queueSuppressionItems = finalGovernanceJson.actionQueue.map((item) => ({
+      id: item.id,
+      projectId: item.projectId,
+      projectName: item.projectName,
+      kind: item.kind,
+      title: item.title
+    }));
+    const unscopedSuppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: queueSuppressionItems,
+        reason: "Fixture suppression"
+      })
+    });
+    assert.equal(unscopedSuppressQueueResponse.status, 409);
+    const unscopedSuppressQueueJson = await unscopedSuppressQueueResponse.json();
+    assert.equal(unscopedSuppressQueueJson.reasonCode, "agent-execution-scope-required");
+
     const suppressQueueResponse = await fetch(`${baseUrl}/api/governance/queue/suppress`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: finalGovernanceJson.actionQueue.map((item) => ({
-          id: item.id,
-          projectId: item.projectId,
-          projectName: item.projectName,
-          kind: item.kind,
-          title: item.title
-        })),
-        reason: "Fixture suppression"
+        items: queueSuppressionItems,
+        reason: "Fixture suppression",
+        ...governanceScope
       })
     });
     assert.equal(suppressQueueResponse.status, 200);
@@ -468,11 +491,24 @@ export async function governanceBootstrapTest() {
     assert.equal(suppressedGovernanceJson.actionQueue.length, 0);
     assert.equal(suppressedGovernanceJson.operationLog[0].type, "queue-suppress");
 
+    const suppressedQueueIds = suppressQueueJson.suppressedItems.map((item) => item.id);
+    const unscopedRestoreQueueResponse = await fetch(`${baseUrl}/api/governance/queue/restore`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ids: suppressedQueueIds
+      })
+    });
+    assert.equal(unscopedRestoreQueueResponse.status, 409);
+    const unscopedRestoreQueueJson = await unscopedRestoreQueueResponse.json();
+    assert.equal(unscopedRestoreQueueJson.reasonCode, "agent-execution-scope-required");
+
     const restoreQueueResponse = await fetch(`${baseUrl}/api/governance/queue/restore`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        ids: suppressQueueJson.suppressedItems.map((item) => item.id)
+        ids: suppressedQueueIds,
+        ...governanceScope
       })
     });
     assert.equal(restoreQueueResponse.status, 200);

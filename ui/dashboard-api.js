@@ -339,7 +339,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @param {{ title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot, convergenceAssimilationRunnerLaunchpadGateSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchpadGateSnapshot[] }>}
    */
   createConvergenceAssimilationRunnerLaunchpadGateSnapshot(payload = {}) {
@@ -363,7 +363,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointConvergenceAssimilationRunnerLaunchpadGateDrift(payload) {
@@ -400,7 +400,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @param {{ title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot[] }>}
    */
   createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshot(payload = {}) {
@@ -424,7 +424,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointConvergenceAssimilationRunnerLaunchAuthorizationPackDrift(payload) {
@@ -461,7 +461,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @param {{ title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot, convergenceAssimilationRunnerLaunchControlBoardSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchControlBoardSnapshot[] }>}
    */
   createConvergenceAssimilationRunnerLaunchControlBoardSnapshot(payload = {}) {
@@ -485,7 +485,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointConvergenceAssimilationRunnerLaunchControlBoardDrift(payload) {
@@ -522,7 +522,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "codex" | "claude" }} [payload]
+   * @param {{ title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot, convergenceAssimilationRunnerLaunchExecutionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[] }>}
    */
   createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot(payload = {}) {
@@ -534,7 +534,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, runner?: "codex" | "claude" }} [payload]
+   * @param {{ snapshotId?: string, title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot, convergenceAssimilationRunnerLaunchExecutionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot[] }>}
    */
   refreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshot(payload = {}) {
@@ -558,7 +558,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointConvergenceAssimilationRunnerLaunchExecutionPacketDrift(payload) {

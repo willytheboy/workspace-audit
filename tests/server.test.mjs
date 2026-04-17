@@ -4959,12 +4959,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchpadGateJson.markdown, /# Convergence Assimilation Runner Launchpad Gate/);
     assert.match(convergenceAssimilationRunnerLaunchpadGateJson.secretPolicy, /Non-secret convergence assimilation runner launchpad gate only/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchpadGateSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Unscoped Fixture Codex Launchpad Gate",
+        runner: "codex"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchpadGateSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchpadGateSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchpadGateSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchpadGateSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchpadGateSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Codex Launchpad Gate",
-        runner: "codex"
+        runner: "codex",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchpadGateSnapshotResponse.status, 200);
@@ -5561,12 +5574,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshJson.stages.find((stage) => stage.id === "launch-stack-remediation-pack-snapshot-drift")?.status, "ready");
     assert.equal(convergenceAssimilationRunnerLaunchStackStatusAfterRemediationPackRefreshJson.stages.find((stage) => stage.id === "launch-stack-remediation-pack-drift-checkpoints")?.status, "ready");
 
+    const unscopedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        title: "Unscoped Fixture Claude Launch Execution Packet"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
-        title: "Fixture Claude Launch Execution Packet"
+        title: "Fixture Claude Launch Execution Packet",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.status, 200);
@@ -5591,12 +5617,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.driftItems.length, 0);
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet Snapshot Drift/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "codex",
+        title: "Unscoped Fixture Codex Launch Control Board"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchControlBoardSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "codex",
-        title: "Fixture Codex Launch Control Board"
+        title: "Fixture Codex Launch Control Board",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchControlBoardSnapshotResponse.status, 200);
@@ -5623,12 +5662,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.driftItems.length, 0);
     assert.match(convergenceAssimilationRunnerLaunchControlBoardSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Control Board Snapshot Drift/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Unscoped Fixture Codex Launch Authorization Pack",
+        runner: "codex"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Codex Launch Authorization Pack",
-        runner: "codex"
+        runner: "codex",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchAuthorizationPackSnapshotResponse.status, 200);
@@ -5713,6 +5765,21 @@ export async function convergenceReviewSuppressionTest() {
     assert.ok(convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDriftJson.driftItems.some((item) => item.field === "launchDecision" || item.field === "launchStatus"));
     const launchExecutionPacketCheckpointField = convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDriftJson.driftItems.find((item) => item.field === "launchDecision" || item.field === "launchStatus")?.field || "launchDecision";
 
+    const unscopedConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        field: launchExecutionPacketCheckpointField,
+        decision: "confirmed",
+        note: "Unscoped fixture launch execution packet drift accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5721,7 +5788,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "claude",
         field: launchExecutionPacketCheckpointField,
         decision: "confirmed",
-        note: "Fixture launch execution packet drift accepted."
+        note: "Fixture launch execution packet drift accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointResponse.status, 200);
@@ -5747,13 +5815,27 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.items[0].convergenceAssimilationRunnerLaunchExecutionPacketDriftField, launchExecutionPacketCheckpointField);
     assert.match(convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Execution Packet Drift Checkpoint Ledger/);
 
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        title: "Unscoped Fixture Refreshed Claude Launch Execution Packet"
+      })
+    });
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.status, 409);
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson = await unscopedRefreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.json();
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const refreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-execution-packet-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: "latest",
         runner: "claude",
-        title: "Fixture Refreshed Claude Launch Execution Packet"
+        title: "Fixture Refreshed Claude Launch Execution Packet",
+        ...convergenceScope
       })
     });
     assert.equal(refreshConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotResponse.status, 200);
@@ -5771,6 +5853,21 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.hasDrift, false);
     assert.equal(refreshedConvergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiffJson.driftItems.length, 0);
 
+    const unscopedConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: launchControlBoardCheckpointField,
+        decision: "confirmed",
+        note: "Unscoped fixture launch control board drift accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchControlBoardDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-control-board-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5779,7 +5876,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "codex",
         field: launchControlBoardCheckpointField,
         decision: "confirmed",
-        note: "Fixture launch control board drift accepted."
+        note: "Fixture launch control board drift accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointResponse.status, 200);
@@ -5806,6 +5904,21 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Control Board Drift Checkpoint Ledger/);
     const launchAuthorizationPackCheckpointField = convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDriftJson.driftItems.find((item) => item.field === "decision" || item.field === "authorizationStatus")?.field || "decision";
 
+    const unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: launchAuthorizationPackCheckpointField,
+        decision: "confirmed",
+        note: "Unscoped fixture launch authorization pack drift accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-authorization-pack-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5814,7 +5927,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "codex",
         field: launchAuthorizationPackCheckpointField,
         decision: "confirmed",
-        note: "Fixture launch authorization pack drift accepted."
+        note: "Fixture launch authorization pack drift accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointResponse.status, 200);
@@ -5840,6 +5954,21 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerJson.items[0].convergenceAssimilationRunnerLaunchAuthorizationPackDriftField, launchAuthorizationPackCheckpointField);
     assert.match(convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launch Authorization Pack Drift Checkpoint Ledger/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: "decision",
+        decision: "confirmed",
+        note: "Unscoped fixture launchpad gate drift accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchpadGateDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launchpad-gate-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5848,7 +5977,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "codex",
         field: "decision",
         decision: "confirmed",
-        note: "Fixture launchpad gate drift accepted."
+        note: "Fixture launchpad gate drift accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointResponse.status, 200);

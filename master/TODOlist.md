@@ -2931,3 +2931,11 @@
 - [x] Pass dashboard scope metadata through queue, result, and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped convergence assimilation run writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Runner Launch Control Scope Guard
+
+- [x] Guard launchpad gate, authorization pack, control board, and execution packet snapshots behind explicit project or portfolio scope.
+- [x] Guard launch-control drift checkpoints and execution packet refresh behind the same scope requirement.
+- [x] Pass dashboard scope metadata through launch-control snapshot, refresh, and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped Convergence runner launch-control writes.
+- [x] Validate, relaunch, commit, and push.

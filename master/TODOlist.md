@@ -2711,3 +2711,11 @@
 - [x] Surface the baseline-status card and copy control in Governance.
 - [x] Include baseline status in Governance filtering, summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet Baseline Refresh Controls
+
+- [x] Add a refresh endpoint that accepts the current live lifecycle handoff packet as a new reusable baseline.
+- [x] Add refresh gate metadata to baseline status for ready, review, and hold outcomes.
+- [x] Surface Save Baseline, Refresh Baseline, and Accept Drift controls across snapshot, drift, and baseline-status cards.
+- [x] Add parser and server test coverage for the handoff packet baseline refresh flow.
+- [x] Validate, relaunch, commit, and push.

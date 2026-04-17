@@ -2617,6 +2617,8 @@ export async function serverTest() {
     assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.hasBaseline, false);
     assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.health, "missing");
     assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.reuseGateDecision, "hold");
+    assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateDecision, "ready");
+    assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, true);
     assert.match(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.markdown, /CLI Bridge Lifecycle Handoff Packet Baseline Status/);
 
     const createCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`, {
@@ -2671,6 +2673,8 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleHandoffPacketBaselineStatusJson.driftScore, 0);
     assert.equal(cliBridgeLifecycleHandoffPacketBaselineStatusJson.reuseGateDecision, "ready");
     assert.equal(cliBridgeLifecycleHandoffPacketBaselineStatusJson.reuseAllowed, true);
+    assert.equal(cliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateDecision, "ready");
+    assert.equal(cliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, true);
     assert.match(cliBridgeLifecycleHandoffPacketBaselineStatusJson.markdown, /# CLI Bridge Lifecycle Handoff Packet Baseline Status/);
 
     const createCliBridgeLifecycleRemediationFixtureTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
@@ -2738,6 +2742,47 @@ export async function serverTest() {
     assert.ok(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.driftItemCount >= 1);
     assert.ok(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.checkpointedDriftItemCount >= 1);
     assert.ok(["ready", "review", "hold"].includes(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.reuseGateDecision));
+    assert.ok(["ready", "review", "hold"].includes(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateDecision));
+    assert.equal(typeof driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, "boolean");
+    assert.ok(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateReasons.length >= 1);
+
+    const refreshCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id,
+        title: "Fixture Refreshed CLI Bridge Lifecycle Handoff Packet",
+        runner: "codex",
+        limit: 25
+      })
+    });
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotResponse.status, 200);
+    const refreshCliBridgeLifecycleHandoffPacketSnapshotJson = await refreshCliBridgeLifecycleHandoffPacketSnapshotResponse.json();
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotJson.success, true);
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotJson.previousSnapshotId, createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id);
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.title, "Fixture Refreshed CLI Bridge Lifecycle Handoff Packet");
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.runner, "codex");
+    assert.equal(refreshCliBridgeLifecycleHandoffPacketSnapshotJson.cliBridgeLifecycleHandoffPacketSnapshots.length, 2);
+
+    const refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/diff?snapshotId=latest&runner=codex`);
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffResponse.status, 200);
+    const refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffJson = await refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffResponse.json();
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffJson.hasDrift, false);
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketSnapshotDiffJson.driftSeverity, "none");
+
+    const refreshedCliBridgeLifecycleHandoffPacketBaselineStatusResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/baseline-status`);
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusResponse.status, 200);
+    const refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson = await refreshedCliBridgeLifecycleHandoffPacketBaselineStatusResponse.json();
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson.baselineSnapshotId, refreshCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id);
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson.health, "healthy");
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson.driftScore, 0);
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateDecision, "ready");
+    assert.equal(refreshedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, true);
+
+    const governanceAfterCliBridgeLifecycleHandoffPacketRefreshResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterCliBridgeLifecycleHandoffPacketRefreshResponse.status, 200);
+    const governanceAfterCliBridgeLifecycleHandoffPacketRefreshJson = await governanceAfterCliBridgeLifecycleHandoffPacketRefreshResponse.json();
+    assert.ok(governanceAfterCliBridgeLifecycleHandoffPacketRefreshJson.operationLog.some((operation) => operation.type === "cli-bridge-lifecycle-handoff-packet-snapshot-refreshed"));
 
     const cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/diff?snapshotId=latest`);
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskResponse.status, 200);

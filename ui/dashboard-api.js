@@ -1591,6 +1591,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>}
+   */
+  refreshCliBridgeLifecycleHandoffPacketSnapshot(payload = {}) {
+    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshots/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>}

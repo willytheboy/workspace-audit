@@ -10603,6 +10603,13 @@ export function createGovernanceDeck(governance) {
       ]
     : [];
 
+  const cliBridgeLifecycleHandoffPacketBaselineStatus = governance.cliBridgeLifecycleHandoffPacketBaselineStatus || null;
+  const cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed = cliBridgeLifecycleHandoffPacketBaselineStatus?.refreshAllowed !== false;
+  const cliBridgeLifecycleHandoffPacketBaselineRefreshDecision = cliBridgeLifecycleHandoffPacketBaselineStatus?.refreshGateDecision || "review";
+  const cliBridgeLifecycleHandoffPacketBaselineRefreshTitle = cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed
+    ? "Accept the current live lifecycle handoff packet as the refreshed reusable baseline."
+    : cliBridgeLifecycleHandoffPacketBaselineStatus?.refreshGateRecommendedAction || "Resolve lifecycle handoff packet refresh gate holds before accepting drift.";
+
   const cliBridgeLifecycleHandoffPacketSnapshotEntries = (governance.cliBridgeLifecycleHandoffPacketSnapshots || []).slice(0, 8).map((snapshot) => createElement("div", {
     className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-snapshot-card",
     style: {
@@ -10686,6 +10693,19 @@ export function createGovernanceDeck(governance) {
           cliBridgeLifecycleHandoffPacketSnapshotDriftId: snapshot.id,
           cliBridgeLifecycleHandoffPacketSnapshotDriftRunner: snapshot.runner || "all"
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-refresh-btn",
+        text: cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? "Refresh Baseline" : "Gate Hold",
+        title: cliBridgeLifecycleHandoffPacketBaselineRefreshTitle,
+        attrs: {
+          type: "button",
+          ...(cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? {} : { disabled: "true" })
+        },
+        dataset: {
+          cliBridgeLifecycleHandoffPacketSnapshotRefreshId: snapshot.id,
+          cliBridgeLifecycleHandoffPacketSnapshotRefreshRunner: snapshot.runner || "all"
+        }
       })
     ])
   ]));
@@ -10757,6 +10777,21 @@ export function createGovernanceDeck(governance) {
               dataset: {
                 cliBridgeLifecycleHandoffPacketSnapshotDriftId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
                 cliBridgeLifecycleHandoffPacketSnapshotDriftRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-refresh-btn",
+              text: cliBridgeLifecycleHandoffPacketSnapshotDiff.hasSnapshot
+                ? (cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? "Accept Drift" : "Gate Hold")
+                : (cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? "Save Baseline" : "Gate Hold"),
+              title: cliBridgeLifecycleHandoffPacketBaselineRefreshTitle,
+              attrs: {
+                type: "button",
+                ...(cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? {} : { disabled: "true" })
+              },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketSnapshotRefreshId: cliBridgeLifecycleHandoffPacketSnapshotDiff.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketSnapshotRefreshRunner: cliBridgeLifecycleHandoffPacketSnapshotDiff.runner || "all"
               }
             })
           ])
@@ -10958,7 +10993,6 @@ export function createGovernanceDeck(governance) {
     ]))
   ] : [];
 
-  const cliBridgeLifecycleHandoffPacketBaselineStatus = governance.cliBridgeLifecycleHandoffPacketBaselineStatus || null;
   const cliBridgeLifecycleHandoffPacketBaselineStatusEntries = cliBridgeLifecycleHandoffPacketBaselineStatus
     ? [
         createElement("div", {
@@ -11032,10 +11066,19 @@ export function createGovernanceDeck(governance) {
               background: "var(--bg)",
               border: "1px solid var(--border)",
               color: (cliBridgeLifecycleHandoffPacketBaselineStatus.uncheckpointedDriftItemCount || 0) ? "var(--warning)" : "var(--success)"
+            }),
+            createTag(`refresh ${cliBridgeLifecycleHandoffPacketBaselineRefreshDecision}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketBaselineRefreshDecision === "ready"
+                ? "var(--success)"
+                : cliBridgeLifecycleHandoffPacketBaselineRefreshDecision === "hold"
+                  ? "var(--danger)"
+                  : "var(--warning)"
             })
           ]),
           createElement("div", {
-            text: cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateRecommendedAction || cliBridgeLifecycleHandoffPacketBaselineStatus.recommendedAction || "Review lifecycle handoff packet baseline before reuse.",
+            text: cliBridgeLifecycleHandoffPacketBaselineStatus.refreshGateRecommendedAction || cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateRecommendedAction || cliBridgeLifecycleHandoffPacketBaselineStatus.recommendedAction || "Review lifecycle handoff packet baseline before reuse.",
             style: {
               color: "var(--text-muted)",
               fontSize: "0.86rem",
@@ -11051,6 +11094,21 @@ export function createGovernanceDeck(governance) {
               attrs: { type: "button" },
               dataset: {
                 cliBridgeLifecycleHandoffPacketBaselineStatusCopy: "true"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-snapshot-refresh-btn",
+              text: cliBridgeLifecycleHandoffPacketBaselineStatus.hasBaseline
+                ? (cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? "Refresh Baseline" : "Gate Hold")
+                : (cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? "Save Baseline" : "Gate Hold"),
+              title: cliBridgeLifecycleHandoffPacketBaselineRefreshTitle,
+              attrs: {
+                type: "button",
+                ...(cliBridgeLifecycleHandoffPacketBaselineRefreshAllowed ? {} : { disabled: "true" })
+              },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketSnapshotRefreshId: cliBridgeLifecycleHandoffPacketBaselineStatus.snapshotId || "latest",
+                cliBridgeLifecycleHandoffPacketSnapshotRefreshRunner: cliBridgeLifecycleHandoffPacketBaselineStatus.runner || "all"
               }
             })
           ])

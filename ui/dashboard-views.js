@@ -241,6 +241,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleHandoffPacket: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketPayload>,
  *     fetchCliBridgeLifecycleHandoffPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[]>,
  *     createCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
+ *     refreshCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
  *     fetchCliBridgeLifecycleHandoffPacketSnapshotDiff: (snapshotId?: string, options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>,
  *     checkpointCliBridgeLifecycleHandoffPacketDrift: (payload: { snapshotId?: string, runner?: "all" | "codex" | "claude", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchCliBridgeLifecycleHandoffPacketDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketDriftCheckpointLedgerPayload>,
@@ -1501,10 +1502,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.cliBridgeLifecycleHandoffPacketBaselineStatus.freshness || "",
         governance.cliBridgeLifecycleHandoffPacketBaselineStatus.driftSeverity || "",
         governance.cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateDecision || "",
+        governance.cliBridgeLifecycleHandoffPacketBaselineStatus.refreshGateDecision || "",
         governance.cliBridgeLifecycleHandoffPacketBaselineStatus.recommendedAction || "",
         governance.cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateRecommendedAction || "",
+        governance.cliBridgeLifecycleHandoffPacketBaselineStatus.refreshGateRecommendedAction || "",
         String(governance.cliBridgeLifecycleHandoffPacketBaselineStatus.uncheckpointedDriftItemCount || 0),
         ...(governance.cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateReasons || []),
+        ...(governance.cliBridgeLifecycleHandoffPacketBaselineStatus.refreshGateReasons || []),
         ...(governance.cliBridgeLifecycleHandoffPacketBaselineStatus.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.checkpointDecision || ""} ${item.checkpointStatus || ""}`)
       ])
         ? governance.cliBridgeLifecycleHandoffPacketBaselineStatus
@@ -7943,6 +7947,36 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-lifecycle-handoff-packet-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotRefreshId || "latest";
+        const requestedRunner = element.dataset.cliBridgeLifecycleHandoffPacketSnapshotRefreshRunner || "all";
+        const runner = requestedRunner === "codex" || requestedRunner === "claude" ? requestedRunner : "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          const response = await api.refreshCliBridgeLifecycleHandoffPacketSnapshot({
+            snapshotId,
+            runner,
+            title: "Accepted CLI Bridge Lifecycle Handoff Packet Baseline",
+            limit: 50
+          });
+          await renderGovernance();
+          element.textContent = response.previousSnapshotId ? "Accepted Drift" : "Saved Baseline";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-lifecycle-handoff-packet-drift-field]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8819,7 +8853,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Visible CLI bridge lifecycle handoff packet snapshots: ${(governance.cliBridgeLifecycleHandoffPacketSnapshots || []).length}`,
       `Visible CLI bridge lifecycle handoff packet snapshot drift items: ${(governance.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftItems || []).length}`,
       `Visible CLI bridge lifecycle handoff packet drift checkpoints: ${(governance.cliBridgeLifecycleHandoffPacketDriftCheckpointLedger?.items || []).length}`,
-      `Visible CLI bridge lifecycle handoff packet baseline status: ${governance.cliBridgeLifecycleHandoffPacketBaselineStatus?.health || "not-loaded"}`,
+      `Visible CLI bridge lifecycle handoff packet baseline status: ${governance.cliBridgeLifecycleHandoffPacketBaselineStatus?.health || "not-loaded"} / refresh ${governance.cliBridgeLifecycleHandoffPacketBaselineStatus?.refreshGateDecision || "not-loaded"}`,
       `Visible CLI bridge lifecycle remediation task ledger items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedger?.items || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshots: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots || []).length}`,
       `Visible CLI bridge lifecycle remediation task ledger snapshot drift items: ${(governance.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftItems || []).length}`,
@@ -8942,7 +8976,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- CLI bridge lifecycle handoff packet snapshots: ${governanceCache?.summary?.cliBridgeLifecycleHandoffPacketSnapshotCount ?? governanceCache?.cliBridgeLifecycleHandoffPacketSnapshots?.length ?? 0}`,
       `- CLI bridge lifecycle handoff packet snapshot drift: ${governanceCache?.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeLifecycleHandoffPacketSnapshotDiff?.driftScore ?? 0})`,
       `- CLI bridge lifecycle handoff packet drift checkpoints: ${governanceCache?.cliBridgeLifecycleHandoffPacketDriftCheckpointLedger?.summary?.open ?? 0} open / ${governanceCache?.cliBridgeLifecycleHandoffPacketDriftCheckpointLedger?.summary?.total ?? 0} total`,
-      `- CLI bridge lifecycle handoff packet baseline: ${governanceCache?.cliBridgeLifecycleHandoffPacketBaselineStatus?.health || "missing"} / reuse ${governanceCache?.cliBridgeLifecycleHandoffPacketBaselineStatus?.reuseGateDecision || "hold"}`,
+      `- CLI bridge lifecycle handoff packet baseline: ${governanceCache?.cliBridgeLifecycleHandoffPacketBaselineStatus?.health || "missing"} / reuse ${governanceCache?.cliBridgeLifecycleHandoffPacketBaselineStatus?.reuseGateDecision || "hold"} / refresh ${governanceCache?.cliBridgeLifecycleHandoffPacketBaselineStatus?.refreshGateDecision || "hold"}`,
       `- CLI bridge lifecycle remediation task ledger: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.open ?? 0} open / ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedger?.summary?.total ?? 0} total`,
       `- CLI bridge lifecycle remediation task ledger snapshots: ${governanceCache?.summary?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotCount ?? governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshots?.length ?? 0}`,
       `- CLI bridge lifecycle remediation task ledger snapshot drift: ${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftSeverity || "missing-snapshot"} (${governanceCache?.cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff?.driftScore ?? 0})`,
@@ -9640,10 +9674,14 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Drift: ${status.driftSeverity || "missing-baseline"} / score ${status.driftScore || 0}`);
       lines.push(`- Checkpoints: ${status.checkpointedDriftItemCount || 0}/${status.driftItemCount || 0}; uncheckpointed ${status.uncheckpointedDriftItemCount || 0}; open escalated ${status.openEscalatedCheckpointCount || 0}`);
       lines.push(`- Reuse gate: ${status.reuseGateDecision || "hold"}; allowed ${status.reuseAllowed ? "yes" : "no"}`);
+      lines.push(`- Refresh gate: ${status.refreshGateDecision || "hold"}; allowed ${status.refreshAllowed ? "yes" : "no"}`);
       for (const reason of (status.reuseGateReasons || []).slice(0, 4)) {
         lines.push(`- Reuse reason: ${reason}`);
       }
-      lines.push(`- Action: ${status.recommendedAction || "Save a CLI bridge lifecycle handoff packet snapshot."}`);
+      for (const reason of (status.refreshGateReasons || []).slice(0, 4)) {
+        lines.push(`- Refresh reason: ${reason}`);
+      }
+      lines.push(`- Action: ${status.refreshGateRecommendedAction || status.recommendedAction || "Save a CLI bridge lifecycle handoff packet snapshot."}`);
     } else {
       lines.push("- No visible CLI bridge lifecycle handoff packet baseline status.");
     }

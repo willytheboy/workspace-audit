@@ -1560,13 +1560,27 @@ export async function serverTest() {
     const initialTargetBaselineAuditLedgerSnapshotsJson = await initialTargetBaselineAuditLedgerSnapshotsResponse.json();
     assert.equal(initialTargetBaselineAuditLedgerSnapshotsJson.length, 0);
 
-    const createTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`, {
+    const unscopedTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Target Baseline Audit Ledger",
         state: "review",
         limit: 5
+      })
+    });
+    assert.equal(unscopedTargetBaselineAuditLedgerSnapshotResponse.status, 409);
+    const unscopedTargetBaselineAuditLedgerSnapshotJson = await unscopedTargetBaselineAuditLedgerSnapshotResponse.json();
+    assert.equal(unscopedTargetBaselineAuditLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Target Baseline Audit Ledger",
+        state: "review",
+        limit: 5,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createTargetBaselineAuditLedgerSnapshotResponse.status, 200);
@@ -1593,7 +1607,7 @@ export async function serverTest() {
     assert.equal(targetBaselineAuditLedgerSnapshotDriftJson.driftSeverity, "none");
     assert.match(targetBaselineAuditLedgerSnapshotDriftJson.markdown, /# Agent Execution Target Baseline Audit Ledger Snapshot Drift/);
 
-    const targetBaselineAuditLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshot-drift-checkpoints`, {
+    const unscopedTargetBaselineAuditLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1601,6 +1615,21 @@ export async function serverTest() {
         field: "snapshot-clean",
         decision: "confirmed",
         note: "Fixture checkpoint for clean target baseline audit drift."
+      })
+    });
+    assert.equal(unscopedTargetBaselineAuditLedgerDriftCheckpointResponse.status, 409);
+    const unscopedTargetBaselineAuditLedgerDriftCheckpointJson = await unscopedTargetBaselineAuditLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedTargetBaselineAuditLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const targetBaselineAuditLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createTargetBaselineAuditLedgerSnapshotJson.snapshot.id,
+        field: "snapshot-clean",
+        decision: "confirmed",
+        note: "Fixture checkpoint for clean target baseline audit drift.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(targetBaselineAuditLedgerDriftCheckpointResponse.status, 200);
@@ -1625,12 +1654,25 @@ export async function serverTest() {
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerSnapshots.length, 1);
     assert.equal(governanceAfterTargetBaselineAuditSnapshotJson.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.summary.confirmed, 1);
 
-    const refreshTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh`, {
+    const unscopedRefreshTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: createTargetBaselineAuditLedgerSnapshotJson.snapshot.id,
         title: "Fixture Refreshed Target Baseline Audit Ledger"
+      })
+    });
+    assert.equal(unscopedRefreshTargetBaselineAuditLedgerSnapshotResponse.status, 409);
+    const unscopedRefreshTargetBaselineAuditLedgerSnapshotJson = await unscopedRefreshTargetBaselineAuditLedgerSnapshotResponse.json();
+    assert.equal(unscopedRefreshTargetBaselineAuditLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const refreshTargetBaselineAuditLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createTargetBaselineAuditLedgerSnapshotJson.snapshot.id,
+        title: "Fixture Refreshed Target Baseline Audit Ledger",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(refreshTargetBaselineAuditLedgerSnapshotResponse.status, 200);

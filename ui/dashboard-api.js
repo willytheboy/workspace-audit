@@ -2067,7 +2067,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number }} [payload]
+   * @param {{ title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot, agentExecutionTargetBaselineAuditLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[] }>}
    */
   createAgentExecutionTargetBaselineAuditLedgerSnapshot(payload = {}) {
@@ -2079,7 +2079,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number }} [payload]
+   * @param {{ snapshotId?: string, title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot, agentExecutionTargetBaselineAuditLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[] }>}
    */
   refreshAgentExecutionTargetBaselineAuditLedgerSnapshot(payload = {}) {
@@ -2091,7 +2091,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, field?: string, decision?: string, note?: string }} [payload]
+   * @param {{ snapshotId?: string, field?: string, decision?: string, note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, mode: string, decision: string, field: string, task: import("./dashboard-types.js").PersistedTask, ledger: import("./dashboard-types.js").AgentExecutionTargetBaselineAuditLedgerDriftCheckpointLedgerPayload }>}
    */
   checkpointAgentExecutionTargetBaselineAuditLedgerSnapshotDrift(payload = {}) {

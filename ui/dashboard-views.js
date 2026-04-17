@@ -14854,7 +14854,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createAgentExecutionTargetBaselineAuditLedgerSnapshot({
       title: `Target Baseline Audit Ledger: ${state}`,
       state,
-      limit: 100
+      limit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Saved Target Baseline Audit Snapshot";
@@ -14869,7 +14870,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       snapshotId: snapshot.id,
       title: `Refreshed ${snapshot.title || "Target Baseline Audit Ledger"}`,
       state: snapshot.stateFilter || "review",
-      limit: snapshot.limit || 100
+      limit: snapshot.limit || 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Refreshed Snapshot";
@@ -14938,7 +14940,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       snapshotId,
       field,
       decision,
-      note: "Operator checkpointed target-baseline audit snapshot drift from Governance."
+      note: "Operator checkpointed target-baseline audit snapshot drift from Governance.",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `${response.decisionLabel || "Checkpointed"} Drift`;

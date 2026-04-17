@@ -2800,3 +2800,11 @@
 - [x] Pass dashboard scope metadata through decision task-ledger snapshot saves.
 - [x] Add parser and server coverage for direct unscoped decision task-ledger snapshot writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Target Baseline Audit Ledger Scope Guard
+
+- [x] Guard Agent Execution target-baseline audit ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Guard target-baseline audit ledger snapshot refresh and drift checkpoint writes behind the same scope requirement.
+- [x] Pass dashboard scope metadata through target-baseline audit ledger snapshot, refresh, and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped target-baseline audit ledger writes.
+- [x] Validate, relaunch, commit, and push.

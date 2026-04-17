@@ -761,7 +761,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner?: "codex" | "claude", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
+   * @param {{ runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", stages?: Array<{ id: string, title?: string, status?: string, detail?: string, action?: string }> }} [payload]
    * @returns {Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackActionTasksPayload>}
    */
   createConvergenceAssimilationRunnerLaunchStackActionTasks(payload = {}) {

@@ -2955,3 +2955,11 @@
 - [x] Pass dashboard scope metadata through remediation pack snapshot, refresh, and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped remediation pack writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Launch Stack Action Task Scope Guard
+
+- [x] Guard Convergence launch-stack action task creation behind explicit project or portfolio scope.
+- [x] Guard selected-stage task creation through the same shared endpoint.
+- [x] Pass dashboard scope metadata through bulk and stage-specific action task creation controls.
+- [x] Add parser and server coverage for direct unscoped launch-stack action task writes.
+- [x] Validate, relaunch, commit, and push.

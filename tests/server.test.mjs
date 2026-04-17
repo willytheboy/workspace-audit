@@ -5064,12 +5064,25 @@ export async function convergenceReviewSuppressionTest() {
 
     const launchStackActionTaskStages = convergenceAssimilationRunnerLaunchStackStatusJson.stages.filter((stage) => stage.status !== "ready");
     assert.ok(launchStackActionTaskStages.length >= 1);
-    const createConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
         stages: [launchStackActionTaskStages[0]]
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTasksJson = await unscopedConvergenceAssimilationRunnerLaunchStackActionTasksResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTasksJson.reasonCode, "agent-execution-scope-required");
+
+    const createConvergenceAssimilationRunnerLaunchStackActionTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        stages: [launchStackActionTaskStages[0]],
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);
@@ -5089,7 +5102,8 @@ export async function convergenceReviewSuppressionTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
-        stages: [launchStackActionTaskStages[0]]
+        stages: [launchStackActionTaskStages[0]],
+        ...convergenceScope
       })
     });
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);
@@ -5148,7 +5162,8 @@ export async function convergenceReviewSuppressionTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "codex",
-        stages: [launchStackActionTaskStages[0]]
+        stages: [launchStackActionTaskStages[0]],
+        ...convergenceScope
       })
     });
     assert.equal(createCodexConvergenceAssimilationRunnerLaunchStackActionTasksResponse.status, 200);

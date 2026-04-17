@@ -5397,12 +5397,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsJson.length, 1);
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotsJson[0].title, "Fixture Remediation Result Follow-Up Task Ledger");
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        title: "Unscoped Fixture Claude Launch Stack Remediation Pack"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
-        title: "Fixture Claude Launch Stack Remediation Pack"
+        title: "Fixture Claude Launch Stack Remediation Pack",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 200);
@@ -5482,6 +5495,21 @@ export async function convergenceReviewSuppressionTest() {
     const remediationPackDriftItem = driftedConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftItems.find((item) => item.field === "openEscalatedCheckpoints");
     assert.ok(remediationPackDriftItem);
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        field: "openEscalatedCheckpoints",
+        decision: "confirmed",
+        note: "Unscoped remediation pack drift checkpoint should be rejected."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5490,7 +5518,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "claude",
         field: "openEscalatedCheckpoints",
         decision: "confirmed",
-        note: "Fixture remediation pack drift accepted after action task ledger checkpoint resolution."
+        note: "Fixture remediation pack drift accepted after action task ledger checkpoint resolution.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointResponse.status, 200);
@@ -5557,13 +5586,27 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.visible, 1);
     assert.equal(resolvedConvergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedgerJson.summary.closed, 1);
 
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "claude",
+        title: "Unscoped Fixture Refreshed Claude Launch Stack Remediation Pack"
+      })
+    });
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 409);
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson = await unscopedRefreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.json();
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-pack-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: "latest",
         runner: "claude",
-        title: "Fixture Refreshed Claude Launch Stack Remediation Pack"
+        title: "Fixture Refreshed Claude Launch Stack Remediation Pack",
+        ...convergenceScope
       })
     });
     assert.equal(refreshConvergenceAssimilationRunnerLaunchStackRemediationPackSnapshotResponse.status, 200);

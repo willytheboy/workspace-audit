@@ -2947,3 +2947,11 @@
 - [x] Pass dashboard scope metadata through session-packet snapshot and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped session-packet writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Launch Stack Remediation Pack Scope Guard
+
+- [x] Guard Convergence launch-stack remediation pack snapshot creation behind explicit project or portfolio scope.
+- [x] Guard remediation pack snapshot refresh and drift checkpoint persistence behind the same scope requirement.
+- [x] Pass dashboard scope metadata through remediation pack snapshot, refresh, and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped remediation pack writes.
+- [x] Validate, relaunch, commit, and push.

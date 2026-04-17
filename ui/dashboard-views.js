@@ -1779,7 +1779,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               priority: "medium",
               status: "open",
               projectId,
-              projectName
+              projectName,
+              ...getCliBridgeScopeOptions()
             });
           }
 
@@ -1885,7 +1886,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status: nextStatus });
+          await api.updateTask(taskId, {
+            status: nextStatus,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -1966,7 +1970,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status: nextStatus });
+          await api.updateTask(taskId, {
+            status: nextStatus,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -2023,7 +2030,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status: nextStatus });
+          await api.updateTask(taskId, {
+            status: nextStatus,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -3924,7 +3934,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status });
+          await api.updateTask(taskId, {
+            status,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
           element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
         } catch (error) {
@@ -4163,7 +4176,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status });
+          await api.updateTask(taskId, {
+            status,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
           element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
         } catch (error) {
@@ -4440,7 +4456,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status });
+          await api.updateTask(taskId, {
+            status,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
           element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
         } catch (error) {
@@ -8077,7 +8096,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status });
+          await api.updateTask(taskId, {
+            status,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
           element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
         } catch (error) {
@@ -8352,7 +8374,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Updating";
-          await api.updateTask(taskId, { status });
+          await api.updateTask(taskId, {
+            status,
+            ...getCliBridgeScopeOptions()
+          });
           await renderGovernance();
           element.textContent = status === "resolved" ? "Resolved" : status === "blocked" ? "Blocked" : "Reopened";
         } catch (error) {
@@ -12843,7 +12868,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review ${runner === "all" ? "CLI bridge" : runner} dry-run baseline lifecycle ledger`.slice(0, 140),
       description: buildCliBridgeRunnerDryRunLifecycleLedgerTaskDescription(payload),
       priority: getCliBridgeRunnerDryRunLifecycleLedgerTaskPriority(payload.summary || {}),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `Tracked ${payload.summary?.visible || 0}`;
@@ -12886,7 +12912,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review CLI dry-run lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
       description: buildCliBridgeRunnerDryRunLifecycleItemTaskDescription(item),
       priority: getCliBridgeRunnerDryRunLifecycleItemPriority(item),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Tracked Item";
@@ -12927,7 +12954,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: "Review CLI bridge run trace lifecycle ledger",
       description: buildCliBridgeRunTraceLifecycleLedgerTaskDescription(payload),
       priority: getCliBridgeRunTraceLifecycleLedgerTaskPriority(payload.summary || {}),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `Tracked ${payload.summary?.visible || 0}`;
@@ -12971,7 +12999,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review CLI trace lifecycle item: ${item.title || item.snapshotId || "snapshot"}`.slice(0, 140),
       description: buildCliBridgeRunTraceLifecycleItemTaskDescription(item),
       priority: getCliBridgeRunTraceLifecycleItemPriority(item),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Tracked Item";
@@ -13010,7 +13039,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: "Review CLI bridge lifecycle stack remediation pack",
       description: buildCliBridgeLifecycleStackRemediationPackTaskDescription(pack),
       priority: getCliBridgeLifecycleStackRemediationPackTaskPriority(pack),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `Tracked ${pack.workItemCount || 0}`;
@@ -13042,7 +13072,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `${item.title || item.id || "CLI bridge lifecycle remediation"}`.slice(0, 140),
       description: buildCliBridgeLifecycleStackRemediationItemTaskDescription(item, pack),
       priority: item.priority || "medium",
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Tracked Item";
@@ -13114,7 +13145,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: title.slice(0, 140),
       description: buildCliBridgeRunnerDryRunSnapshotDriftTaskDescription(snapshot, diff),
       priority: getCliBridgeRunnerDryRunSnapshotDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created CLI bridge runner dry-run drift review task";
@@ -13183,7 +13215,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `CLI dry-run drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildCliBridgeRunnerDryRunSnapshotDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -13241,7 +13274,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: title.slice(0, 140),
       description: buildCliBridgeRunTraceSnapshotDriftTaskDescription(snapshot, diff),
       priority: getCliBridgeRunTraceSnapshotDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created CLI bridge run trace drift review task";
@@ -13300,7 +13334,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `CLI trace drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildCliBridgeRunTraceSnapshotDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -13335,7 +13370,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Task update audit ${decision.label.toLowerCase()}: ${item.title || item.taskId || operationId}`.slice(0, 140),
       description: buildGovernanceTaskUpdateLedgerItemCheckpointDescription(decision, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -13372,7 +13408,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Task update audit drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildGovernanceTaskUpdateLedgerDriftItemCheckpointDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -13782,7 +13819,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildDataSourcesSummaryDriftTaskDescription(snapshot, diff),
       priority: getDataSourcesSummaryDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     return "Created Data Sources summary drift review task";
@@ -13968,7 +14006,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       patch.status = task.status === "deferred" ? "open" : task.status || "open";
     }
 
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -14035,7 +14076,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Release task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildReleaseTaskLedgerDriftItemCheckpointDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -14082,7 +14124,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildReleaseTaskLedgerDriftTaskDescription(snapshot, diff),
       priority: getReleaseTaskLedgerDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created Release Control task ledger drift review task";
@@ -14431,7 +14474,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildAgentControlPlaneDriftTaskDescription(snapshot, diff),
       priority: getAgentControlPlaneDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created Agent Control Plane drift review task";
@@ -14523,7 +14567,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Decision task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildAgentControlPlaneDecisionTaskLedgerDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -14558,7 +14603,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Agent Control Plane decision task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getAgentControlPlaneDecisionTaskCheckpointPatch(task, action);
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -14595,7 +14643,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Agent Execution Result follow-up task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getAgentExecutionResultTaskCheckpointPatch(task, action);
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -14632,7 +14683,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Convergence review task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getConvergenceTaskCheckpointPatch(task, action);
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -14720,7 +14774,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Execution-result task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildAgentExecutionResultTaskLedgerDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -14772,7 +14827,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildAgentExecutionResultTaskLedgerDriftTaskDescription(snapshot, diff),
       priority: getAgentExecutionResultTaskLedgerDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created execution-result task ledger drift review task";
@@ -14958,7 +15014,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Review target baseline audit drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`.slice(0, 140),
       description: buildAgentExecutionTargetBaselineAuditDriftTaskDescription(diff),
       priority: getAgentExecutionTargetBaselineAuditDriftPriority(diff.driftSeverity),
-      status: diff.hasDrift ? "open" : "resolved"
+      status: diff.hasDrift ? "open" : "resolved",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return diff.hasDrift ? "Created Drift Task" : "Recorded Clean Drift";
@@ -15022,7 +15079,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `SLA breach ledger ${decision.label.toLowerCase()}: ${item.title || item.id || itemId}`.slice(0, 140),
       description: buildAgentExecutionSlaLedgerItemCheckpointDescription(decision, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -15217,7 +15275,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Data Sources access task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getDataSourcesAccessTaskCheckpointPatch(task, action);
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -15255,7 +15316,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     if (!task) throw new Error(`Data Sources access validation workflow task not found: ${taskId}`);
 
     const { checkpointStatus, patch } = getDataSourcesAccessValidationWorkflowTaskCheckpointPatch(task, action);
-    const updated = await api.updateTask(taskId, patch);
+    const updated = await api.updateTask(taskId, {
+      ...patch,
+      ...getCliBridgeScopeOptions()
+    });
     await renderGovernance();
     const nextTask = updated.task || patch;
     if (checkpointStatus === "escalated") return `Escalated ${nextTask.priority || "high"}`;
@@ -15306,7 +15370,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Source-access task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildDataSourcesAccessTaskLedgerDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -15348,7 +15413,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title: `Validation workflow task ledger drift ${decision.label.toLowerCase()}: ${item.label || item.field || field}`.slice(0, 140),
       description: buildDataSourcesAccessValidationWorkflowTaskLedgerDriftItemDescription(decision, diff, item),
       priority: decision.priority,
-      status: decision.status
+      status: decision.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return decision.label;
@@ -15400,7 +15466,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildDataSourcesAccessTaskLedgerDriftTaskDescription(snapshot, diff),
       priority: getDataSourcesAccessTaskLedgerDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created Data Sources access task ledger drift review task";
@@ -15474,7 +15541,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildDataSourcesAccessValidationEvidenceDriftTaskDescription(snapshot, diff),
       priority: getDataSourcesAccessValidationEvidenceDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created Data Sources access validation evidence drift review task";
@@ -15544,7 +15612,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       title,
       description: buildDataSourcesAccessValidationWorkflowDriftTaskDescription(snapshot, diff),
       priority: getDataSourcesAccessValidationWorkflowDriftTaskPriority(diff.driftSeverity),
-      status: "open"
+      status: "open",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Created Data Sources access validation workflow drift review task";

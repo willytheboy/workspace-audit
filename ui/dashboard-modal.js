@@ -40,8 +40,8 @@ const WORKFLOW_PHASE_SEQUENCE = ["brief", "planning", "approval", "implementatio
  *     fetchFindings: (projectId?: string) => Promise<PersistedFinding[]>,
  *     refreshFindings: () => Promise<{ success: true, findings: PersistedFinding[] }>,
  *     fetchTasks: (projectId?: string) => Promise<PersistedTask[]>,
- *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
- *     updateTask: (taskId: string, payload: Partial<PersistedTask>) => Promise<unknown>,
+ *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     updateTask: (taskId: string, payload: Partial<PersistedTask> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchWorkflows: (projectId?: string) => Promise<PersistedWorkflow[]>,
  *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     updateWorkflow: (workflowId: string, payload: Partial<PersistedWorkflow>) => Promise<unknown>,
@@ -92,6 +92,16 @@ export function createDashboardModal({ getData, api }) {
   let profileHistory = [];
   /** @type {ConvergenceCandidate[]} */
   let convergenceCandidates = [];
+
+  /**
+   * @param {AuditProject | null} [project]
+   */
+  function createProjectScopeOptions(project = currentProject) {
+    return {
+      activeProjectId: project?.id || "",
+      scopeMode: "project"
+    };
+  }
   /** @type {"active" | "needs-review" | "not-related" | "all"} */
   let convergenceFilter = "active";
 
@@ -961,7 +971,10 @@ export function createDashboardModal({ getData, api }) {
         ],
         actions: [
           createActionButton(isDone ? "Reopen" : "Mark Done", async () => {
-            await api.updateTask(task.id, { status: isDone ? "open" : "done" });
+            await api.updateTask(task.id, {
+              status: isDone ? "open" : "done",
+              ...createProjectScopeOptions(project)
+            });
             if (currentProject?.id === project.id) {
               await loadWorkbenchState(project);
             }
@@ -1440,7 +1453,8 @@ export function createDashboardModal({ getData, api }) {
       priority: priorityInput.value,
       status: "open",
       projectId: currentProject.id,
-      projectName: currentProject.name
+      projectName: currentProject.name,
+      ...createProjectScopeOptions(currentProject)
     });
 
     taskForm.reset();

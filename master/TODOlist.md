@@ -2871,3 +2871,12 @@
 - [x] Pass dashboard scope metadata through queue, suppression, restore, and task-seeding checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped Governance queue writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Generic Task Scope Guard
+
+- [x] Guard direct task creation behind explicit project or portfolio scope.
+- [x] Guard direct task updates behind the same scope requirement and reject project-scope mismatches.
+- [x] Strip scope metadata from task records before persisting task update patches.
+- [x] Pass dashboard and workbench scope metadata through all generic task create/update actions.
+- [x] Add parser and server coverage for direct unscoped generic task writes.
+- [x] Validate, relaunch, commit, and push.

@@ -19,6 +19,7 @@ export async function serverTest() {
   const baseUrl = `http://127.0.0.1:${address.port}`;
   const activeProjectScope = { activeProjectId: "alpha-app", scopeMode: "project" };
   const dataSourcesScope = { scopeMode: "portfolio" };
+  const taskMutationScope = { scopeMode: "portfolio" };
   const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved", scopePayload = { scopeMode: "portfolio" }) => {
     const checkpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
       method: "POST",
@@ -806,7 +807,7 @@ export async function serverTest() {
     assert.equal(filteredConvergenceReviewsJson.length, 1);
     assert.equal(filteredConvergenceReviewsJson[0].note, "Same stack but different product intent.");
 
-    const createTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
+    const unscopedCreateTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -815,6 +816,22 @@ export async function serverTest() {
         priority: "high",
         projectId: "alpha-app",
         projectName: "Alpha App"
+      })
+    });
+    assert.equal(unscopedCreateTaskResponse.status, 409);
+    const unscopedCreateTaskJson = await unscopedCreateTaskResponse.json();
+    assert.equal(unscopedCreateTaskJson.reasonCode, "agent-execution-scope-required");
+
+    const createTaskResponse = await fetch(`${baseUrl}/api/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Review portfolio finding",
+        description: "Validate generated findings for alpha-app",
+        priority: "high",
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        ...activeProjectScope
       })
     });
     assert.equal(createTaskResponse.status, 200);
@@ -831,10 +848,19 @@ export async function serverTest() {
     const filteredTasksJson = await filteredTasksResponse.json();
     assert.equal(filteredTasksJson.length, 1);
 
-    const patchTaskResponse = await fetch(`${baseUrl}/api/tasks/${createTaskJson.task.id}`, {
+    const unscopedPatchTaskResponse = await fetch(`${baseUrl}/api/tasks/${createTaskJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "done" })
+    });
+    assert.equal(unscopedPatchTaskResponse.status, 409);
+    const unscopedPatchTaskJson = await unscopedPatchTaskResponse.json();
+    assert.equal(unscopedPatchTaskJson.reasonCode, "agent-execution-scope-required");
+
+    const patchTaskResponse = await fetch(`${baseUrl}/api/tasks/${createTaskJson.task.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "done", ...activeProjectScope })
     });
     assert.equal(patchTaskResponse.status, 200);
     const patchTaskJson = await patchTaskResponse.json();
@@ -882,7 +908,7 @@ export async function serverTest() {
     const metadataTaskUpdateResponse = await fetch(`${baseUrl}/api/tasks/${createTaskJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ priority: "medium" })
+      body: JSON.stringify({ priority: "medium", ...activeProjectScope })
     });
     assert.equal(metadataTaskUpdateResponse.status, 200);
 
@@ -1934,7 +1960,7 @@ export async function serverTest() {
     const resolveDeferredRetryTaskResponse = await fetch(`${baseUrl}/api/tasks/${deferredRetryCheckpointJson.createdTask.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveDeferredRetryTaskResponse.status, 200);
     const resolveDeferredRetryTaskJson = await resolveDeferredRetryTaskResponse.json();
@@ -3121,7 +3147,8 @@ export async function serverTest() {
         title: "Fixture CLI Bridge Lifecycle Remediation Follow-up",
         description: "CLI Bridge Lifecycle remediation follow-up.\nStage ID: fixture-cli-stage",
         priority: "high",
-        status: "resolved"
+        status: "resolved",
+        ...taskMutationScope
       })
     });
     assert.equal(createCliBridgeLifecycleRemediationFixtureTaskResponse.status, 200);
@@ -3373,7 +3400,7 @@ export async function serverTest() {
     const resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${encodeURIComponent(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.task.id)}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.status, 200);
     const resolvedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-drift-checkpoint-ledger?status=closed`);
@@ -4193,7 +4220,7 @@ export async function serverTest() {
     const resolveSourceAccessTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedSourceAccessTasksJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveSourceAccessTaskResponse.status, 200);
 
@@ -4365,6 +4392,7 @@ export async function convergenceReviewSuppressionTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const taskMutationScope = { scopeMode: "portfolio" };
 
   try {
     const inventoryResponse = await fetch(`${baseUrl}/api/inventory`);
@@ -5051,7 +5079,7 @@ export async function convergenceReviewSuppressionTest() {
     const resolveConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse = await fetch(`${baseUrl}/api/tasks/${createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.status, 200);
     const resolveConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson = await resolveConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.json();
@@ -5066,7 +5094,7 @@ export async function convergenceReviewSuppressionTest() {
     const reopenConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse = await fetch(`${baseUrl}/api/tasks/${createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "open" })
+      body: JSON.stringify({ status: "open", ...taskMutationScope })
     });
     assert.equal(reopenConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.status, 200);
     const reopenConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson = await reopenConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.json();
@@ -5075,7 +5103,7 @@ export async function convergenceReviewSuppressionTest() {
     const blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse = await fetch(`${baseUrl}/api/tasks/${createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "blocked" })
+      body: JSON.stringify({ status: "blocked", ...taskMutationScope })
     });
     assert.equal(blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.status, 200);
     const blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson = await blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.json();
@@ -5163,7 +5191,7 @@ export async function convergenceReviewSuppressionTest() {
     const resolveLaunchStackActionTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveLaunchStackActionTaskLedgerDriftCheckpointResponse.status, 200);
     const resolveLaunchStackActionTaskLedgerDriftCheckpointJson = await resolveLaunchStackActionTaskLedgerDriftCheckpointResponse.json();
@@ -5227,7 +5255,7 @@ export async function convergenceReviewSuppressionTest() {
     const blockRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "blocked" })
+      body: JSON.stringify({ status: "blocked", ...taskMutationScope })
     });
     assert.equal(blockRemediationPackDriftCheckpointResponse.status, 200);
     const blockRemediationPackDriftCheckpointJson = await blockRemediationPackDriftCheckpointResponse.json();
@@ -5243,7 +5271,7 @@ export async function convergenceReviewSuppressionTest() {
     const reopenRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "open" })
+      body: JSON.stringify({ status: "open", ...taskMutationScope })
     });
     assert.equal(reopenRemediationPackDriftCheckpointResponse.status, 200);
     const reopenRemediationPackDriftCheckpointJson = await reopenRemediationPackDriftCheckpointResponse.json();
@@ -5252,7 +5280,7 @@ export async function convergenceReviewSuppressionTest() {
     const resolveRemediationPackDriftCheckpointResponse = await fetch(`${baseUrl}/api/tasks/${convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointJson.task.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveRemediationPackDriftCheckpointResponse.status, 200);
     const resolveRemediationPackDriftCheckpointJson = await resolveRemediationPackDriftCheckpointResponse.json();
@@ -5741,7 +5769,7 @@ export async function convergenceReviewSuppressionTest() {
     const updateConvergenceTaskForDriftResponse = await fetch(`${baseUrl}/api/tasks/${convergenceTaskJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "blocked", priority: "high" })
+      body: JSON.stringify({ status: "blocked", priority: "high", ...taskMutationScope })
     });
     assert.equal(updateConvergenceTaskForDriftResponse.status, 200);
 
@@ -5852,6 +5880,7 @@ export async function releaseBuildGateTaskSeedingTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const taskMutationScope = { scopeMode: "portfolio" };
 
   try {
     const releaseBuildGateResponse = await fetch(`${baseUrl}/api/releases/build-gate`);
@@ -6145,7 +6174,7 @@ export async function releaseBuildGateTaskSeedingTest() {
     const resolveDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "resolved" })
+      body: JSON.stringify({ status: "resolved", ...taskMutationScope })
     });
     assert.equal(resolveDecisionTaskResponse.status, 200);
     const resolveDecisionTaskJson = await resolveDecisionTaskResponse.json();
@@ -6162,7 +6191,7 @@ export async function releaseBuildGateTaskSeedingTest() {
     const reopenDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "open" })
+      body: JSON.stringify({ status: "open", ...taskMutationScope })
     });
     assert.equal(reopenDecisionTaskResponse.status, 200);
     const reopenDecisionTaskJson = await reopenDecisionTaskResponse.json();
@@ -6171,7 +6200,7 @@ export async function releaseBuildGateTaskSeedingTest() {
     const blockDecisionTaskResponse = await fetch(`${baseUrl}/api/tasks/${seedDecisionTaskJson.createdTasks[0].id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "blocked" })
+      body: JSON.stringify({ status: "blocked", ...taskMutationScope })
     });
     assert.equal(blockDecisionTaskResponse.status, 200);
     const blockDecisionTaskJson = await blockDecisionTaskResponse.json();

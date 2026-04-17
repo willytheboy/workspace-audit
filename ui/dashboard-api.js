@@ -2436,7 +2436,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }} payload
+   * @param {{ title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   createTask(payload) {
     return fetchJson("/api/tasks", {
@@ -2448,7 +2448,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} taskId
-   * @param {Partial<import("./dashboard-types.js").PersistedTask>} payload
+   * @param {Partial<import("./dashboard-types.js").PersistedTask> & { activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   updateTask(taskId, payload) {
     return fetchJson(`/api/tasks/${encodeURIComponent(taskId)}`, {

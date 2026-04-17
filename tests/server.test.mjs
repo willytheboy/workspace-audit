@@ -102,11 +102,21 @@ export async function serverTest() {
     assert.deepEqual(deploymentHealthJson.targets, []);
     assert.match(deploymentHealthJson.markdown, /# Deployment Health Targets/);
     assert.match(deploymentHealthJson.markdown, /No deployment targets detected/);
+    const releaseEvidenceScope = { scopeMode: "portfolio" };
+
+    const unscopedDeploymentSmokeCheckResponse = await fetch(`${baseUrl}/api/deployments/smoke-check`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: `${baseUrl}/`, allowLocal: true })
+    });
+    assert.equal(unscopedDeploymentSmokeCheckResponse.status, 409);
+    const unscopedDeploymentSmokeCheckJson = await unscopedDeploymentSmokeCheckResponse.json();
+    assert.equal(unscopedDeploymentSmokeCheckJson.reasonCode, "agent-execution-scope-required");
 
     const rejectedDeploymentSmokeCheckResponse = await fetch(`${baseUrl}/api/deployments/smoke-check`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: `${baseUrl}/` })
+      body: JSON.stringify({ url: `${baseUrl}/`, ...releaseEvidenceScope })
     });
     assert.equal(rejectedDeploymentSmokeCheckResponse.status, 400);
     const rejectedDeploymentSmokeCheckJson = await rejectedDeploymentSmokeCheckResponse.json();
@@ -115,7 +125,7 @@ export async function serverTest() {
     const deploymentSmokeCheckResponse = await fetch(`${baseUrl}/api/deployments/smoke-check`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: `${baseUrl}/`, label: "Fixture local app", allowLocal: true, timeoutMs: 3000 })
+      body: JSON.stringify({ url: `${baseUrl}/`, label: "Fixture local app", allowLocal: true, timeoutMs: 3000, ...releaseEvidenceScope })
     });
     assert.equal(deploymentSmokeCheckResponse.status, 200);
     const deploymentSmokeCheckJson = await deploymentSmokeCheckResponse.json();
@@ -175,10 +185,24 @@ export async function serverTest() {
     assert.match(missingReleaseBuildGateJson.markdown, /# Release Build Gate/);
     assert.match(missingReleaseBuildGateJson.markdown, /## Gate Actions/);
 
-    const createReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
+    const unscopedReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Release Checkpoint", status: "review", notes: "Fixture non-secret release checkpoint." })
+    });
+    assert.equal(unscopedReleaseCheckpointResponse.status, 409);
+    const unscopedReleaseCheckpointJson = await unscopedReleaseCheckpointResponse.json();
+    assert.equal(unscopedReleaseCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const createReleaseCheckpointResponse = await fetch(`${baseUrl}/api/releases/checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Release Checkpoint",
+        status: "review",
+        notes: "Fixture non-secret release checkpoint.",
+        ...releaseEvidenceScope
+      })
     });
     assert.equal(createReleaseCheckpointResponse.status, 200);
     const createReleaseCheckpointJson = await createReleaseCheckpointResponse.json();
@@ -213,7 +237,7 @@ export async function serverTest() {
     assert.ok(releaseBuildGateJson.actions.some((action) => action.id === "verify-git-runtime-access"));
     assert.match(releaseBuildGateJson.markdown, /# Release Build Gate/);
 
-    const releaseGateBootstrapResponse = await fetch(`${baseUrl}/api/releases/build-gate/bootstrap-local-evidence`, {
+    const unscopedReleaseGateBootstrapResponse = await fetch(`${baseUrl}/api/releases/build-gate/bootstrap-local-evidence`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -221,6 +245,21 @@ export async function serverTest() {
         label: "Fixture release gate local app",
         title: "Fixture Release Gate Bootstrap",
         notes: "Fixture local non-secret release gate evidence."
+      })
+    });
+    assert.equal(unscopedReleaseGateBootstrapResponse.status, 409);
+    const unscopedReleaseGateBootstrapJson = await unscopedReleaseGateBootstrapResponse.json();
+    assert.equal(unscopedReleaseGateBootstrapJson.reasonCode, "agent-execution-scope-required");
+
+    const releaseGateBootstrapResponse = await fetch(`${baseUrl}/api/releases/build-gate/bootstrap-local-evidence`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: baseUrl,
+        label: "Fixture release gate local app",
+        title: "Fixture Release Gate Bootstrap",
+        notes: "Fixture local non-secret release gate evidence.",
+        ...releaseEvidenceScope
       })
     });
     assert.equal(releaseGateBootstrapResponse.status, 200);

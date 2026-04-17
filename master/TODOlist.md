@@ -2838,3 +2838,12 @@
 - [x] Pass dashboard scope metadata through Release Control task snapshot and task-seeding actions.
 - [x] Add parser and server coverage for direct unscoped Release Control task writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Release Evidence Scope Guard
+
+- [x] Guard deployment smoke-check persistence behind explicit project or portfolio scope.
+- [x] Guard Release Control checkpoint persistence behind the same scope requirement.
+- [x] Guard Release Build Gate local evidence bootstrap behind the same scope requirement.
+- [x] Pass dashboard scope metadata through smoke-check, checkpoint, and evidence-bootstrap actions.
+- [x] Add parser and server coverage for direct unscoped Release Evidence writes.
+- [x] Validate, relaunch, commit, and push.

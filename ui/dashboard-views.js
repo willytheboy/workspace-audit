@@ -88,14 +88,14 @@ function createEmptyTableRow(message) {
  *     createSourcesAccessValidationEvidenceCoverageTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
  *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
- *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
+ *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
  *     fetchReleaseSummary: () => Promise<import("./dashboard-types.js").ReleaseSummaryPayload>,
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
  *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
  *     createReleaseTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>,
  *     fetchReleaseTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").ReleaseTaskLedgerSnapshotDiffPayload>,
- *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
+ *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceDueDiligencePack: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceDueDiligencePackPayload>,
  *     fetchConvergenceOperatorProposalQueue: (status?: import("./dashboard-types.js").ConvergenceOperatorProposalQueueStatus) => Promise<import("./dashboard-types.js").ConvergenceOperatorProposalQueuePayload>,
@@ -173,7 +173,7 @@ function createEmptyTableRow(message) {
  *     createConvergenceReviewTasks: (payload?: { pairIds?: string[], pairId?: string, candidates?: import("./dashboard-types.js").ConvergenceCandidate[], status?: "confirmed-overlap" | "needs-review" | "merge-candidate" | "actionable" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ pairId: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>,
  *     createConvergenceTaskLedgerDriftCheckpoint: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
- *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
+ *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
  *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
@@ -11645,7 +11645,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Checking";
-          const result = await api.runDeploymentSmokeCheck({ targetId });
+          const result = await api.runDeploymentSmokeCheck({ targetId, ...getCliBridgeScopeOptions() });
           element.textContent = result.smokeCheck.ok
             ? `Pass ${result.smokeCheck.httpStatus}`
             : result.smokeCheck.httpStatus
@@ -13866,7 +13866,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const created = await api.createReleaseCheckpoint({
       title: `Release checkpoint drift ${normalizedDecision}: ${item.label || item.field}`,
       status,
-      notes: buildReleaseCheckpointDriftFieldNotes(normalizedDecision, drift, item)
+      notes: buildReleaseCheckpointDriftFieldNotes(normalizedDecision, drift, item),
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
@@ -14089,7 +14090,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.bootstrapReleaseBuildGateLocalEvidence({
       label: "Local Workspace Audit app",
       title: "Local release gate checkpoint",
-      notes: "Bootstrap local non-secret release gate evidence from Governance."
+      notes: "Bootstrap local non-secret release gate evidence from Governance.",
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const smokeStatus = payload.smokeCheck?.status || "not-run";
@@ -14144,7 +14146,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const created = await api.createReleaseCheckpoint({
       title: `Release gate local evidence ${normalizedDecision}: ${releaseSummary.git?.commitShort || "current"}`,
       status: checkpointStatus,
-      notes: buildReleaseBuildGateLocalEvidenceNotes(normalizedDecision, releaseSummary, releaseBuildGate, latestSmokeCheck)
+      notes: buildReleaseBuildGateLocalEvidenceNotes(normalizedDecision, releaseSummary, releaseBuildGate, latestSmokeCheck),
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
@@ -14211,7 +14214,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const created = await api.createReleaseCheckpoint({
       title: `Release checkpoint ${normalizedDecision}: ${checkpoint.title || checkpoint.id}`,
       status,
-      notes: buildReleaseControlCheckpointDecisionNotes(normalizedDecision, checkpoint)
+      notes: buildReleaseControlCheckpointDecisionNotes(normalizedDecision, checkpoint),
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `${normalizedDecision === "confirmed" ? "Confirmed" : "Deferred"} ${created.checkpoint.status.toUpperCase()}`;
@@ -14329,7 +14333,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         `Action status: ${action.status || "open"}; priority: ${action.priority || "medium"}.`,
         `Gate decision: ${releaseBuildGate?.decision || "review"}; risk score: ${releaseBuildGate?.riskScore || 0}.`,
         "Secret policy: non-secret release metadata only; do not store passwords, tokens, certificates, private keys, cookies, or browser sessions."
-      ].join(" ")
+      ].join(" "),
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `Accepted release gate action as ${created.checkpoint.status.toUpperCase()}`;
@@ -14339,7 +14344,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const payload = await api.fetchReleaseSummary();
     const created = await api.createReleaseCheckpoint({
       title: `Release checkpoint ${payload.git.commitShort || new Date().toISOString()}`,
-      status: payload.summary.status
+      status: payload.summary.status,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return `Saved ${created.checkpoint.status.toUpperCase()} release`;

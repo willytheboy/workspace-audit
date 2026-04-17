@@ -1003,7 +1003,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number }} payload
+   * @param {{ url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>}
    */
   runDeploymentSmokeCheck(payload) {
@@ -1072,7 +1072,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }} [payload]
+   * @param {{ url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>}
    */
   bootstrapReleaseBuildGateLocalEvidence(payload = {}) {
@@ -1096,7 +1096,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string }} [payload]
+   * @param {{ title?: string, status?: "ready" | "review" | "hold", notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>}
    */
   createReleaseCheckpoint(payload = {}) {

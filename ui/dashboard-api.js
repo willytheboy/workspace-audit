@@ -181,7 +181,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ pairId: string, runner?: "codex" | "claude", status?: string, notes?: string }} payload
+   * @param {{ pairId: string, runner?: "codex" | "claude", status?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
    */
   queueConvergenceAssimilationWorkOrderRun(payload) {
@@ -859,7 +859,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string }} payload
+   * @param {{ status?: string, summary: string, changedFiles?: string[] | string, validationSummary?: string, validationResults?: string, blockers?: string[] | string, nextAction?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, result: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunResults: import("./dashboard-types.js").ConvergenceAssimilationRunResultRecord[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
    */
   recordConvergenceAssimilationRunResult(runId, payload) {
@@ -872,7 +872,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} resultId
-   * @param {{ decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ decision: "confirmed" | "deferred" | "escalated", note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[], governanceOperationCount: number }>}
    */
   checkpointConvergenceAssimilationResult(resultId, payload) {

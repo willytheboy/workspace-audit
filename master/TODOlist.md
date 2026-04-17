@@ -2922,3 +2922,12 @@
 - [x] Pass dashboard scope metadata through Governance settings and audit snapshot actions.
 - [x] Add parser and server coverage for direct unscoped Governance settings writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Assimilation Run Scope Guard
+
+- [x] Guard convergence assimilation work-order run queueing behind explicit project or portfolio scope.
+- [x] Guard convergence assimilation run result intake behind the same scope requirement.
+- [x] Guard convergence assimilation result checkpoint persistence behind the same scope requirement.
+- [x] Pass dashboard scope metadata through queue, result, and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped convergence assimilation run writes.
+- [x] Validate, relaunch, commit, and push.

@@ -4711,12 +4711,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(trackedOperatorProposalQueueJson.items[0].pairId, operatorProposalJson.review.pairId);
     assert.equal(trackedOperatorProposalQueueJson.items[0].openTaskCount, 1);
 
-    const queueConvergenceAssimilationRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-run`, {
+    const unscopedQueueConvergenceAssimilationRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         pairId: operatorProposalJson.review.pairId,
         runner: "claude"
+      })
+    });
+    assert.equal(unscopedQueueConvergenceAssimilationRunResponse.status, 409);
+    const unscopedQueueConvergenceAssimilationRunJson = await unscopedQueueConvergenceAssimilationRunResponse.json();
+    assert.equal(unscopedQueueConvergenceAssimilationRunJson.reasonCode, "agent-execution-scope-required");
+
+    const queueConvergenceAssimilationRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairId: operatorProposalJson.review.pairId,
+        runner: "claude",
+        ...convergenceScope
       })
     });
     assert.equal(queueConvergenceAssimilationRunResponse.status, 200);
@@ -4732,7 +4745,8 @@ export async function convergenceReviewSuppressionTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         pairId: operatorProposalJson.review.pairId,
-        runner: "claude"
+        runner: "claude",
+        ...convergenceScope
       })
     });
     assert.equal(duplicateConvergenceAssimilationRunResponse.status, 200);
@@ -4761,7 +4775,7 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunTracePackJson.markdown, /# Convergence Assimilation Run Trace Pack/);
     assert.match(convergenceAssimilationRunTracePackJson.secretPolicy, /Non-secret convergence assimilation run trace metadata only/);
 
-    const convergenceAssimilationRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/result`, {
+    const unscopedConvergenceAssimilationRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -4770,6 +4784,22 @@ export async function convergenceReviewSuppressionTest() {
         changedFiles: ["src/shared.js"],
         validationSummary: "Fixture validation passed.",
         nextAction: "Review result checkpoint."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunResultResponse.status, 409);
+    const unscopedConvergenceAssimilationRunResultJson = await unscopedConvergenceAssimilationRunResultResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunResultJson.reasonCode, "agent-execution-scope-required");
+
+    const convergenceAssimilationRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runs/${encodeURIComponent(queueConvergenceAssimilationRunJson.run.id)}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "passed",
+        summary: "Non-secret fixture result captured.",
+        changedFiles: ["src/shared.js"],
+        validationSummary: "Fixture validation passed.",
+        nextAction: "Review result checkpoint.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationRunResultResponse.status, 200);
@@ -4796,12 +4826,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationResultLedgerJson.markdown, /# Convergence Assimilation Result Ledger/);
     assert.match(convergenceAssimilationResultLedgerJson.secretPolicy, /Non-secret convergence assimilation result metadata only/);
 
-    const convergenceAssimilationResultCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-results/${encodeURIComponent(convergenceAssimilationRunResultJson.result.id)}/checkpoint`, {
+    const unscopedConvergenceAssimilationResultCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-results/${encodeURIComponent(convergenceAssimilationRunResultJson.result.id)}/checkpoint`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         decision: "confirmed",
         note: "Fixture checkpoint accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationResultCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationResultCheckpointJson = await unscopedConvergenceAssimilationResultCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationResultCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const convergenceAssimilationResultCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-results/${encodeURIComponent(convergenceAssimilationRunResultJson.result.id)}/checkpoint`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        decision: "confirmed",
+        note: "Fixture checkpoint accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationResultCheckpointResponse.status, 200);
@@ -5628,7 +5671,8 @@ export async function convergenceReviewSuppressionTest() {
       body: JSON.stringify({
         status: "needs-review",
         summary: "Second fixture result to force deterministic packet drift.",
-        validationSummary: "Drift fixture validation."
+        validationSummary: "Drift fixture validation.",
+        ...convergenceScope
       })
     });
     assert.equal(secondConvergenceAssimilationRunResultResponse.status, 200);

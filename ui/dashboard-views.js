@@ -188,12 +188,12 @@ function createEmptyTableRow(message) {
  *     deleteSource: (sourceId: string, payload?: { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchGovernance: () => Promise<import("./dashboard-types.js").GovernancePayload>,
  *     fetchGovernanceTaskUpdateLedger: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerPayload>,
- *     createGovernanceTaskUpdateLedgerSnapshot: (payload?: { title?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>,
+ *     createGovernanceTaskUpdateLedgerSnapshot: (payload?: { title?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>,
  *     fetchGovernanceTaskUpdateLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerSnapshotDiffPayload>,
  *     fetchGovernanceExecutionViews: () => Promise<import("./dashboard-types.js").PersistedGovernanceExecutionView[]>,
- *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
+ *     saveGovernanceExecutionView: (payload: { title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>,
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
- *     saveGovernanceExecutionPolicy: (payload: { staleThresholdHours: number }) => Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>,
+ *     saveGovernanceExecutionPolicy: (payload: { staleThresholdHours: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>,
  *     fetchAgentControlPlaneDecisionTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerPayload>,
  *     createAgentControlPlaneDecisionTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>,
  *     fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload>,
@@ -12460,6 +12460,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function saveAgentExecutionPolicy() {
     const filters = getGovernanceFilterState();
     const result = await api.saveGovernanceExecutionPolicy({
+      ...getCliBridgeScopeOptions(),
       staleThresholdHours: Number.isFinite(filters.staleThresholdHours) ? filters.staleThresholdHours : governanceExecutionPolicy.staleThresholdHours
     });
     applyGovernanceExecutionPolicyToControls(result.policy);
@@ -12553,6 +12554,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function saveGovernanceExecutionView() {
     const filters = getGovernanceFilterState();
     const result = await api.saveGovernanceExecutionView({
+      ...getCliBridgeScopeOptions(),
       title: buildGovernanceExecutionViewTitle(filters),
       search: filters.search,
       scope: filters.scope,
@@ -12822,6 +12824,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function saveGovernanceTaskUpdateLedgerSnapshot() {
     await api.createGovernanceTaskUpdateLedgerSnapshot({
+      ...getCliBridgeScopeOptions(),
       title: "Governance Task Update Ledger",
       limit: 100
     });

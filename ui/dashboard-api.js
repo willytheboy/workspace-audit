@@ -1371,7 +1371,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, limit?: number }} [payload]
+   * @param {{ title?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>}
    */
   createGovernanceTaskUpdateLedgerSnapshot(payload = {}) {
@@ -1398,7 +1398,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean }} payload
+   * @param {{ title: string, search: string, scope: string, sort: string, taskSeedingStatus: string, executionStatus: string, executionRetention: number, showArchivedExecution: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, view: import("./dashboard-types.js").PersistedGovernanceExecutionView, governanceExecutionViews: import("./dashboard-types.js").PersistedGovernanceExecutionView[] }>}
    */
   saveGovernanceExecutionView(payload) {
@@ -1417,7 +1417,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ staleThresholdHours: number }} payload
+   * @param {{ staleThresholdHours: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>}
    */
   saveGovernanceExecutionPolicy(payload) {

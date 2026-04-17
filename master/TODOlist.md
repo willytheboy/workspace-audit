@@ -2913,3 +2913,12 @@
 - [x] Restore parser visibility for remediation work-order result follow-up task lifecycle controls.
 - [x] Restore parser visibility for remediation pack checkpoint lifecycle controls.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Governance Settings Scope Guard
+
+- [x] Guard Governance task-update ledger snapshot persistence behind explicit project or portfolio scope.
+- [x] Guard saved Governance execution views behind the same scope requirement.
+- [x] Guard Agent Execution SLA policy updates behind the same scope requirement.
+- [x] Pass dashboard scope metadata through Governance settings and audit snapshot actions.
+- [x] Add parser and server coverage for direct unscoped Governance settings writes.
+- [x] Validate, relaunch, commit, and push.

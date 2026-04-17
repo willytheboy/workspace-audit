@@ -903,10 +903,19 @@ export async function serverTest() {
     assert.equal(missingTaskUpdateLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
     assert.match(missingTaskUpdateLedgerSnapshotDiffJson.markdown, /# Governance Task Update Ledger Snapshot Drift/);
 
-    const createTaskUpdateLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots`, {
+    const unscopedTaskUpdateLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Governance Task Update Ledger", limit: 5 })
+    });
+    assert.equal(unscopedTaskUpdateLedgerSnapshotResponse.status, 409);
+    const unscopedTaskUpdateLedgerSnapshotJson = await unscopedTaskUpdateLedgerSnapshotResponse.json();
+    assert.equal(unscopedTaskUpdateLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createTaskUpdateLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/task-update-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Governance Task Update Ledger", limit: 5, ...taskMutationScope })
     });
     assert.equal(createTaskUpdateLedgerSnapshotResponse.status, 200);
     const createTaskUpdateLedgerSnapshotJson = await createTaskUpdateLedgerSnapshotResponse.json();
@@ -2372,7 +2381,7 @@ export async function serverTest() {
     const emptyExecutionViewsJson = await emptyExecutionViewsResponse.json();
     assert.equal(emptyExecutionViewsJson.length, 0);
 
-    const saveExecutionViewResponse = await fetch(`${baseUrl}/api/governance/execution-views`, {
+    const unscopedSaveExecutionViewResponse = await fetch(`${baseUrl}/api/governance/execution-views`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -2383,6 +2392,24 @@ export async function serverTest() {
         executionStatus: "completed",
         executionRetention: 10,
         showArchivedExecution: true
+      })
+    });
+    assert.equal(unscopedSaveExecutionViewResponse.status, 409);
+    const unscopedSaveExecutionViewJson = await unscopedSaveExecutionViewResponse.json();
+    assert.equal(unscopedSaveExecutionViewJson.reasonCode, "agent-execution-scope-required");
+
+    const saveExecutionViewResponse = await fetch(`${baseUrl}/api/governance/execution-views`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Completed runs needing review",
+        search: "beta",
+        scope: "execution",
+        sort: "recent",
+        executionStatus: "completed",
+        executionRetention: 10,
+        showArchivedExecution: true,
+        ...taskMutationScope
       })
     });
     assert.equal(saveExecutionViewResponse.status, 200);
@@ -2412,11 +2439,23 @@ export async function serverTest() {
     assert.equal(defaultExecutionPolicyJson.staleThresholdHours, 24);
     assert.deepEqual(defaultExecutionPolicyJson.staleStatuses, ["queued", "running", "blocked"]);
 
-    const saveExecutionPolicyResponse = await fetch(`${baseUrl}/api/governance/execution-policy`, {
+    const unscopedSaveExecutionPolicyResponse = await fetch(`${baseUrl}/api/governance/execution-policy`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         staleThresholdHours: 6
+      })
+    });
+    assert.equal(unscopedSaveExecutionPolicyResponse.status, 409);
+    const unscopedSaveExecutionPolicyJson = await unscopedSaveExecutionPolicyResponse.json();
+    assert.equal(unscopedSaveExecutionPolicyJson.reasonCode, "agent-execution-scope-required");
+
+    const saveExecutionPolicyResponse = await fetch(`${baseUrl}/api/governance/execution-policy`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        staleThresholdHours: 6,
+        ...taskMutationScope
       })
     });
     assert.equal(saveExecutionPolicyResponse.status, 200);
@@ -2484,7 +2523,8 @@ export async function serverTest() {
         sort: "recent",
         executionStatus: "sla-breached",
         executionRetention: 25,
-        showArchivedExecution: false
+        showArchivedExecution: false,
+        ...taskMutationScope
       })
     });
     assert.equal(saveSlaBreachExecutionViewResponse.status, 200);
@@ -4074,7 +4114,8 @@ export async function serverTest() {
         sort: "recent",
         executionStatus: "sla-resolved",
         executionRetention: 25,
-        showArchivedExecution: false
+        showArchivedExecution: false,
+        ...taskMutationScope
       })
     });
     assert.equal(saveSlaResolvedExecutionViewResponse.status, 200);
@@ -4092,7 +4133,8 @@ export async function serverTest() {
         sort: "recent",
         executionStatus: "sla-resolved",
         executionRetention: 25,
-        showArchivedExecution: false
+        showArchivedExecution: false,
+        ...taskMutationScope
       })
     });
     assert.equal(saveSlaLedgerExecutionViewResponse.status, 200);

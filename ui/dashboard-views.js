@@ -216,14 +216,14 @@ function createEmptyTableRow(message) {
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createNote: (payload: { title: string, body?: string, kind?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
- *     createAgentWorkOrderRun: (payload: { projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string }) => Promise<unknown>,
- *     createAgentWorkOrderRunsFromSnapshot: (payload: { snapshotId: string }) => Promise<unknown>,
- *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean }) => Promise<unknown>,
- *     refreshAgentWorkOrderRunTargetBaseline: (runId: string, payload?: { notes?: string }) => Promise<unknown>,
- *     refreshAgentWorkOrderRunTargetBaselineAudit: (runId: string, payload?: { notes?: string }) => Promise<unknown>,
- *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[] }) => Promise<unknown>,
- *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string }) => Promise<unknown>,
- *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[] }) => Promise<unknown>,
+ *     createAgentWorkOrderRun: (payload: { projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     createAgentWorkOrderRunsFromSnapshot: (payload: { snapshotId: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     refreshAgentWorkOrderRunTargetBaseline: (runId: string, payload?: { notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     refreshAgentWorkOrderRunTargetBaselineAudit: (runId: string, payload?: { notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
  *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
  *     fetchCliBridgeRunnerDryRunSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[]>,
@@ -5633,7 +5633,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Queueing";
-          await api.createAgentWorkOrderRunsFromSnapshot({ snapshotId });
+          await api.createAgentWorkOrderRunsFromSnapshot({ snapshotId, ...getCliBridgeScopeOptions() });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -7607,6 +7607,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Refreshing";
           await api.refreshAgentWorkOrderRunTargetBaseline(runId, {
+            ...getCliBridgeScopeOptions(),
             notes: "Refreshed profile target task baseline capture from Governance."
           });
           await renderGovernance();
@@ -7632,6 +7633,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Refreshing";
           await api.refreshAgentWorkOrderRunTargetBaselineAudit(runId, {
+            ...getCliBridgeScopeOptions(),
             notes: "Refreshed target baseline audit capture from Governance."
           });
           await renderGovernance();
@@ -8560,6 +8562,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           await api.updateAgentWorkOrderRun(runId, {
+            ...getCliBridgeScopeOptions(),
             archived: archive,
             notes: archive
               ? "Archived completed run from Governance."
@@ -8607,7 +8610,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             skillBundle: item.agentPolicy?.skillBundle || [],
             hookPolicy: item.agentPolicy?.hookPolicy || [],
             validationCommands: ["Run project-specific validation from the workbench Launchpad"],
-            notes: "Queued from the Governance Agent Readiness Matrix."
+            notes: "Queued from the Governance Agent Readiness Matrix.",
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
         } catch (error) {
@@ -8633,6 +8637,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           await api.updateAgentWorkOrderRun(runId, {
+            ...getCliBridgeScopeOptions(),
             status,
             notes: `Marked ${status} from Governance.`
           });
@@ -12335,6 +12340,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of queuedRuns) {
       await api.updateAgentWorkOrderRun(run.id, {
+        ...getCliBridgeScopeOptions(),
         status: "running",
         notes: "Started queued run from Governance toolbar."
       });
@@ -12356,6 +12362,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of runs) {
       await api.refreshAgentWorkOrderRunTargetBaseline(run.id, {
+        ...getCliBridgeScopeOptions(),
         notes: "Refreshed profile target task baseline capture from Governance bulk action."
       });
     }
@@ -12376,6 +12383,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of runs) {
       await api.refreshAgentWorkOrderRunTargetBaselineAudit(run.id, {
+        ...getCliBridgeScopeOptions(),
         notes: "Refreshed target baseline audit capture from Governance bulk action."
       });
     }
@@ -12392,6 +12400,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of staleRuns) {
       await api.updateAgentWorkOrderRun(run.id, {
+        ...getCliBridgeScopeOptions(),
         status: "blocked",
         notes: "Blocked stale active run from Governance toolbar."
       });
@@ -12417,6 +12426,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }
 
     await api.actionAgentWorkOrderRunSlaBreaches({
+      ...getCliBridgeScopeOptions(),
       action: "escalated",
       runIds: staleRuns.map((run) => run.id)
     });
@@ -12431,6 +12441,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }
 
     await api.resolveAgentWorkOrderRunSlaBreaches({
+      ...getCliBridgeScopeOptions(),
       runIds: breachedRuns.map((run) => run.id)
     });
     await renderGovernance();
@@ -12445,6 +12456,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of terminalRuns) {
       await api.updateAgentWorkOrderRun(run.id, {
+        ...getCliBridgeScopeOptions(),
         status: "queued",
         notes: "Retried terminal run from Governance toolbar."
       });
@@ -12461,6 +12473,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     for (const run of completedRuns) {
       await api.updateAgentWorkOrderRun(run.id, {
+        ...getCliBridgeScopeOptions(),
         archived: true,
         notes: "Archived completed run from Governance toolbar."
       });
@@ -12481,6 +12494,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }
 
     await api.applyAgentWorkOrderRunRetention({
+      ...getCliBridgeScopeOptions(),
       retainCompleted,
       runIds: completedRuns.map((run) => run.id)
     });

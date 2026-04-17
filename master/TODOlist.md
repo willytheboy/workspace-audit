@@ -2751,3 +2751,12 @@
 - [x] Persist scope metadata into dry-run snapshots and snapshot drift summaries.
 - [x] Pass dashboard scope through dry-run copy, snapshot, drift, baseline, and run-linked contract actions.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Execution Scope Guard
+
+- [x] Add a shared server-side Agent Execution scope guard for work-order mutations.
+- [x] Reject missing active scope unless portfolio mode is explicitly selected.
+- [x] Reject project-scoped work-order mutations whose target project differs from the active project.
+- [x] Pass dashboard scope metadata through create, batch, patch, refresh, retention, and SLA mutation calls.
+- [x] Add parser and server test coverage for required-scope and mismatch failures.
+- [x] Validate, relaunch, commit, and push.

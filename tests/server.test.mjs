@@ -1176,11 +1176,43 @@ export async function serverTest() {
     assert.equal(initialExecutionResultCheckpointsJson.requirements.totalBlocked, 0);
     assert.equal(initialExecutionResultCheckpointsJson.agentExecutionResultCheckpoints.length, 0);
 
-    const batchAgentWorkOrderRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/batch`, {
+    const alphaAgentExecutionScope = { activeProjectId: "alpha-app", scopeMode: "project" };
+    const portfolioAgentExecutionScope = { scopeMode: "portfolio" };
+
+    const unscopedBatchAgentWorkOrderRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/batch`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: createAgentWorkOrderSnapshotJson.snapshot.id
+      })
+    });
+    assert.equal(unscopedBatchAgentWorkOrderRunsResponse.status, 409);
+    const unscopedBatchAgentWorkOrderRunsJson = await unscopedBatchAgentWorkOrderRunsResponse.json();
+    assert.equal(unscopedBatchAgentWorkOrderRunsJson.reasonCode, "agent-execution-scope-required");
+    assert.equal(unscopedBatchAgentWorkOrderRunsJson.scopeContext.guardDecision, "project-required");
+
+    const mismatchedAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: "beta-app",
+        projectName: "Beta App",
+        objective: "Verify server-side execution scope mismatch handling.",
+        status: "queued",
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(mismatchedAgentWorkOrderRunResponse.status, 409);
+    const mismatchedAgentWorkOrderRunJson = await mismatchedAgentWorkOrderRunResponse.json();
+    assert.equal(mismatchedAgentWorkOrderRunJson.reasonCode, "agent-execution-scope-mismatch");
+    assert.deepEqual(mismatchedAgentWorkOrderRunJson.mismatchedProjectIds, ["beta-app"]);
+
+    const batchAgentWorkOrderRunsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/batch`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createAgentWorkOrderSnapshotJson.snapshot.id,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(batchAgentWorkOrderRunsResponse.status, 200);
@@ -1201,7 +1233,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        snapshotId: createAgentWorkOrderSnapshotJson.snapshot.id
+        snapshotId: createAgentWorkOrderSnapshotJson.snapshot.id,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(repeatBatchAgentWorkOrderRunsResponse.status, 200);
@@ -1232,7 +1265,8 @@ export async function serverTest() {
         skillBundle: approvedAgentWorkOrdersJson.items[0].agentPolicy.skillBundle,
         hookPolicy: approvedAgentWorkOrdersJson.items[0].agentPolicy.hookPolicy,
         validationCommands: ["npm test"],
-        notes: "Fixture execution queue item."
+        notes: "Fixture execution queue item.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createAgentWorkOrderRunResponse.status, 200);
@@ -1392,7 +1426,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "running",
-        notes: "Fixture run started."
+        notes: "Fixture run started.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(updateAgentWorkOrderRunResponse.status, 200);
@@ -1447,7 +1482,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        notes: "Fixture target baseline recapture."
+        notes: "Fixture target baseline recapture.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(refreshBatchRunTargetBaselineResponse.status, 200);
@@ -1581,7 +1617,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        notes: "Fixture target baseline audit recapture."
+        notes: "Fixture target baseline audit recapture.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(refreshBatchRunTargetBaselineAuditResponse.status, 200);
@@ -1602,7 +1639,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "cancelled",
-        notes: "Fixture run cancelled."
+        notes: "Fixture run cancelled.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(cancelAgentWorkOrderRunResponse.status, 200);
@@ -1618,7 +1656,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "queued",
-        notes: "Fixture run retried without checkpoint."
+        notes: "Fixture run retried without checkpoint.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(blockedRetryAgentWorkOrderRunResponse.status, 409);
@@ -1655,7 +1694,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "queued",
-        notes: "Fixture run retried."
+        notes: "Fixture run retried.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(retryAgentWorkOrderRunResponse.status, 200);
@@ -1671,7 +1711,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "blocked",
-        notes: "Fixture run blocked."
+        notes: "Fixture run blocked.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(blockAgentWorkOrderRunResponse.status, 200);
@@ -1687,7 +1728,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "running",
-        notes: "Fixture run resumed."
+        notes: "Fixture run resumed.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(resumeAgentWorkOrderRunResponse.status, 200);
@@ -1703,7 +1745,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "passed",
-        notes: "Fixture run passed."
+        notes: "Fixture run passed.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(passAgentWorkOrderRunResponse.status, 200);
@@ -1718,7 +1761,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         archived: true,
-        notes: "Fixture run archived without checkpoint."
+        notes: "Fixture run archived without checkpoint.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(blockedArchiveAgentWorkOrderRunResponse.status, 409);
@@ -1734,7 +1778,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         archived: true,
-        notes: "Fixture run archived."
+        notes: "Fixture run archived.",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(archiveAgentWorkOrderRunResponse.status, 200);
@@ -1848,7 +1893,8 @@ export async function serverTest() {
           readinessScore: 90,
           readinessStatus: "ready",
           validationCommands: ["npm test"],
-          notes: `Retention fixture ${status}.`
+          notes: `Retention fixture ${status}.`,
+          ...portfolioAgentExecutionScope
         })
       });
       assert.equal(retentionRunResponse.status, 200);
@@ -1861,7 +1907,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         retainCompleted: 1,
-        runIds: retentionRunIds
+        runIds: retentionRunIds,
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(blockedRetentionResponse.status, 200);
@@ -1880,7 +1927,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         retainCompleted: 1,
-        runIds: retentionRunIds
+        runIds: retentionRunIds,
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(retentionResponse.status, 200);
@@ -1987,7 +2035,8 @@ export async function serverTest() {
         validationCommands: ["npm test"],
         notes: "SLA breach fixture.",
         createdAt: staleRunCreatedAt,
-        updatedAt: staleRunCreatedAt
+        updatedAt: staleRunCreatedAt,
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(staleRunResponse.status, 200);
@@ -1998,7 +2047,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "escalated",
-        runIds: [staleRunJson.run.id]
+        runIds: [staleRunJson.run.id],
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(slaBreachResponse.status, 200);
@@ -2042,7 +2092,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        runIds: [staleRunJson.run.id]
+        runIds: [staleRunJson.run.id],
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(blockedResolveSlaBreachResponse.status, 200);
@@ -2058,7 +2109,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        runIds: [staleRunJson.run.id]
+        runIds: [staleRunJson.run.id],
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(resolveSlaBreachResponse.status, 200);
@@ -3463,7 +3515,8 @@ export async function serverTest() {
         readinessScore: 70,
         readinessStatus: "needs-prep",
         validationCommands: ["npm test"],
-        notes: "Fixture baseline drift item."
+        notes: "Fixture baseline drift item.",
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(driftFixtureRunResponse.status, 200);

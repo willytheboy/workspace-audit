@@ -2134,7 +2134,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string }} payload
+   * @param {{ projectId: string, projectName: string, relPath?: string, snapshotId?: string, title?: string, objective: string, status?: string, readinessScore?: number, readinessStatus?: string, blockers?: string[], agentPolicyId?: string, agentPolicyCheckpointId?: string, agentPolicyCheckpointStatus?: string, agentRole?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], validationCommands?: string[], notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   createAgentWorkOrderRun(payload) {
@@ -2146,7 +2146,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId: string }} payload
+   * @param {{ snapshotId: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, queuedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], skipped: number, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   createAgentWorkOrderRunsFromSnapshot(payload) {
@@ -2159,7 +2159,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ status?: string, notes?: string, archived?: boolean }} payload
+   * @param {{ status?: string, notes?: string, archived?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   updateAgentWorkOrderRun(runId, payload) {
@@ -2172,7 +2172,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ notes?: string }} [payload]
+   * @param {{ notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   refreshAgentWorkOrderRunTargetBaseline(runId, payload = {}) {
@@ -2185,7 +2185,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ notes?: string }} [payload]
+   * @param {{ notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   refreshAgentWorkOrderRunTargetBaselineAudit(runId, payload = {}) {
@@ -2197,7 +2197,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ retainCompleted: number, runIds?: string[] }} payload
+   * @param {{ retainCompleted: number, runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, retainCompleted: number, retained: number, archived: number, archivedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   applyAgentWorkOrderRunRetention(payload) {
@@ -2209,7 +2209,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runIds?: string[], action?: string }} payload
+   * @param {{ runIds?: string[], action?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, action: string, breached: number, skipped: number, breachedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   actionAgentWorkOrderRunSlaBreaches(payload) {
@@ -2221,7 +2221,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runIds?: string[] }} payload
+   * @param {{ runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, resolved: number, skipped: number, resolvedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */
   resolveAgentWorkOrderRunSlaBreaches(payload) {

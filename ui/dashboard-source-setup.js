@@ -62,13 +62,14 @@ function createTextNode(className, text) {
 /**
  * @param {{
  *   api: {
- *     addSource: (payload: { type: string, url: string }) => Promise<unknown>
+ *     addSource: (payload: { type: string, url: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>
  *   },
+ *   getScopeOptions?: () => { activeProjectId?: string, scopeMode?: "project" | "portfolio" },
  *   refreshSources: () => Promise<void>,
  *   setView: (view: "sources") => void
  * }} options
  */
-export function createSourceSetupModal({ api, refreshSources, setView }) {
+export function createSourceSetupModal({ api, getScopeOptions = () => ({}), refreshSources, setView }) {
   const overlay = document.getElementById("source-setup-modal");
   const title = document.getElementById("source-setup-title");
   const subtitle = document.getElementById("source-setup-subtitle");
@@ -152,7 +153,7 @@ export function createSourceSetupModal({ api, refreshSources, setView }) {
         isSubmitting = true;
         errorMessage = "";
         render();
-        await api.addSource({ type: mode.id, url: value });
+        await api.addSource({ type: mode.id, url: value, ...getScopeOptions() });
         completedSource = { type: mode.id, value };
         await refreshSources();
         isSubmitting = false;

@@ -1136,7 +1136,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string }} [payload]
+   * @param {{ title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot, dataSourceAccessValidationWorkflowSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[] }>}
    */
   createSourcesAccessValidationWorkflowSnapshot(payload = {}) {
@@ -1156,7 +1156,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
+   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createSourcesAccessValidationWorkflowTasks(payload = {}) {
@@ -1196,7 +1196,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ sourceId: string, status?: "validated" | "review" | "blocked", accessMethod?: string, evidence: string, commandHint?: string, checkedAt?: string }} payload
+   * @param {{ sourceId: string, status?: "validated" | "review" | "blocked", accessMethod?: string, evidence: string, commandHint?: string, checkedAt?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, evidence: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceRecord, taskSync?: { updated: number, taskIds: string[] }, ledger: import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload }>}
    */
   createSourcesAccessValidationEvidence(payload) {
@@ -1215,7 +1215,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
+   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createSourcesAccessValidationEvidenceCoverageTasks(payload = {}) {
@@ -1234,7 +1234,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }} [payload]
+   * @param {{ title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>}
    */
   createSourcesAccessValidationEvidenceSnapshot(payload = {}) {
@@ -1268,7 +1268,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }} [payload]
+   * @param {{ items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createSourcesAccessReviewTasks(payload = {}) {
@@ -1295,7 +1295,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot, dataSourceAccessTaskLedgerSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[] }>}
    */
   createSourcesAccessTaskLedgerSnapshot(payload = {}) {
@@ -1329,7 +1329,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string }} [payload]
+   * @param {{ title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot, dataSourceHealthSnapshots: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[] }>}
    */
   createSourcesSummarySnapshot(payload = {}) {
@@ -2608,7 +2608,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ type: string, url: string }} payload
+   * @param {{ type: string, url: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   addSource(payload) {
     return fetchJson("/api/sources", {
@@ -2620,11 +2620,14 @@ export const dashboardApi = {
 
   /**
    * @param {string} sourceId
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, removed: true, sourceId: string, sources: Array<{ type: string, url?: string, path?: string, addedAt?: string }> }>}
    */
-  deleteSource(sourceId) {
+  deleteSource(sourceId, payload = {}) {
     return fetchJson(`/api/sources/${encodeURIComponent(sourceId)}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
     });
   },
 

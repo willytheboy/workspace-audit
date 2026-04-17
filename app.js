@@ -119,6 +119,13 @@ function hasActiveExecutionScope() {
   return state.scopeMode === "portfolio" || Boolean(getActiveProject());
 }
 
+function getExecutionScopeOptions() {
+  return {
+    activeProjectId: state.activeProjectId || "",
+    scopeMode: state.scopeMode === "portfolio" ? "portfolio" : "project"
+  };
+}
+
 function persistScopeState() {
   writeLocalStorage(ACTIVE_PROJECT_STORAGE_KEY, state.activeProjectId || "");
   writeLocalStorage(SCOPE_MODE_STORAGE_KEY, state.scopeMode || "project");
@@ -921,6 +928,7 @@ async function saveAgentExecutionPolicy() {
 
 const sourceSetupModal = createSourceSetupModal({
   api: dashboardApi,
+  getScopeOptions: getExecutionScopeOptions,
   refreshSources: refreshSourcesView,
   setView: (view) => setView(view)
 });

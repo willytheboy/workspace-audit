@@ -78,14 +78,14 @@ function createEmptyTableRow(message) {
  *     fetchSourcesAccessMethodRegistry: () => Promise<import("./dashboard-types.js").DataSourcesAccessMethodRegistryPayload>,
  *     fetchSourcesAccessValidationWorkflow: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowPayload>,
  *     fetchSourcesAccessValidationWorkflowSnapshots: () => Promise<import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[]>,
- *     createSourcesAccessValidationWorkflowSnapshot: (payload?: { title?: string }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot, dataSourceAccessValidationWorkflowSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[] }>,
+ *     createSourcesAccessValidationWorkflowSnapshot: (payload?: { title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot, dataSourceAccessValidationWorkflowSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationWorkflowSnapshot[] }>,
  *     fetchSourcesAccessValidationWorkflowSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationWorkflowSnapshotDiffPayload>,
- *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createSourcesAccessValidationWorkflowTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationWorkflowItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchSourcesAccessChecklist: () => Promise<import("./dashboard-types.js").DataSourcesAccessChecklistPayload>,
  *     fetchSourcesAccessValidationRunbook: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationRunbookPayload>,
  *     fetchSourcesAccessValidationEvidence: (options?: { status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidencePayload>,
  *     fetchSourcesAccessValidationEvidenceCoverage: () => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoveragePayload>,
- *     createSourcesAccessValidationEvidenceCoverageTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createSourcesAccessValidationEvidenceCoverageTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessValidationEvidenceCoverageItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchDeploymentHealth: () => Promise<import("./dashboard-types.js").DeploymentHealthPayload>,
  *     fetchDeploymentSmokeChecks: () => Promise<import("./dashboard-types.js").DeploymentSmokeChecksPayload>,
  *     runDeploymentSmokeCheck: (payload: { url?: string, targetId?: string, label?: string, allowLocal?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord, deploymentSmokeCheckCount: number, governanceOperationCount: number }>,
@@ -174,18 +174,18 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceTaskLedgerDriftCheckpointLedgerPayload>,
  *     createConvergenceTaskLedgerDriftCheckpoint: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     createReleaseCheckpoint: (payload?: { title?: string, status?: "ready" | "review" | "hold", notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord, releaseCheckpointCount: number, governanceOperationCount: number }>,
- *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
+ *     createSourcesAccessValidationEvidenceSnapshot: (payload?: { title?: string, status?: "all" | "validated" | "review" | "blocked", sourceId?: string, accessMethod?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot, dataSourceAccessValidationEvidenceSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessValidationEvidenceSnapshot[] }>,
  *     fetchSourcesAccessValidationEvidenceSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessValidationEvidenceSnapshotDiffPayload>,
  *     fetchSourcesAccessMatrix: () => Promise<import("./dashboard-types.js").DataSourcesAccessMatrixPayload>,
  *     fetchSourcesAccessReviewQueue: () => Promise<import("./dashboard-types.js").DataSourcesAccessReviewQueuePayload>,
- *     createSourcesAccessReviewTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
- *     createSourcesAccessTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot, dataSourceAccessTaskLedgerSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[] }>,
+ *     createSourcesAccessReviewTasks: (payload?: { items?: import("./dashboard-types.js").DataSourcesAccessReviewQueueItem[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot | null, dataSourceAccessTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createSourcesAccessTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot, dataSourceAccessTaskLedgerSnapshots: import("./dashboard-types.js").PersistedDataSourcesAccessTaskLedgerSnapshot[] }>,
  *     fetchSourcesAccessTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesAccessTaskLedgerSnapshotDiffPayload>,
  *     fetchSourcesAccessGate: () => Promise<import("./dashboard-types.js").DataSourcesAccessGatePayload>,
  *     fetchSourcesSummarySnapshots: () => Promise<import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[]>,
- *     createSourcesSummarySnapshot: (payload?: { title?: string }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot, dataSourceHealthSnapshots: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[] }>,
+ *     createSourcesSummarySnapshot: (payload?: { title?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot, dataSourceHealthSnapshots: import("./dashboard-types.js").PersistedDataSourcesSummarySnapshot[] }>,
  *     fetchSourcesSummarySnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").DataSourcesSummarySnapshotDiffPayload>,
- *     deleteSource: (sourceId: string) => Promise<unknown>,
+ *     deleteSource: (sourceId: string, payload?: { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchGovernance: () => Promise<import("./dashboard-types.js").GovernancePayload>,
  *     fetchGovernanceTaskUpdateLedger: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").GovernanceTaskUpdateLedgerPayload>,
  *     createGovernanceTaskUpdateLedgerSnapshot: (payload?: { title?: string, limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot, governanceTaskUpdateLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceTaskUpdateLedgerSnapshot[] }>,
@@ -2144,7 +2144,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             status,
             accessMethod,
             evidence: trimmedEvidence,
-            checkedAt: new Date().toISOString()
+            checkedAt: new Date().toISOString(),
+            ...getCliBridgeScopeOptions()
           });
           element.textContent = result.taskSync?.updated ? `Synced ${result.taskSync.updated}` : "Recorded";
           await refreshAfterRecord();
@@ -11616,7 +11617,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Removing";
-          await api.deleteSource(sourceId);
+          await api.deleteSource(sourceId, getCliBridgeScopeOptions());
           await renderSources();
         } catch (error) {
           element.textContent = originalLabel;
@@ -13420,7 +13421,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         status,
         accessMethod: method.accessMethod || source.accessMethod || "review-required",
         evidence: `${evidence.trim()}\nMethod registry source: ${source.label || source.id}.`,
-        checkedAt
+        checkedAt,
+        ...getCliBridgeScopeOptions()
       });
     }
 
@@ -13436,7 +13438,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function saveSourcesAccessValidationWorkflowSnapshot(options = {}) {
     const created = await api.createSourcesAccessValidationWorkflowSnapshot({
-      title: "Data Sources Access Validation Workflow"
+      title: "Data Sources Access Validation Workflow",
+      ...getCliBridgeScopeOptions()
     });
     if (options.renderTarget === "governance") {
       await renderGovernance();
@@ -13511,7 +13514,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: "Data Sources Access Validation Workflow Task Ledger Auto Capture",
       snapshotStatus: "open",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     if (options.renderTarget === "governance") {
       await renderGovernance();
@@ -13537,7 +13541,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Validation Workflow Task Ledger Auto Capture: ${label}`.slice(0, 120),
       snapshotStatus: "open",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     if (renderTarget === "sources") {
       await renderSources();
@@ -13560,7 +13565,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Checklist Workflow Task Ledger Auto Capture: ${label}`.slice(0, 120),
       snapshotStatus: "open",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     const created = result.totals.created || 0;
@@ -13715,7 +13721,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
   async function saveSourcesSummarySnapshot() {
     const created = await api.createSourcesSummarySnapshot({
-      title: "Data Sources Health Summary"
+      title: "Data Sources Health Summary",
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     return `Saved ${created.snapshot.total} source${created.snapshot.total === 1 ? "" : "s"}`;
@@ -13775,7 +13782,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesSummarySnapshotDiff(snapshot.id);
     const sourceTitle = diff.snapshotTitle || snapshot.title || snapshot.id;
     await api.createSourcesSummarySnapshot({
-      title: `Accepted Data Sources summary drift as current baseline: ${sourceTitle}`.slice(0, 120)
+      title: `Accepted Data Sources summary drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     return "Accepted Data Sources summary drift as current baseline";
@@ -15025,7 +15033,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function seedGovernanceDataSourcesAccessReviewTasks() {
     const items = getFilteredGovernance()?.dataSourcesAccessReviewQueue?.items || [];
     if (!items.length) return "No Source Tasks";
-    const result = await api.createSourcesAccessReviewTasks({ items });
+    const result = await api.createSourcesAccessReviewTasks({ items, ...getCliBridgeScopeOptions() });
     await renderGovernance();
     return `Created ${result.totals.created} Task${result.totals.created === 1 ? "" : "s"}`;
   }
@@ -15044,7 +15052,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Access Review Task Ledger Auto Capture: ${label}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     if (renderTarget === "sources") {
       await renderSources();
@@ -15065,7 +15074,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Access Matrix Task Ledger Auto Capture: ${accessMethod}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     const created = result.totals.created || 0;
@@ -15093,7 +15103,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const items = (getFilteredGovernance()?.dataSourcesAccessValidationEvidenceCoverage?.items || [])
       .filter((item) => item.coverageStatus !== "covered");
     if (!items.length) return "No Evidence Tasks";
-    const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({ items });
+    const result = await api.createSourcesAccessValidationEvidenceCoverageTasks({ items, ...getCliBridgeScopeOptions() });
     await renderGovernance();
     return `Created ${result.totals.created} Evidence Task${result.totals.created === 1 ? "" : "s"}`;
   }
@@ -15110,7 +15120,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Runbook Evidence Task Ledger Auto Capture: ${accessMethod}`.slice(0, 120),
       snapshotStatus: "open",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const created = result.totals.created || 0;
@@ -15135,7 +15146,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Data Sources Evidence Coverage Task Ledger Auto Capture: ${label}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     if (renderTarget === "sources") {
       await renderSources();
@@ -15393,7 +15405,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createSourcesAccessTaskLedgerSnapshot({
       title: `Accepted Data Sources access task ledger drift as current baseline: ${sourceTitle}`.slice(0, 120),
       status: snapshot.statusFilter || "all",
-      limit: snapshot.limit || 100
+      limit: snapshot.limit || 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Accepted Data Sources access task ledger drift as current baseline";
@@ -15468,7 +15481,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       status: snapshot.statusFilter || "all",
       sourceId: snapshot.sourceId || "",
       accessMethod: snapshot.accessMethod || "",
-      limit: snapshot.limit || 100
+      limit: snapshot.limit || 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Accepted Data Sources access validation evidence drift as current baseline";
@@ -15533,7 +15547,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const diff = await api.fetchSourcesAccessValidationWorkflowSnapshotDiff(snapshotId);
     const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
     await api.createSourcesAccessValidationWorkflowSnapshot({
-      title: `Accepted Data Sources access validation workflow drift as current baseline: ${sourceTitle}`.slice(0, 120)
+      title: `Accepted Data Sources access validation workflow drift as current baseline: ${sourceTitle}`.slice(0, 120),
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Accepted Data Sources access validation workflow drift as current baseline";
@@ -15565,7 +15580,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createSourcesAccessTaskLedgerSnapshot({
       title: "Data Sources Access Task Ledger",
       status: "all",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }
@@ -15574,7 +15590,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createSourcesAccessValidationEvidenceSnapshot({
       title: "Data Sources Access Validation Evidence",
       status: "all",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }

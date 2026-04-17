@@ -17,6 +17,7 @@ export async function serverTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const dataSourcesScope = { scopeMode: "portfolio" };
   const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved", scopePayload = { scopeMode: "portfolio" }) => {
     const checkpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
       method: "POST",
@@ -94,7 +95,6 @@ export async function serverTest() {
     assert.equal(sourcesSummaryJson.sources[0].access.accessMethod, "local-filesystem");
     assert.equal(sourcesSummaryJson.sources[0].access.requiresReview, false);
     assert.match(sourcesSummaryJson.markdown, /# Data Sources Summary/);
-
     const deploymentHealthResponse = await fetch(`${baseUrl}/api/deployments/health`);
     assert.equal(deploymentHealthResponse.status, 200);
     const deploymentHealthJson = await deploymentHealthResponse.json();
@@ -314,10 +314,19 @@ export async function serverTest() {
     assert.equal(missingSourcesAccessValidationWorkflowSnapshotDiffJson.driftSeverity, "missing-snapshot");
     assert.match(missingSourcesAccessValidationWorkflowSnapshotDiffJson.markdown, /# Data Sources Access Validation Workflow Snapshot Drift/);
 
-    const createSourcesAccessValidationWorkflowSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`, {
+    const unscopedSourcesAccessValidationWorkflowSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Source Access Validation Workflow" })
+    });
+    assert.equal(unscopedSourcesAccessValidationWorkflowSnapshotResponse.status, 409);
+    const unscopedSourcesAccessValidationWorkflowSnapshotJson = await unscopedSourcesAccessValidationWorkflowSnapshotResponse.json();
+    assert.equal(unscopedSourcesAccessValidationWorkflowSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createSourcesAccessValidationWorkflowSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Source Access Validation Workflow", ...dataSourcesScope })
     });
     assert.equal(createSourcesAccessValidationWorkflowSnapshotResponse.status, 200);
     const createSourcesAccessValidationWorkflowSnapshotJson = await createSourcesAccessValidationWorkflowSnapshotResponse.json();
@@ -391,13 +400,27 @@ export async function serverTest() {
     assert.equal(initialSourcesAccessValidationEvidenceCoverageJson.items[0].coverageStatus, "missing");
     assert.match(initialSourcesAccessValidationEvidenceCoverageJson.markdown, /# Data Sources Access Validation Evidence Coverage/);
 
+    const unscopedSourcesAccessValidationEvidenceResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sourceId: sourcesAccessValidationRunbookJson.methods[0].sources[0].sourceId,
+        status: "validated",
+        evidence: "Operator confirmed read-only local folder access."
+      })
+    });
+    assert.equal(unscopedSourcesAccessValidationEvidenceResponse.status, 409);
+    const unscopedSourcesAccessValidationEvidenceJson = await unscopedSourcesAccessValidationEvidenceResponse.json();
+    assert.equal(unscopedSourcesAccessValidationEvidenceJson.reasonCode, "agent-execution-scope-required");
+
     const rejectedSourcesAccessValidationEvidenceResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         sourceId: sourcesAccessValidationRunbookJson.methods[0].sources[0].sourceId,
         status: "validated",
-        evidence: "password=supersecretvalue"
+        evidence: "password=supersecretvalue",
+        ...dataSourcesScope
       })
     });
     assert.equal(rejectedSourcesAccessValidationEvidenceResponse.status, 400);
@@ -412,7 +435,8 @@ export async function serverTest() {
         accessMethod: "local-filesystem",
         status: "validated",
         evidence: "Operator confirmed read-only local folder access from the current OS account.",
-        commandHint: "PowerShell: Test-Path <local-path>"
+        commandHint: "PowerShell: Test-Path <local-path>",
+        ...dataSourcesScope
       })
     });
     assert.equal(createSourcesAccessValidationEvidenceResponse.status, 200);
@@ -449,10 +473,19 @@ export async function serverTest() {
     assert.equal(sourcesAccessValidationWorkflowAfterEvidenceJson.items[0].stage, "validated");
     assert.equal(sourcesAccessValidationWorkflowAfterEvidenceJson.items[0].status, "ready");
 
-    const createSourcesAccessValidationEvidenceSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-snapshots`, {
+    const unscopedSourcesAccessValidationEvidenceSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Source Access Evidence", status: "validated", limit: 5 })
+    });
+    assert.equal(unscopedSourcesAccessValidationEvidenceSnapshotResponse.status, 409);
+    const unscopedSourcesAccessValidationEvidenceSnapshotJson = await unscopedSourcesAccessValidationEvidenceSnapshotResponse.json();
+    assert.equal(unscopedSourcesAccessValidationEvidenceSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createSourcesAccessValidationEvidenceSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Source Access Evidence", status: "validated", limit: 5, ...dataSourcesScope })
     });
     assert.equal(createSourcesAccessValidationEvidenceSnapshotResponse.status, 200);
     const createSourcesAccessValidationEvidenceSnapshotJson = await createSourcesAccessValidationEvidenceSnapshotResponse.json();
@@ -532,10 +565,19 @@ export async function serverTest() {
     const initialSourcesSummarySnapshotsJson = await initialSourcesSummarySnapshotsResponse.json();
     assert.equal(initialSourcesSummarySnapshotsJson.length, 0);
 
-    const createSourcesSummarySnapshotResponse = await fetch(`${baseUrl}/api/sources/summary-snapshots`, {
+    const unscopedSourcesSummarySnapshotResponse = await fetch(`${baseUrl}/api/sources/summary-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Sources Health Summary" })
+    });
+    assert.equal(unscopedSourcesSummarySnapshotResponse.status, 409);
+    const unscopedSourcesSummarySnapshotJson = await unscopedSourcesSummarySnapshotResponse.json();
+    assert.equal(unscopedSourcesSummarySnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createSourcesSummarySnapshotResponse = await fetch(`${baseUrl}/api/sources/summary-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Sources Health Summary", ...dataSourcesScope })
     });
     assert.equal(createSourcesSummarySnapshotResponse.status, 200);
     const createSourcesSummarySnapshotJson = await createSourcesSummarySnapshotResponse.json();
@@ -560,10 +602,19 @@ export async function serverTest() {
     assert.equal(sourcesSummarySnapshotDiffJson.driftScore, 0);
     assert.match(sourcesSummarySnapshotDiffJson.markdown, /# Data Sources Snapshot Drift/);
 
-    const addSourceResponse = await fetch(`${baseUrl}/api/sources`, {
+    const unscopedAddSourceResponse = await fetch(`${baseUrl}/api/sources`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type: "github", url: "https://example.com/org/repo" })
+    });
+    assert.equal(unscopedAddSourceResponse.status, 409);
+    const unscopedAddSourceJson = await unscopedAddSourceResponse.json();
+    assert.equal(unscopedAddSourceJson.reasonCode, "agent-execution-scope-required");
+
+    const addSourceResponse = await fetch(`${baseUrl}/api/sources`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "github", url: "https://example.com/org/repo", ...dataSourcesScope })
     });
     assert.equal(addSourceResponse.status, 200);
     const addSourceJson = await addSourceResponse.json();
@@ -657,8 +708,17 @@ export async function serverTest() {
     assert.equal(sourcesAccessGateAfterAddJson.tokenLikely, 1);
     assert.ok(sourcesAccessGateAfterAddJson.reasons.some((reason) => reason.code === "token-oauth-review"));
 
-    const deleteSourceResponse = await fetch(`${baseUrl}/api/sources/${encodeURIComponent(addedSource.id)}`, {
+    const unscopedDeleteSourceResponse = await fetch(`${baseUrl}/api/sources/${encodeURIComponent(addedSource.id)}`, {
       method: "DELETE"
+    });
+    assert.equal(unscopedDeleteSourceResponse.status, 409);
+    const unscopedDeleteSourceJson = await unscopedDeleteSourceResponse.json();
+    assert.equal(unscopedDeleteSourceJson.reasonCode, "agent-execution-scope-required");
+
+    const deleteSourceResponse = await fetch(`${baseUrl}/api/sources/${encodeURIComponent(addedSource.id)}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataSourcesScope)
     });
     assert.equal(deleteSourceResponse.status, 200);
     const deleteSourceJson = await deleteSourceResponse.json();
@@ -3969,6 +4029,20 @@ export async function serverTest() {
     assert.match(agentControlPlaneDecisionAfterDriftJson.markdown, /Decision: review/);
     assert.match(agentControlPlaneDecisionAfterDriftJson.markdown, /Baseline drift severity: (low|medium)/);
 
+    const unscopedSeedSourceAccessTasksResponse = await fetch(`${baseUrl}/api/sources/access-review-queue/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: [{
+          id: "source-access-review:github-fixture",
+          label: "GitHub Fixture"
+        }]
+      })
+    });
+    assert.equal(unscopedSeedSourceAccessTasksResponse.status, 409);
+    const unscopedSeedSourceAccessTasksJson = await unscopedSeedSourceAccessTasksResponse.json();
+    assert.equal(unscopedSeedSourceAccessTasksJson.reasonCode, "agent-execution-scope-required");
+
     const seedSourceAccessTasksResponse = await fetch(`${baseUrl}/api/sources/access-review-queue/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3988,7 +4062,8 @@ export async function serverTest() {
           validation: "Run git ls-remote from the operator shell.",
           credentialHint: "git-credential-manager-or-token",
           secretPolicy: "non-secret-metadata-only"
-        }]
+        }],
+        ...dataSourcesScope
       })
     });
     assert.equal(seedSourceAccessTasksResponse.status, 200);
@@ -4010,7 +4085,8 @@ export async function serverTest() {
         items: [{
           id: "source-access-review:github-fixture",
           label: "GitHub Fixture"
-        }]
+        }],
+        ...dataSourcesScope
       })
     });
     assert.equal(repeatSeedSourceAccessTasksResponse.status, 200);
@@ -4061,10 +4137,19 @@ export async function serverTest() {
     assert.match(sourcesAccessTaskLedgerWithTaskJson.markdown, /# Data Sources Access Task Ledger/);
     assert.match(sourcesAccessTaskLedgerWithTaskJson.markdown, /GitHub Fixture/);
 
-    const createSourcesAccessTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots`, {
+    const unscopedSourcesAccessTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Source Access Task Ledger", status: "open", limit: 5 })
+    });
+    assert.equal(unscopedSourcesAccessTaskLedgerSnapshotResponse.status, 409);
+    const unscopedSourcesAccessTaskLedgerSnapshotJson = await unscopedSourcesAccessTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedSourcesAccessTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createSourcesAccessTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/sources/access-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: "Fixture Source Access Task Ledger", status: "open", limit: 5, ...dataSourcesScope })
     });
     assert.equal(createSourcesAccessTaskLedgerSnapshotResponse.status, 200);
     const createSourcesAccessTaskLedgerSnapshotJson = await createSourcesAccessTaskLedgerSnapshotResponse.json();
@@ -4130,6 +4215,21 @@ export async function serverTest() {
     assert.match(sourcesAccessTaskLedgerSnapshotDiffJson.markdown, /# Data Sources Access Task Ledger Snapshot Drift/);
     assert.match(sourcesAccessTaskLedgerSnapshotDiffJson.markdown, /Open source-access tasks/);
 
+    const unscopedSeedSourceEvidenceCoverageTasksResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: [{
+          id: "source-access-validation-evidence-coverage:github-coverage-fixture",
+          label: "GitHub Coverage Fixture",
+          coverageStatus: "missing"
+        }]
+      })
+    });
+    assert.equal(unscopedSeedSourceEvidenceCoverageTasksResponse.status, 409);
+    const unscopedSeedSourceEvidenceCoverageTasksJson = await unscopedSeedSourceEvidenceCoverageTasksResponse.json();
+    assert.equal(unscopedSeedSourceEvidenceCoverageTasksJson.reasonCode, "agent-execution-scope-required");
+
     const seedSourceEvidenceCoverageTasksResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -4145,7 +4245,8 @@ export async function serverTest() {
           latestEvidenceStatus: "missing",
           action: "Record non-secret Git HTTPS validation evidence after confirming provider access outside this app.",
           secretPolicy: "non-secret-validation-evidence-only"
-        }]
+        }],
+        ...dataSourcesScope
       })
     });
     assert.equal(seedSourceEvidenceCoverageTasksResponse.status, 200);
@@ -4168,7 +4269,8 @@ export async function serverTest() {
           id: "source-access-validation-evidence-coverage:github-coverage-fixture",
           label: "GitHub Coverage Fixture",
           coverageStatus: "missing"
-        }]
+        }],
+        ...dataSourcesScope
       })
     });
     assert.equal(repeatSeedSourceEvidenceCoverageTasksResponse.status, 200);
@@ -6236,6 +6338,7 @@ export async function sourceEvidenceCoverageTaskSyncTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const dataSourcesScope = { scopeMode: "portfolio" };
 
   try {
     const coverageResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage`);
@@ -6244,10 +6347,19 @@ export async function sourceEvidenceCoverageTaskSyncTest() {
     assert.equal(coverageJson.items.length, 1);
     assert.equal(coverageJson.items[0].coverageStatus, "missing");
 
-    const seedResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage/tasks`, {
+    const unscopedSeedResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ items: [coverageJson.items[0]] })
+    });
+    assert.equal(unscopedSeedResponse.status, 409);
+    const unscopedSeedJson = await unscopedSeedResponse.json();
+    assert.equal(unscopedSeedJson.reasonCode, "agent-execution-scope-required");
+
+    const seedResponse = await fetch(`${baseUrl}/api/sources/access-validation-evidence-coverage/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [coverageJson.items[0]], ...dataSourcesScope })
     });
     assert.equal(seedResponse.status, 200);
     const seedJson = await seedResponse.json();
@@ -6262,7 +6374,8 @@ export async function sourceEvidenceCoverageTaskSyncTest() {
         sourceId: coverageJson.items[0].sourceId,
         accessMethod: coverageJson.items[0].accessMethod,
         status: "validated",
-        evidence: "Operator confirmed read-only local folder access before syncing the evidence coverage task."
+        evidence: "Operator confirmed read-only local folder access before syncing the evidence coverage task.",
+        ...dataSourcesScope
       })
     });
     assert.equal(createEvidenceResponse.status, 200);
@@ -6310,6 +6423,7 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const dataSourcesScope = { scopeMode: "portfolio" };
 
   try {
     const workflowResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow`);
@@ -6319,6 +6433,15 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
     assert.equal(workflowJson.summary.pending, 1);
     assert.equal(workflowJson.items[0].stage, "record-validation-evidence");
 
+    const unscopedSeedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: [workflowJson.items[0]] })
+    });
+    assert.equal(unscopedSeedResponse.status, 409);
+    const unscopedSeedJson = await unscopedSeedResponse.json();
+    assert.equal(unscopedSeedJson.reasonCode, "agent-execution-scope-required");
+
     const seedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -6327,7 +6450,8 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
         saveSnapshot: true,
         snapshotTitle: "Fixture Workflow Task Ledger Auto Capture",
         snapshotStatus: "open",
-        snapshotLimit: 5
+        snapshotLimit: 5,
+        ...dataSourcesScope
       })
     });
     assert.equal(seedResponse.status, 200);
@@ -6348,7 +6472,7 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
     const repeatSeedResponse = await fetch(`${baseUrl}/api/sources/access-validation-workflow/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ items: [workflowJson.items[0]] })
+      body: JSON.stringify({ items: [workflowJson.items[0]], ...dataSourcesScope })
     });
     assert.equal(repeatSeedResponse.status, 200);
     const repeatSeedJson = await repeatSeedResponse.json();
@@ -6380,7 +6504,8 @@ export async function sourceAccessValidationWorkflowTaskSeedingTest() {
         sourceId: workflowJson.items[0].sourceId,
         accessMethod: workflowJson.items[0].accessMethod,
         status: "validated",
-        evidence: "Operator confirmed read-only local folder access before syncing the workflow task."
+        evidence: "Operator confirmed read-only local folder access before syncing the workflow task.",
+        ...dataSourcesScope
       })
     });
     assert.equal(createEvidenceResponse.status, 200);

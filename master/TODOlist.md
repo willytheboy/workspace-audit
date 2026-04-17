@@ -2847,3 +2847,11 @@
 - [x] Pass dashboard scope metadata through smoke-check, checkpoint, and evidence-bootstrap actions.
 - [x] Add parser and server coverage for direct unscoped Release Evidence writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Data Sources Write Scope Guard
+
+- [x] Guard Data Sources registry add and remove operations behind explicit project or portfolio scope.
+- [x] Guard Data Sources validation evidence, snapshots, task seeding, and task-ledger snapshots behind the same scope requirement.
+- [x] Pass dashboard scope metadata through Data Sources registry, evidence, snapshot, and task actions.
+- [x] Add parser and server coverage for direct unscoped Data Sources writes.
+- [x] Validate, relaunch, commit, and push.

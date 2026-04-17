@@ -12,6 +12,7 @@ const dashboardViewsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboa
 const dashboardApiSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-api.js"), "utf8");
 const dashboardActionsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-actions.js"), "utf8");
 const dashboardCommandPaletteSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-command-palette.js"), "utf8");
+const sourceSetupSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-source-setup.js"), "utf8");
 const dashboardModalSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-modal.js"), "utf8");
 const dashboardModalComponentsSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-modal-components.js"), "utf8");
 const dashboardTypesSource = fs.readFileSync(path.join(__dirname, "ui", "dashboard-types.js"), "utf8");
@@ -151,6 +152,33 @@ try {
   console.log("Server-side agent execution scope guard:", serverSource.includes("createAgentExecutionScopeGuard") && serverSource.includes("sendAgentExecutionScopeGuardFailure") && serverSource.includes("agent-execution-scope-required") && serverSource.includes("agent-execution-scope-mismatch") && dashboardViewsSource.includes("createAgentWorkOrderRunsFromSnapshot({ snapshotId, ...getCliBridgeScopeOptions() })") && dashboardViewsSource.includes("api.updateAgentWorkOrderRun(run.id, {\n        ...getCliBridgeScopeOptions()") && dashboardApiSource.includes('scopeMode?: "project" | "portfolio"') && testsSource.includes("unscopedBatchAgentWorkOrderRunsResponse") && testsSource.includes("mismatchedAgentWorkOrderRunResponse") ? "Present" : "Missing");
   console.log("Server-side CLI bridge evidence scope guard:", serverSource.includes("Agent Execution work orders, CLI bridge evidence, or control-plane artifacts") && dashboardViewsSource.includes("api.createCliBridgeRunnerResult({\n            ...getCliBridgeScopeOptions()") && dashboardViewsSource.includes("api.reviewCliBridgeHandoff(handoffId, {\n            ...getCliBridgeScopeOptions()") && dashboardViewsSource.includes("api.createCliBridgeRunTraceSnapshot(runId, {\n            ...getCliBridgeScopeOptions()") && dashboardViewsSource.includes("api.createAgentExecutionResultCheckpoint({\n            ...getCliBridgeScopeOptions()") && testsSource.includes("unscopedCliBridgeHandoffResponse") && testsSource.includes("unscopedExecutionResultCheckpointResponse") && testsSource.includes("mismatchedCliBridgeHandoffResponse") ? "Present" : "Missing");
   console.log("Source setup modal:", html.includes('id="open-source-setup-btn"') && html.includes('id="source-setup-modal"') ? "Present" : "Missing");
+  const dataSourcesWriteScopeGuardPresent = serverSource.includes('pathname === "/api/sources"')
+    && serverSource.includes('sourceRegistryMatch && req.method === "DELETE"')
+    && serverSource.includes('pathname === "/api/sources/access-validation-workflow-snapshots"')
+    && serverSource.includes('pathname === "/api/sources/access-validation-workflow/tasks"')
+    && serverSource.includes('pathname === "/api/sources/access-validation-evidence"')
+    && serverSource.includes('pathname === "/api/sources/access-validation-evidence-coverage/tasks"')
+    && serverSource.includes('pathname === "/api/sources/access-validation-evidence-snapshots"')
+    && serverSource.includes('pathname === "/api/sources/access-review-queue/tasks"')
+    && serverSource.includes('pathname === "/api/sources/access-task-ledger-snapshots"')
+    && serverSource.includes('pathname === "/api/sources/summary-snapshots"')
+    && appSource.includes("getExecutionScopeOptions")
+    && sourceSetupSource.includes("getScopeOptions")
+    && sourceSetupSource.includes("api.addSource({ type: mode.id, url: value, ...getScopeOptions() })")
+    && dashboardApiSource.includes("deleteSource(sourceId, payload = {})")
+    && dashboardViewsSource.includes("api.deleteSource(sourceId, getCliBridgeScopeOptions())")
+    && dashboardViewsSource.includes("...getCliBridgeScopeOptions()")
+    && testsSource.includes("unscopedSourcesAccessValidationWorkflowSnapshotResponse")
+    && testsSource.includes("unscopedSourcesAccessValidationEvidenceResponse")
+    && testsSource.includes("unscopedSourcesAccessValidationEvidenceSnapshotResponse")
+    && testsSource.includes("unscopedSourcesSummarySnapshotResponse")
+    && testsSource.includes("unscopedAddSourceResponse")
+    && testsSource.includes("unscopedDeleteSourceResponse")
+    && testsSource.includes("unscopedSeedSourceAccessTasksResponse")
+    && testsSource.includes("unscopedSourcesAccessTaskLedgerSnapshotResponse")
+    && testsSource.includes("unscopedSeedSourceEvidenceCoverageTasksResponse")
+    && testsSource.includes("unscopedSeedResponse");
+  console.log("Server-side Data Sources write scope guard:", dataSourcesWriteScopeGuardPresent ? "Present" : "Missing");
   console.log("Data sources health summary:", dashboardApiSource.includes("/api/sources/summary") && dashboardViewsSource.includes("fetchSourcesSummary") && dashboardComponentsSource.includes("DataSourceHealthRecord") && dashboardComponentsSource.includes("Status: ${status}") && dashboardTypesSource.includes("DataSourcesSummaryPayload") && serverSource.includes("Data Sources Summary") ? "Present" : "Missing");
   console.log("Deployment health smoke checks:", dashboardApiSource.includes("/api/deployments/health") && dashboardApiSource.includes("/api/deployments/smoke-check") && dashboardApiSource.includes("/api/deployments/smoke-checks") && dashboardTypesSource.includes("DeploymentHealthPayload") && dashboardTypesSource.includes("DeploymentSmokeCheckRecord") && dashboardTypesSource.includes("DeploymentSmokeChecksPayload") && serverSource.includes("Deployment Health Targets") && serverSource.includes("Deployment Smoke Check Ledger") && serverSource.includes("deploymentSmokeChecks") && serverSource.includes("deployment-smoke-check-recorded") && testsSource.includes("Fixture local app") ? "Present" : "Missing");
   console.log("Deployment health sources deck:", html.includes('id="copy-sources-deployment-health-btn"') && html.includes('id="copy-sources-deployment-smoke-checks-btn"') && dashboardViewsSource.includes("createDeploymentHealthSection") && dashboardViewsSource.includes("deployment-health-deck") && dashboardViewsSource.includes("deployment-smoke-check-btn") && dashboardViewsSource.includes("deployment-smoke-check-ledger") && dashboardActionsSource.includes("copy-sources-deployment-health") && dashboardActionsSource.includes("copy-sources-deployment-smoke-checks") && appSource.includes("copySourcesDeploymentHealth") && appSource.includes("copySourcesDeploymentSmokeChecks") ? "Present" : "Missing");

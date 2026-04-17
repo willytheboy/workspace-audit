@@ -13783,7 +13783,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const created = await api.createAgentWorkOrderSnapshot({
       title: "Agent Work Orders",
       status: "all",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     const snapshotMarkdown = created.snapshot.markdown || markdown;
     if (navigator.clipboard?.writeText) {
@@ -15528,7 +15529,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createAgentWorkOrderSnapshot({
       title: "Agent Work Orders",
       status: "all",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }

@@ -2024,7 +2024,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: string, limit?: number }} [payload]
+   * @param {{ title?: string, status?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentWorkOrderSnapshot, agentWorkOrderSnapshots: import("./dashboard-types.js").PersistedAgentWorkOrderSnapshot[] }>}
    */
   createAgentWorkOrderSnapshot(payload = {}) {

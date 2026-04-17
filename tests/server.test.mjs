@@ -1130,13 +1130,27 @@ export async function serverTest() {
     const initialAgentWorkOrderSnapshotsJson = await initialAgentWorkOrderSnapshotsResponse.json();
     assert.equal(initialAgentWorkOrderSnapshotsJson.length, 0);
 
-    const createAgentWorkOrderSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-snapshots`, {
+    const unscopedAgentWorkOrderSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Agent Work Orders",
         status: "all",
         limit: 10
+      })
+    });
+    assert.equal(unscopedAgentWorkOrderSnapshotResponse.status, 409);
+    const unscopedAgentWorkOrderSnapshotJson = await unscopedAgentWorkOrderSnapshotResponse.json();
+    assert.equal(unscopedAgentWorkOrderSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createAgentWorkOrderSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Agent Work Orders",
+        status: "all",
+        limit: 10,
+        scopeMode: "portfolio"
       })
     });
     assert.equal(createAgentWorkOrderSnapshotResponse.status, 200);

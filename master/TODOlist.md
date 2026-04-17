@@ -2815,3 +2815,10 @@
 - [x] Pass dashboard scope metadata through SLA ledger snapshot saves.
 - [x] Add parser and server coverage for direct unscoped SLA ledger snapshot writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Work Order Snapshot Scope Guard
+
+- [x] Guard Agent Work Order snapshot creation behind explicit project or portfolio scope.
+- [x] Pass dashboard scope metadata through work-order snapshot save and copy workflows.
+- [x] Add parser and server coverage for direct unscoped work-order snapshot writes.
+- [x] Validate, relaunch, commit, and push.

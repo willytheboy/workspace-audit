@@ -198,13 +198,13 @@ function createEmptyTableRow(message) {
  *     createAgentControlPlaneDecisionTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>,
  *     fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload>,
  *     bootstrapGovernance: (payload: { mode: "profiles" | "starter-pack", projectIds: string[] }) => Promise<unknown>,
- *     refreshGovernanceProfileTargets: () => Promise<unknown>,
- *     createGovernanceProfileTargetTasks: (payload?: { items?: Array<Pick<import("./dashboard-types.js").GovernanceProfileTarget, "projectId" | "projectName" | "id">> }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ projectId: string, projectName: string, kind: string, reason: string }>, totals: { created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     refreshGovernanceProfileTargets: (payload?: { activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     createGovernanceProfileTargetTasks: (payload?: { items?: Array<Pick<import("./dashboard-types.js").GovernanceProfileTarget, "projectId" | "projectName" | "id">>, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ projectId: string, projectName: string, kind: string, reason: string }>, totals: { created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchGovernanceProfileTargetTaskLedger: (status?: "all" | "open" | "closed") => Promise<{ summary: Record<string, number | string>, items: import("./dashboard-types.js").PersistedTask[], markdown: string, secretPolicy: string, generatedAt: string }>,
  *     fetchGovernanceProfileTargetTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerSnapshotDiffPayload>,
- *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
- *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
- *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
+ *     refreshGovernanceProfileTargetTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>,
+ *     checkpointGovernanceProfileTargetTaskLedgerDrift: (payload: { snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchGovernanceProfileTargetTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerDriftCheckpointLedgerPayload>,
  *     fetchGovernanceProfileTargetTaskLedgerBaselineStatus: () => Promise<import("./dashboard-types.js").GovernanceProfileTargetTaskLedgerBaselineStatusPayload>,
  *     executeGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "actionType">> }) => Promise<unknown>,
@@ -1766,7 +1766,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
               lifecycle: "active",
               tier: "supporting",
               targetState: "stabilize",
-              summary: "Created from the governance gap registry."
+              summary: "Created from the governance gap registry.",
+              ...getCliBridgeScopeOptions()
             });
           }
 
@@ -6075,7 +6076,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           const response = await api.checkpointGovernanceProfileTargetTaskLedgerDrift({
             snapshotId,
             field,
-            decision
+            decision,
+            ...getCliBridgeScopeOptions()
           });
           element.textContent = response.decisionLabel || "Updated";
           await renderGovernance();
@@ -6137,7 +6139,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             snapshotId: "latest",
             title: "Accepted Governance Profile Target Task Ledger Baseline",
             status: "all",
-            limit: 100
+            limit: 100,
+            ...getCliBridgeScopeOptions()
           });
           element.textContent = "Baseline Saved";
           await renderGovernance();
@@ -12242,12 +12245,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       throw new Error("No visible governance gaps are available for bootstrapping.");
     }
 
-    await api.bootstrapGovernance({ mode, projectIds });
+    await api.bootstrapGovernance({ mode, projectIds, ...getCliBridgeScopeOptions() });
     await renderGovernance();
   }
 
   async function refreshGovernanceProfileTargets() {
-    await api.refreshGovernanceProfileTargets();
+    await api.refreshGovernanceProfileTargets(getCliBridgeScopeOptions());
     await renderGovernance();
   }
 
@@ -12260,7 +12263,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         projectName: item.projectName
       }));
     if (!items.length) return "No Target Tasks";
-    const result = await api.createGovernanceProfileTargetTasks({ items });
+    const result = await api.createGovernanceProfileTargetTasks({ items, ...getCliBridgeScopeOptions() });
     await renderGovernance();
     return `Created ${result.totals.created} Target Task${result.totals.created === 1 ? "" : "s"}`;
   }
@@ -12275,7 +12278,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createGovernanceProfileTargetTaskLedgerSnapshot({
       title: "Governance Profile Target Task Ledger",
       status: "all",
-      limit: 100
+      limit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Saved Target Task Snapshot";
@@ -12292,7 +12296,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       snapshotId: "latest",
       title: "Accepted Governance Profile Target Task Ledger Baseline",
       status: "all",
-      limit: 100
+      limit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Refreshed Target Baseline";

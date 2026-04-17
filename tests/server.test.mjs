@@ -17,6 +17,7 @@ export async function serverTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const activeProjectScope = { activeProjectId: "alpha-app", scopeMode: "project" };
   const dataSourcesScope = { scopeMode: "portfolio" };
   const createExecutionResultCheckpoint = async (runId, targetAction, status = "approved", scopePayload = { scopeMode: "portfolio" }) => {
     const checkpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
@@ -1036,7 +1037,7 @@ export async function serverTest() {
     const patchMilestoneJson = await patchMilestoneResponse.json();
     assert.equal(patchMilestoneJson.milestone.status, "done");
 
-    const saveProfileResponse = await fetch(`${baseUrl}/api/project-profiles`, {
+    const unscopedSaveProfileResponse = await fetch(`${baseUrl}/api/project-profiles`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1048,6 +1049,25 @@ export async function serverTest() {
         tier: "core",
         targetState: "scale",
         summary: "Primary fixture app used to validate the control-center workflow."
+      })
+    });
+    assert.equal(unscopedSaveProfileResponse.status, 409);
+    const unscopedSaveProfileJson = await unscopedSaveProfileResponse.json();
+    assert.equal(unscopedSaveProfileJson.reasonCode, "agent-execution-scope-required");
+
+    const saveProfileResponse = await fetch(`${baseUrl}/api/project-profiles`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        projectId: "alpha-app",
+        projectName: "Alpha App",
+        owner: "Platform Team",
+        status: "active",
+        lifecycle: "stabilizing",
+        tier: "core",
+        targetState: "scale",
+        summary: "Primary fixture app used to validate the control-center workflow.",
+        ...activeProjectScope
       })
     });
     assert.equal(saveProfileResponse.status, 200);
@@ -1073,7 +1093,8 @@ export async function serverTest() {
         lifecycle: "scaling",
         tier: "core",
         targetState: "scale",
-        summary: "Profile updated to reflect the control-center rollout."
+        summary: "Profile updated to reflect the control-center rollout.",
+        ...activeProjectScope
       })
     });
     assert.equal(updateProfileResponse.status, 200);

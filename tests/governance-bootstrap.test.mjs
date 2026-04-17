@@ -15,6 +15,7 @@ export async function governanceBootstrapTest() {
 
   const address = server.address();
   const baseUrl = `http://127.0.0.1:${address.port}`;
+  const governanceScope = { activeProjectId: "alpha-app", scopeMode: "project" };
 
   try {
     const initialGovernanceResponse = await fetch(`${baseUrl}/api/governance`);
@@ -44,12 +45,25 @@ export async function governanceBootstrapTest() {
     assert.equal(initialGovernanceJson.actionQueue[0].actionType, "create-starter-pack");
     assert.match(initialGovernanceJson.actionQueue[0].detail, /app-dev scope/);
 
-    const seedProfilesResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
+    const unscopedSeedProfilesResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         mode: "profiles",
         projectIds: ["alpha-app"]
+      })
+    });
+    assert.equal(unscopedSeedProfilesResponse.status, 409);
+    const unscopedSeedProfilesJson = await unscopedSeedProfilesResponse.json();
+    assert.equal(unscopedSeedProfilesJson.reasonCode, "agent-execution-scope-required");
+
+    const seedProfilesResponse = await fetch(`${baseUrl}/api/governance/bootstrap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "profiles",
+        projectIds: ["alpha-app"],
+        ...governanceScope
       })
     });
     assert.equal(seedProfilesResponse.status, 200);
@@ -114,7 +128,8 @@ export async function governanceBootstrapTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         mode: "starter-pack",
-        projectIds: ["alpha-app"]
+        projectIds: ["alpha-app"],
+        ...governanceScope
       })
     });
     assert.equal(starterPackResponse.status, 200);
@@ -133,7 +148,8 @@ export async function governanceBootstrapTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         mode: "starter-pack",
-        projectIds: ["alpha-app"]
+        projectIds: ["alpha-app"],
+        ...governanceScope
       })
     });
     assert.equal(starterPackRepeatResponse.status, 200);
@@ -171,10 +187,19 @@ export async function governanceBootstrapTest() {
     assert.ok(finalGovernanceJson.workflowRunbook[0].blockers.includes("owner missing"));
     assert.equal(finalGovernanceJson.actionQueue[0].kind, "owner-gap");
 
-    const refreshProfileTargetsResponse = await fetch(`${baseUrl}/api/governance/profile-targets/refresh`, {
+    const unscopedRefreshProfileTargetsResponse = await fetch(`${baseUrl}/api/governance/profile-targets/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({})
+    });
+    assert.equal(unscopedRefreshProfileTargetsResponse.status, 409);
+    const unscopedRefreshProfileTargetsJson = await unscopedRefreshProfileTargetsResponse.json();
+    assert.equal(unscopedRefreshProfileTargetsJson.reasonCode, "agent-execution-scope-required");
+
+    const refreshProfileTargetsResponse = await fetch(`${baseUrl}/api/governance/profile-targets/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(governanceScope)
     });
     assert.equal(refreshProfileTargetsResponse.status, 200);
     const refreshProfileTargetsJson = await refreshProfileTargetsResponse.json();
@@ -208,15 +233,25 @@ export async function governanceBootstrapTest() {
           launchCommandCount: 2,
           status: "detected",
           rationale: "Fixture runtime ready."
-        }
+        },
+        ...governanceScope
       })
     });
     assert.equal(undercoveredProfileResponse.status, 200);
 
-    const seedProfileTargetTasksResponse = await fetch(`${baseUrl}/api/governance/profile-targets/tasks`, {
+    const unscopedSeedProfileTargetTasksResponse = await fetch(`${baseUrl}/api/governance/profile-targets/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({})
+    });
+    assert.equal(unscopedSeedProfileTargetTasksResponse.status, 409);
+    const unscopedSeedProfileTargetTasksJson = await unscopedSeedProfileTargetTasksResponse.json();
+    assert.equal(unscopedSeedProfileTargetTasksJson.reasonCode, "agent-execution-scope-required");
+
+    const seedProfileTargetTasksResponse = await fetch(`${baseUrl}/api/governance/profile-targets/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(governanceScope)
     });
     assert.equal(seedProfileTargetTasksResponse.status, 200);
     const seedProfileTargetTasksJson = await seedProfileTargetTasksResponse.json();
@@ -242,12 +277,25 @@ export async function governanceBootstrapTest() {
     assert.match(profileTargetTaskLedgerJson.markdown, /Governance Profile Target Task Ledger/);
     assert.match(profileTargetTaskLedgerJson.markdown, /alpha-app:test-coverage/);
 
-    const profileTargetTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots`, {
+    const unscopedProfileTargetTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Profile Target Task Ledger Snapshot",
         status: "open"
+      })
+    });
+    assert.equal(unscopedProfileTargetTaskLedgerSnapshotResponse.status, 409);
+    const unscopedProfileTargetTaskLedgerSnapshotJson = await unscopedProfileTargetTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedProfileTargetTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const profileTargetTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Profile Target Task Ledger Snapshot",
+        status: "open",
+        ...governanceScope
       })
     });
     assert.equal(profileTargetTaskLedgerSnapshotResponse.status, 200);
@@ -284,12 +332,25 @@ export async function governanceBootstrapTest() {
     assert.equal(profileTargetTaskLedgerBaselineStatusJson.uncheckpointedDriftItemCount, 0);
     assert.match(profileTargetTaskLedgerBaselineStatusJson.markdown, /Governance Profile Target Task Ledger Baseline Status/);
 
-    const profileTargetTaskLedgerSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/refresh`, {
+    const unscopedProfileTargetTaskLedgerSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: "latest",
         title: "Fixture Refreshed Profile Target Task Ledger Baseline"
+      })
+    });
+    assert.equal(unscopedProfileTargetTaskLedgerSnapshotRefreshResponse.status, 409);
+    const unscopedProfileTargetTaskLedgerSnapshotRefreshJson = await unscopedProfileTargetTaskLedgerSnapshotRefreshResponse.json();
+    assert.equal(unscopedProfileTargetTaskLedgerSnapshotRefreshJson.reasonCode, "agent-execution-scope-required");
+
+    const profileTargetTaskLedgerSnapshotRefreshResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        title: "Fixture Refreshed Profile Target Task Ledger Baseline",
+        ...governanceScope
       })
     });
     assert.equal(profileTargetTaskLedgerSnapshotRefreshResponse.status, 200);
@@ -326,7 +387,7 @@ export async function governanceBootstrapTest() {
     assert.ok(profileTargetTaskLedgerGovernanceAfterDriftJson.agentControlPlaneDecision.reasons.some((reason) => reason.code === "profile-target-task-baseline-drift-review"));
     assert.match(profileTargetTaskLedgerGovernanceAfterDriftJson.agentControlPlaneDecision.markdown, /Profile target task baseline health: drift-review-required/);
 
-    const profileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
+    const unscopedProfileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -334,6 +395,21 @@ export async function governanceBootstrapTest() {
         field: "open",
         decision: "confirmed",
         note: "Fixture checkpoint for target task ledger drift"
+      })
+    });
+    assert.equal(unscopedProfileTargetTaskLedgerDriftCheckpointResponse.status, 409);
+    const unscopedProfileTargetTaskLedgerDriftCheckpointJson = await unscopedProfileTargetTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedProfileTargetTaskLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const profileTargetTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/governance/profile-target-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        field: "open",
+        decision: "confirmed",
+        note: "Fixture checkpoint for target task ledger drift",
+        ...governanceScope
       })
     });
     assert.equal(profileTargetTaskLedgerDriftCheckpointResponse.status, 200);

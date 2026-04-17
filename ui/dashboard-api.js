@@ -2236,7 +2236,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ mode: "profiles" | "starter-pack", projectIds: string[] }} payload
+   * @param {{ mode: "profiles" | "starter-pack", projectIds: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    */
   bootstrapGovernance(payload) {
     return fetchJson("/api/governance/bootstrap", {
@@ -2247,18 +2247,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, refreshedProfiles: Array<{ projectId: string, projectName: string, testCoverageTarget: Record<string, unknown>, runtimeTarget: Record<string, unknown> }>, skippedProfiles: Array<{ projectId: string, projectName: string, reason: string }>, totals: { refreshed: number, skipped: number }, projectProfiles: import("./dashboard-types.js").PersistedProjectProfile[] }>}
    */
-  refreshGovernanceProfileTargets() {
+  refreshGovernanceProfileTargets(payload = {}) {
     return fetchJson("/api/governance/profile-targets/refresh", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({})
+      body: JSON.stringify(payload || {})
     });
   },
 
   /**
-   * @param {{ items?: Array<Pick<import("./dashboard-types.js").GovernanceProfileTarget, "projectId" | "projectName" | "id">> }} [payload]
+   * @param {{ items?: Array<Pick<import("./dashboard-types.js").GovernanceProfileTarget, "projectId" | "projectName" | "id">>, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ projectId: string, projectName: string, kind: string, reason: string }>, totals: { created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createGovernanceProfileTargetTasks(payload = {}) {
@@ -2293,7 +2294,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>}
    */
   createGovernanceProfileTargetTaskLedgerSnapshot(payload = {}) {
@@ -2305,7 +2306,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot, governanceProfileTargetTaskLedgerSnapshots: import("./dashboard-types.js").PersistedGovernanceProfileTargetTaskLedgerSnapshot[] }>}
    */
   refreshGovernanceProfileTargetTaskLedgerSnapshot(payload = {}) {
@@ -2317,7 +2318,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointGovernanceProfileTargetTaskLedgerDrift(payload) {
@@ -2413,7 +2414,9 @@ export const dashboardApi = {
    *   lifecycle?: string,
    *   tier?: string,
    *   targetState?: string,
-   *   summary?: string
+   *   summary?: string,
+   *   activeProjectId?: string,
+   *   scopeMode?: "project" | "portfolio"
    * }} payload
    */
   saveProjectProfile(payload) {

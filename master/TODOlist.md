@@ -2855,3 +2855,11 @@
 - [x] Pass dashboard scope metadata through Data Sources registry, evidence, snapshot, and task actions.
 - [x] Add parser and server coverage for direct unscoped Data Sources writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Governance Profile Target Scope Guard
+
+- [x] Guard governance profile upserts and governance bootstrap writes behind explicit project or portfolio scope.
+- [x] Guard profile target refresh, task seeding, target task-ledger snapshots, baseline refresh, and drift checkpoints behind the same scope requirement.
+- [x] Pass dashboard scope metadata through governance profile target, bootstrap, snapshot, baseline, and drift checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped Governance profile target writes.
+- [x] Validate, relaunch, commit, and push.

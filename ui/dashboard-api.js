@@ -963,7 +963,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated" }} payload
+   * @param {{ snapshotId?: string, field: string, decision: "confirmed" | "deferred" | "escalated", activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, decisionLabel: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createConvergenceTaskLedgerDriftCheckpoint(payload) {

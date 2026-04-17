@@ -2980,9 +2980,18 @@
 - [x] Pass dashboard scope metadata through queue, result, and follow-up task actions.
 - [x] Add parser and server coverage for direct unscoped remediation work-order writes.
 - [x] Validate, relaunch, commit, and push.
+
 ## Next Server-Side Convergence Launch Stack Remediation Work-Order Result Task Ledger Scope Guard
 
 - [x] Guard Convergence launch-stack remediation work-order result follow-up task ledger snapshot creation behind explicit project or portfolio scope.
 - [x] Pass dashboard scope metadata through result follow-up task ledger snapshot actions.
 - [x] Add parser and server coverage for direct unscoped result follow-up task ledger snapshot writes.
+- [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Review Task Ledger Scope Guard
+
+- [x] Guard Convergence Review task ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Guard Convergence Review task ledger drift checkpoint decisions behind the same scope requirement.
+- [x] Pass dashboard scope metadata through baseline save and drift checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped review task ledger writes.
 - [x] Validate, relaunch, commit, and push.

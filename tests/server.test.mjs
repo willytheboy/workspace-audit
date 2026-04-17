@@ -6246,13 +6246,27 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(missingConvergenceTaskLedgerDiffJson.hasSnapshot, false);
     assert.equal(missingConvergenceTaskLedgerDiffJson.driftSeverity, "missing-snapshot");
 
+    const unscopedCreateConvergenceTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Unscoped Fixture Convergence Review Task Ledger",
+        status: "all",
+        limit: 10
+      })
+    });
+    assert.equal(unscopedCreateConvergenceTaskLedgerSnapshotResponse.status, 409);
+    const unscopedCreateConvergenceTaskLedgerSnapshotJson = await unscopedCreateConvergenceTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedCreateConvergenceTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Convergence Review Task Ledger",
         status: "all",
-        limit: 10
+        limit: 10,
+        ...taskMutationScope
       })
     });
     assert.equal(createConvergenceTaskLedgerSnapshotResponse.status, 200);
@@ -6329,13 +6343,27 @@ export async function convergenceReviewSuppressionTest() {
     const convergenceTaskDriftItem = convergenceTaskLedgerDriftAfterUpdateJson.driftItems.find((item) => String(item.field || "").startsWith("convergence-task:"));
     assert.ok(convergenceTaskDriftItem);
 
-    const createConvergenceTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`, {
+    const unscopedCreateConvergenceTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: "latest",
         field: convergenceTaskDriftItem.field,
         decision: "deferred"
+      })
+    });
+    assert.equal(unscopedCreateConvergenceTaskLedgerDriftCheckpointResponse.status, 409);
+    const unscopedCreateConvergenceTaskLedgerDriftCheckpointJson = await unscopedCreateConvergenceTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedCreateConvergenceTaskLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const createConvergenceTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/task-ledger-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        field: convergenceTaskDriftItem.field,
+        decision: "deferred",
+        ...taskMutationScope
       })
     });
     assert.equal(createConvergenceTaskLedgerDriftCheckpointResponse.status, 200);
@@ -6353,7 +6381,8 @@ export async function convergenceReviewSuppressionTest() {
       body: JSON.stringify({
         snapshotId: "latest",
         field: convergenceTaskDriftItem.field,
-        decision: "escalated"
+        decision: "escalated",
+        ...taskMutationScope
       })
     });
     assert.equal(updateConvergenceTaskLedgerDriftCheckpointResponse.status, 200);

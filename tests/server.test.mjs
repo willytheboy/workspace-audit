@@ -1353,6 +1353,37 @@ export async function serverTest() {
     assert.equal(initialCliBridgeDryRunSnapshotDiffJson.status, "missing-snapshot");
     assert.match(initialCliBridgeDryRunSnapshotDiffJson.markdown, /dry-run snapshot/i);
 
+    const unscopedCliBridgeDryRunSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture unscoped Codex dry-run snapshot",
+        runner: "codex",
+        runId: createAgentWorkOrderRunJson.run.id,
+        limit: 12
+      })
+    });
+    assert.equal(unscopedCliBridgeDryRunSnapshotResponse.status, 409);
+    const unscopedCliBridgeDryRunSnapshotJson = await unscopedCliBridgeDryRunSnapshotResponse.json();
+    assert.equal(unscopedCliBridgeDryRunSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const invalidScopeCliBridgeDryRunSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture invalid-scope Codex dry-run snapshot",
+        runner: "codex",
+        runId: createAgentWorkOrderRunJson.run.id,
+        limit: 12,
+        activeProjectId: "beta-app",
+        scopeMode: "project"
+      })
+    });
+    assert.equal(invalidScopeCliBridgeDryRunSnapshotResponse.status, 409);
+    const invalidScopeCliBridgeDryRunSnapshotJson = await invalidScopeCliBridgeDryRunSnapshotResponse.json();
+    assert.equal(invalidScopeCliBridgeDryRunSnapshotJson.reasonCode, "agent-execution-scope-required");
+    assert.equal(invalidScopeCliBridgeDryRunSnapshotJson.scopeContext.guardDecision, "project-required");
+
     const createCliBridgeDryRunSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2673,13 +2704,27 @@ export async function serverTest() {
     const initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson = await initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsResponse.json();
     assert.equal(initialCliBridgeLifecycleStackRemediationTaskLedgerSnapshotsJson.length, 0);
 
+    const unscopedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture unscoped CLI Bridge Lifecycle Remediation Task Ledger",
+        status: "all",
+        limit: 100
+      })
+    });
+    assert.equal(unscopedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 409);
+    const unscopedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson = await unscopedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture CLI Bridge Lifecycle Remediation Task Ledger",
         status: "all",
-        limit: 100
+        limit: 100,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 200);
@@ -2772,6 +2817,19 @@ export async function serverTest() {
     assert.equal(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, true);
     assert.match(missingCliBridgeLifecycleHandoffPacketBaselineStatusJson.markdown, /CLI Bridge Lifecycle Handoff Packet Baseline Status/);
 
+    const unscopedCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture unscoped CLI Bridge Lifecycle Handoff Packet",
+        runner: "codex",
+        limit: 25
+      })
+    });
+    assert.equal(unscopedCliBridgeLifecycleHandoffPacketSnapshotResponse.status, 409);
+    const unscopedCliBridgeLifecycleHandoffPacketSnapshotJson = await unscopedCliBridgeLifecycleHandoffPacketSnapshotResponse.json();
+    assert.equal(unscopedCliBridgeLifecycleHandoffPacketSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2855,6 +2913,21 @@ export async function serverTest() {
     const cliBridgeLifecycleHandoffPacketDriftField = cliBridgeLifecycleHandoffPacketSnapshotDriftAfterTaskJson.driftItems[0]?.field;
     assert.ok(cliBridgeLifecycleHandoffPacketDriftField);
 
+    const unscopedCliBridgeLifecycleHandoffPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id,
+        runner: "codex",
+        field: cliBridgeLifecycleHandoffPacketDriftField,
+        decision: "confirmed",
+        note: "Fixture unscoped handoff packet drift checkpoint should be blocked."
+      })
+    });
+    assert.equal(unscopedCliBridgeLifecycleHandoffPacketDriftCheckpointResponse.status, 409);
+    const unscopedCliBridgeLifecycleHandoffPacketDriftCheckpointJson = await unscopedCliBridgeLifecycleHandoffPacketDriftCheckpointResponse.json();
+    assert.equal(unscopedCliBridgeLifecycleHandoffPacketDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const cliBridgeLifecycleHandoffPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2902,6 +2975,23 @@ export async function serverTest() {
     assert.equal(typeof driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshAllowed, "boolean");
     assert.ok(driftedCliBridgeLifecycleHandoffPacketBaselineStatusJson.refreshGateReasons.length >= 1);
 
+    const invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleHandoffPacketSnapshotJson.snapshot.id,
+        title: "Fixture invalid-scope CLI Bridge Lifecycle Handoff Packet",
+        runner: "codex",
+        limit: 25,
+        activeProjectId: "beta-app",
+        scopeMode: "project"
+      })
+    });
+    assert.equal(invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotResponse.status, 409);
+    const invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotJson = await invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotResponse.json();
+    assert.equal(invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotJson.reasonCode, "agent-execution-scope-required");
+    assert.equal(invalidScopeRefreshCliBridgeLifecycleHandoffPacketSnapshotJson.scopeContext.guardDecision, "project-required");
+
     const refreshCliBridgeLifecycleHandoffPacketSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-handoff-packet-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2947,6 +3037,21 @@ export async function serverTest() {
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson.hasDrift, true);
     assert.ok(cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDriftAfterTaskJson.driftItems.some((item) => item.field === "total"));
 
+    const unscopedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id,
+        status: "all",
+        field: "total",
+        decision: "escalated",
+        note: "Fixture unscoped remediation ledger drift checkpoint should be blocked."
+      })
+    });
+    assert.equal(unscopedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.status, 409);
+    const unscopedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson = await unscopedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -2955,7 +3060,8 @@ export async function serverTest() {
         status: "all",
         field: "total",
         decision: "escalated",
-        note: "Fixture non-secret drift checkpoint"
+        note: "Fixture non-secret drift checkpoint",
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointResponse.status, 200);
@@ -2993,6 +3099,20 @@ export async function serverTest() {
     assert.equal(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshAllowed, false);
     assert.ok(driftedCliBridgeLifecycleStackRemediationTaskLedgerBaselineStatusJson.refreshGateReasons.some((reason) => /drift field/i.test(reason)));
 
+    const unscopedRefreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id,
+        title: "Fixture unscoped refreshed CLI Bridge Lifecycle Remediation Task Ledger",
+        status: "all",
+        limit: 100
+      })
+    });
+    assert.equal(unscopedRefreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 409);
+    const unscopedRefreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson = await unscopedRefreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedRefreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/cli-bridge/lifecycle-stack-remediation-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3000,7 +3120,8 @@ export async function serverTest() {
         snapshotId: createCliBridgeLifecycleStackRemediationTaskLedgerSnapshotJson.snapshot.id,
         title: "Fixture Refreshed CLI Bridge Lifecycle Remediation Task Ledger",
         status: "all",
-        limit: 100
+        limit: 100,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshotResponse.status, 200);

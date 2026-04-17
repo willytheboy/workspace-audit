@@ -230,7 +230,7 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeRunnerDryRunSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotDiffPayload>,
  *     fetchCliBridgeRunnerDryRunSnapshotBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotBaselineStatusPayload>,
  *     fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload>,
- *     createCliBridgeRunnerDryRunSnapshot: (payload?: { title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<unknown>,
+ *     createCliBridgeRunnerDryRunSnapshot: (payload?: { title?: string, runner?: "codex" | "claude", runId?: string, status?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeFollowUpWorkOrderDraft: (handoffId: string, options?: { runner?: "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeFollowUpWorkOrderDraftPayload>,
  *     queueCliBridgeFollowUpWorkOrderRun: (handoffId: string, payload?: { runner?: "codex" | "claude", status?: string, notes?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeRunTrace: (runId: string) => Promise<import("./dashboard-types.js").CliBridgeRunTracePayload>,
@@ -240,16 +240,16 @@ function createEmptyTableRow(message) {
  *     fetchCliBridgeLifecycleStackRemediationPack: (options?: { limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationPackPayload>,
  *     fetchCliBridgeLifecycleHandoffPacket: (options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketPayload>,
  *     fetchCliBridgeLifecycleHandoffPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[]>,
- *     createCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
- *     refreshCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
+ *     createCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
+ *     refreshCliBridgeLifecycleHandoffPacketSnapshot: (payload?: { snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>,
  *     fetchCliBridgeLifecycleHandoffPacketSnapshotDiff: (snapshotId?: string, options?: { runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>,
  *     checkpointCliBridgeLifecycleHandoffPacketDrift: (payload: { snapshotId?: string, runner?: "all" | "codex" | "claude", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchCliBridgeLifecycleHandoffPacketDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketDriftCheckpointLedgerPayload>,
  *     fetchCliBridgeLifecycleHandoffPacketBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketBaselineStatusPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedger: (options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[]>,
- *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
- *     refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
+ *     createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
+ *     refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshot: (payload?: { snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff: (snapshotId?: string, options?: { status?: "all" | "open" | "closed", limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffPayload>,
  *     checkpointCliBridgeLifecycleStackRemediationTaskLedgerDrift: (payload: { snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchCliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedgerPayload>,
@@ -8181,7 +8181,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           await api.createCliBridgeLifecycleStackRemediationTaskLedgerSnapshot({
             title: "CLI Bridge Lifecycle Stack Remediation Task Ledger",
             status: "all",
-            limit: 100
+            limit: 100,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
           element.textContent = "Saved";
@@ -8257,7 +8258,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             snapshotId,
             status: status === "open" || status === "closed" ? status : "all",
             title: "Accepted CLI Bridge Lifecycle Stack Remediation Task Ledger Baseline",
-            limit: 100
+            limit: 100,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
           element.textContent = response.snapshot?.id ? "Accepted Drift" : "Refreshed";
@@ -8291,7 +8293,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             status: status === "open" || status === "closed" ? status : "all",
             field,
             decision: decision === "confirmed" || decision === "escalated" ? decision : "deferred",
-            note
+            note,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
           element.textContent = response.mode === "updated" ? "Updated" : "Created";

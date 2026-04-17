@@ -935,7 +935,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceTaskLedgerSnapshot, convergenceTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceTaskLedgerSnapshot[] }>}
    */
   createConvergenceTaskLedgerSnapshot(payload = {}) {
@@ -1672,7 +1672,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot, cliBridgeLifecycleStackRemediationTaskLedgerSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleStackRemediationTaskLedgerSnapshot[] }>}
    */
   refreshCliBridgeLifecycleStackRemediationTaskLedgerSnapshot(payload = {}) {
@@ -1697,7 +1697,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointCliBridgeLifecycleStackRemediationTaskLedgerDrift(payload) {

@@ -2768,3 +2768,12 @@
 - [x] Pass dashboard scope metadata through all guarded CLI bridge and execution-result evidence controls.
 - [x] Add required-scope and mismatch coverage for direct CLI bridge evidence API calls.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side CLI Bridge Baseline Scope Guard
+
+- [x] Guard CLI bridge dry-run snapshot creation by the selected work-order project.
+- [x] Guard lifecycle handoff packet snapshot, drift checkpoint, and baseline refresh mutations by saved snapshot scope.
+- [x] Guard lifecycle remediation task-ledger snapshot, drift checkpoint, and baseline refresh mutations behind explicit project or portfolio scope.
+- [x] Pass dashboard scope metadata through newly guarded baseline write actions.
+- [x] Add parser and server coverage for missing-scope and invalid-scope failures.
+- [x] Validate, relaunch, commit, and push.

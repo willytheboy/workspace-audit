@@ -5698,11 +5698,24 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(releaseBuildGateJson.decision, "review");
     const openActions = releaseBuildGateJson.actions.filter((action) => action.status !== "ready");
     assert.ok(openActions.length >= 1);
+    const releaseControlScope = { scopeMode: "portfolio" };
+
+    const unscopedReleaseBuildGateTaskResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actions: [openActions[0]] })
+    });
+    assert.equal(unscopedReleaseBuildGateTaskResponse.status, 409);
+    const unscopedReleaseBuildGateTaskJson = await unscopedReleaseBuildGateTaskResponse.json();
+    assert.equal(unscopedReleaseBuildGateTaskJson.reasonCode, "agent-execution-scope-required");
 
     const seedResponse = await fetch(`${baseUrl}/api/releases/build-gate/actions/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ actions: [openActions[0]] })
+      body: JSON.stringify({
+        actions: [openActions[0]],
+        ...releaseControlScope
+      })
     });
     assert.equal(seedResponse.status, 200);
     const seedJson = await seedResponse.json();
@@ -5741,10 +5754,24 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(missingReleaseTaskLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
     assert.match(missingReleaseTaskLedgerSnapshotDiffJson.markdown, /# Release Control Task Ledger Snapshot Drift/);
 
-    const createReleaseTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots`, {
+    const unscopedReleaseTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Release Control Task Ledger", status: "all", limit: 5 })
+    });
+    assert.equal(unscopedReleaseTaskLedgerSnapshotResponse.status, 409);
+    const unscopedReleaseTaskLedgerSnapshotJson = await unscopedReleaseTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedReleaseTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createReleaseTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/releases/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Release Control Task Ledger",
+        status: "all",
+        limit: 5,
+        ...releaseControlScope
+      })
     });
     assert.equal(createReleaseTaskLedgerSnapshotResponse.status, 200);
     const createReleaseTaskLedgerSnapshotJson = await createReleaseTaskLedgerSnapshotResponse.json();
@@ -5780,7 +5807,8 @@ export async function releaseBuildGateTaskSeedingTest() {
         saveSnapshot: true,
         snapshotTitle: "Fixture Release Control Task Ledger Auto Capture",
         snapshotStatus: "all",
-        snapshotLimit: 5
+        snapshotLimit: 5,
+        ...releaseControlScope
       })
     });
     assert.equal(repeatSeedResponse.status, 200);

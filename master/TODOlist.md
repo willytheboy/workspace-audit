@@ -2830,3 +2830,11 @@
 - [x] Pass dashboard scope metadata through policy checkpoint actions.
 - [x] Add parser and server coverage for unscoped and mismatched policy checkpoint writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Release Control Task Scope Guard
+
+- [x] Guard Release Control task-ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Guard Release Build Gate action task seeding and auto-capture behind the same scope requirement.
+- [x] Pass dashboard scope metadata through Release Control task snapshot and task-seeding actions.
+- [x] Add parser and server coverage for direct unscoped Release Control task writes.
+- [x] Validate, relaunch, commit, and push.

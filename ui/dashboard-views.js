@@ -93,10 +93,10 @@ function createEmptyTableRow(message) {
  *     fetchReleaseCheckpointDrift: (checkpointId?: string) => Promise<import("./dashboard-types.js").ReleaseCheckpointDriftPayload>,
  *     fetchReleaseBuildGate: () => Promise<import("./dashboard-types.js").ReleaseBuildGatePayload>,
  *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
- *     createReleaseTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>,
+ *     createReleaseTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>,
  *     fetchReleaseTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").ReleaseTaskLedgerSnapshotDiffPayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
- *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceDueDiligencePack: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceDueDiligencePackPayload>,
  *     fetchConvergenceOperatorProposalQueue: (status?: import("./dashboard-types.js").ConvergenceOperatorProposalQueueStatus) => Promise<import("./dashboard-types.js").ConvergenceOperatorProposalQueuePayload>,
  *     fetchConvergenceAssimilationBlueprint: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceAssimilationBlueprintPayload>,
@@ -13642,7 +13642,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Release Control Deployment Health Task Auto Capture: ${target.label || target.host || target.id}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     const created = result.totals.created || 0;
@@ -13682,7 +13683,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Release Control Smoke Check Task Auto Capture: ${smokeCheck.label || smokeCheck.host || smokeCheck.id}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderSources();
     const created = result.totals.created || 0;
@@ -13896,7 +13898,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Release Control Drift Field Task Auto Capture: ${item.label || item.field}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const taskLabel = payload.totals.created
@@ -13958,7 +13961,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createReleaseTaskLedgerSnapshot({
       title: "Release Control Task Ledger",
       status: "all",
-      limit: 100
+      limit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Saved Release Task Snapshot";
@@ -14074,7 +14078,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createReleaseTaskLedgerSnapshot({
       title: `Accepted Release Control task ledger drift as current baseline: ${sourceTitle}`.slice(0, 120),
       status: snapshot.statusFilter || "all",
-      limit: snapshot.limit || 100
+      limit: snapshot.limit || 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Accepted Release Control task ledger drift as current baseline";
@@ -14171,7 +14176,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: "Release Control Local Evidence Task Auto Capture",
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const taskLabel = payload.totals.created
@@ -14255,7 +14261,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const actions = (getFilteredGovernance()?.releaseBuildGate?.actions || [])
       .filter((action) => action.status !== "ready");
     if (!actions.length) return "No Gate Tasks";
-    const request = { actions };
+    const request = { actions, ...getCliBridgeScopeOptions() };
     if (options.saveSnapshot) {
       request.saveSnapshot = true;
       request.snapshotTitle = options.snapshotTitle || "Release Control Task Ledger Auto Capture";
@@ -14286,7 +14292,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const action = findReleaseBuildGateAction(actionId);
     if (!action) throw new Error(`Release Build Gate action not found: ${actionId}`);
 
-    const payload = await api.createReleaseBuildGateActionTasks({ actions: [action] });
+    const payload = await api.createReleaseBuildGateActionTasks({ actions: [action], ...getCliBridgeScopeOptions() });
     await renderGovernance();
     return `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;
   }
@@ -14301,7 +14307,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       saveSnapshot: true,
       snapshotTitle: `Release Control Task Ledger Auto Capture: ${label}`.slice(0, 120),
       snapshotStatus: "all",
-      snapshotLimit: 100
+      snapshotLimit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     const taskLabel = `Created ${payload.totals.created} Release Task${payload.totals.created === 1 ? "" : "s"}`;

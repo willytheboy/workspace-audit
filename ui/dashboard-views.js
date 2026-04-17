@@ -15539,7 +15539,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createAgentExecutionSlaLedgerSnapshot({
       title: "SLA Breach Ledger",
       state,
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }

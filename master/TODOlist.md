@@ -2808,3 +2808,10 @@
 - [x] Pass dashboard scope metadata through target-baseline audit ledger snapshot, refresh, and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped target-baseline audit ledger writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side SLA Ledger Snapshot Scope Guard
+
+- [x] Guard Agent Execution SLA ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Pass dashboard scope metadata through SLA ledger snapshot saves.
+- [x] Add parser and server coverage for direct unscoped SLA ledger snapshot writes.
+- [x] Validate, relaunch, commit, and push.

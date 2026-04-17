@@ -2242,13 +2242,27 @@ export async function serverTest() {
     const initialSlaLedgerSnapshotsJson = await initialSlaLedgerSnapshotsResponse.json();
     assert.equal(initialSlaLedgerSnapshotsJson.length, 0);
 
-    const createSlaLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/sla-ledger-snapshots`, {
+    const unscopedSlaLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/sla-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Resolved SLA ledger",
         state: "resolved",
         limit: 5
+      })
+    });
+    assert.equal(unscopedSlaLedgerSnapshotResponse.status, 409);
+    const unscopedSlaLedgerSnapshotJson = await unscopedSlaLedgerSnapshotResponse.json();
+    assert.equal(unscopedSlaLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createSlaLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/sla-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Resolved SLA ledger",
+        state: "resolved",
+        limit: 5,
+        ...portfolioAgentExecutionScope
       })
     });
     assert.equal(createSlaLedgerSnapshotResponse.status, 200);

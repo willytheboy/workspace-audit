@@ -2125,7 +2125,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, state?: "all" | "open" | "resolved", limit?: number }} [payload]
+   * @param {{ title?: string, state?: "all" | "open" | "resolved", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentExecutionSlaLedgerSnapshot, agentExecutionSlaLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionSlaLedgerSnapshot[] }>}
    */
   createAgentExecutionSlaLedgerSnapshot(payload = {}) {

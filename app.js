@@ -40,6 +40,47 @@ const runtime = {
   }
 };
 
+const ACTIVE_PROJECT_STORAGE_KEY = "workspace-audit-active-project";
+const SCOPE_MODE_STORAGE_KEY = "workspace-audit-scope-mode";
+
+/**
+ * @param {string} key
+ */
+function readLocalStorage(key) {
+  try {
+    return window.localStorage.getItem(key) || "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * @param {string} key
+ * @param {string} value
+ */
+function writeLocalStorage(key, value) {
+  try {
+    if (value) {
+      window.localStorage.setItem(key, value);
+    } else {
+      window.localStorage.removeItem(key);
+    }
+  } catch {
+    // Storage can be unavailable in hardened browser contexts.
+  }
+}
+
+/**
+ * @param {unknown} value
+ * @returns {"project" | "portfolio"}
+ */
+function normalizeScopeMode(value) {
+  return value === "portfolio" ? "portfolio" : "project";
+}
+
+state.activeProjectId = readLocalStorage(ACTIVE_PROJECT_STORAGE_KEY);
+state.scopeMode = normalizeScopeMode(readLocalStorage(SCOPE_MODE_STORAGE_KEY));
+
 const modal = createDashboardModal({
   getData: () => data,
   api: dashboardApi
@@ -58,6 +99,109 @@ function syncViewButtons() {
     if (!(button instanceof HTMLButtonElement)) return;
     button.classList.toggle("active", button.dataset.view === state.view);
   });
+}
+
+function getActiveProject() {
+  return (data.projects || []).find((project) => project.id === state.activeProjectId) || null;
+}
+
+function persistScopeState() {
+  writeLocalStorage(ACTIVE_PROJECT_STORAGE_KEY, state.activeProjectId || "");
+  writeLocalStorage(SCOPE_MODE_STORAGE_KEY, state.scopeMode || "project");
+}
+
+function syncActiveProjectValidity() {
+  if (!state.activeProjectId || !(data.projects || []).length) return;
+  if (!getActiveProject()) {
+    state.activeProjectId = "";
+    state.scopeMode = "project";
+    persistScopeState();
+  }
+}
+
+function renderScopeLock() {
+  syncActiveProjectValidity();
+  const select = /** @type {HTMLSelectElement | null} */ (document.getElementById("active-project-select"));
+  const badge = /** @type {HTMLButtonElement | null} */ (document.getElementById("scope-mode-toggle"));
+  const clearButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("clear-active-project-btn"));
+  if (!select || !badge || !clearButton) return;
+
+  const activeProject = getActiveProject();
+  const sortedProjects = [...(data.projects || [])].sort((left, right) => {
+    const leftActive = left.zone === "active" ? 0 : 1;
+    const rightActive = right.zone === "active" ? 0 : 1;
+    return leftActive - rightActive || left.name.localeCompare(right.name);
+  });
+  const options = [
+    new Option("No active project selected", ""),
+    ...sortedProjects.map((project) => new Option(`${project.name} - ${project.category}`, project.id))
+  ];
+  select.replaceChildren(...options);
+  select.value = activeProject?.id || "";
+
+  badge.classList.toggle("portfolio", state.scopeMode === "portfolio");
+  badge.classList.toggle("unscoped", state.scopeMode !== "portfolio" && !activeProject);
+  badge.textContent = state.scopeMode === "portfolio" ? "PORTFOLIO MODE" : activeProject ? "SCOPED" : "NO PROJECT";
+  badge.title = state.scopeMode === "portfolio"
+    ? "Portfolio mode allows AI and CLI planning across all visible projects. Click to return to project scope."
+    : activeProject
+      ? `Scoped to ${activeProject.name}. Click to enter portfolio mode.`
+      : "No active project is selected. Choose a project before project-scoped AI work.";
+  clearButton.disabled = !activeProject && state.scopeMode !== "portfolio";
+}
+
+function renderScopeState() {
+  renderScopeLock();
+  views.renderRuntimeStatus();
+}
+
+/**
+ * @param {string} projectId
+ * @param {string} [source]
+ */
+function setActiveProject(projectId, source = "manual") {
+  const project = (data.projects || []).find((item) => item.id === projectId);
+  if (!project) return false;
+  state.activeProjectId = project.id;
+  state.scopeMode = "project";
+  persistScopeState();
+  console.info(`[SCOPE] Active project -> ${project.id} (source: ${source})`);
+  renderScopeState();
+  return true;
+}
+
+function clearActiveProject() {
+  state.activeProjectId = "";
+  state.scopeMode = "project";
+  persistScopeState();
+  console.info("[SCOPE] Active project cleared");
+  renderScopeState();
+}
+
+/**
+ * @param {boolean} [showWarning]
+ */
+function enterPortfolioMode(showWarning = false) {
+  state.scopeMode = "portfolio";
+  persistScopeState();
+  console.warn("[SCOPE] Portfolio mode enabled");
+  renderScopeState();
+  if (showWarning) {
+    window.alert("Portfolio mode enabled. AI and CLI planning can now operate across all visible projects until you return to project scope.");
+  }
+}
+
+function exitPortfolioMode() {
+  state.scopeMode = "project";
+  persistScopeState();
+  console.info("[SCOPE] Project scope mode enabled");
+  renderScopeState();
+}
+
+function requireActiveProject() {
+  if (state.scopeMode === "portfolio" || getActiveProject()) return true;
+  window.alert("Select an active project first, or explicitly enter portfolio mode.");
+  return false;
 }
 
 /**
@@ -97,6 +241,7 @@ async function loadInventory() {
 async function refreshInventory() {
   await loadInventory();
   views.renderDashboard();
+  renderScopeLock();
 }
 
 async function runAuditRefresh() {
@@ -875,7 +1020,15 @@ const actionRegistry = createDashboardActionRegistry({
     saveGovernanceExecutionView,
     saveAgentExecutionPolicy,
     setArchivedVisibility,
-    openProject: (projectId) => modal.openModal(projectId)
+    setActiveProject: (projectId) => setActiveProject(projectId, "command-palette"),
+    clearActiveProject,
+    enterPortfolioMode: () => enterPortfolioMode(true),
+    exitPortfolioMode,
+    requireActiveProject,
+    openProject: (projectId) => {
+      setActiveProject(projectId, "workbench-open");
+      modal.openModal(projectId);
+    }
   }
 });
 
@@ -928,6 +1081,27 @@ function bindEventListeners() {
 
   document.getElementById("open-settings-btn").addEventListener("click", () => {
     settingsModal.open();
+  });
+
+  document.getElementById("active-project-select").addEventListener("change", (event) => {
+    const target = /** @type {HTMLSelectElement} */ (event.target);
+    if (target.value) {
+      setActiveProject(target.value, "header-select");
+      return;
+    }
+    clearActiveProject();
+  });
+
+  document.getElementById("scope-mode-toggle").addEventListener("click", () => {
+    if (state.scopeMode === "portfolio") {
+      exitPortfolioMode();
+      return;
+    }
+    enterPortfolioMode(true);
+  });
+
+  document.getElementById("clear-active-project-btn").addEventListener("click", () => {
+    clearActiveProject();
   });
 
   document.getElementById("open-source-setup-btn").addEventListener("click", () => {
@@ -1573,6 +1747,7 @@ async function initialize() {
     runtime.snapshotGeneratedAt = embeddedInventory.generatedAt;
     runtime.loadError = "";
     views.renderDashboard();
+    renderScopeLock();
   }
 
   try {

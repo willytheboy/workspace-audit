@@ -301,6 +301,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   function renderRuntimeStatus() {
+    const data = getData();
+    const state = getState();
     const runtime = getRuntime();
     const container = document.getElementById("runtime-status");
     const sourceLabels = {
@@ -313,6 +315,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const fragment = document.createDocumentFragment();
 
     fragment.append(createStatusPill("Data", sourceInfo.text, sourceInfo.color));
+    const activeProject = (data.projects || []).find((project) => project.id === state.activeProjectId);
+    fragment.append(createStatusPill(
+      "Scope",
+      state.scopeMode === "portfolio" ? "Portfolio" : activeProject?.name || "No project",
+      state.scopeMode === "portfolio" ? "var(--warning)" : activeProject ? "var(--success)" : "var(--danger)"
+    ));
 
     if (runtime.snapshotGeneratedAt) {
       fragment.append(createStatusPill("Snapshot", formatTimestamp(runtime.snapshotGeneratedAt), "var(--text)"));
@@ -12600,6 +12608,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   function buildInventoryExportPayload() {
+    const data = getData();
+    const state = getState();
     const apps = filterAndSort();
     return {
       exportedAt: new Date().toISOString(),
@@ -12611,7 +12621,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         category: state.category,
         showArchived: state.showArchived,
         sortKey: state.sortKey,
-        sortDir: state.sortDir
+        sortDir: state.sortDir,
+        activeProjectId: state.activeProjectId || "",
+        scopeMode: state.scopeMode || "project"
       },
       summary: {
         totalVisible: apps.length,
@@ -12673,6 +12685,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Category: ${payload.filters.category}`,
       `- Archived visible: ${payload.filters.showArchived ? "yes" : "no"}`,
       `- Sort: ${payload.filters.sortKey} ${payload.filters.sortDir}`,
+      `- Active project: ${payload.filters.activeProjectId || "none"}`,
+      `- Scope mode: ${payload.filters.scopeMode || "project"}`,
       "",
       "## Projects",
       ""

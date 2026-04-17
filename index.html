@@ -13,6 +13,11 @@
         <h1>Workspace Audit Pro</h1>
         <p class="meta-info" id="meta-info">Loading workspace insights...</p>
         <div class="status-strip" id="runtime-status"></div>
+        <div class="scope-lock" id="scope-lock">
+          <select class="scope-project-select" id="active-project-select" aria-label="Active project scope"></select>
+          <button class="scope-mode-badge" id="scope-mode-toggle" type="button">SCOPED</button>
+          <button class="btn scope-clear-btn" id="clear-active-project-btn" type="button">Clear Scope</button>
+        </div>
       </div>
       <div class="controls">
         <button class="btn btn-primary" id="refresh-audit-btn">

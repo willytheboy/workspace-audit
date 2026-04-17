@@ -137,6 +137,11 @@
  *     saveGovernanceExecutionView: () => Promise<void>,
  *     saveAgentExecutionPolicy: () => Promise<void>,
  *     setArchivedVisibility: (showArchived: boolean) => void,
+ *     setActiveProject: (projectId: string) => void,
+ *     clearActiveProject: () => void,
+ *     enterPortfolioMode: () => void,
+ *     exitPortfolioMode: () => void,
+ *     requireActiveProject: () => boolean,
  *     openProject: (projectId: string) => void
  *   }
  * }} options
@@ -438,6 +443,24 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Filters",
         keywords: ["archived", "filter"],
         run: () => handlers.setArchivedVisibility(!state.showArchived)
+      },
+      {
+        id: "clear-active-project",
+        label: "Clear active project scope",
+        description: "Clear the selected project and return AI/CLI planning to project-scope waiting mode.",
+        category: "Scope",
+        keywords: ["scope", "active project", "clear", "project lock"],
+        run: () => handlers.clearActiveProject()
+      },
+      {
+        id: state.scopeMode === "portfolio" ? "exit-portfolio-mode" : "enter-portfolio-mode",
+        label: state.scopeMode === "portfolio" ? "Exit portfolio mode" : "Enter portfolio mode",
+        description: state.scopeMode === "portfolio"
+          ? "Return AI/CLI planning to project-scoped mode."
+          : "Explicitly allow AI/CLI planning across the visible project portfolio.",
+        category: "Scope",
+        keywords: ["scope", "portfolio", "project lock", "ai", "cli"],
+        run: () => state.scopeMode === "portfolio" ? handlers.exitPortfolioMode() : handlers.enterPortfolioMode()
       },
       {
         id: "export-csv",
@@ -1173,24 +1196,44 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         const rightActive = right.zone === "active" ? 0 : 1;
         return leftActive - rightActive || left.name.localeCompare(right.name);
       })
-      .map((project) => ({
-        id: `project-${project.id}`,
-        label: `Inspect ${project.name}`,
-        description: `${project.category} • ${project.relPath}`,
-        category: "Projects",
-        keywords: [
-          "project",
-          "workbench",
-          project.id,
-          project.name,
-          project.relPath,
-          project.zone,
-          project.category,
-          ...project.frameworks,
-          ...project.languages
-        ],
-        run: () => handlers.openProject(project.id)
-      }));
+      .flatMap((project) => [
+        {
+          id: `project-${project.id}`,
+          label: `Inspect ${project.name}`,
+          description: `${project.category} • ${project.relPath}`,
+          category: "Projects",
+          keywords: [
+            "project",
+            "workbench",
+            project.id,
+            project.name,
+            project.relPath,
+            project.zone,
+            project.category,
+            ...project.frameworks,
+            ...project.languages
+          ],
+          run: () => handlers.openProject(project.id)
+        },
+        {
+          id: `scope-project-${project.id}`,
+          label: `Scope to ${project.name}`,
+          description: `Set active project lock to ${project.relPath}.`,
+          category: "Scope",
+          keywords: [
+            "scope",
+            "active project",
+            "project lock",
+            "select project",
+            project.id,
+            project.name,
+            project.relPath,
+            project.zone,
+            project.category
+          ],
+          run: () => handlers.setActiveProject(project.id)
+        }
+      ]);
   }
 
   return {

@@ -2719,3 +2719,11 @@
 - [x] Surface Save Baseline, Refresh Baseline, and Accept Drift controls across snapshot, drift, and baseline-status cards.
 - [x] Add parser and server test coverage for the handoff packet baseline refresh flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Active Project Scope Lock
+
+- [x] Add a persistent active-project selector and project/portfolio scope badge.
+- [x] Store scope mode and selected project in localStorage for reload-safe AI/CLI planning.
+- [x] Add command-palette actions to clear scope, enter or exit portfolio mode, and scope directly to a project.
+- [x] Include scope metadata in runtime status and inventory exports.
+- [x] Validate, relaunch, commit, and push.

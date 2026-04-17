@@ -4817,6 +4817,8 @@
  *   sortKey: string,
  *   sortDir: "asc" | "desc",
  *   showArchived: boolean,
+ *   activeProjectId?: string,
+ *   scopeMode?: "project" | "portfolio",
  *   view: "grid" | "table" | "graph" | "findings" | "trends" | "sources" | "governance"
  * }} DashboardState
  */

@@ -10536,6 +10536,11 @@ export function createGovernanceDeck(governance) {
               border: "1px solid var(--border)",
               color: "var(--primary)"
             }),
+            createTag(`scope ${cliBridgeLifecycleHandoffPacket.scopeContext?.scopeMode || "project"} / ${cliBridgeLifecycleHandoffPacket.scopeContext?.activeProjectName || cliBridgeLifecycleHandoffPacket.scopeContext?.activeProjectId || "none"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacket.scopeContext?.scopeReady ? "var(--success)" : "var(--danger)"
+            }),
             createTag(`${cliBridgeLifecycleHandoffPacket.remediationPack?.workItemCount || 0} work item(s)`, {
               background: "var(--bg)",
               border: "1px solid var(--border)",
@@ -10662,6 +10667,11 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: (snapshot.remediationWorkItemCount || 0) ? "var(--warning)" : "var(--success)"
+      }),
+      createTag(`scope ${snapshot.scopeMode || "project"} / ${snapshot.activeProjectName || snapshot.activeProjectId || "none"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: snapshot.scopeReady ? "var(--success)" : "var(--danger)"
       }),
       createTag(`baseline ${snapshot.remediationBaselineHealth || "missing"}`, {
         background: "var(--bg)",

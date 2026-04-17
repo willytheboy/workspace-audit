@@ -2727,3 +2727,11 @@
 - [x] Add command-palette actions to clear scope, enter or exit portfolio mode, and scope directly to a project.
 - [x] Include scope metadata in runtime status and inventory exports.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Scope-Aware CLI Bridge Handoff Packets
+
+- [x] Add server-side lifecycle handoff packet scope context for active project and portfolio mode.
+- [x] Block ready-to-launch packet state when no active project is selected and portfolio mode is not explicit.
+- [x] Persist scope metadata into lifecycle handoff packet snapshots and drift summaries.
+- [x] Pass UI scope metadata through packet copy, snapshot, drift, checkpoint, and baseline-status requests.
+- [x] Validate, relaunch, commit, and push.

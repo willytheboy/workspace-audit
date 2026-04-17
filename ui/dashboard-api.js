@@ -1483,7 +1483,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @param {{ runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotLifecycleLedgerPayload>}
    */
   fetchCliBridgeRunnerDryRunSnapshotLifecycleLedger(options = {}) {
@@ -1579,7 +1579,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @param {{ title?: string, runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>}
    */
   createCliBridgeLifecycleHandoffPacketSnapshot(payload = {}) {
@@ -1591,7 +1591,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot, cliBridgeLifecycleHandoffPacketSnapshots: import("./dashboard-types.js").PersistedCliBridgeLifecycleHandoffPacketSnapshot[] }>}
    */
   refreshCliBridgeLifecycleHandoffPacketSnapshot(payload = {}) {
@@ -1604,7 +1604,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} [snapshotId]
-   * @param {{ runner?: "all" | "codex" | "claude", limit?: number }} [options]
+   * @param {{ runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketSnapshotDiffPayload>}
    */
   fetchCliBridgeLifecycleHandoffPacketSnapshotDiff(snapshotId = "latest", options = {}) {
@@ -1615,7 +1615,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointCliBridgeLifecycleHandoffPacketDrift(payload) {
@@ -1635,10 +1635,11 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketBaselineStatusPayload>}
    */
-  fetchCliBridgeLifecycleHandoffPacketBaselineStatus() {
-    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshots/baseline-status");
+  fetchCliBridgeLifecycleHandoffPacketBaselineStatus(options = {}) {
+    return fetchJson(withQuery("/api/cli-bridge/lifecycle-handoff-packet-snapshots/baseline-status", options));
   },
 
   /**

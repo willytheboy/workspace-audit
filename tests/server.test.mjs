@@ -5269,10 +5269,19 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Draft/);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftJson.secretPolicy, /Non-secret convergence assimilation runner launch stack remediation work-order draft only/);
 
-    const queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
+    const unscopedQueueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ runner: "claude" })
+    });
+    assert.equal(unscopedQueueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.status, 409);
+    const unscopedQueueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson = await unscopedQueueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.json();
+    assert.equal(unscopedQueueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.reasonCode, "agent-execution-scope-required");
+
+    const queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ runner: "claude", ...taskMutationScope })
     });
     assert.equal(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.status, 200);
     const queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson = await queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.json();
@@ -5284,7 +5293,7 @@ export async function convergenceReviewSuppressionTest() {
     const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-run`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ runner: "claude" })
+      body: JSON.stringify({ runner: "claude", ...taskMutationScope })
     });
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.status, 200);
     const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson = await duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResponse.json();
@@ -5301,11 +5310,24 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.summary.workItems >= 1, true);
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Work-Order Run Ledger/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-runs/${encodeURIComponent(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.id)}/result`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "passed",
+        summary: "Unscoped fixture remediation result should be rejected."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson = await unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-runs/${encodeURIComponent(queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunJson.run.id)}/result`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "passed",
+        ...taskMutationScope,
         summary: "Non-secret fixture remediation result captured.",
         changedFiles: ["lib/workspace-audit-server.mjs"],
         validationSummary: "Fixture remediation validation passed.",
@@ -5337,6 +5359,7 @@ export async function convergenceReviewSuppressionTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         status: "blocked",
+        ...taskMutationScope,
         summary: "Non-secret fixture remediation blocker captured.",
         validationSummary: "Fixture remediation validation blocked.",
         blockers: ["Fixture blocker"],
@@ -5348,10 +5371,19 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.success, true);
     assert.equal(blockedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResultJson.result.status, "blocked");
 
-    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
+    const unscopedCreateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "blocked", runner: "claude" })
+    });
+    assert.equal(unscopedCreateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.status, 409);
+    const unscopedCreateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson = await unscopedCreateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.json();
+    assert.equal(unscopedCreateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson.reasonCode, "agent-execution-scope-required");
+
+    const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "blocked", runner: "claude", ...taskMutationScope })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.status, 200);
     const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson = await createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.json();
@@ -5368,7 +5400,7 @@ export async function convergenceReviewSuppressionTest() {
     const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "blocked", runner: "claude" })
+      body: JSON.stringify({ status: "blocked", runner: "claude", ...taskMutationScope })
     });
     assert.equal(duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.status, 200);
     const duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksJson = await duplicateConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasksResponse.json();

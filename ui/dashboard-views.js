@@ -144,11 +144,11 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationRunnerLaunchStackStatus: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackStatusPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationPack: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationPackPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload>,
- *     queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun: (payload?: { runner?: "codex" | "claude", status?: string, notes?: string }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
+ *     queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun: (payload?: { runner?: "codex" | "claude", status?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger: (options?: { status?: "all" | "open" | "closed" | "active" | "archived", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedgerPayload>,
- *     recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult: (runId: string, payload: { status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string }) => Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
+ *     recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult: (runId: string, payload: { status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger: (options?: { status?: "all" | "passed" | "failed" | "blocked" | "needs-review" | "cancelled", runner?: "all" | "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedgerPayload>,
- *     createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks: (payload?: { status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number }) => Promise<{ success: true, status: string, runner: string, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks: (payload?: { status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, status: string, runner: string, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger: (options?: { status?: "all" | "open" | "closed", runner?: "all" | "codex" | "claude", limit?: number }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot[]>,
  *     createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot: (payload?: { title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot[] }>,
@@ -3782,6 +3782,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Queueing";
           const result = await api.queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun({
+            ...getCliBridgeScopeOptions(),
             runner: runner === "claude" ? "claude" : "codex"
           });
           await renderGovernance();
@@ -3836,6 +3837,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Recording";
           await api.recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult(runId, {
+            ...getCliBridgeScopeOptions(),
             status: status === "passed" ? "passed" : "blocked",
             summary: status === "passed"
               ? "Operator recorded a non-secret launch stack remediation pass result from the supervised runner."
@@ -3893,6 +3895,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Tracking";
           const payload = await api.createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks({
+            ...getCliBridgeScopeOptions(),
             status: ["failed", "blocked", "needs-review"].includes(status) ? /** @type {"failed" | "blocked" | "needs-review"} */ (status) : "all",
             runner: "all"
           });

@@ -608,7 +608,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string }} [payload]
+   * @param {{ runner?: "codex" | "claude", status?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun | null, skippedRun?: { id: string, title: string, reason: string } | null, draft: import("./dashboard-types.js").ConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraftPayload, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
    */
   queueConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRun(payload = {}) {
@@ -632,7 +632,7 @@ export const dashboardApi = {
 
   /**
    * @param {string} runId
-   * @param {{ status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string }} payload
+   * @param {{ status?: "passed" | "failed" | "blocked" | "needs-review" | "cancelled", summary: string, changedFiles?: string[], validationSummary?: string, blockers?: string[], nextAction?: string, notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, result: object, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResults: object[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], governanceOperationCount: number }>}
    */
   recordConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunResult(runId, payload) {
@@ -655,7 +655,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number }} [payload]
+   * @param {{ status?: "all" | "failed" | "blocked" | "needs-review", runner?: "all" | "codex" | "claude", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, status: string, runner: string, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTasks(payload = {}) {

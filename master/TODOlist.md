@@ -2971,3 +2971,12 @@
 - [x] Pass dashboard scope metadata through action task ledger snapshot, refresh, and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped action task ledger writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Launch Stack Remediation Work-Order Scope Guard
+
+- [x] Guard Convergence launch-stack remediation work-order run queueing behind explicit project or portfolio scope.
+- [x] Guard remediation work-order result intake behind the same scope requirement.
+- [x] Guard remediation work-order result follow-up task creation behind the same scope requirement.
+- [x] Pass dashboard scope metadata through queue, result, and follow-up task actions.
+- [x] Add parser and server coverage for direct unscoped remediation work-order writes.
+- [x] Validate, relaunch, commit, and push.

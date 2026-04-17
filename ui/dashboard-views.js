@@ -110,9 +110,9 @@ function createEmptyTableRow(message) {
  *     fetchConvergenceAssimilationOperatorPlaybook: () => Promise<import("./dashboard-types.js").ConvergenceAssimilationOperatorPlaybookPayload>,
  *     fetchConvergenceAssimilationSessionPacket: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationSessionPacketPayload>,
  *     fetchConvergenceAssimilationSessionPacketSnapshots: () => Promise<import("./dashboard-types.js").PersistedConvergenceAssimilationSessionPacketSnapshot[]>,
- *     createConvergenceAssimilationSessionPacketSnapshot: (payload?: { title?: string, runner?: "codex" | "claude" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationSessionPacketSnapshot, convergenceAssimilationSessionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationSessionPacketSnapshot[] }>,
+ *     createConvergenceAssimilationSessionPacketSnapshot: (payload?: { title?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationSessionPacketSnapshot, convergenceAssimilationSessionPacketSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationSessionPacketSnapshot[] }>,
  *     fetchConvergenceAssimilationSessionPacketSnapshotDiff: (snapshotId?: string, options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationSessionPacketSnapshotDiffPayload>,
- *     checkpointConvergenceAssimilationSessionPacketDrift: (payload: { snapshotId?: string, runner?: "codex" | "claude", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
+ *     checkpointConvergenceAssimilationSessionPacketDrift: (payload: { snapshotId?: string, runner?: "codex" | "claude", activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }) => Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceAssimilationSessionPacketDriftCheckpointLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ConvergenceAssimilationSessionPacketDriftCheckpointLedgerPayload>,
  *     fetchConvergenceAssimilationRunnerCommandQueueDraft: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerCommandQueueDraftPayload>,
  *     fetchConvergenceAssimilationRunnerResultReplayChecklist: (options?: { runner?: "codex" | "claude" }) => Promise<import("./dashboard-types.js").ConvergenceAssimilationRunnerResultReplayChecklistPayload>,
@@ -2733,6 +2733,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           const response = await api.createConvergenceAssimilationSessionPacketSnapshot({
+            ...getCliBridgeScopeOptions(),
             runner: normalizedRunner,
             title: `Convergence Assimilation ${normalizedRunner} Session Packet`
           });
@@ -2837,6 +2838,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Saving";
           const response = await api.checkpointConvergenceAssimilationSessionPacketDrift({
+            ...getCliBridgeScopeOptions(),
             snapshotId,
             runner: runner === "claude" ? "claude" : "codex",
             field,

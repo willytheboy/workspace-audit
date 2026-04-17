@@ -2939,3 +2939,11 @@
 - [x] Pass dashboard scope metadata through launch-control snapshot, refresh, and checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped Convergence runner launch-control writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Session Packet Scope Guard
+
+- [x] Guard Convergence session-packet snapshot creation behind explicit project or portfolio scope.
+- [x] Guard Convergence session-packet drift checkpoint persistence behind the same scope requirement.
+- [x] Pass dashboard scope metadata through session-packet snapshot and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped session-packet writes.
+- [x] Validate, relaunch, commit, and push.

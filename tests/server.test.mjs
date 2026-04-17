@@ -4909,12 +4909,25 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationSessionPacketJson.markdown, /# Convergence Assimilation Operator Playbook/);
     assert.match(convergenceAssimilationSessionPacketJson.secretPolicy, /Non-secret convergence assimilation session packet only/);
 
+    const unscopedConvergenceAssimilationSessionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Unscoped Fixture Codex Session Packet",
+        runner: "codex"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationSessionPacketSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationSessionPacketSnapshotJson = await unscopedConvergenceAssimilationSessionPacketSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationSessionPacketSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationSessionPacketSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Codex Session Packet",
-        runner: "codex"
+        runner: "codex",
+        ...convergenceScope
       })
     });
     assert.equal(createConvergenceAssimilationSessionPacketSnapshotResponse.status, 200);
@@ -6004,6 +6017,21 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerJson.items[0].convergenceAssimilationRunnerLaunchpadGateDriftField, "decision");
     assert.match(convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedgerJson.markdown, /# Convergence Assimilation Runner Launchpad Gate Drift Checkpoint Ledger/);
 
+    const unscopedConvergenceAssimilationSessionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "codex",
+        field: "resultCount",
+        decision: "confirmed",
+        note: "Unscoped fixture packet drift accepted."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationSessionPacketDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationSessionPacketDriftCheckpointJson = await unscopedConvergenceAssimilationSessionPacketDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationSessionPacketDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationSessionPacketDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-session-packet-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -6012,7 +6040,8 @@ export async function convergenceReviewSuppressionTest() {
         runner: "codex",
         field: "resultCount",
         decision: "confirmed",
-        note: "Fixture packet drift accepted."
+        note: "Fixture packet drift accepted.",
+        ...convergenceScope
       })
     });
     assert.equal(convergenceAssimilationSessionPacketDriftCheckpointResponse.status, 200);

@@ -2905,3 +2905,11 @@
 - [x] Pass dashboard and workbench scope metadata through convergence review and proposal actions.
 - [x] Add parser and server coverage for direct unscoped convergence review/proposal writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Parser Lifecycle Sentinel Scope Alignment
+
+- [x] Reconcile convergence assimilation lifecycle parser checks with scoped `api.updateTask` calls.
+- [x] Restore parser visibility for launch-stack action task ledger checkpoint lifecycle controls.
+- [x] Restore parser visibility for remediation work-order result follow-up task lifecycle controls.
+- [x] Restore parser visibility for remediation pack checkpoint lifecycle controls.
+- [x] Validate, relaunch, commit, and push.

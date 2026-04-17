@@ -2963,3 +2963,11 @@
 - [x] Pass dashboard scope metadata through bulk and stage-specific action task creation controls.
 - [x] Add parser and server coverage for direct unscoped launch-stack action task writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Launch Stack Action Task Ledger Scope Guard
+
+- [x] Guard Convergence launch-stack action task ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Guard action task ledger snapshot refresh and drift checkpoint persistence behind the same scope requirement.
+- [x] Pass dashboard scope metadata through action task ledger snapshot, refresh, and checkpoint actions.
+- [x] Add parser and server coverage for direct unscoped action task ledger writes.
+- [x] Validate, relaunch, commit, and push.

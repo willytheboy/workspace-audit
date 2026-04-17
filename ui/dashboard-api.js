@@ -686,7 +686,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot[] }>}
    */
   createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshot(payload = {}) {
@@ -804,7 +804,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ snapshotId?: string, title?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot[] }>}
    */
   refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshot(payload = {}) {
@@ -830,7 +830,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @param {{ snapshotId?: string, runner?: "all" | "codex" | "claude", status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
    * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
    */
   checkpointConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDrift(payload) {

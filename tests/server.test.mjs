@@ -5125,12 +5125,26 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.markdown, /# Convergence Assimilation Runner Launch Stack Action Task Ledger/);
     assert.match(convergenceAssimilationRunnerLaunchStackActionTaskLedgerJson.secretPolicy, /Non-secret convergence assimilation runner launch stack action task metadata only/);
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        status: "open",
+        title: "Unscoped Fixture Claude Launch Stack Action Tasks"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
         status: "open",
+        ...convergenceScope,
         title: "Fixture Claude Launch Stack Action Tasks"
       })
     });
@@ -5176,6 +5190,22 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.hasDrift, true);
     assert.equal(driftedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiffJson.driftItems.some((item) => item.field === "total"), true);
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "all",
+        status: "open",
+        field: "total",
+        decision: "escalated",
+        note: "Unscoped fixture drift checkpoint for launch stack action task ledger totals."
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson = await unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
     const convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshot-drift-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5185,6 +5215,7 @@ export async function convergenceReviewSuppressionTest() {
         status: "open",
         field: "total",
         decision: "escalated",
+        ...convergenceScope,
         note: "Fixture drift checkpoint for launch stack action task ledger totals."
       })
     });
@@ -5456,6 +5487,20 @@ export async function convergenceReviewSuppressionTest() {
     assert.equal(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.driftSeverity, "none");
     assert.match(convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiffJson.markdown, /# Convergence Assimilation Runner Launch Stack Remediation Pack Snapshot Drift/);
 
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: "latest",
+        runner: "all",
+        status: "open",
+        title: "Unscoped Fixture Refreshed Launch Stack Action Tasks"
+      })
+    });
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse.status, 409);
+    const unscopedRefreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotJson = await unscopedRefreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedRefreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const refreshConvergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-action-task-ledger-snapshots/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5463,6 +5508,7 @@ export async function convergenceReviewSuppressionTest() {
         snapshotId: "latest",
         runner: "all",
         status: "open",
+        ...convergenceScope,
         title: "Fixture Refreshed Launch Stack Action Tasks"
       })
     });

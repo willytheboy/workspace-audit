@@ -5452,13 +5452,27 @@ export async function convergenceReviewSuppressionTest() {
     const blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson = await blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskResponse.json();
     assert.equal(blockConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskJson.task.status, "blocked");
 
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        runner: "claude",
+        status: "all",
+        title: "Unscoped Fixture Remediation Result Follow-Up Task Ledger"
+      })
+    });
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse.status, 409);
+    const unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson = await unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/convergence/assimilation-runner-launch-stack-remediation-work-order-result-task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         runner: "claude",
         status: "all",
-        title: "Fixture Remediation Result Follow-Up Task Ledger"
+        title: "Fixture Remediation Result Follow-Up Task Ledger",
+        ...taskMutationScope
       })
     });
     assert.equal(createConvergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshotResponse.status, 200);

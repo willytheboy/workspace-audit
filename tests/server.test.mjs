@@ -1097,21 +1097,53 @@ export async function serverTest() {
     const initialAgentPolicyCheckpointsJson = await initialAgentPolicyCheckpointsResponse.json();
     assert.equal(initialAgentPolicyCheckpointsJson.summary.total, 0);
 
+    const agentPolicyCheckpointPayload = {
+      policyId: agentWorkOrdersJson.items[0].agentPolicy.policyId,
+      projectId: "alpha-app",
+      projectName: "Alpha App",
+      relPath: "alpha-app",
+      status: "approved",
+      role: agentWorkOrdersJson.items[0].agentPolicy.role,
+      runtime: agentWorkOrdersJson.items[0].agentPolicy.runtime,
+      isolationMode: agentWorkOrdersJson.items[0].agentPolicy.isolationMode,
+      skillBundle: agentWorkOrdersJson.items[0].agentPolicy.skillBundle,
+      hookPolicy: agentWorkOrdersJson.items[0].agentPolicy.hookPolicy,
+      note: "Fixture approved generated managed-agent policy."
+    };
+    const unscopedAgentPolicyResponse = await fetch(`${baseUrl}/api/agent-policy-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(agentPolicyCheckpointPayload)
+    });
+    assert.equal(unscopedAgentPolicyResponse.status, 409);
+    const unscopedAgentPolicyJson = await unscopedAgentPolicyResponse.json();
+    assert.equal(unscopedAgentPolicyJson.reasonCode, "agent-execution-scope-required");
+
+    const mismatchedAgentPolicyResponse = await fetch(`${baseUrl}/api/agent-policy-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...agentPolicyCheckpointPayload,
+        policyId: "agent-policy:beta-app",
+        projectId: "beta-app",
+        projectName: "Beta App",
+        relPath: "beta-app",
+        activeProjectId: "alpha-app",
+        scopeMode: "project"
+      })
+    });
+    assert.equal(mismatchedAgentPolicyResponse.status, 409);
+    const mismatchedAgentPolicyJson = await mismatchedAgentPolicyResponse.json();
+    assert.equal(mismatchedAgentPolicyJson.reasonCode, "agent-execution-scope-mismatch");
+    assert.deepEqual(mismatchedAgentPolicyJson.mismatchedProjectIds, ["beta-app"]);
+
     const approveAgentPolicyResponse = await fetch(`${baseUrl}/api/agent-policy-checkpoints`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        policyId: agentWorkOrdersJson.items[0].agentPolicy.policyId,
-        projectId: "alpha-app",
-        projectName: "Alpha App",
-        relPath: "alpha-app",
-        status: "approved",
-        role: agentWorkOrdersJson.items[0].agentPolicy.role,
-        runtime: agentWorkOrdersJson.items[0].agentPolicy.runtime,
-        isolationMode: agentWorkOrdersJson.items[0].agentPolicy.isolationMode,
-        skillBundle: agentWorkOrdersJson.items[0].agentPolicy.skillBundle,
-        hookPolicy: agentWorkOrdersJson.items[0].agentPolicy.hookPolicy,
-        note: "Fixture approved generated managed-agent policy."
+        ...agentPolicyCheckpointPayload,
+        activeProjectId: "alpha-app",
+        scopeMode: "project"
       })
     });
     assert.equal(approveAgentPolicyResponse.status, 200);

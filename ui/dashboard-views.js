@@ -211,7 +211,7 @@ function createEmptyTableRow(message) {
  *     suppressGovernanceQueue: (payload: { items: Array<Pick<import("./dashboard-types.js").GovernanceQueueItem, "id" | "projectId" | "projectName" | "kind" | "title">>, reason?: string }) => Promise<unknown>,
  *     restoreGovernanceQueue: (payload: { ids: string[] }) => Promise<unknown>,
  *     createTaskSeedingCheckpoint: (payload: { batchId?: string, title?: string, source?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", itemCount?: number, note?: string, reviewer?: string }) => Promise<unknown>,
- *     createAgentPolicyCheckpoint: (payload: { policyId: string, projectId: string, projectName?: string, relPath?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", role?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], source?: string, reason?: string, note?: string, reviewer?: string }) => Promise<unknown>,
+ *     createAgentPolicyCheckpoint: (payload: { policyId: string, projectId: string, projectName?: string, relPath?: string, status?: "approved" | "deferred" | "dismissed" | "needs-review", role?: string, runtime?: string, isolationMode?: string, skillBundle?: string[], hookPolicy?: string[], source?: string, reason?: string, note?: string, reviewer?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     saveProjectProfile: (payload: { projectId: string, projectName: string, owner?: string, status?: string, lifecycle?: string, tier?: string, targetState?: string, summary?: string }) => Promise<unknown>,
  *     createTask: (payload: { title: string, description?: string, priority?: string, status?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
  *     createWorkflow: (payload: { title: string, brief?: string, status?: string, phase?: string, projectId?: string, projectName?: string }) => Promise<unknown>,
@@ -7477,7 +7477,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             hookPolicy: parseDatasetList(element.dataset.agentPolicyHookPolicy),
             source: "agent-control-plane",
             reason: `Operator marked generated managed-agent policy as ${status} before queueing.`,
-            note: "Checkpoint recorded from the Governance Agent Readiness Matrix."
+            note: "Checkpoint recorded from the Governance Agent Readiness Matrix.",
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
         } catch (error) {

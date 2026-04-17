@@ -2822,3 +2822,11 @@
 - [x] Pass dashboard scope metadata through work-order snapshot save and copy workflows.
 - [x] Add parser and server coverage for direct unscoped work-order snapshot writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Policy Checkpoint Scope Guard
+
+- [x] Guard managed-agent policy checkpoint creation behind explicit project or portfolio scope.
+- [x] Reject project-scoped policy checkpoints whose target project differs from the active project.
+- [x] Pass dashboard scope metadata through policy checkpoint actions.
+- [x] Add parser and server coverage for unscoped and mismatched policy checkpoint writes.
+- [x] Validate, relaunch, commit, and push.

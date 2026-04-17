@@ -1623,6 +1623,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleHandoffPacketBaselineStatusPayload>}
+   */
+  fetchCliBridgeLifecycleHandoffPacketBaselineStatus() {
+    return fetchJson("/api/cli-bridge/lifecycle-handoff-packet-snapshots/baseline-status");
+  },
+
+  /**
    * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
    * @returns {Promise<import("./dashboard-types.js").CliBridgeLifecycleStackRemediationTaskLedgerPayload>}
    */

@@ -2702,3 +2702,12 @@
 - [x] Add a copyable all/open/closed checkpoint ledger with task lifecycle controls.
 - [x] Surface checkpoint state in handoff packet drift items, Governance filtering, visible summaries, report exports, parser checks, and server tests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Lifecycle Handoff Packet Baseline Status
+
+- [x] Add a baseline-status API for the latest saved lifecycle handoff packet snapshot.
+- [x] Report baseline freshness, health, drift score, drift severity, checkpoint coverage, and open escalated checkpoint count.
+- [x] Add a ready/review/hold reuse gate for saved handoff packet baselines.
+- [x] Surface the baseline-status card and copy control in Governance.
+- [x] Include baseline status in Governance filtering, summaries, report exports, parser checks, and server tests.
+- [x] Validate, relaunch, commit, and push.

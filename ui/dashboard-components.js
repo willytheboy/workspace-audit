@@ -10958,6 +10958,106 @@ export function createGovernanceDeck(governance) {
     ]))
   ] : [];
 
+  const cliBridgeLifecycleHandoffPacketBaselineStatus = governance.cliBridgeLifecycleHandoffPacketBaselineStatus || null;
+  const cliBridgeLifecycleHandoffPacketBaselineStatusEntries = cliBridgeLifecycleHandoffPacketBaselineStatus
+    ? [
+        createElement("div", {
+          className: "governance-gap-card cli-bridge-lifecycle-handoff-packet-baseline-status-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "0.8rem",
+              alignItems: "flex-start"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: cliBridgeLifecycleHandoffPacketBaselineStatus.hasBaseline
+                  ? (cliBridgeLifecycleHandoffPacketBaselineStatus.title || "CLI Bridge Handoff Packet Baseline")
+                  : "No CLI bridge handoff packet baseline selected",
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "1.02rem"
+                }
+              }),
+              createElement("div", {
+                text: cliBridgeLifecycleHandoffPacketBaselineStatus.hasBaseline && cliBridgeLifecycleHandoffPacketBaselineStatus.createdAt
+                  ? `${new Date(cliBridgeLifecycleHandoffPacketBaselineStatus.createdAt).toLocaleString()} | runner ${cliBridgeLifecycleHandoffPacketBaselineStatus.runner || "all"}`
+                  : `${cliBridgeLifecycleHandoffPacketBaselineStatus.snapshotCount || 0} saved lifecycle handoff packet snapshot(s) available`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.45",
+                  marginTop: "0.25rem"
+                }
+              })
+            ]),
+            createTag((cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateDecision || "hold").toUpperCase(), {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateDecision === "ready"
+                ? "var(--success)"
+                : cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateDecision === "hold"
+                  ? "var(--danger)"
+                  : "var(--warning)"
+            })
+          ]),
+          createElement("div", {
+            className: "tags"
+          }, [
+            createTag(`health ${cliBridgeLifecycleHandoffPacketBaselineStatus.health || "missing"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketBaselineStatus.health === "healthy" ? "var(--success)" : cliBridgeLifecycleHandoffPacketBaselineStatus.health === "missing" || cliBridgeLifecycleHandoffPacketBaselineStatus.health === "drifted" ? "var(--danger)" : "var(--warning)"
+            }),
+            createTag(`freshness ${cliBridgeLifecycleHandoffPacketBaselineStatus.freshness || "missing"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+            }),
+            createTag(`drift ${cliBridgeLifecycleHandoffPacketBaselineStatus.driftSeverity || "missing-baseline"}`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: cliBridgeLifecycleHandoffPacketBaselineStatus.driftSeverity === "none" ? "var(--success)" : cliBridgeLifecycleHandoffPacketBaselineStatus.driftSeverity === "high" || cliBridgeLifecycleHandoffPacketBaselineStatus.driftSeverity === "missing-baseline" ? "var(--danger)" : "var(--warning)"
+            }),
+            createTag(`${cliBridgeLifecycleHandoffPacketBaselineStatus.checkpointedDriftItemCount || 0}/${cliBridgeLifecycleHandoffPacketBaselineStatus.driftItemCount || 0} checkpointed`, {
+              background: "var(--bg)",
+              border: "1px solid var(--border)",
+              color: (cliBridgeLifecycleHandoffPacketBaselineStatus.uncheckpointedDriftItemCount || 0) ? "var(--warning)" : "var(--success)"
+            })
+          ]),
+          createElement("div", {
+            text: cliBridgeLifecycleHandoffPacketBaselineStatus.reuseGateRecommendedAction || cliBridgeLifecycleHandoffPacketBaselineStatus.recommendedAction || "Review lifecycle handoff packet baseline before reuse.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn cli-bridge-lifecycle-handoff-packet-baseline-status-copy-btn",
+              text: "Copy Baseline Status",
+              attrs: { type: "button" },
+              dataset: {
+                cliBridgeLifecycleHandoffPacketBaselineStatusCopy: "true"
+              }
+            })
+          ])
+        ])
+      ]
+    : [];
+
   const cliBridgeLifecycleStackRemediationTaskLedger = governance.cliBridgeLifecycleStackRemediationTaskLedger;
   const cliBridgeLifecycleStackRemediationTaskLedgerItems = cliBridgeLifecycleStackRemediationTaskLedger?.items || [];
   const cliBridgeLifecycleStackRemediationTaskLedgerEntries = cliBridgeLifecycleStackRemediationTaskLedger
@@ -18075,6 +18175,7 @@ export function createGovernanceDeck(governance) {
     createListSection("CLI Bridge Lifecycle Handoff Packet", "Copyable non-secret launch brief that combines lifecycle gate, remediation, baseline, and runner instructions.", cliBridgeLifecycleHandoffPacketEntries),
     createListSection("CLI Bridge Lifecycle Handoff Packet Snapshots", "Persisted non-secret launch briefs for repeatable Codex CLI and Claude CLI handoff review.", [...cliBridgeLifecycleHandoffPacketSnapshotDiffEntries, ...cliBridgeLifecycleHandoffPacketSnapshotEntries]),
     createListSection("CLI Bridge Lifecycle Handoff Packet Drift Checkpoints", "Operator decisions made against handoff packet drift before Codex or Claude launch packet reuse.", cliBridgeLifecycleHandoffPacketDriftCheckpointLedgerEntries),
+    createListSection("CLI Bridge Lifecycle Handoff Packet Baseline Status", "Freshness, drift health, checkpoint coverage, and reuse gate for the latest saved handoff packet baseline.", cliBridgeLifecycleHandoffPacketBaselineStatusEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger", "Copyable audit trail for remediation tasks created from lifecycle stack work items.", cliBridgeLifecycleStackRemediationTaskLedgerEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshots", "Persisted non-secret task ledger baselines for repeatable CLI bridge lifecycle remediation handoffs.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotEntries),
     createListSection("CLI Bridge Lifecycle Stack Remediation Task Ledger Snapshot Drift", "Latest saved remediation task ledger snapshot compared with the current live remediation follow-up ledger.", cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiffEntries),

@@ -2889,3 +2889,11 @@
 - [x] Pass dashboard and workbench scope metadata through all project-memory write actions.
 - [x] Add parser and server coverage for direct unscoped project-memory writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Launchpad Run Scope Guard
+
+- [x] Guard launchpad script execution before starting a child process or persisting script-run history.
+- [x] Require the requested launch project to match the active project scope unless portfolio scope is explicit.
+- [x] Pass project scope through workbench launchpad EventSource URLs.
+- [x] Add parser and server coverage for unscoped launch attempts that must not create script-run history.
+- [x] Validate, relaunch, commit, and push.

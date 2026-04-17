@@ -969,7 +969,17 @@ export async function serverTest() {
     const initialScriptRunsJson = await initialScriptRunsResponse.json();
     assert.equal(initialScriptRunsJson.length, 0);
 
-    const scriptRunResponse = await fetch(`${baseUrl}/api/run?script=missing-script&path=alpha-app`);
+    const unscopedScriptRunResponse = await fetch(`${baseUrl}/api/run?script=missing-script&path=alpha-app`);
+    assert.equal(unscopedScriptRunResponse.status, 200);
+    const unscopedScriptRunStream = await unscopedScriptRunResponse.text();
+    assert.match(unscopedScriptRunStream, /agent-execution-scope-required/);
+
+    const scriptRunsAfterUnscopedResponse = await fetch(`${baseUrl}/api/script-runs?projectId=alpha-app`);
+    assert.equal(scriptRunsAfterUnscopedResponse.status, 200);
+    const scriptRunsAfterUnscopedJson = await scriptRunsAfterUnscopedResponse.json();
+    assert.equal(scriptRunsAfterUnscopedJson.length, 0);
+
+    const scriptRunResponse = await fetch(`${baseUrl}/api/run?script=missing-script&path=alpha-app&activeProjectId=alpha-app&scopeMode=project`);
     assert.equal(scriptRunResponse.status, 200);
     const scriptRunStream = await scriptRunResponse.text();
     assert.match(scriptRunStream, /Process exited with code 1|spawn E/);

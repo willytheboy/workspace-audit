@@ -1374,7 +1374,15 @@ export function createDashboardModal({ getData, api }) {
           const cwd = button.dataset.cwd || project.relPath;
           terminal.textContent += `\n--- Starting: npm run ${button.dataset.script} in ${cwd} ---\n`;
           terminal.scrollTop = terminal.scrollHeight;
-          const source = new EventSource(`/api/run?script=${encodeURIComponent(button.dataset.script ?? "")}&path=${encodeURIComponent(project.relPath)}&cwd=${encodeURIComponent(cwd)}`);
+          const scopeOptions = createProjectScopeOptions(project);
+          const runParams = new URLSearchParams({
+            script: button.dataset.script ?? "",
+            path: project.relPath,
+            cwd,
+            activeProjectId: scopeOptions.activeProjectId,
+            scopeMode: scopeOptions.scopeMode
+          });
+          const source = new EventSource(`/api/run?${runParams.toString()}`);
           currentTerminalSource = source;
           source.onmessage = (event) => {
             const message = JSON.parse(event.data);

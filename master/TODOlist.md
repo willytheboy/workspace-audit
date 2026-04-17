@@ -2735,3 +2735,11 @@
 - [x] Persist scope metadata into lifecycle handoff packet snapshots and drift summaries.
 - [x] Pass UI scope metadata through packet copy, snapshot, drift, checkpoint, and baseline-status requests.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Active Scope Execution Guard
+
+- [x] Disable high-impact execution buttons when no active project is selected and portfolio mode is off.
+- [x] Guard command-palette and direct handler routes with the same active-project requirement.
+- [x] Include governance queue execution, agent run start/block/retry/archive, SLA actioning, and retention controls.
+- [x] Add parser coverage for the guarded control set.
+- [x] Validate, relaunch, commit, and push.

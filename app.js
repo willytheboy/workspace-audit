@@ -42,6 +42,16 @@ const runtime = {
 
 const ACTIVE_PROJECT_STORAGE_KEY = "workspace-audit-active-project";
 const SCOPE_MODE_STORAGE_KEY = "workspace-audit-scope-mode";
+const SCOPE_GUARDED_CONTROL_IDS = [
+  "execute-governance-queue-btn",
+  "start-queued-agent-work-order-runs-btn",
+  "block-stale-agent-work-order-runs-btn",
+  "action-sla-breach-agent-work-order-runs-btn",
+  "resolve-sla-breach-agent-work-order-runs-btn",
+  "retry-terminal-agent-work-order-runs-btn",
+  "archive-completed-agent-work-order-runs-btn",
+  "apply-agent-execution-retention-btn"
+];
 
 /**
  * @param {string} key
@@ -105,6 +115,10 @@ function getActiveProject() {
   return (data.projects || []).find((project) => project.id === state.activeProjectId) || null;
 }
 
+function hasActiveExecutionScope() {
+  return state.scopeMode === "portfolio" || Boolean(getActiveProject());
+}
+
 function persistScopeState() {
   writeLocalStorage(ACTIVE_PROJECT_STORAGE_KEY, state.activeProjectId || "");
   writeLocalStorage(SCOPE_MODE_STORAGE_KEY, state.scopeMode || "project");
@@ -148,11 +162,24 @@ function renderScopeLock() {
       ? `Scoped to ${activeProject.name}. Click to enter portfolio mode.`
       : "No active project is selected. Choose a project before project-scoped AI work.";
   clearButton.disabled = !activeProject && state.scopeMode !== "portfolio";
+  syncScopeGuardedControls();
 }
 
 function renderScopeState() {
   renderScopeLock();
   views.renderRuntimeStatus();
+}
+
+function syncScopeGuardedControls() {
+  const hasScope = hasActiveExecutionScope();
+  for (const id of SCOPE_GUARDED_CONTROL_IDS) {
+    const element = /** @type {HTMLButtonElement | null} */ (document.getElementById(id));
+    if (!element) continue;
+    element.disabled = !hasScope;
+    element.title = hasScope
+      ? ""
+      : "Select an active project or explicitly enter portfolio mode before running execution controls.";
+  }
 }
 
 /**
@@ -199,7 +226,7 @@ function exitPortfolioMode() {
 }
 
 function requireActiveProject() {
-  if (state.scopeMode === "portfolio" || getActiveProject()) return true;
+  if (hasActiveExecutionScope()) return true;
   window.alert("Select an active project first, or explicitly enter portfolio mode.");
   return false;
 }
@@ -805,6 +832,7 @@ async function copyGovernanceProfileTargetTaskLedgerBaselineStatus() {
 }
 
 async function executeGovernanceQueue() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.executeVisibleGovernanceQueue();
@@ -817,54 +845,63 @@ async function suppressGovernanceQueue() {
 }
 
 async function startQueuedAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.startVisibleQueuedAgentWorkOrderRuns();
 }
 
 async function refreshTargetBaselineAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.refreshVisibleTargetBaselineAgentWorkOrderRuns();
 }
 
 async function refreshTargetBaselineAuditAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.refreshVisibleTargetBaselineAuditAgentWorkOrderRuns();
 }
 
 async function blockStaleAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.blockVisibleStaleAgentWorkOrderRuns();
 }
 
 async function actionSlaBreaches() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.actionVisibleSlaBreaches();
 }
 
 async function resolveSlaBreaches() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.resolveVisibleSlaBreaches();
 }
 
 async function retryTerminalAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.retryVisibleTerminalAgentWorkOrderRuns();
 }
 
 async function archiveCompletedAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.archiveVisibleCompletedAgentWorkOrderRuns();
 }
 
 async function applyAgentExecutionRetention() {
+  if (!requireActiveProject()) return;
   setView("governance");
   await views.renderGovernance();
   await views.applyVisibleAgentExecutionRetention();

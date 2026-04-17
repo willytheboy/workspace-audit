@@ -2777,3 +2777,11 @@
 - [x] Pass dashboard scope metadata through newly guarded baseline write actions.
 - [x] Add parser and server coverage for missing-scope and invalid-scope failures.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Control Plane Baseline Scope Guard
+
+- [x] Guard Agent Control Plane snapshot creation behind explicit project or portfolio scope.
+- [x] Guard Agent Control Plane baseline set, clear, and refresh mutations behind the same scope requirement.
+- [x] Pass dashboard scope metadata through control-plane snapshot and baseline actions.
+- [x] Add parser and server coverage for direct unscoped control-plane baseline writes.
+- [x] Validate, relaunch, commit, and push.

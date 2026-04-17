@@ -3315,12 +3315,25 @@ export async function serverTest() {
     assert.match(missingBaselineDiffJson.markdown, /Drift severity: missing-baseline/);
     assert.match(missingBaselineDiffJson.markdown, /## Drift Fields/);
 
+    const unscopedAgentControlPlaneSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture unscoped Agent Control Plane",
+        limit: 5
+      })
+    });
+    assert.equal(unscopedAgentControlPlaneSnapshotResponse.status, 409);
+    const unscopedAgentControlPlaneSnapshotJson = await unscopedAgentControlPlaneSnapshotResponse.json();
+    assert.equal(unscopedAgentControlPlaneSnapshotJson.reasonCode, "agent-execution-scope-required");
+
     const createAgentControlPlaneSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Agent Control Plane",
-        limit: 5
+        limit: 5,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createAgentControlPlaneSnapshotResponse.status, 200);
@@ -3439,11 +3452,23 @@ export async function serverTest() {
     assert.deepEqual(latestAgentControlPlaneSnapshotDiffJson.driftItems, []);
     assert.match(latestAgentControlPlaneSnapshotDiffJson.markdown, /# Agent Control Plane Snapshot Drift/);
 
-    const setAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline`, {
+    const unscopedSetAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         snapshotId: createAgentControlPlaneSnapshotJson.snapshot.id
+      })
+    });
+    assert.equal(unscopedSetAgentControlPlaneBaselineResponse.status, 409);
+    const unscopedSetAgentControlPlaneBaselineJson = await unscopedSetAgentControlPlaneBaselineResponse.json();
+    assert.equal(unscopedSetAgentControlPlaneBaselineJson.reasonCode, "agent-execution-scope-required");
+
+    const setAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createAgentControlPlaneSnapshotJson.snapshot.id,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(setAgentControlPlaneBaselineResponse.status, 200);
@@ -3464,7 +3489,8 @@ export async function serverTest() {
       body: JSON.stringify({
         title: "Fixture Baseline Control Plane",
         limit: 5,
-        baseline: true
+        baseline: true,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(createAgentControlPlaneBaselineSnapshotResponse.status, 200);
@@ -3534,12 +3560,25 @@ export async function serverTest() {
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneSnapshots.length, 2);
     assert.equal(governanceAfterAgentControlPlaneSnapshotJson.agentControlPlaneSnapshots[0].isBaseline, true);
 
+    const unscopedRefreshAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture unscoped refreshed baseline",
+        limit: 5
+      })
+    });
+    assert.equal(unscopedRefreshAgentControlPlaneBaselineResponse.status, 409);
+    const unscopedRefreshAgentControlPlaneBaselineJson = await unscopedRefreshAgentControlPlaneBaselineResponse.json();
+    assert.equal(unscopedRefreshAgentControlPlaneBaselineJson.reasonCode, "agent-execution-scope-required");
+
     const blockedRefreshAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Blocked Fixture Refreshed Baseline",
-        limit: 5
+        limit: 5,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(blockedRefreshAgentControlPlaneBaselineResponse.status, 409);
@@ -3559,7 +3598,8 @@ export async function serverTest() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: "Fixture Refreshed Baseline",
-        limit: 5
+        limit: 5,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(refreshAgentControlPlaneBaselineResponse.status, 200);
@@ -3598,8 +3638,19 @@ export async function serverTest() {
     assert.equal(governanceAfterBaselineRefreshJson.agentControlPlaneSnapshots[0].isBaseline, true);
     assert.ok(governanceAfterBaselineRefreshJson.operationLog.some((operation) => operation.type === "agent-control-plane-baseline-refreshed"));
 
+    const unscopedClearAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/clear`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({})
+    });
+    assert.equal(unscopedClearAgentControlPlaneBaselineResponse.status, 409);
+    const unscopedClearAgentControlPlaneBaselineJson = await unscopedClearAgentControlPlaneBaselineResponse.json();
+    assert.equal(unscopedClearAgentControlPlaneBaselineJson.reasonCode, "agent-execution-scope-required");
+
     const clearAgentControlPlaneBaselineResponse = await fetch(`${baseUrl}/api/agent-control-plane-snapshots/baseline/clear`, {
-      method: "POST"
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(alphaAgentExecutionScope)
     });
     assert.equal(clearAgentControlPlaneBaselineResponse.status, 200);
     const clearAgentControlPlaneBaselineJson = await clearAgentControlPlaneBaselineResponse.json();
@@ -3622,7 +3673,8 @@ export async function serverTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        snapshotId: refreshAgentControlPlaneBaselineJson.snapshot.id
+        snapshotId: refreshAgentControlPlaneBaselineJson.snapshot.id,
+        ...alphaAgentExecutionScope
       })
     });
     assert.equal(restoreAgentControlPlaneBaselineResponse.status, 200);

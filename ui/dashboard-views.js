@@ -7377,7 +7377,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Saving";
-          await api.setAgentControlPlaneBaselineSnapshot({ snapshotId });
+          await api.setAgentControlPlaneBaselineSnapshot({ snapshotId, ...getCliBridgeScopeOptions() });
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -7397,7 +7397,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         try {
           element.disabled = true;
           element.textContent = "Clearing";
-          await api.clearAgentControlPlaneBaselineSnapshot();
+          await api.clearAgentControlPlaneBaselineSnapshot(getCliBridgeScopeOptions());
           await renderGovernance();
         } catch (error) {
           element.disabled = false;
@@ -7419,7 +7419,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Refreshing";
           await api.refreshAgentControlPlaneBaselineSnapshot({
             title: "Agent Control Plane Baseline Refresh",
-            limit: 24
+            limit: 24,
+            ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
         } catch (error) {
@@ -14411,7 +14412,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const sourceTitle = diff.snapshotTitle || snapshot.title || snapshotId;
     await api.refreshAgentControlPlaneBaselineSnapshot({
       title: `Accepted Agent Control Plane drift as current baseline: ${sourceTitle}`.slice(0, 120),
-      limit: snapshot.limit || 24
+      limit: snapshot.limit || 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Accepted Agent Control Plane drift as current baseline";
@@ -14804,14 +14806,15 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   }
 
   async function clearAgentControlPlaneBaselineSnapshot() {
-    await api.clearAgentControlPlaneBaselineSnapshot();
+    await api.clearAgentControlPlaneBaselineSnapshot(getCliBridgeScopeOptions());
     await renderGovernance();
   }
 
   async function refreshAgentControlPlaneBaselineSnapshot() {
     await api.refreshAgentControlPlaneBaselineSnapshot({
       title: "Agent Control Plane Baseline Refresh",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }
@@ -15557,7 +15560,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
   async function saveAgentControlPlaneSnapshot() {
     await api.createAgentControlPlaneSnapshot({
       title: "Agent Control Plane",
-      limit: 24
+      limit: 24,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }
@@ -15573,7 +15577,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createAgentControlPlaneSnapshot({
       title: "Agent Control Plane Baseline",
       limit: 24,
-      baseline: true
+      baseline: true,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
   }

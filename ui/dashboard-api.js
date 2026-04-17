@@ -1931,7 +1931,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, limit?: number, baseline?: boolean }} [payload]
+   * @param {{ title?: string, limit?: number, baseline?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot, baselineSnapshotId?: string, agentControlPlaneSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot[] }>}
    */
   createAgentControlPlaneSnapshot(payload = {}) {
@@ -1943,7 +1943,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ snapshotId: string }} payload
+   * @param {{ snapshotId: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, baselineSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot, agentControlPlaneSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot[] }>}
    */
   setAgentControlPlaneBaselineSnapshot(payload) {
@@ -1955,16 +1955,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, baselineSnapshotId: string, agentControlPlaneSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot[] }>}
    */
-  clearAgentControlPlaneBaselineSnapshot() {
+  clearAgentControlPlaneBaselineSnapshot(payload = {}) {
     return fetchJson("/api/agent-control-plane-snapshots/baseline/clear", {
-      method: "POST"
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
     });
   },
 
   /**
-   * @param {{ title?: string, limit?: number }} [payload]
+   * @param {{ title?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, baselineSnapshotId: string, previousBaselineSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot, agentControlPlaneSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneSnapshot[] }>}
    */
   refreshAgentControlPlaneBaselineSnapshot(payload = {}) {

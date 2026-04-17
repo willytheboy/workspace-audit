@@ -4686,11 +4686,23 @@ export async function convergenceReviewSuppressionTest() {
     assert.match(operatorProposalQueueJson.markdown, /# Operator Convergence Proposal Review Queue/);
     assert.match(operatorProposalQueueJson.secretPolicy, /Non-secret operator convergence proposal metadata only/);
 
-    const convergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
+    const unscopedConvergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         pairIds: [operatorProposalJson.review.pairId]
+      })
+    });
+    assert.equal(unscopedConvergenceTaskResponse.status, 409);
+    const unscopedConvergenceTaskJson = await unscopedConvergenceTaskResponse.json();
+    assert.equal(unscopedConvergenceTaskJson.reasonCode, "agent-execution-scope-required");
+
+    const convergenceTaskResponse = await fetch(`${baseUrl}/api/convergence/tasks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        pairIds: [operatorProposalJson.review.pairId],
+        ...convergenceScope
       })
     });
     assert.equal(convergenceTaskResponse.status, 200);
@@ -6221,7 +6233,8 @@ export async function convergenceReviewSuppressionTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        pairIds: [operatorProposalJson.review.pairId]
+        pairIds: [operatorProposalJson.review.pairId],
+        ...convergenceScope
       })
     });
     assert.equal(repeatConvergenceTaskResponse.status, 200);

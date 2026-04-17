@@ -2995,3 +2995,11 @@
 - [x] Pass dashboard scope metadata through baseline save and drift checkpoint actions.
 - [x] Add parser and server coverage for direct unscoped review task ledger writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Convergence Review Task Seeding Scope Guard
+
+- [x] Guard Convergence Review task seeding behind explicit project or portfolio scope.
+- [x] Allow project scope when the active project is one side of the selected convergence pair.
+- [x] Pass dashboard scope metadata through task seeding controls.
+- [x] Add parser and server coverage for direct unscoped review task creation.
+- [x] Validate, relaunch, commit, and push.

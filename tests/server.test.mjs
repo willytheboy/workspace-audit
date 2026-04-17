@@ -5770,10 +5770,24 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(missingDecisionTaskLedgerSnapshotDiffJson.driftSeverity, "missing-snapshot");
     assert.match(missingDecisionTaskLedgerSnapshotDiffJson.markdown, /# Agent Control Plane Decision Task Ledger Snapshot Drift/);
 
-    const createDecisionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots`, {
+    const unscopedDecisionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: "Fixture Control Plane Decision Task Ledger", status: "open", limit: 5 })
+    });
+    assert.equal(unscopedDecisionTaskLedgerSnapshotResponse.status, 409);
+    const unscopedDecisionTaskLedgerSnapshotJson = await unscopedDecisionTaskLedgerSnapshotResponse.json();
+    assert.equal(unscopedDecisionTaskLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createDecisionTaskLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Control Plane Decision Task Ledger",
+        status: "open",
+        limit: 5,
+        ...agentControlPlaneDecisionScope
+      })
     });
     assert.equal(createDecisionTaskLedgerSnapshotResponse.status, 200);
     const createDecisionTaskLedgerSnapshotJson = await createDecisionTaskLedgerSnapshotResponse.json();

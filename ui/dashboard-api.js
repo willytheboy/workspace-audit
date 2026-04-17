@@ -1052,7 +1052,7 @@ export const dashboardApi = {
   },
 
   /**
-   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number }} [payload]
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>}
    */
   createReleaseTaskLedgerSnapshot(payload = {}) {

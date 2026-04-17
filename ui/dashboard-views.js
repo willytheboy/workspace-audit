@@ -195,7 +195,7 @@ function createEmptyTableRow(message) {
  *     fetchGovernanceExecutionPolicy: () => Promise<import("./dashboard-types.js").GovernanceAgentExecutionPolicy>,
  *     saveGovernanceExecutionPolicy: (payload: { staleThresholdHours: number }) => Promise<{ success: true, policy: import("./dashboard-types.js").GovernanceAgentExecutionPolicy }>,
  *     fetchAgentControlPlaneDecisionTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerPayload>,
- *     createAgentControlPlaneDecisionTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>,
+ *     createAgentControlPlaneDecisionTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot, agentControlPlaneDecisionTaskLedgerSnapshots: import("./dashboard-types.js").PersistedAgentControlPlaneDecisionTaskLedgerSnapshot[] }>,
  *     fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").AgentControlPlaneDecisionTaskLedgerSnapshotDiffPayload>,
  *     bootstrapGovernance: (payload: { mode: "profiles" | "starter-pack", projectIds: string[] }) => Promise<unknown>,
  *     refreshGovernanceProfileTargets: () => Promise<unknown>,
@@ -14440,7 +14440,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await api.createAgentControlPlaneDecisionTaskLedgerSnapshot({
       title: "Agent Control Plane Decision Task Ledger",
       status: "all",
-      limit: 100
+      limit: 100,
+      ...getCliBridgeScopeOptions()
     });
     await renderGovernance();
     return "Saved Decision Task Snapshot";

@@ -2793,3 +2793,10 @@
 - [x] Pass dashboard scope metadata through decision snapshot and task actions.
 - [x] Add parser and server coverage for direct unscoped decision writes.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Server-Side Agent Control Plane Decision Task Ledger Snapshot Scope Guard
+
+- [x] Guard Agent Control Plane decision task-ledger snapshot creation behind explicit project or portfolio scope.
+- [x] Pass dashboard scope metadata through decision task-ledger snapshot saves.
+- [x] Add parser and server coverage for direct unscoped decision task-ledger snapshot writes.
+- [x] Validate, relaunch, commit, and push.

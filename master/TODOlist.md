@@ -3113,3 +3113,11 @@
 - [x] Surface alert baseline health in the Control Plane decision card, copied Markdown, and CLI bridge context.
 - [x] Add parser and server-test coverage for the control-plane gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Work Order Regression Alert Baseline Capture
+
+- [x] Capture Regression Alert task ledger baseline health when Agent Work Order runs are queued.
+- [x] Apply the capture to manual queueing, snapshot batch queueing, CLI bridge follow-up runs, and convergence work-order runs.
+- [x] Surface alert baseline capture in the Agent Execution Queue, copied execution Markdown, and CLI dry-run prompt context.
+- [x] Add parser and server-test coverage for run-level alert baseline capture.
+- [x] Validate, relaunch, commit, and push.

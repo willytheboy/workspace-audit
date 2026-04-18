@@ -1566,6 +1566,9 @@ export async function serverTest() {
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].targetBaselineAuditLedgerBaselineHealth, "missing");
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].targetBaselineAuditLedgerBaselineUncheckpointedDriftCount, 0);
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
+    assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].regressionAlertTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history.length, 1);
     assert.equal(batchAgentWorkOrderRunsJson.queuedRuns[0].history[0].status, "queued");
 
@@ -1617,6 +1620,8 @@ export async function serverTest() {
     assert.equal(createAgentWorkOrderRunJson.run.agentRole, approvedAgentWorkOrdersJson.items[0].agentPolicy.role);
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(createAgentWorkOrderRunJson.run.profileTargetTaskLedgerBaselineFreshness, "missing");
+    assert.equal(createAgentWorkOrderRunJson.run.regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(createAgentWorkOrderRunJson.run.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
 
     const unscopedExecutionResultCheckpointResponse = await fetch(`${baseUrl}/api/agent-execution-result-checkpoints`, {
       method: "POST",
@@ -1672,6 +1677,7 @@ export async function serverTest() {
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-audit-baseline-run-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Selected run Regression Alert baseline capture: missing/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Scope mode: project/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Execution audit snapshot baseline runs:/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Target baseline audit gate: review/);

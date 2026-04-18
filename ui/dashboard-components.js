@@ -18591,6 +18591,18 @@ export function createGovernanceDeck(governance) {
         lineHeight: "1.45"
       }
     }),
+    createElement("div", {
+      text: `Regression Alert baseline: ${run.regressionAlertTaskLedgerBaselineHealth || "missing"} / ${run.regressionAlertTaskLedgerBaselineFreshness || "missing"} | refresh ${run.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready"} | drift ${run.regressionAlertTaskLedgerBaselineDriftSeverity || "missing-baseline"} | ${run.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0} uncheckpointed / ${run.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0} escalated | captured ${run.regressionAlertTaskLedgerBaselineCapturedAt ? new Date(run.regressionAlertTaskLedgerBaselineCapturedAt).toLocaleString() : "not captured"}`,
+      style: {
+        color: run.regressionAlertTaskLedgerBaselineRefreshGateDecision === "hold" || (run.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0) > 0
+          ? "var(--danger)"
+          : run.regressionAlertTaskLedgerBaselineHealth === "healthy" && run.regressionAlertTaskLedgerBaselineRefreshGateDecision === "ready"
+            ? "var(--success)"
+            : "var(--warning)",
+        fontSize: "0.84rem",
+        lineHeight: "1.45"
+      }
+    }),
     run.validationCommands.length
       ? createElement("div", {
           style: {
@@ -18660,6 +18672,11 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: run.targetBaselineAuditLedgerBaselineHealth === "healthy" ? "var(--success)" : run.targetBaselineAuditLedgerBaselineHealth === "missing" ? "var(--danger)" : "var(--warning)"
+      }),
+      createTag(`alert ${run.regressionAlertTaskLedgerBaselineHealth || "missing"}/${run.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: run.regressionAlertTaskLedgerBaselineRefreshGateDecision === "hold" ? "var(--danger)" : run.regressionAlertTaskLedgerBaselineHealth === "healthy" ? "var(--success)" : "var(--warning)"
       }),
       run.agentPolicyId
         ? createTag(`policy ${run.agentPolicyCheckpointStatus || "needs-review"}`, {

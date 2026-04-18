@@ -708,6 +708,12 @@ async function saveAgentExecutionRegressionAlertBaselineLedgerSnapshot() {
   await views.saveAgentExecutionRegressionAlertBaselineLedgerSnapshot();
 }
 
+async function refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot() {
+  setView("governance");
+  await views.renderGovernance();
+  await views.refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot();
+}
+
 async function copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift() {
   setView("governance");
   await views.renderGovernance();
@@ -1078,6 +1084,7 @@ const actionRegistry = createDashboardActionRegistry({
     copyAgentExecutionTargetBaselineAuditLedger,
     copyAgentExecutionRegressionAlertBaselineLedger,
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
+    refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus,

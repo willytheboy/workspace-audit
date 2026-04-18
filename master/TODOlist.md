@@ -3177,3 +3177,11 @@
 - [x] Surface status copy controls in Governance and the command palette.
 - [x] Add parser and server-test coverage for Regression Alert baseline status.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger Snapshot Refresh
+
+- [x] Add a scope-guarded refresh endpoint for accepting live Regression Alert baseline ledger state as a new snapshot.
+- [x] Surface per-snapshot and command-palette refresh controls in Governance.
+- [x] Record refresh operations in the Governance operation log.
+- [x] Add parser and server-test coverage for scoped and unscoped refresh paths.
+- [x] Validate, relaunch, commit, and push.

@@ -6298,6 +6298,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertBaselineLedgerSnapshotRefreshId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          element.textContent = await refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot(snapshotId);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -15880,6 +15903,22 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Alert Baseline Snapshot";
   }
 
+  async function refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot(snapshotId = "latest") {
+    const snapshot = snapshotId === "latest"
+      ? (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])[0]
+      : (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || []).find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error("No Regression Alert baseline ledger snapshot is available to refresh.");
+    await api.refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot({
+      snapshotId: snapshot.id,
+      title: `Refreshed ${snapshot.title || "Regression Alert Baseline Ledger"}`,
+      state: snapshot.stateFilter || "review",
+      limit: snapshot.limit || 100,
+      ...getCliBridgeScopeOptions()
+    });
+    await renderGovernance();
+    return "Refreshed Alert Snapshot";
+  }
+
   async function copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId) {
     const diff = await api.fetchAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId);
     await copyText(diff.markdown);
@@ -16766,6 +16805,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentExecutionTargetBaselineAuditLedger,
     copyAgentExecutionRegressionAlertBaselineLedger,
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
+    refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus,

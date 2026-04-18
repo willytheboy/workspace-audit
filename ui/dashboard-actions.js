@@ -106,6 +106,7 @@
  *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
  *     copyAgentExecutionRegressionAlertBaselineLedger: () => Promise<void>,
  *     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
+ *     refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
  *     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
  *     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
  *     copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus: () => Promise<void>,
@@ -931,6 +932,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "save"],
         run: () => handlers.saveAgentExecutionRegressionAlertBaselineLedgerSnapshot()
+      },
+      {
+        id: "refresh-agent-execution-regression-alert-baseline-ledger-snapshot",
+        label: "Refresh alert baseline snapshot",
+        description: "Save a refreshed Agent Execution Regression Alert baseline ledger snapshot from the latest saved snapshot settings.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "refresh"],
+        run: () => handlers.refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot()
       },
       {
         id: "copy-latest-agent-execution-regression-alert-baseline-ledger-snapshot-drift",

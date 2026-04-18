@@ -2161,6 +2161,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift" | "hold", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot, agentExecutionRegressionAlertBaselineLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot[] }>}
+   */
+  refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
    * @param {string} snapshotId
    * @returns {Promise<import("./dashboard-types.js").AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftPayload>}
    */

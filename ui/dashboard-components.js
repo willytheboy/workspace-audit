@@ -14001,6 +14001,14 @@ export function createGovernanceDeck(governance) {
           regressionAlertBaselineLedgerSnapshotDriftCheckpointId: snapshot.id,
           regressionAlertBaselineLedgerSnapshotDriftCheckpointDecision: "escalated"
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-refresh-btn",
+        text: "Refresh Snapshot",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotRefreshId: snapshot.id
+        }
       })
     ])
   ]));

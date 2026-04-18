@@ -3129,3 +3129,11 @@
 - [x] Wire dashboard API, command palette, and parser coverage.
 - [x] Add server-test coverage for scoped and unscoped refresh paths.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Metrics
+
+- [x] Add server-side run-level Regression Alert baseline capture metrics.
+- [x] Promote alert-baseline review counts into Governance summary and Agent Control Plane decisions.
+- [x] Add Governance filter options and UI metrics for alert-baseline review, missing, stale, drift, and hold states.
+- [x] Add parser and server-test coverage for alert-baseline metrics and control-plane gates.
+- [x] Validate, relaunch, commit, and push.

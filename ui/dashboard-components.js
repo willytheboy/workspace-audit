@@ -126,6 +126,19 @@ function getAgentExecutionMetrics(governance) {
     auditBaselineReviewRequired: governance.summary.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount || 0,
     auditBaselineUncheckpointedDriftRuns: governance.summary.agentExecutionTargetBaselineAuditBaselineUncheckpointedDriftRunCount || 0,
     auditBaselineUncheckpointedDriftItems: governance.summary.agentExecutionTargetBaselineAuditBaselineUncheckpointedDriftItemCount || 0,
+    alertBaselineCaptured: governance.summary.agentExecutionRegressionAlertBaselineCapturedCount || 0,
+    alertBaselineMissing: governance.summary.agentExecutionRegressionAlertBaselineMissingCount || 0,
+    alertBaselineHealthy: governance.summary.agentExecutionRegressionAlertBaselineHealthyCount || 0,
+    alertBaselineStale: governance.summary.agentExecutionRegressionAlertBaselineStaleCount || 0,
+    alertBaselineDrifted: governance.summary.agentExecutionRegressionAlertBaselineDriftedCount || 0,
+    alertBaselineDriftReviewRequired: governance.summary.agentExecutionRegressionAlertBaselineDriftReviewRequiredCount || 0,
+    alertBaselineReviewRequired: governance.summary.agentExecutionRegressionAlertBaselineReviewRequiredCount || 0,
+    alertBaselineRefreshGateReview: governance.summary.agentExecutionRegressionAlertBaselineRefreshGateReviewCount || 0,
+    alertBaselineRefreshGateHold: governance.summary.agentExecutionRegressionAlertBaselineRefreshGateHoldCount || 0,
+    alertBaselineUncheckpointedDriftRuns: governance.summary.agentExecutionRegressionAlertBaselineUncheckpointedDriftRunCount || 0,
+    alertBaselineUncheckpointedDriftItems: governance.summary.agentExecutionRegressionAlertBaselineUncheckpointedDriftItemCount || 0,
+    alertBaselineOpenEscalatedCheckpointRuns: governance.summary.agentExecutionRegressionAlertBaselineOpenEscalatedCheckpointRunCount || 0,
+    alertBaselineOpenEscalatedCheckpoints: governance.summary.agentExecutionRegressionAlertBaselineOpenEscalatedCheckpointCount || 0,
     latestEventAt: "",
     latestEventNote: "",
     latestEventStatus: "",
@@ -15729,6 +15742,10 @@ export function createGovernanceDeck(governance) {
   const controlPlaneAuditBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineHealthyCount || 0;
   const controlPlaneAuditBaselineRunMissingCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineMissingCount || 0;
   const controlPlaneAuditBaselineRunCapturedCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineCapturedCount || 0;
+  const controlPlaneAlertBaselineRunReviewCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineReviewRequiredCount || 0;
+  const controlPlaneAlertBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineHealthyCount || 0;
+  const controlPlaneAlertBaselineRunMissingCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineMissingCount || 0;
+  const controlPlaneAlertBaselineRunCapturedCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineCapturedCount || 0;
   const controlPlaneProfileTargetBaselineColor = controlPlaneProfileTargetBaselineHealth === "healthy"
     ? "var(--success)"
     : controlPlaneProfileTargetBaselineHealth === "missing" || controlPlaneProfileTargetBaselineHealth === "drift-review-required"
@@ -15823,6 +15840,11 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: controlPlaneAuditBaselineRunReviewCount > 0 ? "var(--warning)" : "var(--success)"
               }),
+              createTag(`ALERT RUNS ${controlPlaneAlertBaselineRunReviewCount} REVIEW`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneAlertBaselineRunReviewCount > 0 ? "var(--warning)" : "var(--success)"
+              }),
               createTag(`READY ${controlPlaneDecision.agentReadyProjects || 0}/${controlPlaneDecision.agentReadinessItems || 0}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
@@ -15859,7 +15881,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Regression Alert baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Regression Alert baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Alert run capture: ${controlPlaneAlertBaselineRunReviewCount} review / ${controlPlaneAlertBaselineRunHealthyCount} healthy / ${controlPlaneAlertBaselineRunMissingCount} missing / ${controlPlaneAlertBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",
@@ -18243,6 +18265,11 @@ export function createGovernanceDeck(governance) {
           detail: `${executionMetrics.auditBaselineCaptured || 0} captured, ${executionMetrics.auditBaselineMissing || 0} missing, ${executionMetrics.auditBaselineUncheckpointedDriftItems || 0} uncheckpointed drift item(s)`
         },
         {
+          label: "Regression Alert Baseline",
+          value: `${executionMetrics.alertBaselineReviewRequired || 0} review / ${executionMetrics.alertBaselineHealthy || 0} healthy`,
+          detail: `${executionMetrics.alertBaselineCaptured || 0} captured, ${executionMetrics.alertBaselineMissing || 0} missing, ${executionMetrics.alertBaselineRefreshGateHold || 0} hold gate(s), ${executionMetrics.alertBaselineOpenEscalatedCheckpoints || 0} escalated checkpoint(s)`
+        },
+        {
           label: "Stale Active Runs",
           value: String(executionMetrics.staleActive),
           detail: `Active runs older than ${executionMetrics.staleThresholdHours} hours and likely needing review`
@@ -19141,6 +19168,9 @@ export function createGovernanceDeck(governance) {
   }
   if ((executionMetrics.auditBaselineReviewRequired || 0) > 0) {
     cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.auditBaselineReviewRequired} Agent Execution run(s) have missing, stale, or drifted target-baseline audit snapshot baseline evidence.` });
+  }
+  if ((executionMetrics.alertBaselineReviewRequired || 0) > 0) {
+    cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.alertBaselineReviewRequired} Agent Execution run(s) have missing, stale, drifted, or held Regression Alert baseline evidence.` });
   }
   const cliRunnerGateDecision = cliRunnerGateReasons.some((reason) => reason.severity === "hold")
     ? "hold"

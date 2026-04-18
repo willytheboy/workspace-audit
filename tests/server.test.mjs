@@ -1858,8 +1858,13 @@ export async function serverTest() {
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineCaptured, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineMissing, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.auditBaselineReviewRequired, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.alertBaselineCaptured, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.alertBaselineMissing, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.alertBaselineReviewRequired, 2);
     assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineAuditBaselineMissingCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionRegressionAlertBaselineMissingCount, 2);
+    assert.equal(governanceAfterWorkOrderRunJson.summary.agentExecutionRegressionAlertBaselineReviewRequiredCount, 2);
     assert.equal(governanceAfterWorkOrderRunJson.agentExecutionMetrics.latestEventStatus, "running");
     assert.equal(governanceAfterWorkOrderRunJson.agentWorkOrderRuns.length, 2);
     const governanceOperationTypes = governanceAfterWorkOrderRunJson.operationLog.map((operation) => operation.type);
@@ -2705,7 +2710,9 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.slaLedgerSnapshots.length, 1);
     assert.equal(agentControlPlaneJson.agentExecutionMetrics.slaResolved, 1);
     assert.ok(agentControlPlaneJson.agentExecutionMetrics.targetBaselineReviewRequired > 0);
+    assert.ok(agentControlPlaneJson.agentExecutionMetrics.alertBaselineReviewRequired > 0);
     assert.match(agentControlPlaneJson.markdown, /Target baseline audit:/);
+    assert.match(agentControlPlaneJson.markdown, /Regression Alert baseline capture:/);
     assert.equal(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.hasBaseline, true);
     assert.ok(["healthy", "stale", "drifted", "drift-review-required"].includes(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.health));
     assert.match(agentControlPlaneJson.markdown, /Target baseline audit baseline:/);
@@ -2800,6 +2807,8 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
     assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineHealthyCount, "number");
+    assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionRegressionAlertBaselineReviewRequiredCount >= 1);
+    assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.agentExecutionRegressionAlertBaselineHealthyCount, "number");
     assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
     assert.match(cliBridgeContextJson.secretPolicy, /Do not include passwords/);
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);

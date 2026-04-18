@@ -3137,3 +3137,11 @@
 - [x] Add Governance filter options and UI metrics for alert-baseline review, missing, stale, drift, and hold states.
 - [x] Add parser and server-test coverage for alert-baseline metrics and control-plane gates.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger
+
+- [x] Add a server-side no-secret Regression Alert baseline ledger for Agent Work Order runs.
+- [x] Expose the ledger through a dashboard API helper and command palette action.
+- [x] Surface copy controls in Governance for review-only and all run states.
+- [x] Add parser and server-test coverage for the ledger endpoint and UI wiring.
+- [x] Validate, relaunch, commit, and push.

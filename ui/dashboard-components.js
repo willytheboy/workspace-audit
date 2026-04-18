@@ -18429,6 +18429,104 @@ export function createGovernanceDeck(governance) {
     ])
   ];
 
+  const agentExecutionRegressionAlertBaselineLedgerEntries = [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.25rem"
+          }
+        }, [
+          createElement("div", {
+            text: "Regression Alert Baseline Ledger",
+            style: {
+              fontWeight: "900",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: "Copy the no-secret run-level checklist for missing, stale, drifted, held, and healthy Regression Alert baseline captures.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${executionMetrics.alertBaselineReviewRequired || 0} review`, {
+          border: `1px solid ${(executionMetrics.alertBaselineReviewRequired || 0) > 0 ? "var(--warning)" : "var(--success)"}`,
+          background: "var(--bg)",
+          color: (executionMetrics.alertBaselineReviewRequired || 0) > 0 ? "var(--warning)" : "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${executionMetrics.alertBaselineMissing || 0} missing`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${executionMetrics.alertBaselineStale || 0} stale`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${(executionMetrics.alertBaselineDrifted || 0) + (executionMetrics.alertBaselineDriftReviewRequired || 0)} drift`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${executionMetrics.alertBaselineRefreshGateHold || 0} hold`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${executionMetrics.alertBaselineOpenEscalatedCheckpoints || 0} escalated checkpoint(s)`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn agent-execution-regression-alert-baseline-ledger-copy-btn",
+          text: "Copy Review Ledger",
+          attrs: { type: "button" },
+          dataset: {
+            agentExecutionRegressionAlertBaselineLedgerCopy: "review"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn agent-execution-regression-alert-baseline-ledger-copy-all-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: {
+            agentExecutionRegressionAlertBaselineLedgerCopy: "all"
+          }
+        })
+      ])
+    ])
+  ];
+
   const slaLedgerEntries = (governance.agentExecutionSlaLedger || []).map((item) => createElement("div", {
     className: "governance-gap-card",
     style: {
@@ -19578,6 +19676,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Work Order Snapshots", "Persisted Agent Work Order exports created from readiness filters.", agentWorkOrderSnapshotEntries),
     createListSection("Agent Execution Metrics", "Portfolio-level Agent Work Order run health, status split, and latest execution event.", agentExecutionMetricEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
+    createListSection("Agent Execution Regression Alert Baseline Ledger", "No-secret copyable checklist for alert-baseline capture health before unattended CLI execution.", agentExecutionRegressionAlertBaselineLedgerEntries),
     createListSection("Agent Execution Target Baseline Audit Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.", agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries),
     createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),

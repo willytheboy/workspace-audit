@@ -1905,6 +1905,18 @@ export async function serverTest() {
     assert.match(targetBaselineAuditLedgerJson.markdown, /# Agent Execution Target Baseline Audit Ledger/);
     assert.match(targetBaselineAuditLedgerJson.markdown, /Secret policy/);
 
+    const regressionAlertBaselineLedgerResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger?state=review&limit=5`);
+    assert.equal(regressionAlertBaselineLedgerResponse.status, 200);
+    const regressionAlertBaselineLedgerJson = await regressionAlertBaselineLedgerResponse.json();
+    assert.equal(regressionAlertBaselineLedgerJson.state, "review");
+    assert.equal(regressionAlertBaselineLedgerJson.total, 2);
+    assert.equal(regressionAlertBaselineLedgerJson.summary.review, 2);
+    assert.equal(regressionAlertBaselineLedgerJson.summary.missing, 2);
+    assert.equal(regressionAlertBaselineLedgerJson.summary.hold, 0);
+    assert.match(regressionAlertBaselineLedgerJson.markdown, /# Agent Execution Regression Alert Baseline Ledger/);
+    assert.match(regressionAlertBaselineLedgerJson.markdown, /Regression Alert baseline/);
+    assert.match(regressionAlertBaselineLedgerJson.markdown, /Secret policy/);
+
     const initialTargetBaselineAuditLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`);
     assert.equal(initialTargetBaselineAuditLedgerSnapshotsResponse.status, 200);
     const initialTargetBaselineAuditLedgerSnapshotsJson = await initialTargetBaselineAuditLedgerSnapshotsResponse.json();

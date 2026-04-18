@@ -2245,6 +2245,42 @@
  * }} AgentExecutionTargetBaselineAuditLedgerSummary
  * @typedef {{
  *   id: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   title: string,
+ *   status: string,
+ *   captured: boolean,
+ *   capturedAt: string,
+ *   snapshotId: string,
+ *   health: "missing" | "healthy" | "stale" | "drifted" | "drift-review-required" | "changed" | string,
+ *   freshness: "missing" | "fresh" | "stale" | string,
+ *   driftSeverity: string,
+ *   driftScore: number,
+ *   refreshGateDecision: "ready" | "review" | "hold" | string,
+ *   uncheckpointedDriftCount: number,
+ *   openEscalatedCheckpointCount: number,
+ *   needsReview: boolean,
+ *   recommendedAction: string,
+ *   updatedAt: string
+ * }} AgentExecutionRegressionAlertBaselineLedgerItem
+ * @typedef {{
+ *   sourceTotal: number,
+ *   available: number,
+ *   returned: number,
+ *   captured: number,
+ *   missing: number,
+ *   healthy: number,
+ *   stale: number,
+ *   drift: number,
+ *   review: number,
+ *   hold: number,
+ *   uncheckpointedDriftRuns: number,
+ *   uncheckpointedDriftItems: number,
+ *   openEscalatedCheckpointRuns: number,
+ *   openEscalatedCheckpoints: number
+ * }} AgentExecutionRegressionAlertBaselineLedgerSummary
+ * @typedef {{
+ *   id: string,
  *   title: string,
  *   stateFilter: "all" | "review" | "missing" | "healthy" | "stale" | "drift",
  *   limit: number,
@@ -2954,6 +2990,16 @@
  *   items: AgentExecutionTargetBaselineAuditLedgerItem[],
  *   markdown: string
  * }} AgentExecutionTargetBaselineAuditLedgerPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   state: "all" | "review" | "missing" | "healthy" | "stale" | "drift" | "hold",
+ *   limit: number,
+ *   available: number,
+ *   total: number,
+ *   summary: AgentExecutionRegressionAlertBaselineLedgerSummary,
+ *   items: AgentExecutionRegressionAlertBaselineLedgerItem[],
+ *   markdown: string
+ * }} AgentExecutionRegressionAlertBaselineLedgerPayload
  * @typedef {{
  *   generatedAt: string,
  *   limit: number,

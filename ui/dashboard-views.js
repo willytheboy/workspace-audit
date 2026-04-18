@@ -8013,6 +8013,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-agent-execution-regression-alert-baseline-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const state = element.dataset.agentExecutionRegressionAlertBaselineLedgerCopy || "";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          const label = await copyAgentExecutionRegressionAlertBaselineLedger(state);
+          element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-agent-execution-target-baseline-audit-ledger-snapshot-save]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -15655,6 +15677,24 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.total} target baseline audit run${payload.total === 1 ? "" : "s"}`;
   }
 
+  function getAgentExecutionRegressionAlertBaselineLedgerState(stateOverride = "") {
+    if (["all", "review", "missing", "healthy", "stale", "drift", "hold"].includes(stateOverride)) return stateOverride;
+    const executionStatus = getGovernanceFilterState().executionStatus;
+    if (executionStatus === "alert-baseline-missing") return "missing";
+    if (executionStatus === "alert-baseline-stale") return "stale";
+    if (executionStatus === "alert-baseline-drift") return "drift";
+    if (executionStatus === "alert-baseline-hold") return "hold";
+    if (executionStatus === "alert-baseline-review") return "review";
+    return "all";
+  }
+
+  async function copyAgentExecutionRegressionAlertBaselineLedger(stateOverride = "") {
+    const state = getAgentExecutionRegressionAlertBaselineLedgerState(stateOverride);
+    const payload = await api.fetchAgentExecutionRegressionAlertBaselineLedger({ state, limit: 100 });
+    await copyText(payload.markdown);
+    return `Copied ${payload.total} alert baseline run${payload.total === 1 ? "" : "s"}`;
+  }
+
   async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
     const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
     await copyText(payload.markdown);
@@ -16499,6 +16539,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyLatestSourcesSummarySnapshotDrift,
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
+    copyAgentExecutionRegressionAlertBaselineLedger,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,

@@ -1597,6 +1597,8 @@ export function createGovernanceSummaryGrid(governance) {
   const openExecutionResultTaskCount = summary.agentExecutionResultOpenTaskCount || 0;
   const convergenceTaskCount = summary.convergenceTaskCount || 0;
   const openConvergenceTaskCount = summary.convergenceOpenTaskCount || 0;
+  const regressionAlertTaskCount = summary.regressionAlertTaskCount || 0;
+  const regressionAlertOpenTaskCount = summary.regressionAlertOpenTaskCount || 0;
   const mutationScopeSummary = governance.mutationScopeInventory?.summary || {};
   const mutationScopeRelevant = mutationScopeSummary.scopeRelevant || 0;
   const mutationScopeGuarded = mutationScopeSummary.guarded || 0;
@@ -1690,6 +1692,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Alert Center",
       value: String(regressionAlertCount),
       detail: `${scanRegressionSummary.high || 0} scan high | ${scanRegressionSummary.medium || 0} scan medium | source ${dataSourcesAccessGateDecision} | release ${releaseBuildGateDecision}`
+    }),
+    createKpiCard({
+      accentColor: regressionAlertOpenTaskCount ? "var(--warning)" : regressionAlertTaskCount ? "var(--success)" : "var(--primary)",
+      label: "Alert Tasks",
+      value: `${regressionAlertOpenTaskCount}/${regressionAlertTaskCount}`,
+      detail: "Open remediation tasks created from Regression Alert Center alerts"
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3651,6 +3659,105 @@ export function createGovernanceDeck(governance) {
     regressionAlertCenterSummaryEntry,
     ...regressionAlertEntryCards
   ];
+  const regressionAlertTaskEntries = (governance.regressionAlertTasks || []).map((task) => {
+    const isClosedTask = ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase());
+    const statusColor = isClosedTask
+      ? "var(--success)"
+      : task.status === "blocked"
+        ? "var(--danger)"
+        : "var(--warning)";
+    return createElement("div", {
+      className: "governance-gap-card regression-alert-task-ledger-card",
+      dataset: task.projectId ? { openAppId: encodeAppId(task.projectId) } : undefined,
+      title: task.projectId ? "Open project workbench" : undefined,
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.6rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: task.title || "Regression alert task",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${task.projectName || "Portfolio Control Plane"} | ${task.updatedAt ? `updated ${new Date(task.updatedAt).toLocaleString()}` : `created ${task.createdAt ? new Date(task.createdAt).toLocaleString() : "unknown"}`}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem"
+            }
+          })
+        ]),
+        createElement("div", {
+          style: {
+            display: "flex",
+            gap: "0.35rem",
+            flexWrap: "wrap",
+            justifyContent: "flex-end"
+          }
+        }, [
+          createTag((task.priority || "normal").toUpperCase(), {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+          }),
+          createTag((task.status || "open").toUpperCase(), {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: statusColor
+          })
+        ])
+      ]),
+      createElement("div", {
+        text: task.description ? String(task.description).split("\n")[0] : "Track Regression Alert Center remediation without storing secrets.",
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag("Regression Alert Center", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(task.secretPolicy || "non-secret-alert-metadata-only", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        })
+      ]),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-status-btn",
+          text: isClosedTask ? "Reopen" : "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            regressionAlertTaskStatus: isClosedTask ? "open" : "resolved",
+            taskId: task.id || ""
+          }
+        })
+      ])
+    ]);
+  });
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -18720,6 +18827,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Regression Alert Center", "Unified operator alerts from scan movement, source access, release gates, control-plane state, and mutation-scope coverage.", regressionAlertCenterEntries),
+    createListSection("Regression Alert Remediation Tasks", "Compact ledger of tasks created from Regression Alert Center alerts.", regressionAlertTaskEntries),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

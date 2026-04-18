@@ -3057,3 +3057,11 @@
 - [x] Preserve active project / portfolio scope metadata for task creation.
 - [x] Add parser coverage for alert task seeding.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Remediation Task Ledger
+
+- [x] Add server-side focus list and counts for Regression Alert Center remediation tasks.
+- [x] Surface alert remediation task counts in the Governance summary grid.
+- [x] Add a compact alert remediation task ledger with resolve/reopen controls.
+- [x] Add parser coverage for the task ledger.
+- [x] Validate, relaunch, commit, and push.

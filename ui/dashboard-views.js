@@ -1108,6 +1108,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.agentControlPlaneDecisionReasonCode || "", task.agentControlPlaneDecision || "", task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
+      regressionAlertTasks: filterAndSort(
+        governance.regressionAlertTasks || [],
+        (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.description || ""],
+        (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
+      ),
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -1662,6 +1667,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseTaskLedgerSnapshots = [];
       if (scope !== "release") filtered.releaseTaskLedgerSnapshotDiff = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
+      if (scope !== "operations") filtered.regressionAlertTasks = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1768,6 +1774,33 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
             status: "open",
             projectId: projectId || undefined,
             projectName: projectId ? projectName : "Portfolio Control Plane",
+            ...getCliBridgeScopeOptions()
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-regression-alert-task-status]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const taskId = element.dataset.taskId || "";
+        const status = element.dataset.regressionAlertTaskStatus || "";
+        if (!taskId || !status) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Updating";
+          await api.updateTask(taskId, {
+            status,
             ...getCliBridgeScopeOptions()
           });
           await renderGovernance();
@@ -12369,6 +12402,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.agentControlPlaneBaselineStatus ? 1 : 0)
         + (governance.agentControlPlaneDecision ? 1 : 0)
         + (governance.agentControlPlaneDecisionTasks || []).length
+        + (governance.regressionAlertTasks || []).length
         + (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).length
         + (governance.agentExecutionResultTaskLedgerSnapshots || []).length
         + (governance.releaseControlTasks || []).length

@@ -2758,6 +2758,8 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.ok(cliBridgeContextJson.controlPlaneDecision.targetBaselineAuditLedgerBaselineHealth);
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
     assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineHealthyCount, "number");
     assert.equal(cliBridgeContextJson.bridgeDecision, "hold");
@@ -2765,6 +2767,7 @@ export async function serverTest() {
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
     assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Target baseline audit baseline health:/);
+    assert.match(cliBridgeContextJson.markdown, /Regression Alert task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Execution audit snapshot baseline runs:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
@@ -3660,11 +3663,18 @@ export async function serverTest() {
     assert.deepEqual(initialAgentControlPlaneDecisionJson.dataSourcesAccessTasks, []);
     assert.ok(initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
     assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineMissingCount, "number");
+    assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
+    assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount, 0);
+    assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount, 0);
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "baseline-missing"));
+    assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "regression-alert-task-baseline-missing"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "execution-audit-baseline-review"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "release-build-gate-review"));
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /# Agent Control Plane Decision/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Decision: hold/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert task baseline health: missing/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Regression Alert Task Baseline/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Execution run audit snapshot baseline:/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Release build gate: review/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Release Build Gate/);
@@ -3725,6 +3735,8 @@ export async function serverTest() {
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessValidationEvidenceCoverageCoveredCount, 1);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourcesAccessValidationEvidenceCoveragePercent, 100);
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.dataSourceAccessValidationEvidenceSnapshotCount, 1);
+    assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.equal(createAgentControlPlaneDecisionSnapshotJson.snapshot.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount, initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /# Agent Control Plane Decision/);
     assert.match(createAgentControlPlaneDecisionSnapshotJson.snapshot.markdown, /## Release Build Gate/);

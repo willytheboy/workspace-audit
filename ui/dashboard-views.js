@@ -752,6 +752,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "",
         governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineDriftSeverity || "",
         String(governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0),
+        governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineHealth || "",
+        governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineFreshness || "",
+        governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision || "",
+        String(governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0),
+        String(governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0),
         String(governance.agentControlPlaneDecision.activeRuns || 0),
         String(governance.agentControlPlaneDecision.staleActiveRuns || 0),
         String(governance.agentControlPlaneDecision.slaBreachedRuns || 0),
@@ -9815,6 +9820,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Target baseline audit baseline health: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineHealth || "missing"}`);
       lines.push(`- Target baseline audit baseline freshness: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "missing"}`);
       lines.push(`- Target baseline audit baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0}`);
+      lines.push(`- Regression Alert task baseline health: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineHealth || "missing"}`);
+      lines.push(`- Regression Alert task baseline refresh gate: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready"}`);
+      lines.push(`- Regression Alert task baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0}`);
+      lines.push(`- Regression Alert task baseline open escalated checkpoints: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0}`);
       lines.push(`- Agent-ready projects: ${governance.agentControlPlaneDecision.agentReadyProjects || 0}/${governance.agentControlPlaneDecision.agentReadinessItems || 0}`);
       lines.push(`- Release build gate: ${governance.agentControlPlaneDecision.releaseBuildGateDecision || governance.releaseBuildGate?.decision || "not-evaluated"} (risk ${governance.agentControlPlaneDecision.releaseBuildGateRiskScore ?? governance.releaseBuildGate?.riskScore ?? 0})`);
       lines.push(`- Release Control tasks: ${governance.agentControlPlaneDecision.releaseControlOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.releaseControlTaskCount || 0} total`);

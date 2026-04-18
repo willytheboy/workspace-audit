@@ -3105,3 +3105,11 @@
 - [x] Include baseline health and refresh gate in copied alert handoff Markdown.
 - [x] Add parser coverage for the readiness gate integration.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Regression Alert Baseline Gate
+
+- [x] Feed Regression Alert task ledger baseline status into Agent Control Plane decisions.
+- [x] Add missing, stale, drift-review, and refresh-hold decision reasons for alert remediation baselines.
+- [x] Surface alert baseline health in the Control Plane decision card, copied Markdown, and CLI bridge context.
+- [x] Add parser and server-test coverage for the control-plane gate.
+- [x] Validate, relaunch, commit, and push.

@@ -13966,6 +13966,14 @@ export function createGovernanceDeck(governance) {
         dataset: {
           regressionAlertBaselineLedgerSnapshotId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotDriftId: snapshot.id
+        }
       })
     ])
   ]));

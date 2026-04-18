@@ -3153,3 +3153,11 @@
 - [x] Include saved alert-baseline ledger snapshots in Governance focus, summary, and copied Governance Markdown.
 - [x] Add parser and server-test coverage for snapshot creation and retrieval.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger Snapshot Drift
+
+- [x] Add live-vs-snapshot drift comparison for Regression Alert baseline ledgers.
+- [x] Expose per-snapshot drift through a dashboard API helper and command palette action.
+- [x] Surface copyable drift controls on saved alert-baseline ledger snapshots.
+- [x] Add parser and server-test coverage for clean drift detection.
+- [x] Validate, relaunch, commit, and push.

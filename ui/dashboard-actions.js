@@ -106,6 +106,7 @@
  *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
  *     copyAgentExecutionRegressionAlertBaselineLedger: () => Promise<void>,
  *     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
+ *     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus: () => Promise<void>,
  *     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask: () => Promise<void>,
@@ -928,6 +929,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "save"],
         run: () => handlers.saveAgentExecutionRegressionAlertBaselineLedgerSnapshot()
+      },
+      {
+        id: "copy-latest-agent-execution-regression-alert-baseline-ledger-snapshot-drift",
+        label: "Copy alert baseline drift",
+        description: "Copy latest saved Regression Alert baseline ledger snapshot drift as markdown.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "drift", "copy"],
+        run: () => handlers.copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift()
       },
       {
         id: "copy-agent-execution-target-baseline-audit-ledger-baseline-status",

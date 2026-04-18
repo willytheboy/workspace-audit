@@ -6211,6 +6211,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertBaselineLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          element.textContent = await copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -15769,6 +15792,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Alert Baseline Snapshot";
   }
 
+  async function copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId) {
+    const diff = await api.fetchAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId);
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${diff.driftSeverity} alert baseline drift` : "Copied clean alert baseline drift";
+  }
+
+  async function copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift() {
+    const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No Regression Alert baseline ledger snapshot is available.");
+    return copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id);
+  }
+
   async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
     const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
     await copyText(payload.markdown);
@@ -16615,6 +16650,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentExecutionTargetBaselineAuditLedger,
     copyAgentExecutionRegressionAlertBaselineLedger,
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
+    copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,

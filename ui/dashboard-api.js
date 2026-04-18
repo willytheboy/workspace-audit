@@ -2161,6 +2161,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} snapshotId
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftPayload>}
+   */
+  fetchAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId) {
+    return fetchJson(`/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots/${encodeURIComponent(snapshotId)}/drift`);
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[]>}
    */
   fetchAgentExecutionTargetBaselineAuditLedgerSnapshots() {

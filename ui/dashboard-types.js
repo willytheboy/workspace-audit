@@ -2303,6 +2303,40 @@
  *   createdAt: string
  * }} PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot
  * @typedef {{
+ *   field: string,
+ *   label: string,
+ *   before: string | number,
+ *   current: string | number,
+ *   delta: number
+ * }} AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftItem
+ * @typedef {{
+ *   id: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   title: string,
+ *   driftItems: AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftItem[]
+ * }} AgentExecutionRegressionAlertBaselineLedgerChangedRun
+ * @typedef {{
+ *   generatedAt: string,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   stateFilter: string,
+ *   hasDrift: boolean,
+ *   driftSeverity: "none" | "low" | "medium" | "high",
+ *   driftScore: number,
+ *   recommendedAction: string,
+ *   snapshotSummary: AgentExecutionRegressionAlertBaselineLedgerSummary,
+ *   liveSummary: AgentExecutionRegressionAlertBaselineLedgerSummary,
+ *   summaryDrift: AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftItem[],
+ *   addedCount: number,
+ *   removedCount: number,
+ *   changedCount: number,
+ *   added: AgentExecutionRegressionAlertBaselineLedgerItem[],
+ *   removed: AgentExecutionRegressionAlertBaselineLedgerItem[],
+ *   changed: AgentExecutionRegressionAlertBaselineLedgerChangedRun[],
+ *   markdown: string
+ * }} AgentExecutionRegressionAlertBaselineLedgerSnapshotDriftPayload
+ * @typedef {{
  *   id: string,
  *   title: string,
  *   stateFilter: "all" | "review" | "missing" | "healthy" | "stale" | "drift",

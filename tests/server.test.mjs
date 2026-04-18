@@ -1959,6 +1959,14 @@ export async function serverTest() {
     const regressionAlertBaselineLedgerSnapshotsJson = await regressionAlertBaselineLedgerSnapshotsResponse.json();
     assert.equal(regressionAlertBaselineLedgerSnapshotsJson.length, 1);
 
+    const regressionAlertBaselineLedgerSnapshotDriftResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots/${createRegressionAlertBaselineLedgerSnapshotJson.snapshot.id}/drift`);
+    assert.equal(regressionAlertBaselineLedgerSnapshotDriftResponse.status, 200);
+    const regressionAlertBaselineLedgerSnapshotDriftJson = await regressionAlertBaselineLedgerSnapshotDriftResponse.json();
+    assert.equal(regressionAlertBaselineLedgerSnapshotDriftJson.hasDrift, false);
+    assert.equal(regressionAlertBaselineLedgerSnapshotDriftJson.driftScore, 0);
+    assert.match(regressionAlertBaselineLedgerSnapshotDriftJson.markdown, /# Agent Execution Regression Alert Baseline Ledger Snapshot Drift/);
+    assert.match(regressionAlertBaselineLedgerSnapshotDriftJson.markdown, /No Regression Alert baseline ledger drift detected/);
+
     const governanceAfterRegressionAlertBaselineSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotResponse.status, 200);
     const governanceAfterRegressionAlertBaselineSnapshotJson = await governanceAfterRegressionAlertBaselineSnapshotResponse.json();

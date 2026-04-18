@@ -1697,7 +1697,7 @@ export function createGovernanceSummaryGrid(governance) {
       accentColor: regressionAlertOpenTaskCount ? "var(--warning)" : regressionAlertTaskCount ? "var(--success)" : "var(--primary)",
       label: "Alert Tasks",
       value: `${regressionAlertOpenTaskCount}/${regressionAlertTaskCount}`,
-      detail: `${summary.regressionAlertTaskLedgerSnapshotCount || 0} saved alert task snapshot(s)`
+      detail: `${summary.regressionAlertTaskLedgerSnapshotCount || 0} snapshot(s) | baseline ${summary.regressionAlertTaskLedgerBaselineHealth || "missing"}`
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3416,6 +3416,7 @@ export function createGovernanceDeck(governance) {
     ])
   ] : [];
   const scanDiff = governance.scanDiff || null;
+  const regressionAlertBaselineStatus = governance.regressionAlertTaskLedgerBaselineStatus || null;
   const regressionAlertItems = [
     ...(scanDiff?.alerts || []).map((alert) => ({
       source: "scan",
@@ -3469,6 +3470,28 @@ export function createGovernanceDeck(governance) {
       recommendedAction: "Stop autonomous mutation work until every scope-relevant route has a server-side scope guard.",
       projectId: "",
       meta: "Mutation guard"
+    });
+  }
+  if (regressionAlertBaselineStatus && !["healthy", "missing"].includes(regressionAlertBaselineStatus.health || "")) {
+    regressionAlertItems.push({
+      source: "regression-alert-baseline",
+      severity: regressionAlertBaselineStatus.refreshGateDecision === "hold" || regressionAlertBaselineStatus.health === "drifted" ? "high" : "medium",
+      title: "Regression Alert task ledger baseline needs review",
+      detail: `Baseline health is ${regressionAlertBaselineStatus.health || "missing"} with drift score ${regressionAlertBaselineStatus.driftScore || 0}, ${regressionAlertBaselineStatus.uncheckpointedDriftItemCount || 0} uncheckpointed drift item(s), and ${regressionAlertBaselineStatus.openEscalatedCheckpointCount || 0} open escalated checkpoint(s).`,
+      recommendedAction: regressionAlertBaselineStatus.refreshGateRecommendedAction || regressionAlertBaselineStatus.recommendedAction || "Review Regression Alert task ledger baseline drift before continuing unattended build work.",
+      projectId: "",
+      meta: `Refresh gate ${regressionAlertBaselineStatus.refreshGateDecision || "review"}`
+    });
+  }
+  if (regressionAlertBaselineStatus?.health === "missing") {
+    regressionAlertItems.push({
+      source: "regression-alert-baseline",
+      severity: "medium",
+      title: "Regression Alert task ledger baseline is missing",
+      detail: `${regressionAlertBaselineStatus.snapshotCount || 0} saved Regression Alert remediation task ledger snapshot(s) are available.`,
+      recommendedAction: regressionAlertBaselineStatus.refreshGateRecommendedAction || "Save the current Regression Alert remediation task ledger as the first baseline before unattended cycles.",
+      projectId: "",
+      meta: "Baseline missing"
     });
   }
   if (decision && decision !== "ready") {
@@ -3646,7 +3669,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: "Scan movement, Data Sources access gate, Release Build Gate, Control Plane decision, and mutation-scope guard coverage are currently clear or not-evaluated.",
+            text: "Scan movement, Data Sources access gate, Release Build Gate, Control Plane decision, Regression Alert task baseline, and mutation-scope guard coverage are currently clear or not-evaluated.",
             style: {
               color: "var(--text-muted)",
               fontSize: "0.84rem",

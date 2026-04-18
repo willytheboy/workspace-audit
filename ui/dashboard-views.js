@@ -9209,6 +9209,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const releaseGate = governanceCache?.releaseBuildGate || governance.releaseBuildGate || null;
     const mutationScope = governanceCache?.mutationScopeInventory || governance.mutationScopeInventory || null;
     const controlPlaneDecision = governanceCache?.agentControlPlaneDecision || governance.agentControlPlaneDecision || null;
+    const regressionAlertBaselineStatus = governanceCache?.regressionAlertTaskLedgerBaselineStatus || governance.regressionAlertTaskLedgerBaselineStatus || null;
     const controlDecision = controlPlaneDecision?.decision || "review";
     const sourceDecision = sourceGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated";
     const releaseDecision = releaseGate?.decision || "not-evaluated";
@@ -9268,6 +9269,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       });
     }
 
+    if (regressionAlertBaselineStatus && !["healthy", "missing"].includes(regressionAlertBaselineStatus.health || "")) {
+      alertItems.push({
+        source: "regression-alert-baseline",
+        severity: regressionAlertBaselineStatus.refreshGateDecision === "hold" || regressionAlertBaselineStatus.health === "drifted" ? "high" : "medium",
+        title: "Regression Alert task ledger baseline needs review",
+        detail: `Baseline health is ${regressionAlertBaselineStatus.health || "missing"} with drift score ${regressionAlertBaselineStatus.driftScore || 0}, ${regressionAlertBaselineStatus.uncheckpointedDriftItemCount || 0} uncheckpointed drift item(s), and ${regressionAlertBaselineStatus.openEscalatedCheckpointCount || 0} open escalated checkpoint(s).`,
+        recommendedAction: regressionAlertBaselineStatus.refreshGateRecommendedAction || regressionAlertBaselineStatus.recommendedAction || "Review Regression Alert task ledger baseline drift before continuing unattended build work.",
+        meta: `Refresh gate ${regressionAlertBaselineStatus.refreshGateDecision || "review"}`
+      });
+    }
+
+    if (regressionAlertBaselineStatus?.health === "missing") {
+      alertItems.push({
+        source: "regression-alert-baseline",
+        severity: "medium",
+        title: "Regression Alert task ledger baseline is missing",
+        detail: `${regressionAlertBaselineStatus.snapshotCount || 0} saved Regression Alert remediation task ledger snapshot(s) are available.`,
+        recommendedAction: regressionAlertBaselineStatus.refreshGateRecommendedAction || "Save the current Regression Alert remediation task ledger as the first baseline before unattended cycles.",
+        meta: "Baseline missing"
+      });
+    }
+
     if (controlDecision && controlDecision !== "ready") {
       alertItems.push({
         source: "control-plane",
@@ -9294,6 +9317,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Scan alerts: ${scanDiff?.alertSummary?.total || 0} total, ${scanDiff?.alertSummary?.high || 0} high, ${scanDiff?.alertSummary?.medium || 0} medium, ${scanDiff?.alertSummary?.low || 0} low`,
       `- Source access gate: ${sourceDecision}`,
       `- Release Build Gate: ${releaseDecision}`,
+      `- Regression Alert task baseline: ${regressionAlertBaselineStatus?.health || "not-loaded"} / refresh ${regressionAlertBaselineStatus?.refreshGateDecision || "not-loaded"}`,
       `- Agent Control Plane: ${controlDecision}`,
       `- Mutation scope guard: ${mutationSummary.guarded || 0}/${mutationSummary.scopeRelevant || 0} guarded, ${mutationSummary.unguarded || 0} unguarded`,
       "",

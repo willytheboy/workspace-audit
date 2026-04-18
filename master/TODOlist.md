@@ -3097,3 +3097,11 @@
 - [x] Surface baseline copy and refresh controls in Governance.
 - [x] Add parser coverage for the baseline refresh flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Baseline Readiness Gate
+
+- [x] Promote Regression Alert task ledger baseline status into Governance summary metrics.
+- [x] Add baseline missing/review alerts to Regression Alert Center.
+- [x] Include baseline health and refresh gate in copied alert handoff Markdown.
+- [x] Add parser coverage for the readiness gate integration.
+- [x] Validate, relaunch, commit, and push.

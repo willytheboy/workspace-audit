@@ -3145,3 +3145,11 @@
 - [x] Surface copy controls in Governance for review-only and all run states.
 - [x] Add parser and server-test coverage for the ledger endpoint and UI wiring.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger Snapshots
+
+- [x] Add persisted Regression Alert baseline ledger snapshots with Agent Execution scope guard.
+- [x] Surface snapshot save and copy controls in Governance.
+- [x] Include saved alert-baseline ledger snapshots in Governance focus, summary, and copied Governance Markdown.
+- [x] Add parser and server-test coverage for snapshot creation and retrieval.
+- [x] Validate, relaunch, commit, and push.

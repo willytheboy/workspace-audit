@@ -1917,6 +1917,54 @@ export async function serverTest() {
     assert.match(regressionAlertBaselineLedgerJson.markdown, /Regression Alert baseline/);
     assert.match(regressionAlertBaselineLedgerJson.markdown, /Secret policy/);
 
+    const initialRegressionAlertBaselineLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots`);
+    assert.equal(initialRegressionAlertBaselineLedgerSnapshotsResponse.status, 200);
+    const initialRegressionAlertBaselineLedgerSnapshotsJson = await initialRegressionAlertBaselineLedgerSnapshotsResponse.json();
+    assert.equal(initialRegressionAlertBaselineLedgerSnapshotsJson.length, 0);
+
+    const unscopedRegressionAlertBaselineLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Regression Alert Baseline Ledger",
+        state: "review",
+        limit: 5
+      })
+    });
+    assert.equal(unscopedRegressionAlertBaselineLedgerSnapshotResponse.status, 409);
+    const unscopedRegressionAlertBaselineLedgerSnapshotJson = await unscopedRegressionAlertBaselineLedgerSnapshotResponse.json();
+    assert.equal(unscopedRegressionAlertBaselineLedgerSnapshotJson.reasonCode, "agent-execution-scope-required");
+
+    const createRegressionAlertBaselineLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "Fixture Regression Alert Baseline Ledger",
+        state: "review",
+        limit: 5,
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotResponse.status, 200);
+    const createRegressionAlertBaselineLedgerSnapshotJson = await createRegressionAlertBaselineLedgerSnapshotResponse.json();
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotJson.success, true);
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotJson.snapshot.title, "Fixture Regression Alert Baseline Ledger");
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotJson.snapshot.total, 2);
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotJson.snapshot.reviewCount, 2);
+    assert.equal(createRegressionAlertBaselineLedgerSnapshotJson.snapshot.missingCount, 2);
+    assert.match(createRegressionAlertBaselineLedgerSnapshotJson.snapshot.markdown, /# Agent Execution Regression Alert Baseline Ledger/);
+
+    const regressionAlertBaselineLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots`);
+    assert.equal(regressionAlertBaselineLedgerSnapshotsResponse.status, 200);
+    const regressionAlertBaselineLedgerSnapshotsJson = await regressionAlertBaselineLedgerSnapshotsResponse.json();
+    assert.equal(regressionAlertBaselineLedgerSnapshotsJson.length, 1);
+
+    const governanceAfterRegressionAlertBaselineSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotResponse.status, 200);
+    const governanceAfterRegressionAlertBaselineSnapshotJson = await governanceAfterRegressionAlertBaselineSnapshotResponse.json();
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerSnapshots.length, 1);
+
     const initialTargetBaselineAuditLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`);
     assert.equal(initialTargetBaselineAuditLedgerSnapshotsResponse.status, 200);
     const initialTargetBaselineAuditLedgerSnapshotsJson = await initialTargetBaselineAuditLedgerSnapshotsResponse.json();

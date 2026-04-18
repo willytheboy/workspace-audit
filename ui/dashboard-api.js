@@ -2142,6 +2142,25 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot[]>}
+   */
+  fetchAgentExecutionRegressionAlertBaselineLedgerSnapshots() {
+    return fetchJson("/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, state?: "all" | "review" | "missing" | "healthy" | "stale" | "drift" | "hold", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot, agentExecutionRegressionAlertBaselineLedgerSnapshots: import("./dashboard-types.js").PersistedAgentExecutionRegressionAlertBaselineLedgerSnapshot[] }>}
+   */
+  createAgentExecutionRegressionAlertBaselineLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[]>}
    */
   fetchAgentExecutionTargetBaselineAuditLedgerSnapshots() {

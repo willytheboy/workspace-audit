@@ -105,6 +105,7 @@
  *     copySlaBreachLedger: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedger: () => Promise<void>,
  *     copyAgentExecutionRegressionAlertBaselineLedger: () => Promise<void>,
+ *     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus: () => Promise<void>,
  *     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask: () => Promise<void>,
@@ -919,6 +920,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "copy"],
         run: () => handlers.copyAgentExecutionRegressionAlertBaselineLedger()
+      },
+      {
+        id: "save-agent-execution-regression-alert-baseline-ledger-snapshot",
+        label: "Save alert baseline snapshot",
+        description: "Persist the Agent Execution Regression Alert baseline ledger as a markdown snapshot.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "save"],
+        run: () => handlers.saveAgentExecutionRegressionAlertBaselineLedgerSnapshot()
       },
       {
         id: "copy-agent-execution-target-baseline-audit-ledger-baseline-status",

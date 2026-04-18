@@ -1362,6 +1362,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.reviewCount), String(snapshot.missingCount), String(snapshot.healthyCount), String(snapshot.staleCount), String(snapshot.driftCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      agentExecutionRegressionAlertBaselineLedgerSnapshots: filterAndSort(
+        governance.agentExecutionRegressionAlertBaselineLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.stateFilter || "", String(snapshot.total), String(snapshot.reviewCount), String(snapshot.missingCount), String(snapshot.healthyCount), String(snapshot.staleCount), String(snapshot.driftCount), String(snapshot.holdCount), String(snapshot.openEscalatedCheckpointCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger: governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger && matchesSearch([
         "agent execution target baseline audit drift checkpoints",
         governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.markdown || "",
@@ -1742,6 +1747,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "work-orders") filtered.agentWorkOrderSnapshots = [];
       if (scope !== "execution") filtered.agentWorkOrderRuns = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
+      if (scope !== "execution") filtered.agentExecutionRegressionAlertBaselineLedgerSnapshots = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
       if (scope !== "execution") filtered.cliBridgeHandoffs = [];
@@ -6181,6 +6187,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertBaselineLedgerSnapshotId || "";
+        const snapshot = governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8026,6 +8056,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.textContent = "Copying";
           const label = await copyAgentExecutionRegressionAlertBaselineLedger(state);
           element.textContent = label;
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-agent-execution-regression-alert-baseline-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const state = element.dataset.agentExecutionRegressionAlertBaselineLedgerSnapshotSave || "review";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          element.textContent = await saveAgentExecutionRegressionAlertBaselineLedgerSnapshot(state);
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -10537,6 +10588,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible target baseline audit ledger snapshots.");
+    }
+
+    lines.push("", "## Agent Execution Regression Alert Baseline Ledger Snapshots");
+    if ((governance.agentExecutionRegressionAlertBaselineLedgerSnapshots || []).length) {
+      for (const snapshot of governance.agentExecutionRegressionAlertBaselineLedgerSnapshots) {
+        lines.push(`- ${snapshot.title}: ${snapshot.total} record(s) (${snapshot.stateFilter})`);
+        lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
+        lines.push(`  State split: ${snapshot.reviewCount || 0} review | ${snapshot.missingCount || 0} missing | ${snapshot.healthyCount || 0} healthy | ${snapshot.staleCount || 0} stale | ${snapshot.driftCount || 0} drift | ${snapshot.holdCount || 0} hold | ${snapshot.openEscalatedCheckpointCount || 0} escalated`);
+      }
+    } else {
+      lines.push("- No visible Regression Alert baseline ledger snapshots.");
     }
 
     lines.push("", "## Agent Execution Target Baseline Audit Drift Checkpoints");
@@ -15695,6 +15757,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return `Copied ${payload.total} alert baseline run${payload.total === 1 ? "" : "s"}`;
   }
 
+  async function saveAgentExecutionRegressionAlertBaselineLedgerSnapshot(stateOverride = "review") {
+    const state = getAgentExecutionRegressionAlertBaselineLedgerState(stateOverride);
+    await api.createAgentExecutionRegressionAlertBaselineLedgerSnapshot({
+      title: `Regression Alert Baseline Ledger: ${state}`,
+      state,
+      limit: 100,
+      ...getCliBridgeScopeOptions()
+    });
+    await renderGovernance();
+    return "Saved Alert Baseline Snapshot";
+  }
+
   async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
     const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
     await copyText(payload.markdown);
@@ -16540,6 +16614,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copySlaBreachLedger,
     copyAgentExecutionTargetBaselineAuditLedger,
     copyAgentExecutionRegressionAlertBaselineLedger,
+    saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,

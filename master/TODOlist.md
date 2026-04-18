@@ -3049,3 +3049,11 @@
 - [x] Wire the alert pack copy action from the Governance panel.
 - [x] Add parser coverage for the handoff pack.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Task Seeding
+
+- [x] Add per-alert remediation task controls to the Regression Alert Center.
+- [x] Seed generic Governance tasks with severity, source, detail, and recommended action.
+- [x] Preserve active project / portfolio scope metadata for task creation.
+- [x] Add parser coverage for alert task seeding.
+- [x] Validate, relaunch, commit, and push.

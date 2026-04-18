@@ -1736,6 +1736,49 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-task]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const title = element.dataset.alertTitle || "Regression alert";
+        const detail = element.dataset.alertDetail || "Review and resolve this regression alert.";
+        const action = element.dataset.alertAction || "Review and resolve this regression alert.";
+        const severity = element.dataset.alertSeverity || "medium";
+        const source = element.dataset.alertSource || "governance";
+        const projectId = element.dataset.alertProjectId || "";
+        const projectName = element.dataset.alertProjectName || "Portfolio Control Plane";
+        const priority = severity === "high" ? "high" : severity === "low" ? "low" : "medium";
+        const originalLabel = element.textContent || "";
+
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          await api.createTask({
+            title: `Regression alert: ${title}`.slice(0, 140),
+            description: [
+              `Source: ${source}`,
+              `Severity: ${severity}`,
+              `Detail: ${detail}`,
+              `Recommended action: ${action}`,
+              "Secret policy: non-secret alert metadata only. Do not store passwords, tokens, private keys, certificates, cookies, browser sessions, or command output."
+            ].join("\n"),
+            priority,
+            status: "open",
+            projectId: projectId || undefined,
+            projectName: projectId ? projectName : "Portfolio Control Plane",
+            ...getCliBridgeScopeOptions()
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
     container.querySelectorAll("[data-governance-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {

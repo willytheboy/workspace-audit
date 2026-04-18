@@ -3597,7 +3597,26 @@ export function createGovernanceDeck(governance) {
               fontSize: "0.82rem",
               lineHeight: "1.45"
             }
-          })
+          }),
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn regression-alert-task-btn",
+              text: "Create Task",
+              attrs: { type: "button" },
+              dataset: {
+                regressionAlertTask: "true",
+                alertTitle: alert.title || "Regression alert",
+                alertDetail: alert.detail || "",
+                alertAction: alert.recommendedAction || "Review and resolve this regression alert.",
+                alertSeverity: alert.severity || "medium",
+                alertSource: alert.source || "governance",
+                alertProjectId: alert.projectId || "",
+                alertProjectName: alert.meta || "Portfolio Control Plane"
+              }
+            })
+          ])
         ]);
       })
     : [

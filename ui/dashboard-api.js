@@ -1099,6 +1099,18 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, previousSnapshotId: string, snapshot: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot, regressionAlertTaskLedgerSnapshots: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot[] }>}
+   */
+  refreshRegressionAlertTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/governance/regression-alert-task-ledger-snapshots/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {string} [snapshotId]
    * @returns {Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerSnapshotDiffPayload>}
    */
@@ -1124,6 +1136,13 @@ export const dashboardApi = {
    */
   fetchRegressionAlertTaskLedgerDriftCheckpointLedger(status = "all") {
     return fetchJson(withQuery("/api/governance/regression-alert-task-ledger-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
+   * @returns {Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerBaselineStatusPayload>}
+   */
+  fetchRegressionAlertTaskLedgerBaselineStatus() {
+    return fetchJson("/api/governance/regression-alert-task-ledger-baseline-status");
   },
 
   /**

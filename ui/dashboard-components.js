@@ -3818,6 +3818,11 @@ export function createGovernanceDeck(governance) {
       ])
     ]);
   })];
+  const regressionAlertTaskLedgerBaselineStatus = governance.regressionAlertTaskLedgerBaselineStatus || null;
+  const regressionAlertTaskLedgerBaselineRefreshAllowed = regressionAlertTaskLedgerBaselineStatus?.refreshAllowed !== false;
+  const regressionAlertTaskLedgerBaselineRefreshTitle = regressionAlertTaskLedgerBaselineRefreshAllowed
+    ? "Refresh the saved Regression Alert remediation task ledger baseline from the current live ledger."
+    : regressionAlertTaskLedgerBaselineStatus?.refreshGateRecommendedAction || "Resolve Regression Alert remediation task ledger refresh gate holds before accepting drift.";
   const regressionAlertTaskLedgerSnapshotEntries = (governance.regressionAlertTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
     className: "governance-gap-card regression-alert-task-ledger-snapshot-card",
     style: {
@@ -3879,6 +3884,19 @@ export function createGovernanceDeck(governance) {
         text: "Copy Drift",
         attrs: { type: "button" },
         dataset: { regressionAlertTaskLedgerSnapshotDriftId: snapshot.id || "" }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-task-ledger-snapshot-refresh-btn",
+        text: regressionAlertTaskLedgerBaselineRefreshAllowed ? "Refresh Baseline" : "Gate Hold",
+        title: regressionAlertTaskLedgerBaselineRefreshTitle,
+        attrs: {
+          type: "button",
+          ...(regressionAlertTaskLedgerBaselineRefreshAllowed ? {} : { disabled: "true" })
+        },
+        dataset: {
+          regressionAlertTaskLedgerSnapshotRefreshId: snapshot.id || "latest",
+          regressionAlertTaskLedgerSnapshotRefreshStatus: snapshot.statusFilter || "all"
+        }
       })
     ])
   ]));
@@ -4147,6 +4165,149 @@ export function createGovernanceDeck(governance) {
       ])
     ]))
   ] : [];
+  const regressionAlertTaskLedgerBaselineStatusEntries = regressionAlertTaskLedgerBaselineStatus
+    ? [
+      createElement("div", {
+        className: "governance-gap-card regression-alert-task-ledger-baseline-status-card",
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.8rem",
+            alignItems: "flex-start"
+          }
+        }, [
+          createElement("div", {}, [
+            createElement("div", {
+              text: regressionAlertTaskLedgerBaselineStatus.hasBaseline
+                ? (regressionAlertTaskLedgerBaselineStatus.title || "Regression Alert Task Ledger Baseline")
+                : "No Regression Alert task ledger baseline selected",
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "1.02rem"
+              }
+            }),
+            createElement("div", {
+              text: regressionAlertTaskLedgerBaselineStatus.hasBaseline && regressionAlertTaskLedgerBaselineStatus.createdAt
+                ? `${new Date(regressionAlertTaskLedgerBaselineStatus.createdAt).toLocaleString()} | ${regressionAlertTaskLedgerBaselineStatus.status || "all"}`
+                : `${regressionAlertTaskLedgerBaselineStatus.snapshotCount || 0} saved Regression Alert task ledger snapshot(s) available`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.86rem",
+                lineHeight: "1.45",
+                marginTop: "0.25rem"
+              }
+            })
+          ]),
+          createTag((regressionAlertTaskLedgerBaselineStatus.health || "missing").toUpperCase(), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerBaselineStatus.health === "healthy"
+              ? "var(--success)"
+              : regressionAlertTaskLedgerBaselineStatus.health === "drifted" || regressionAlertTaskLedgerBaselineStatus.health === "missing"
+                ? "var(--danger)"
+                : "var(--warning)"
+          })
+        ]),
+        createElement("div", {
+          className: "tags"
+        }, [
+          createTag(regressionAlertTaskLedgerBaselineStatus.hasBaseline ? "BASELINE SET" : "BASELINE MISSING", {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerBaselineStatus.hasBaseline ? "var(--success)" : "var(--warning)"
+          }),
+          createTag((regressionAlertTaskLedgerBaselineStatus.freshness || "missing").toUpperCase(), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+          }),
+          createTag(`drift ${regressionAlertTaskLedgerBaselineStatus.driftScore || 0}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`${regressionAlertTaskLedgerBaselineStatus.checkpointedDriftItemCount || 0}/${regressionAlertTaskLedgerBaselineStatus.driftItemCount || 0} checkpointed`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: (regressionAlertTaskLedgerBaselineStatus.uncheckpointedDriftItemCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`${regressionAlertTaskLedgerBaselineStatus.openEscalatedCheckpointCount || 0} open escalated`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: (regressionAlertTaskLedgerBaselineStatus.openEscalatedCheckpointCount || 0) > 0 ? "var(--danger)" : "var(--success)"
+          }),
+          createTag(`refresh ${regressionAlertTaskLedgerBaselineStatus.refreshGateDecision || "hold"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerBaselineStatus.refreshGateDecision === "ready"
+              ? "var(--success)"
+              : regressionAlertTaskLedgerBaselineStatus.refreshGateDecision === "hold"
+                ? "var(--danger)"
+                : "var(--warning)"
+          })
+        ]),
+        createElement("div", {
+          text: regressionAlertTaskLedgerBaselineStatus.recommendedAction || "Save a Regression Alert remediation task ledger snapshot before relying on alert baselines.",
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.86rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          text: `Refresh gate: ${regressionAlertTaskLedgerBaselineStatus.refreshGateDecision || "hold"} | ${regressionAlertTaskLedgerBaselineStatus.refreshGateRecommendedAction || "Review Regression Alert remediation task ledger drift before refreshing the baseline."}`,
+          style: {
+            color: regressionAlertTaskLedgerBaselineStatus.refreshGateDecision === "hold" ? "var(--danger)" : "var(--text-muted)",
+            fontSize: "0.86rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          text: `Refresh reasons: ${(regressionAlertTaskLedgerBaselineStatus.refreshGateReasons || []).slice(0, 3).join(" | ") || "No refresh gate reasons recorded."}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          className: "governance-actions"
+        }, [
+          createElement("button", {
+            className: "btn governance-action-btn regression-alert-task-ledger-baseline-status-copy-btn",
+            text: "Copy Baseline Status",
+            attrs: { type: "button" },
+            dataset: {
+              regressionAlertTaskLedgerBaselineStatusCopy: "true"
+            }
+          }),
+          createElement("button", {
+            className: "btn governance-action-btn regression-alert-task-ledger-snapshot-refresh-btn",
+            text: regressionAlertTaskLedgerBaselineStatus.refreshAllowed
+              ? (regressionAlertTaskLedgerBaselineStatus.hasBaseline ? "Refresh Baseline" : "Save Baseline")
+              : "Gate Hold",
+            title: regressionAlertTaskLedgerBaselineRefreshTitle,
+            attrs: {
+              type: "button",
+              ...(regressionAlertTaskLedgerBaselineStatus.refreshAllowed ? {} : { disabled: "true" })
+            },
+            dataset: {
+              regressionAlertTaskLedgerSnapshotRefreshId: regressionAlertTaskLedgerBaselineStatus.snapshotId || "latest",
+              regressionAlertTaskLedgerSnapshotRefreshStatus: regressionAlertTaskLedgerBaselineStatus.status || "all"
+            }
+          })
+        ])
+      ])
+    ]
+    : [];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -19219,6 +19380,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Regression Alert Remediation Tasks", "Compact ledger of tasks created from Regression Alert Center alerts.", regressionAlertTaskEntries),
     createListSection("Regression Alert Remediation Task Snapshots", "Saved non-secret baselines and drift reports for alert remediation task handoffs.", [...regressionAlertTaskLedgerSnapshotDiffEntries, ...regressionAlertTaskLedgerSnapshotEntries]),
     createListSection("Regression Alert Remediation Task Drift Checkpoints", "Operator decisions made against alert remediation task ledger drift before refreshing baselines.", regressionAlertTaskLedgerDriftCheckpointLedgerEntries),
+    createListSection("Regression Alert Remediation Task Baseline Status", "Freshness, drift, checkpoint coverage, and refresh gate for the alert remediation task ledger baseline.", regressionAlertTaskLedgerBaselineStatusEntries),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

@@ -3089,3 +3089,11 @@
 - [x] Add a copyable checkpoint ledger and task lifecycle controls in Governance.
 - [x] Add parser coverage for the checkpoint flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Remediation Task Baseline Refresh
+
+- [x] Add baseline status, freshness, drift, checkpoint coverage, and refresh-gate reporting.
+- [x] Add a scope-guarded refresh endpoint for accepting the current alert remediation task ledger as baseline.
+- [x] Surface baseline copy and refresh controls in Governance.
+- [x] Add parser coverage for the baseline refresh flow.
+- [x] Validate, relaunch, commit, and push.

@@ -145,6 +145,7 @@ function renderScopeLock() {
   const select = /** @type {HTMLSelectElement | null} */ (document.getElementById("active-project-select"));
   const badge = /** @type {HTMLButtonElement | null} */ (document.getElementById("scope-mode-toggle"));
   const clearButton = /** @type {HTMLButtonElement | null} */ (document.getElementById("clear-active-project-btn"));
+  const warning = /** @type {HTMLDivElement | null} */ (document.getElementById("scope-guard-warning"));
   if (!select || !badge || !clearButton) return;
 
   const activeProject = getActiveProject();
@@ -169,6 +170,13 @@ function renderScopeLock() {
       ? `Scoped to ${activeProject.name}. Click to enter portfolio mode.`
       : "No active project is selected. Choose a project before project-scoped AI work.";
   clearButton.disabled = !activeProject && state.scopeMode !== "portfolio";
+  if (warning) {
+    const hasScope = hasActiveExecutionScope();
+    warning.hidden = hasScope;
+    warning.textContent = hasScope
+      ? ""
+      : "Guarded build, agent, governance, data-source, and mutation actions are locked until you select an active project or enter portfolio mode.";
+  }
   syncScopeGuardedControls();
 }
 

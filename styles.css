@@ -36,6 +36,7 @@ body { background: var(--bg); color: var(--text); padding: 2rem; transition: all
 .scope-mode-badge { border: 1px solid color-mix(in srgb, var(--success) 45%, var(--border) 55%); background: color-mix(in srgb, var(--success) 16%, var(--bg) 84%); color: var(--success); border-radius: 999px; padding: 0.48rem 0.85rem; cursor: pointer; font-size: 0.75rem; font-weight: 900; letter-spacing: 0.08em; }
 .scope-mode-badge.portfolio { border-color: color-mix(in srgb, var(--warning) 54%, var(--border) 46%); background: color-mix(in srgb, var(--warning) 18%, var(--bg) 82%); color: var(--warning); }
 .scope-mode-badge.unscoped { border-color: color-mix(in srgb, var(--danger) 50%, var(--border) 50%); background: color-mix(in srgb, var(--danger) 14%, var(--bg) 86%); color: var(--danger); }
+.scope-guard-warning { flex-basis: 100%; border: 1px solid color-mix(in srgb, var(--danger) 42%, var(--border) 58%); background: color-mix(in srgb, var(--danger) 12%, var(--bg) 88%); color: var(--danger); border-radius: 0.75rem; padding: 0.55rem 0.75rem; font-size: 0.78rem; font-weight: 800; line-height: 1.35; }
 .scope-clear-btn { padding: 0.48rem 0.8rem; font-size: 0.78rem; }
 .panel-header { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1rem; }
 .panel-status { min-height: 2rem; }

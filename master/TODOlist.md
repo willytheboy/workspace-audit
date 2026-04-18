@@ -3018,3 +3018,10 @@
 - [x] Fail server tests when any scope-relevant mutation route is unguarded.
 - [x] Add parser coverage for the zero-unguarded mutation gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Active Project Scope Warning
+
+- [x] Add an explicit unscoped warning to the header scope lock.
+- [x] Keep guarded controls disabled until a project or portfolio scope exists.
+- [x] Add parser coverage for the visible scope warning.
+- [x] Validate, relaunch, commit, and push.

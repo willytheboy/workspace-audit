@@ -3081,3 +3081,11 @@
 - [x] Surface copyable drift summaries in Governance.
 - [x] Add parser coverage for the drift flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Remediation Task Drift Checkpoints
+
+- [x] Add scope-guarded checkpoint actions for Regression Alert remediation task ledger drift items.
+- [x] Persist checkpoint decisions as non-secret Governance tasks with confirm, defer, and escalate states.
+- [x] Add a copyable checkpoint ledger and task lifecycle controls in Governance.
+- [x] Add parser coverage for the checkpoint flow.
+- [x] Validate, relaunch, commit, and push.

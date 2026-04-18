@@ -1180,6 +1180,7 @@
  *   snapshotId: string,
  *   snapshotTitle: string,
  *   snapshotCreatedAt: string,
+ *   status?: "all" | "open" | "closed",
  *   hasDrift: boolean,
  *   driftScore: number,
  *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
@@ -2860,6 +2861,7 @@
  *   regressionAlertTasks: PersistedTask[],
  *   regressionAlertTaskLedgerSnapshots: PersistedRegressionAlertTaskLedgerSnapshot[],
  *   regressionAlertTaskLedgerSnapshotDiff?: RegressionAlertTaskLedgerSnapshotDiffPayload | null,
+ *   regressionAlertTaskLedgerDriftCheckpointLedger?: RegressionAlertTaskLedgerDriftCheckpointLedgerPayload | null,
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -4362,6 +4364,23 @@
  *   snapshotSummary: { total: number, open: number, closed: number, visible: number, projectTasks: number, portfolioTasks: number } | null,
  *   markdown: string
  * }} RegressionAlertTaskLedgerSnapshotDiffPayload
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   summary: {
+ *     total: number,
+ *     visible: number,
+ *     open: number,
+ *     closed: number,
+ *     confirmed: number,
+ *     deferred: number,
+ *     escalated: number,
+ *     openEscalated: number
+ *   },
+ *   items: PersistedTask[],
+ *   secretPolicy: string,
+ *   markdown: string
+ * }} RegressionAlertTaskLedgerDriftCheckpointLedgerPayload
  * @typedef {{
  *   generatedAt: string,
  *   hasSnapshot: boolean,

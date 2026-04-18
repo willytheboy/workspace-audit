@@ -3952,16 +3952,201 @@ export function createGovernanceDeck(governance) {
           })
         ]),
         ...regressionAlertTaskLedgerSnapshotDriftItems.slice(0, 8).map((item) => createElement("div", {
-          text: `${item.label || item.field || "Drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"}${item.delta ? ` (${item.delta})` : ""}`,
+          className: "governance-gap-card regression-alert-task-ledger-snapshot-drift-item-card",
           style: {
-            color: "var(--text-muted)",
-            fontSize: "0.84rem",
-            lineHeight: "1.45"
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.4rem"
           }
-        }))
+        }, [
+          createElement("div", {
+            text: item.label || item.field || "Regression Alert remediation task ledger drift",
+            style: {
+              color: "var(--text)",
+              fontWeight: "800"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before ?? "none"} -> ${item.current ?? "none"}${item.delta ? ` (${item.delta})` : ""}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          item.checkpointDecision ? createTag(`${item.checkpointDecision} / ${item.checkpointStatus || "open"}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: item.checkpointDecision === "confirmed" ? "var(--success)" : item.checkpointDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+          }) : null,
+          createElement("div", {
+            className: "governance-actions"
+          }, [
+            createElement("button", {
+              className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-btn",
+              text: "Confirm",
+              attrs: { type: "button" },
+              dataset: {
+                regressionAlertTaskLedgerDriftSnapshotId: regressionAlertTaskLedgerSnapshotDiff.snapshotId || "latest",
+                regressionAlertTaskLedgerDriftStatus: regressionAlertTaskLedgerSnapshotDiff.status || "all",
+                regressionAlertTaskLedgerDriftField: item.field || "",
+                regressionAlertTaskLedgerDriftDecision: "confirmed"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-btn",
+              text: "Defer",
+              attrs: { type: "button" },
+              dataset: {
+                regressionAlertTaskLedgerDriftSnapshotId: regressionAlertTaskLedgerSnapshotDiff.snapshotId || "latest",
+                regressionAlertTaskLedgerDriftStatus: regressionAlertTaskLedgerSnapshotDiff.status || "all",
+                regressionAlertTaskLedgerDriftField: item.field || "",
+                regressionAlertTaskLedgerDriftDecision: "deferred"
+              }
+            }),
+            createElement("button", {
+              className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-btn",
+              text: "Escalate",
+              attrs: { type: "button" },
+              dataset: {
+                regressionAlertTaskLedgerDriftSnapshotId: regressionAlertTaskLedgerSnapshotDiff.snapshotId || "latest",
+                regressionAlertTaskLedgerDriftStatus: regressionAlertTaskLedgerSnapshotDiff.status || "all",
+                regressionAlertTaskLedgerDriftField: item.field || "",
+                regressionAlertTaskLedgerDriftDecision: "escalated"
+              }
+            })
+          ])
+        ]))
       ])
     ]
     : [];
+  const regressionAlertTaskLedgerDriftCheckpointLedger = governance.regressionAlertTaskLedgerDriftCheckpointLedger || null;
+  const regressionAlertTaskLedgerDriftCheckpointSummary = regressionAlertTaskLedgerDriftCheckpointLedger?.summary || {
+    total: 0,
+    visible: 0,
+    open: 0,
+    closed: 0,
+    confirmed: 0,
+    deferred: 0,
+    escalated: 0,
+    openEscalated: 0
+  };
+  const regressionAlertTaskLedgerDriftCheckpointLedgerEntries = regressionAlertTaskLedgerDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card regression-alert-task-ledger-drift-checkpoint-ledger-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Regression Alert task ledger drift checkpoint ledger",
+        style: {
+          color: "var(--text)",
+          fontWeight: "850"
+        }
+      }),
+      createElement("div", {
+        text: `${regressionAlertTaskLedgerDriftCheckpointSummary.visible || 0} visible | ${regressionAlertTaskLedgerDriftCheckpointSummary.open || 0} open | ${regressionAlertTaskLedgerDriftCheckpointSummary.closed || 0} closed | ${regressionAlertTaskLedgerDriftCheckpointSummary.openEscalated || 0} open escalated`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerDriftCheckpointLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerDriftCheckpointLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerDriftCheckpointLedgerCopy: "closed" }
+        })
+      ])
+    ]),
+    ...(regressionAlertTaskLedgerDriftCheckpointLedger.items || []).slice(0, 8).map((item) => createElement("div", {
+      className: "governance-gap-card regression-alert-task-ledger-drift-checkpoint-item-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.45rem"
+      }
+    }, [
+      createElement("div", {
+        text: item.title || item.regressionAlertTaskLedgerDriftLabel || "Regression Alert remediation task ledger drift checkpoint",
+        style: {
+          color: "var(--text)",
+          fontWeight: "800"
+        }
+      }),
+      createElement("div", {
+        text: `${item.regressionAlertTaskLedgerSnapshotTitle || item.regressionAlertTaskLedgerSnapshotId || "Snapshot not recorded"} | ${item.regressionAlertTaskLedgerStatusFilter || "all"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createElement("div", {
+        text: `${item.regressionAlertTaskLedgerDriftBefore || "missing"} -> ${item.regressionAlertTaskLedgerDriftCurrent || "missing"}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      }),
+      createTag(`${item.regressionAlertTaskLedgerDriftDecision || "deferred"} / ${item.status || "open"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: item.regressionAlertTaskLedgerDriftDecision === "confirmed" ? "var(--success)" : item.regressionAlertTaskLedgerDriftDecision === "escalated" ? "var(--danger)" : "var(--warning)"
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-task-btn",
+          text: "Resolve",
+          attrs: { type: "button" },
+          dataset: {
+            regressionAlertTaskLedgerDriftCheckpointTaskId: item.id || "",
+            regressionAlertTaskLedgerDriftCheckpointTaskStatus: "resolved"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-task-btn",
+          text: "Reopen",
+          attrs: { type: "button" },
+          dataset: {
+            regressionAlertTaskLedgerDriftCheckpointTaskId: item.id || "",
+            regressionAlertTaskLedgerDriftCheckpointTaskStatus: "open"
+          }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-checkpoint-task-btn",
+          text: "Block",
+          attrs: { type: "button" },
+          dataset: {
+            regressionAlertTaskLedgerDriftCheckpointTaskId: item.id || "",
+            regressionAlertTaskLedgerDriftCheckpointTaskStatus: "blocked"
+          }
+        })
+      ])
+    ]))
+  ] : [];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -19033,6 +19218,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Regression Alert Center", "Unified operator alerts from scan movement, source access, release gates, control-plane state, and mutation-scope coverage.", regressionAlertCenterEntries),
     createListSection("Regression Alert Remediation Tasks", "Compact ledger of tasks created from Regression Alert Center alerts.", regressionAlertTaskEntries),
     createListSection("Regression Alert Remediation Task Snapshots", "Saved non-secret baselines and drift reports for alert remediation task handoffs.", [...regressionAlertTaskLedgerSnapshotDiffEntries, ...regressionAlertTaskLedgerSnapshotEntries]),
+    createListSection("Regression Alert Remediation Task Drift Checkpoints", "Operator decisions made against alert remediation task ledger drift before refreshing baselines.", regressionAlertTaskLedgerDriftCheckpointLedgerEntries),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

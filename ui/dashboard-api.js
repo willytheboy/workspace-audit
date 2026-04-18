@@ -1107,6 +1107,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio", field: string, decision: "confirmed" | "deferred" | "escalated", note?: string }} payload
+   * @returns {Promise<{ success: true, mode: "created" | "updated", decision: string, task: import("./dashboard-types.js").PersistedTask, tasks: import("./dashboard-types.js").PersistedTask[] }>}
+   */
+  checkpointRegressionAlertTaskLedgerDrift(payload) {
+    return fetchJson("/api/governance/regression-alert-task-ledger-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchRegressionAlertTaskLedgerDriftCheckpointLedger(status = "all") {
+    return fetchJson(withQuery("/api/governance/regression-alert-task-ledger-drift-checkpoint-ledger", { status }));
+  },
+
+  /**
    * @param {{ url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>}
    */

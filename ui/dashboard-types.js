@@ -2750,6 +2750,7 @@
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
+ *   scanDiff?: ScanDiffPayload | null,
  *   mutationScopeInventory?: MutationScopeInventoryPayload | null,
  *   convergenceCandidates?: ConvergenceCandidatesPayload | null,
  *   convergenceOperatorProposalQueue?: ConvergenceOperatorProposalQueuePayload | null,

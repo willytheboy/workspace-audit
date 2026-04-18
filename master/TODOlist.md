@@ -3033,3 +3033,11 @@
 - [x] Add a Mutation Scope Audit Feed section with coverage, category, unguarded, and guarded-route evidence.
 - [x] Add parser coverage for the Governance audit feed.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Center
+
+- [x] Load scan-diff alert data with the Governance control-plane bundle.
+- [x] Add an Alert Center KPI to the Governance summary grid.
+- [x] Add a unified Regression Alert Center section covering scan, source-access, release, control-plane, and mutation-scope alerts.
+- [x] Add parser coverage for the alert center.
+- [x] Validate, relaunch, commit, and push.

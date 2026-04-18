@@ -1604,6 +1604,12 @@ export function createGovernanceSummaryGrid(governance) {
   const mutationScopeCoverage = mutationScopeRelevant
     ? Math.round((mutationScopeGuarded / mutationScopeRelevant) * 100)
     : 0;
+  const scanRegressionSummary = governance.scanDiff?.alertSummary || { total: 0, high: 0, medium: 0, low: 0 };
+  const regressionAlertCount = scanRegressionSummary.total
+    + (dataSourcesAccessGateDecision && !["ready", "not-evaluated"].includes(dataSourcesAccessGateDecision) ? 1 : 0)
+    + (releaseBuildGateDecision && !["ready", "not-evaluated"].includes(releaseBuildGateDecision) ? 1 : 0)
+    + (mutationScopeUnguarded ? 1 : 0)
+    + (decision && decision !== "ready" ? 1 : 0);
   return createElement("div", {
     style: {
       display: "grid",
@@ -1676,6 +1682,14 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Mutation Guard",
       value: `${mutationScopeCoverage}%`,
       detail: `${mutationScopeGuarded}/${mutationScopeRelevant} guarded scope-relevant mutation routes; ${mutationScopeUnguarded} unguarded`
+    }),
+    createKpiCard({
+      accentColor: regressionAlertCount
+        ? (scanRegressionSummary.high || mutationScopeUnguarded || releaseBuildGateDecision === "hold" || dataSourcesAccessGateDecision === "hold" ? "var(--danger)" : "var(--warning)")
+        : "var(--success)",
+      label: "Alert Center",
+      value: String(regressionAlertCount),
+      detail: `${scanRegressionSummary.high || 0} scan high | ${scanRegressionSummary.medium || 0} scan medium | source ${dataSourcesAccessGateDecision} | release ${releaseBuildGateDecision}`
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3393,6 +3407,175 @@ export function createGovernanceDeck(governance) {
       ]))
     ])
   ] : [];
+  const scanDiff = governance.scanDiff || null;
+  const regressionAlertItems = [
+    ...(scanDiff?.alerts || []).map((alert) => ({
+      source: "scan",
+      severity: alert.severity || "low",
+      title: alert.title,
+      detail: alert.detail,
+      recommendedAction: alert.recommendedAction || scanDiff?.recommendedAction || "Review the latest scan movement before continuing.",
+      projectId: alert.projectId || "",
+      meta: alert.projectName || alert.kind || "Scan regression"
+    }))
+  ];
+  if (scanDiff?.totals?.qualityDelta < 0 && !(scanDiff.alerts || []).some((alert) => alert.kind === "workspace-quality-regression")) {
+    regressionAlertItems.push({
+      source: "scan",
+      severity: "medium",
+      title: "Workspace health score declined",
+      detail: `Average quality moved ${scanDiff.totals.qualityDelta} between the latest two scans.`,
+      recommendedAction: scanDiff.recommendedAction || "Triage projects with the largest quality drops before the next unattended build cycle.",
+      projectId: "",
+      meta: "Portfolio scan"
+    });
+  }
+  if (dataSourcesAccessGateDecision && !["ready", "not-evaluated"].includes(dataSourcesAccessGateDecision)) {
+    regressionAlertItems.push({
+      source: "data-sources",
+      severity: dataSourcesAccessGateDecision === "hold" ? "high" : "medium",
+      title: "Data Sources access gate is not ready",
+      detail: `${dataSourcesAccessGate?.ready || 0} ready, ${dataSourcesAccessGate?.review || 0} review, ${dataSourcesAccessGate?.blocked || 0} blocked source access item(s).`,
+      recommendedAction: dataSourcesAccessGate?.recommendedAction || "Resolve external-only credentials, certificates, SSH, VPN, or browser-session requirements before ingestion.",
+      projectId: "",
+      meta: "Source access gate"
+    });
+  }
+  if (releaseBuildGateDecision && !["ready", "not-evaluated"].includes(releaseBuildGateDecision)) {
+    regressionAlertItems.push({
+      source: "release",
+      severity: releaseBuildGateDecision === "hold" ? "high" : "medium",
+      title: "Release Build Gate is not ready",
+      detail: `${releaseBuildGate?.reasons?.length || 0} reason(s), ${releaseBuildGate?.actions?.length || 0} action(s), risk score ${releaseBuildGate?.riskScore || 0}.`,
+      recommendedAction: releaseBuildGate?.recommendedAction || "Collect release evidence, run validation, and resolve non-ready release actions.",
+      projectId: "",
+      meta: "Release control"
+    });
+  }
+  if (mutationScopeSummary.unguarded) {
+    regressionAlertItems.push({
+      source: "mutation-scope",
+      severity: "high",
+      title: "Unguarded mutation route detected",
+      detail: `${mutationScopeSummary.unguarded} scope-relevant mutation route(s) are not protected by active project or portfolio scope.`,
+      recommendedAction: "Stop autonomous mutation work until every scope-relevant route has a server-side scope guard.",
+      projectId: "",
+      meta: "Mutation guard"
+    });
+  }
+  if (decision && decision !== "ready") {
+    regressionAlertItems.push({
+      source: "control-plane",
+      severity: decision === "hold" ? "high" : "medium",
+      title: "Agent Control Plane decision is not ready",
+      detail: `Current decision is ${decision}; baseline health is ${governance.agentControlPlaneDecision?.baselineHealth || summary.agentControlPlaneBaselineHealth || "missing"}.`,
+      recommendedAction: governance.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build.",
+      projectId: "",
+      meta: "Agent control plane"
+    });
+  }
+  const severityRank = { high: 0, medium: 1, low: 2 };
+  const sortedRegressionAlerts = regressionAlertItems
+    .sort((left, right) => (severityRank[left.severity] ?? 3) - (severityRank[right.severity] ?? 3))
+    .slice(0, 14);
+  const regressionAlertCenterEntries = sortedRegressionAlerts.length
+    ? sortedRegressionAlerts.map((alert) => {
+        const accent = alert.severity === "high"
+          ? "var(--danger)"
+          : alert.severity === "medium"
+            ? "var(--warning)"
+            : "var(--success)";
+        return createElement("div", {
+          className: "governance-gap-card regression-alert-center-card",
+          dataset: alert.projectId ? { openAppId: encodeAppId(alert.projectId) } : undefined,
+          title: alert.projectId ? "Open project workbench" : undefined,
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.5rem",
+            borderColor: `color-mix(in srgb, ${accent} 38%, var(--border) 62%)`
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: "0.75rem"
+            }
+          }, [
+            createElement("div", {}, [
+              createElement("div", {
+                text: alert.title,
+                style: {
+                  color: "var(--text)",
+                  fontWeight: "900",
+                  fontSize: "0.96rem"
+                }
+              }),
+              createElement("div", {
+                text: `${alert.source} | ${alert.meta}`,
+                style: {
+                  color: "var(--text-muted)",
+                  fontSize: "0.78rem",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  marginTop: "0.2rem"
+                }
+              })
+            ]),
+            createTag(String(alert.severity).toUpperCase(), {
+              background: "var(--bg)",
+              border: `1px solid ${accent}`,
+              color: accent
+            })
+          ]),
+          createElement("div", {
+            text: alert.detail,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            text: alert.recommendedAction,
+            style: {
+              color: "var(--text)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]);
+      })
+    : [
+        createElement("div", {
+          className: "governance-gap-card regression-alert-center-clear-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.45rem",
+            borderColor: "color-mix(in srgb, var(--success) 45%, var(--border) 55%)"
+          }
+        }, [
+          createElement("div", {
+            text: "No active regression alerts",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1rem"
+            }
+          }),
+          createElement("div", {
+            text: "Scan movement, Data Sources access gate, Release Build Gate, Control Plane decision, and mutation-scope guard coverage are currently clear or not-evaluated.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ])
+      ];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -18461,6 +18644,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Regression Alert Center", "Unified operator alerts from scan movement, source access, release gates, control-plane state, and mutation-scope coverage.", regressionAlertCenterEntries),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

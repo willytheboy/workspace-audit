@@ -1967,11 +1967,53 @@ export async function serverTest() {
     assert.match(regressionAlertBaselineLedgerSnapshotDriftJson.markdown, /# Agent Execution Regression Alert Baseline Ledger Snapshot Drift/);
     assert.match(regressionAlertBaselineLedgerSnapshotDriftJson.markdown, /No Regression Alert baseline ledger drift detected/);
 
+    const unscopedRegressionAlertBaselineLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createRegressionAlertBaselineLedgerSnapshotJson.snapshot.id,
+        field: "snapshot-clean",
+        decision: "confirmed",
+        note: "Fixture checkpoint for clean regression alert baseline drift."
+      })
+    });
+    assert.equal(unscopedRegressionAlertBaselineLedgerDriftCheckpointResponse.status, 409);
+    const unscopedRegressionAlertBaselineLedgerDriftCheckpointJson = await unscopedRegressionAlertBaselineLedgerDriftCheckpointResponse.json();
+    assert.equal(unscopedRegressionAlertBaselineLedgerDriftCheckpointJson.reasonCode, "agent-execution-scope-required");
+
+    const regressionAlertBaselineLedgerDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createRegressionAlertBaselineLedgerSnapshotJson.snapshot.id,
+        field: "snapshot-clean",
+        decision: "confirmed",
+        note: "Fixture checkpoint for clean regression alert baseline drift.",
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointResponse.status, 200);
+    const regressionAlertBaselineLedgerDriftCheckpointJson = await regressionAlertBaselineLedgerDriftCheckpointResponse.json();
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.success, true);
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.decision, "confirmed");
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.field, "snapshot-clean");
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.task.sourceType, "agent-execution-regression-alert-baseline-ledger-snapshot-drift-checkpoint");
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.ledger.summary.total, 1);
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointJson.ledger.summary.confirmed, 1);
+
+    const regressionAlertBaselineLedgerDriftCheckpointLedgerResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-drift-checkpoints?status=all&limit=5`);
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointLedgerResponse.status, 200);
+    const regressionAlertBaselineLedgerDriftCheckpointLedgerJson = await regressionAlertBaselineLedgerDriftCheckpointLedgerResponse.json();
+    assert.equal(regressionAlertBaselineLedgerDriftCheckpointLedgerJson.summary.total, 1);
+    assert.match(regressionAlertBaselineLedgerDriftCheckpointLedgerJson.markdown, /# Agent Execution Regression Alert Baseline Ledger Drift Checkpoints/);
+
     const governanceAfterRegressionAlertBaselineSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotResponse.status, 200);
     const governanceAfterRegressionAlertBaselineSnapshotJson = await governanceAfterRegressionAlertBaselineSnapshotResponse.json();
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerSnapshotCount, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointCount, 1);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerSnapshots.length, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary.confirmed, 1);
 
     const initialTargetBaselineAuditLedgerSnapshotsResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/target-baseline-audit-ledger-snapshots`);
     assert.equal(initialTargetBaselineAuditLedgerSnapshotsResponse.status, 200);

@@ -2169,6 +2169,26 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {{ snapshotId?: string, field?: string, decision?: string, note?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, mode: string, decision: string, field: string, task: import("./dashboard-types.js").PersistedTask, ledger: import("./dashboard-types.js").AgentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedgerPayload }>}
+   */
+  checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(payload = {}) {
+    return fetchJson("/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshot-drift-checkpoints", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload || {})
+    });
+  },
+
+  /**
+   * @param {{ status?: "all" | "open" | "closed", limit?: number }} [options]
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedgerPayload>}
+   */
+  fetchAgentExecutionRegressionAlertBaselineLedgerDriftCheckpoints(options = {}) {
+    return fetchJson(withQuery("/api/agent-work-order-runs/regression-alert-baseline-ledger-drift-checkpoints", options));
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[]>}
    */
   fetchAgentExecutionTargetBaselineAuditLedgerSnapshots() {

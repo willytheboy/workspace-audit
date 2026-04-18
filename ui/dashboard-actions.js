@@ -107,6 +107,7 @@
  *     copyAgentExecutionRegressionAlertBaselineLedger: () => Promise<void>,
  *     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
  *     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
+ *     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus: () => Promise<void>,
  *     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift: () => Promise<void>,
  *     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask: () => Promise<void>,
@@ -937,6 +938,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "drift", "copy"],
         run: () => handlers.copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift()
+      },
+      {
+        id: "checkpoint-latest-agent-execution-regression-alert-baseline-ledger-snapshot-drift",
+        label: "Checkpoint alert baseline drift",
+        description: "Create or update a confirmed checkpoint for the latest Regression Alert baseline snapshot drift.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "drift", "checkpoint", "confirm"],
+        run: () => handlers.checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift()
       },
       {
         id: "copy-agent-execution-target-baseline-audit-ledger-baseline-status",

@@ -13974,6 +13974,33 @@ export function createGovernanceDeck(governance) {
         dataset: {
           regressionAlertBaselineLedgerSnapshotDriftId: snapshot.id
         }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-checkpoint-btn",
+        text: "Confirm Drift",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointId: snapshot.id,
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointDecision: "confirmed"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-checkpoint-btn",
+        text: "Defer Drift",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointId: snapshot.id,
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointDecision: "deferred"
+        }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-checkpoint-btn",
+        text: "Escalate Drift",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointId: snapshot.id,
+          regressionAlertBaselineLedgerSnapshotDriftCheckpointDecision: "escalated"
+        }
       })
     ])
   ]));
@@ -14060,6 +14087,98 @@ export function createGovernanceDeck(governance) {
         !(agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger.items || []).length
           ? createElement("div", {
               text: "No target baseline audit drift checkpoints have been recorded yet.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.82rem",
+                lineHeight: "1.45"
+              }
+            })
+          : null
+      ])
+    ])
+  ] : [];
+  const agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger = governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger || null;
+  const agentExecutionRegressionAlertBaselineLedgerDriftCheckpointEntries = agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Regression alert baseline drift checkpoint ledger",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary?.total || 0} checkpoint task(s) | ${agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary?.open || 0} open | ${agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary?.escalated || 0} escalated`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(`${agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary?.confirmed || 0} confirmed`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gap: "0.45rem"
+        }
+      }, [
+        ...(agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.items || []).slice(0, 6).map((item) => createElement("div", {
+          className: "governance-gap-card",
+          style: {
+            padding: "0.7rem",
+            background: "var(--panel-soft)"
+          }
+        }, [
+          createElement("div", {
+            text: item.title || "Regression alert baseline drift checkpoint",
+            style: {
+              fontWeight: "700",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: `${item.decision || "tracked"} | ${item.field || item.label || "field not recorded"} | ${item.status || "open"} / ${item.priority || "normal"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          }),
+          createElement("div", {
+            text: `${item.before || "none"} -> ${item.current || "none"} | snapshot ${item.snapshotTitle || item.snapshotId || "not recorded"}`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.82rem",
+              lineHeight: "1.45"
+            }
+          })
+        ])),
+        !(agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.items || []).length
+          ? createElement("div", {
+              text: "No regression alert baseline drift checkpoints have been recorded yet.",
               style: {
                 color: "var(--text-muted)",
                 fontSize: "0.82rem",
@@ -19761,6 +19880,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
     createListSection("Agent Execution Regression Alert Baseline Ledger", "No-secret copyable checklist for alert-baseline capture health before unattended CLI execution.", agentExecutionRegressionAlertBaselineLedgerEntries),
     createListSection("Agent Execution Regression Alert Baseline Ledger Snapshots", "Persisted alert-baseline ledgers for external handoff and build evidence.", agentExecutionRegressionAlertBaselineLedgerSnapshotEntries),
+    createListSection("Agent Execution Regression Alert Baseline Drift Checkpoints", "Operator decisions made against alert-baseline snapshot drift before refreshing execution baselines.", agentExecutionRegressionAlertBaselineLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.", agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries),
     createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),

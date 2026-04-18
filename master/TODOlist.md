@@ -3161,3 +3161,11 @@
 - [x] Surface copyable drift controls on saved alert-baseline ledger snapshots.
 - [x] Add parser and server-test coverage for clean drift detection.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger Drift Checkpoints
+
+- [x] Add scope-guarded checkpoint actions for Regression Alert baseline ledger snapshot drift.
+- [x] Persist checkpoint decisions as non-secret Governance tasks with confirm, defer, and escalate states.
+- [x] Surface checkpoint buttons and checkpoint ledger visibility in Governance.
+- [x] Add parser and server-test coverage for clean Regression Alert baseline drift checkpoints.
+- [x] Validate, relaunch, commit, and push.

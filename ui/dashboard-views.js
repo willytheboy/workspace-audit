@@ -1374,6 +1374,13 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger
         : null,
+      agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger: governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger && matchesSearch([
+        "agent execution regression alert baseline drift checkpoints",
+        governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.markdown || "",
+        ...(governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.items || []).map((item) => `${item.title || ""} ${item.decision || ""} ${item.field || ""} ${item.status || ""} ${item.snapshotTitle || ""}`)
+      ])
+        ? governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger
+        : null,
       agentExecutionTargetBaselineAuditLedgerBaselineStatus: governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus && matchesSearch([
         "agent execution target baseline audit baseline status",
         governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.title || "",
@@ -1749,6 +1756,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerSnapshots = [];
       if (scope !== "execution") filtered.agentExecutionRegressionAlertBaselineLedgerSnapshots = [];
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
+      if (scope !== "execution") filtered.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
       if (scope !== "execution") filtered.cliBridgeHandoffs = [];
       if (scope !== "execution") filtered.cliBridgeRunnerDryRunSnapshots = [];
@@ -6234,6 +6242,30 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-drift-checkpoint-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertBaselineLedgerSnapshotDriftCheckpointId || "";
+        const decision = element.dataset.regressionAlertBaselineLedgerSnapshotDriftCheckpointDecision || "confirmed";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          element.textContent = await checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId, decision);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-snapshot-drift-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -10622,6 +10654,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible Regression Alert baseline ledger snapshots.");
+    }
+
+    lines.push("", "## Agent Execution Regression Alert Baseline Drift Checkpoints");
+    if (governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger) {
+      const ledger = governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger;
+      lines.push(`- Checkpoints: ${ledger.summary?.total || 0} total | ${ledger.summary?.open || 0} open | ${ledger.summary?.escalated || 0} escalated`);
+      for (const item of (ledger.items || []).slice(0, 8)) {
+        lines.push(`- ${item.decision || "tracked"} ${item.field || item.label || "snapshot-drift"}: ${item.status || "open"} / ${item.priority || "normal"}`);
+        lines.push(`  Snapshot: ${item.snapshotTitle || item.snapshotId || "not recorded"} | ${item.before || "none"} -> ${item.current || "none"}`);
+      }
+    } else {
+      lines.push("- No visible Regression Alert baseline drift checkpoints.");
     }
 
     lines.push("", "## Agent Execution Target Baseline Audit Drift Checkpoints");
@@ -15804,6 +15848,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id);
   }
 
+  async function checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId, decision = "confirmed", field = "snapshot-drift") {
+    const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])
+      .find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error(`Regression Alert baseline ledger snapshot not found: ${snapshotId}`);
+
+    const response = await api.checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift({
+      snapshotId,
+      field,
+      decision,
+      note: "Operator checkpointed Regression Alert baseline snapshot drift from Governance.",
+      ...getCliBridgeScopeOptions()
+    });
+    await renderGovernance();
+    return `${response.decisionLabel || "Checkpointed"} Drift`;
+  }
+
+  async function checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift() {
+    const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No Regression Alert baseline ledger snapshot is available.");
+    return checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id, "confirmed");
+  }
+
   async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
     const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
     await copyText(payload.markdown);
@@ -16651,6 +16717,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyAgentExecutionRegressionAlertBaselineLedger,
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
+    checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,

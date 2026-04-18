@@ -3025,3 +3025,11 @@
 - [x] Keep guarded controls disabled until a project or portfolio scope exists.
 - [x] Add parser coverage for the visible scope warning.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Mutation Scope Audit Feed
+
+- [x] Load the mutation-scope inventory with the Governance control-plane bundle.
+- [x] Add a mutation guard KPI to the Governance summary grid.
+- [x] Add a Mutation Scope Audit Feed section with coverage, category, unguarded, and guarded-route evidence.
+- [x] Add parser coverage for the Governance audit feed.
+- [x] Validate, relaunch, commit, and push.

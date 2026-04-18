@@ -63,6 +63,34 @@
  *   projects: AuditProject[]
  * }} AuditPayload
  * @typedef {{
+ *   method: string,
+ *   route: string,
+ *   routeKind: string,
+ *   category: string,
+ *   scopeRelevant: boolean,
+ *   guarded: boolean,
+ *   guardKind: string,
+ *   sourceLine: number,
+ *   recommendedAction?: string
+ * }} MutationScopeInventoryItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   protocolVersion: string,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     scopeRelevant: number,
+ *     guarded: number,
+ *     unguarded: number,
+ *     utility: number,
+ *     methodCounts: Record<string, number>,
+ *     categoryCounts: Record<string, number>
+ *   },
+ *   items: MutationScopeInventoryItem[],
+ *   unguarded: MutationScopeInventoryItem[],
+ *   markdown: string
+ * }} MutationScopeInventoryPayload
+ * @typedef {{
  *   id: string,
  *   projectId?: string,
  *   projectName?: string,
@@ -2722,6 +2750,7 @@
  *   actionQueue: GovernanceQueueItem[],
   *   queueSuppressions: GovernanceQueueSuppression[],
  *   operationLog: GovernanceOperation[],
+ *   mutationScopeInventory?: MutationScopeInventoryPayload | null,
  *   convergenceCandidates?: ConvergenceCandidatesPayload | null,
  *   convergenceOperatorProposalQueue?: ConvergenceOperatorProposalQueuePayload | null,
  *   convergenceAssimilationRunLedger?: ConvergenceAssimilationRunLedgerPayload | null,

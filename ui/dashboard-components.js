@@ -7,6 +7,7 @@ import { encodeAppId, getColor } from "./dashboard-utils.js";
  * @typedef {import("./dashboard-types.js").AuditSummary} AuditSummary
  * @typedef {import("./dashboard-types.js").DashboardRuntimeState} DashboardRuntimeState
  * @typedef {import("./dashboard-types.js").GovernancePayload} GovernancePayload
+ * @typedef {import("./dashboard-types.js").MutationScopeInventoryItem} MutationScopeInventoryItem
  * @typedef {import("./dashboard-types.js").PanelLoadStatus} PanelLoadStatus
  * @typedef {import("./dashboard-types.js").PersistedFinding} PersistedFinding
  * @typedef {import("./dashboard-types.js").ScanDiffPayload} ScanDiffPayload
@@ -1596,6 +1597,13 @@ export function createGovernanceSummaryGrid(governance) {
   const openExecutionResultTaskCount = summary.agentExecutionResultOpenTaskCount || 0;
   const convergenceTaskCount = summary.convergenceTaskCount || 0;
   const openConvergenceTaskCount = summary.convergenceOpenTaskCount || 0;
+  const mutationScopeSummary = governance.mutationScopeInventory?.summary || {};
+  const mutationScopeRelevant = mutationScopeSummary.scopeRelevant || 0;
+  const mutationScopeGuarded = mutationScopeSummary.guarded || 0;
+  const mutationScopeUnguarded = mutationScopeSummary.unguarded || 0;
+  const mutationScopeCoverage = mutationScopeRelevant
+    ? Math.round((mutationScopeGuarded / mutationScopeRelevant) * 100)
+    : 0;
   return createElement("div", {
     style: {
       display: "grid",
@@ -1662,6 +1670,12 @@ export function createGovernanceSummaryGrid(governance) {
       label: "Operation Log",
       value: String(summary.governanceOperationCount),
       detail: "Persisted automation actions across the Governance control loop"
+    }),
+    createKpiCard({
+      accentColor: mutationScopeUnguarded ? "var(--danger)" : mutationScopeRelevant ? "var(--success)" : "var(--primary)",
+      label: "Mutation Guard",
+      value: `${mutationScopeCoverage}%`,
+      detail: `${mutationScopeGuarded}/${mutationScopeRelevant} guarded scope-relevant mutation routes; ${mutationScopeUnguarded} unguarded`
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3122,6 +3136,263 @@ export function createGovernanceDeck(governance) {
       : null
     ]);
   });
+  const mutationScopeInventory = governance.mutationScopeInventory || null;
+  const mutationScopeSummary = mutationScopeInventory?.summary || {
+    total: 0,
+    scopeRelevant: 0,
+    guarded: 0,
+    unguarded: 0,
+    utility: 0,
+    methodCounts: {},
+    categoryCounts: {}
+  };
+  const mutationScopeCoverage = mutationScopeSummary.scopeRelevant
+    ? Math.round((mutationScopeSummary.guarded / mutationScopeSummary.scopeRelevant) * 100)
+    : 0;
+  const mutationCategoryRows = Object.entries(mutationScopeSummary.categoryCounts || {})
+    .sort(([, left], [, right]) => Number(right) - Number(left))
+    .slice(0, 8);
+  const guardedMutationRoutes = (mutationScopeInventory?.items || [])
+    .filter((item) => item.scopeRelevant && item.guarded)
+    .slice(0, 10);
+  const unguardedMutationRoutes = mutationScopeInventory?.unguarded || [];
+  const mutationScopeAuditEntries = mutationScopeInventory ? [
+    createElement("div", {
+      className: "governance-gap-card mutation-scope-audit-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Mutation guard coverage",
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "1.02rem"
+            }
+          }),
+          createElement("div", {
+            text: `${mutationScopeSummary.guarded}/${mutationScopeSummary.scopeRelevant} scope-relevant mutation routes are guarded by active project or portfolio scope.`,
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45",
+              marginTop: "0.25rem"
+            }
+          })
+        ]),
+        createTag(`${mutationScopeCoverage}% guarded`, {
+          background: "var(--bg)",
+          border: `1px solid ${unguardedMutationRoutes.length ? "var(--danger)" : "var(--success)"}`,
+          color: unguardedMutationRoutes.length ? "var(--danger)" : "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        className: "tags"
+      }, [
+        createTag(`${mutationScopeSummary.total} mutation routes`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${mutationScopeSummary.utility} utility routes`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--text-muted)"
+        }),
+        createTag(`${mutationScopeSummary.unguarded} unguarded`, {
+          background: "var(--bg)",
+          border: `1px solid ${mutationScopeSummary.unguarded ? "var(--danger)" : "var(--success)"}`,
+          color: mutationScopeSummary.unguarded ? "var(--danger)" : "var(--success)"
+        })
+      ]),
+      createElement("div", {
+        text: `Last generated ${mutationScopeInventory.generatedAt ? new Date(mutationScopeInventory.generatedAt).toLocaleString() : "unknown"} using ${mutationScopeInventory.protocolVersion || "mutation-scope-inventory.v1"}.`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.82rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]),
+    createElement("div", {
+      className: "governance-gap-card mutation-scope-category-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Mutation route categories",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900",
+          fontSize: "1.02rem"
+        }
+      }),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(9rem, 1fr))",
+          gap: "0.5rem"
+        }
+      }, mutationCategoryRows.length ? mutationCategoryRows.map(([category, count]) => createElement("div", {
+        style: {
+          padding: "0.65rem",
+          border: "1px solid var(--border)",
+          borderRadius: "0.75rem",
+          background: "var(--bg)"
+        }
+      }, [
+        createElement("div", {
+          text: category,
+          style: {
+            color: "var(--text)",
+            fontWeight: "800",
+            fontSize: "0.86rem"
+          }
+        }),
+        createElement("div", {
+          text: `${count} route(s)`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.8rem",
+            marginTop: "0.2rem"
+          }
+        })
+      ])) : [
+        createElement("div", {
+          text: "No mutation categories detected.",
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.86rem"
+          }
+        })
+      ])
+    ]),
+    ...(unguardedMutationRoutes.length
+      ? unguardedMutationRoutes.slice(0, 8).map((item) => createElement("div", {
+          className: "governance-gap-card mutation-scope-unguarded-card",
+          style: {
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.45rem",
+            borderColor: "color-mix(in srgb, var(--danger) 45%, var(--border) 55%)"
+          }
+        }, [
+          createElement("div", {
+            style: {
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "flex-start",
+              gap: "0.75rem"
+            }
+          }, [
+            createElement("div", {
+              text: `${item.method} ${item.route}`,
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "0.92rem"
+              }
+            }),
+            createTag("unguarded", {
+              background: "var(--bg)",
+              border: "1px solid var(--danger)",
+              color: "var(--danger)"
+            })
+          ]),
+          createElement("div", {
+            text: item.recommendedAction || "Add an active project or portfolio mutation scope guard before this route can write.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]))
+      : [
+          createElement("div", {
+            className: "governance-gap-card mutation-scope-zero-unguarded-card",
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.45rem",
+              borderColor: "color-mix(in srgb, var(--success) 45%, var(--border) 55%)"
+            }
+          }, [
+            createElement("div", {
+              text: "Zero unguarded scope-relevant mutation routes",
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "1rem"
+              }
+            }),
+            createElement("div", {
+              text: "The server-side scanner currently finds every scope-relevant POST, PATCH, and DELETE mutation route protected by explicit project or portfolio scope.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45"
+              }
+            })
+          ])
+        ]),
+    createElement("div", {
+      className: "governance-gap-card mutation-scope-guarded-sample-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Guarded route sample",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900",
+          fontSize: "1.02rem"
+        }
+      }),
+      ...guardedMutationRoutes.map((item) => createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.75rem",
+          padding: "0.55rem 0",
+          borderTop: "1px solid var(--border)"
+        }
+      }, [
+        createElement("div", {
+          text: `${item.method} ${item.route}`,
+          style: {
+            color: "var(--text)",
+            fontWeight: "750",
+            fontSize: "0.84rem",
+            lineHeight: "1.35"
+          }
+        }),
+        createTag(item.guardKind || "scope guard", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: "var(--success)"
+        })
+      ]))
+    ])
+  ] : [];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -18190,6 +18461,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Action Queue", "Direct remediation items derived from governance gaps and incomplete portfolio state.", queueEntries),
     createListSection("Suppressed Queue", "Deferred queue items hidden from the active queue until restored.", suppressedQueueEntries),
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
+    createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),
     createListSection("Convergence Assimilation Runs", "Queued Codex and Claude Agent Work Order runs created from convergence assimilation drafts.", convergenceAssimilationRunEntries),

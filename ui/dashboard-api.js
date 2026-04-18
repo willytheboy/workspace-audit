@@ -2189,6 +2189,13 @@ export const dashboardApi = {
   },
 
   /**
+   * @returns {Promise<import("./dashboard-types.js").AgentExecutionRegressionAlertBaselineLedgerBaselineStatusPayload>}
+   */
+  fetchAgentExecutionRegressionAlertBaselineLedgerBaselineStatus() {
+    return fetchJson("/api/agent-work-order-runs/regression-alert-baseline-ledger-baseline-status");
+  },
+
+  /**
    * @returns {Promise<import("./dashboard-types.js").PersistedAgentExecutionTargetBaselineAuditLedgerSnapshot[]>}
    */
   fetchAgentExecutionTargetBaselineAuditLedgerSnapshots() {

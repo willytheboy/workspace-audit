@@ -14189,6 +14189,70 @@ export function createGovernanceDeck(governance) {
       ])
     ])
   ] : [];
+  const agentExecutionRegressionAlertBaselineLedgerBaselineStatus = governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus || null;
+  const agentExecutionRegressionAlertBaselineLedgerBaselineStatusEntries = agentExecutionRegressionAlertBaselineLedgerBaselineStatus ? [
+    createElement("div", {
+      className: "governance-gap-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          gap: "0.8rem",
+          alignItems: "flex-start"
+        }
+      }, [
+        createElement("div", {}, [
+          createElement("div", {
+            text: "Regression alert baseline snapshot baseline",
+            style: {
+              fontWeight: "800",
+              color: "var(--text)"
+            }
+          }),
+          createElement("div", {
+            text: agentExecutionRegressionAlertBaselineLedgerBaselineStatus.recommendedAction || "Save a Regression Alert baseline snapshot before relying on alert-baseline drift gates.",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.84rem",
+              marginTop: "0.3rem",
+              lineHeight: "1.45"
+            }
+          })
+        ]),
+        createTag(agentExecutionRegressionAlertBaselineLedgerBaselineStatus.health || "missing", {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: agentExecutionRegressionAlertBaselineLedgerBaselineStatus.health === "healthy" ? "var(--success)" : agentExecutionRegressionAlertBaselineLedgerBaselineStatus.health === "stale" ? "var(--warning)" : "var(--danger)"
+        })
+      ]),
+      createElement("div", {
+        text: agentExecutionRegressionAlertBaselineLedgerBaselineStatus.hasBaseline
+          ? `Snapshot ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.title || agentExecutionRegressionAlertBaselineLedgerBaselineStatus.snapshotId || "baseline"} | ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.freshness || "missing"} | drift ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.driftSeverity || "none"} / score ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.driftScore || 0} | checkpoints ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.checkpointedDriftItemCount || 0}/${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.driftItemCount || 0}`
+          : `No Regression Alert baseline snapshot saved. Snapshots available: ${agentExecutionRegressionAlertBaselineLedgerBaselineStatus.snapshotCount || 0}`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.86rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-baseline-ledger-baseline-status-copy-btn",
+          text: "Copy Baseline Status",
+          attrs: { type: "button" },
+          dataset: { regressionAlertBaselineLedgerBaselineStatusCopy: "true" }
+        })
+      ])
+    ])
+  ] : [];
   const agentExecutionTargetBaselineAuditLedgerBaselineStatus = governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus || null;
   const agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries = agentExecutionTargetBaselineAuditLedgerBaselineStatus ? [
     createElement("div", {
@@ -19880,6 +19944,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Execution Target Baseline Audit Ledger", "No-secret copyable checklist for run baseline capture health before unattended CLI execution.", agentExecutionTargetBaselineAuditLedgerEntries),
     createListSection("Agent Execution Regression Alert Baseline Ledger", "No-secret copyable checklist for alert-baseline capture health before unattended CLI execution.", agentExecutionRegressionAlertBaselineLedgerEntries),
     createListSection("Agent Execution Regression Alert Baseline Ledger Snapshots", "Persisted alert-baseline ledgers for external handoff and build evidence.", agentExecutionRegressionAlertBaselineLedgerSnapshotEntries),
+    createListSection("Agent Execution Regression Alert Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted alert-baseline snapshot.", agentExecutionRegressionAlertBaselineLedgerBaselineStatusEntries),
     createListSection("Agent Execution Regression Alert Baseline Drift Checkpoints", "Operator decisions made against alert-baseline snapshot drift before refreshing execution baselines.", agentExecutionRegressionAlertBaselineLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.", agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries),
     createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),

@@ -1381,6 +1381,17 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       ])
         ? governance.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger
         : null,
+      agentExecutionRegressionAlertBaselineLedgerBaselineStatus: governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus && matchesSearch([
+        "agent execution regression alert baseline status",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.title || "",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.health || "",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.freshness || "",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.driftSeverity || "",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.recommendedAction || "",
+        governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.markdown || ""
+      ])
+        ? governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus
+        : null,
       agentExecutionTargetBaselineAuditLedgerBaselineStatus: governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus && matchesSearch([
         "agent execution target baseline audit baseline status",
         governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus.title || "",
@@ -1758,6 +1769,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger = null;
       if (scope !== "execution") filtered.agentExecutionTargetBaselineAuditLedgerBaselineStatus = null;
+      if (scope !== "execution") filtered.agentExecutionRegressionAlertBaselineLedgerBaselineStatus = null;
       if (scope !== "execution") filtered.cliBridgeHandoffs = [];
       if (scope !== "execution") filtered.cliBridgeRunnerDryRunSnapshots = [];
       if (scope !== "execution") filtered.cliBridgeRunnerDryRunSnapshotDiff = null;
@@ -6151,6 +6163,26 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    * @param {HTMLElement} container
    */
   function bindTargetBaselineAuditLedgerSnapshotActions(container) {
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-baseline-status-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          element.textContent = await copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus();
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-target-baseline-audit-ledger-baseline-status-copy]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -10654,6 +10686,18 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       }
     } else {
       lines.push("- No visible Regression Alert baseline ledger snapshots.");
+    }
+
+    lines.push("", "## Agent Execution Regression Alert Baseline Status");
+    if (governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus) {
+      const status = governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus;
+      lines.push(`- Health: ${status.health || "missing"}`);
+      lines.push(`- Freshness: ${status.freshness || "missing"} (${status.ageHours || 0}h old, threshold ${status.freshnessThresholdHours || 24}h)`);
+      lines.push(`- Drift: ${status.driftSeverity || "missing-snapshot"} / score ${status.driftScore || 0}`);
+      lines.push(`- Checkpoints: ${status.checkpointedDriftItemCount || 0}/${status.driftItemCount || 0}`);
+      lines.push(`- Action: ${status.recommendedAction || "Save a Regression Alert baseline snapshot."}`);
+    } else {
+      lines.push("- No visible Regression Alert baseline status.");
     }
 
     lines.push("", "## Agent Execution Regression Alert Baseline Drift Checkpoints");
@@ -15870,6 +15914,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id, "confirmed");
   }
 
+  async function copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus() {
+    const payload = await api.fetchAgentExecutionRegressionAlertBaselineLedgerBaselineStatus();
+    await copyText(payload.markdown);
+    return `Copied ${payload.health || "missing"} Alert Baseline Status`;
+  }
+
   async function copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus() {
     const payload = await api.fetchAgentExecutionTargetBaselineAuditLedgerBaselineStatus();
     await copyText(payload.markdown);
@@ -16718,6 +16768,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
+    copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,
     copyLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,

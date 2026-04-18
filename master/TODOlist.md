@@ -3169,3 +3169,11 @@
 - [x] Surface checkpoint buttons and checkpoint ledger visibility in Governance.
 - [x] Add parser and server-test coverage for clean Regression Alert baseline drift checkpoints.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Execution Regression Alert Baseline Ledger Baseline Status
+
+- [x] Add computed baseline status for the latest Regression Alert baseline ledger snapshot.
+- [x] Report freshness, drift health, checkpoint coverage, and recommended action.
+- [x] Surface status copy controls in Governance and the command palette.
+- [x] Add parser and server-test coverage for Regression Alert baseline status.
+- [x] Validate, relaunch, commit, and push.

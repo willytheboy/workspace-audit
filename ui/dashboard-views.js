@@ -758,6 +758,10 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "",
         governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineDriftSeverity || "",
         String(governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0),
+        governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineHealth || "",
+        governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineFreshness || "",
+        governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineDriftSeverity || "",
+        String(governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount || 0),
         governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineHealth || "",
         governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineFreshness || "",
         governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision || "",
@@ -10035,6 +10039,9 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Target baseline audit baseline health: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineHealth || "missing"}`);
       lines.push(`- Target baseline audit baseline freshness: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineFreshness || "missing"}`);
       lines.push(`- Target baseline audit baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0}`);
+      lines.push(`- Regression Alert baseline snapshot health: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineHealth || "missing"}`);
+      lines.push(`- Regression Alert baseline snapshot freshness: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineFreshness || "missing"}`);
+      lines.push(`- Regression Alert baseline snapshot uncheckpointed drift: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount || 0}`);
       lines.push(`- Regression Alert task baseline health: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineHealth || "missing"}`);
       lines.push(`- Regression Alert task baseline refresh gate: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready"}`);
       lines.push(`- Regression Alert task baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0}`);

@@ -3185,3 +3185,11 @@
 - [x] Record refresh operations in the Governance operation log.
 - [x] Add parser and server-test coverage for scoped and unscoped refresh paths.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Regression Alert Baseline Snapshot Gate
+
+- [x] Feed the accepted Regression Alert baseline ledger snapshot status into Agent Control Plane decisions.
+- [x] Add missing, stale, drift-review, and drifted decision reasons for alert snapshot baselines.
+- [x] Surface alert snapshot baseline health in the Control Plane decision card, copied Markdown, and CLI bridge context.
+- [x] Add parser and server-test coverage for the snapshot baseline gate.
+- [x] Validate, relaunch, commit, and push.

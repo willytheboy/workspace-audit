@@ -2867,6 +2867,8 @@ export async function serverTest() {
     assert.equal(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.hasBaseline, true);
     assert.ok(["healthy", "stale", "drifted", "drift-review-required"].includes(agentControlPlaneJson.agentExecutionTargetBaselineAuditLedgerBaselineStatus.health));
     assert.match(agentControlPlaneJson.markdown, /Target baseline audit baseline:/);
+    assert.equal(agentControlPlaneJson.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.hasBaseline, true);
+    assert.ok(["healthy", "stale", "drifted", "drift-review-required"].includes(agentControlPlaneJson.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.health));
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.decision, "ready");
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.total, 1);
     assert.equal(agentControlPlaneJson.dataSourcesAccessGate.review, 0);
@@ -2954,6 +2956,8 @@ export async function serverTest() {
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.profileTargetTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.ok(cliBridgeContextJson.controlPlaneDecision.targetBaselineAuditLedgerBaselineHealth);
+    assert.ok(cliBridgeContextJson.controlPlaneDecision.regressionAlertBaselineLedgerBaselineHealth);
+    assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount, "number");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
@@ -2965,6 +2969,7 @@ export async function serverTest() {
     assert.match(cliBridgeContextJson.markdown, /# CLI Bridge Context Pack/);
     assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Target baseline audit baseline health:/);
+    assert.match(cliBridgeContextJson.markdown, /Regression Alert baseline snapshot health:/);
     assert.match(cliBridgeContextJson.markdown, /Regression Alert task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Execution audit snapshot baseline runs:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
@@ -3861,6 +3866,8 @@ export async function serverTest() {
     assert.deepEqual(initialAgentControlPlaneDecisionJson.dataSourcesAccessTasks, []);
     assert.ok(initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
     assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineMissingCount, "number");
+    assert.ok(["healthy", "missing", "stale", "drifted", "drift-review-required"].includes(initialAgentControlPlaneDecisionJson.regressionAlertBaselineLedgerBaselineHealth));
+    assert.equal(typeof initialAgentControlPlaneDecisionJson.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount, "number");
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineHealth, "missing");
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount, 0);
@@ -3871,6 +3878,8 @@ export async function serverTest() {
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "release-build-gate-review"));
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /# Agent Control Plane Decision/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Decision: hold/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert Baseline Snapshot/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert baseline snapshot health:/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert task baseline health: missing/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Regression Alert Task Baseline/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Execution run audit snapshot baseline:/);

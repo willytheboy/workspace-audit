@@ -16000,6 +16000,9 @@ export function createGovernanceDeck(governance) {
   const controlPlaneTargetBaselineAuditHealth = controlPlaneDecision?.targetBaselineAuditLedgerBaselineHealth || "missing";
   const controlPlaneTargetBaselineAuditFreshness = controlPlaneDecision?.targetBaselineAuditLedgerBaselineFreshness || "missing";
   const controlPlaneTargetBaselineAuditUncheckpointedDriftCount = controlPlaneDecision?.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0;
+  const controlPlaneRegressionAlertSnapshotBaselineHealth = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineHealth || "missing";
+  const controlPlaneRegressionAlertSnapshotBaselineFreshness = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineFreshness || "missing";
+  const controlPlaneRegressionAlertSnapshotBaselineUncheckpointedDriftCount = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount || 0;
   const controlPlaneRegressionAlertBaselineHealth = controlPlaneDecision?.regressionAlertTaskLedgerBaselineHealth || "missing";
   const controlPlaneRegressionAlertBaselineRefreshGate = controlPlaneDecision?.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready";
   const controlPlaneRegressionAlertBaselineUncheckpointedDriftCount = controlPlaneDecision?.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0;
@@ -16020,6 +16023,11 @@ export function createGovernanceDeck(governance) {
   const controlPlaneTargetBaselineAuditColor = controlPlaneTargetBaselineAuditHealth === "healthy"
     ? "var(--success)"
     : controlPlaneTargetBaselineAuditHealth === "missing" || controlPlaneTargetBaselineAuditHealth === "drift-review-required"
+      ? "var(--danger)"
+      : "var(--warning)";
+  const controlPlaneRegressionAlertSnapshotBaselineColor = controlPlaneRegressionAlertSnapshotBaselineHealth === "healthy"
+    ? "var(--success)"
+    : controlPlaneRegressionAlertSnapshotBaselineHealth === "missing" || controlPlaneRegressionAlertSnapshotBaselineHealth === "drift-review-required"
       ? "var(--danger)"
       : "var(--warning)";
   const controlPlaneRegressionAlertBaselineColor = controlPlaneRegressionAlertBaselineRefreshGate === "hold" || controlPlaneRegressionAlertBaselineOpenEscalatedCount > 0
@@ -16096,7 +16104,12 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: controlPlaneTargetBaselineAuditColor
               }),
-              createTag(`REGRESSION ALERT ${controlPlaneRegressionAlertBaselineHealth.toUpperCase()}`, {
+              createTag(`ALERT SNAPSHOT ${controlPlaneRegressionAlertSnapshotBaselineHealth.toUpperCase()}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneRegressionAlertSnapshotBaselineColor
+              }),
+              createTag(`REGRESSION ALERT TASK ${controlPlaneRegressionAlertBaselineHealth.toUpperCase()}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
                 color: controlPlaneRegressionAlertBaselineColor
@@ -16147,7 +16160,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Regression Alert baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Alert run capture: ${controlPlaneAlertBaselineRunReviewCount} review / ${controlPlaneAlertBaselineRunHealthyCount} healthy / ${controlPlaneAlertBaselineRunMissingCount} missing / ${controlPlaneAlertBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Alert snapshot baseline: ${controlPlaneRegressionAlertSnapshotBaselineHealth} / ${controlPlaneRegressionAlertSnapshotBaselineFreshness} / ${controlPlaneRegressionAlertSnapshotBaselineUncheckpointedDriftCount} uncheckpointed • Regression Alert task baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Alert run capture: ${controlPlaneAlertBaselineRunReviewCount} review / ${controlPlaneAlertBaselineRunHealthyCount} healthy / ${controlPlaneAlertBaselineRunMissingCount} missing / ${controlPlaneAlertBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",

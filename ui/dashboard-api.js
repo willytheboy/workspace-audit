@@ -1072,6 +1072,33 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {"all" | "open" | "closed"} [status]
+   * @returns {Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerPayload>}
+   */
+  fetchRegressionAlertTaskLedger(status = "all") {
+    return fetchJson(withQuery("/api/governance/regression-alert-task-ledger", { status }));
+  },
+
+  /**
+   * @returns {Promise<import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot[]>}
+   */
+  fetchRegressionAlertTaskLedgerSnapshots() {
+    return fetchJson("/api/governance/regression-alert-task-ledger-snapshots");
+  },
+
+  /**
+   * @param {{ title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot, regressionAlertTaskLedgerSnapshots: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot[] }>}
+   */
+  createRegressionAlertTaskLedgerSnapshot(payload = {}) {
+    return fetchJson("/api/governance/regression-alert-task-ledger-snapshots", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>}
    */

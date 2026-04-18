@@ -1697,7 +1697,7 @@ export function createGovernanceSummaryGrid(governance) {
       accentColor: regressionAlertOpenTaskCount ? "var(--warning)" : regressionAlertTaskCount ? "var(--success)" : "var(--primary)",
       label: "Alert Tasks",
       value: `${regressionAlertOpenTaskCount}/${regressionAlertTaskCount}`,
-      detail: "Open remediation tasks created from Regression Alert Center alerts"
+      detail: `${summary.regressionAlertTaskLedgerSnapshotCount || 0} saved alert task snapshot(s)`
     }),
     createKpiCard({
       accentColor: "var(--primary)",
@@ -3659,7 +3659,61 @@ export function createGovernanceDeck(governance) {
     regressionAlertCenterSummaryEntry,
     ...regressionAlertEntryCards
   ];
-  const regressionAlertTaskEntries = (governance.regressionAlertTasks || []).map((task) => {
+  const regressionAlertTaskSummary = governance.summary || {};
+  const regressionAlertTaskEntries = [
+    createElement("div", {
+      className: "governance-gap-card regression-alert-task-ledger-control-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.7rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Regression alert task ledger export",
+        style: {
+          color: "var(--text)",
+          fontWeight: "900"
+        }
+      }),
+      createElement("div", {
+        text: `${regressionAlertTaskSummary.regressionAlertOpenTaskCount || 0} open / ${regressionAlertTaskSummary.regressionAlertTaskCount || 0} total. Copy or save a non-secret alert remediation baseline before unattended build cycles.`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.88rem",
+          lineHeight: "1.5"
+        }
+      }),
+      createElement("div", {
+        className: "governance-actions"
+      }, [
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-copy-btn",
+          text: "Copy Open",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerCopy: "open" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-copy-btn",
+          text: "Copy Closed",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerCopy: "closed" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-copy-btn",
+          text: "Copy All",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerCopy: "all" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-snapshot-save-btn",
+          text: "Save Snapshot",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerSnapshotSave: "true" }
+        })
+      ])
+    ]),
+    ...(governance.regressionAlertTasks || []).map((task) => {
     const isClosedTask = ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase());
     const statusColor = isClosedTask
       ? "var(--success)"
@@ -3757,7 +3811,65 @@ export function createGovernanceDeck(governance) {
         })
       ])
     ]);
-  });
+  })];
+  const regressionAlertTaskLedgerSnapshotEntries = (governance.regressionAlertTaskLedgerSnapshots || []).map((snapshot) => createElement("div", {
+    className: "governance-gap-card regression-alert-task-ledger-snapshot-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.6rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: "0.8rem",
+        alignItems: "flex-start"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: snapshot.title || "Regression Alert Remediation Task Ledger",
+          style: {
+            fontWeight: "800",
+            color: "var(--text)"
+          }
+        }),
+        createElement("div", {
+          text: `${snapshot.createdAt ? new Date(snapshot.createdAt).toLocaleString() : "saved snapshot"} | ${snapshot.statusFilter || "all"} | limit ${snapshot.limit || 100}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            marginTop: "0.3rem"
+          }
+        })
+      ]),
+      createTag(`${snapshot.openCount || 0}/${snapshot.total || 0} open`, {
+        border: "1px solid var(--border)",
+        background: "var(--bg)",
+        color: (snapshot.openCount || 0) ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      text: `${snapshot.visibleCount || 0} visible | ${snapshot.projectTaskCount || 0} project task(s) | ${snapshot.portfolioTaskCount || 0} portfolio task(s)`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.88rem",
+        lineHeight: "1.5"
+      }
+    }),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-task-ledger-snapshot-copy-btn",
+        text: "Copy Snapshot",
+        attrs: { type: "button" },
+        dataset: { regressionAlertTaskLedgerSnapshotId: snapshot.id || "" }
+      })
+    ])
+  ]));
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -18828,6 +18940,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Regression Alert Center", "Unified operator alerts from scan movement, source access, release gates, control-plane state, and mutation-scope coverage.", regressionAlertCenterEntries),
     createListSection("Regression Alert Remediation Tasks", "Compact ledger of tasks created from Regression Alert Center alerts.", regressionAlertTaskEntries),
+    createListSection("Regression Alert Remediation Task Snapshots", "Saved non-secret baselines for alert remediation task handoffs.", regressionAlertTaskLedgerSnapshotEntries),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

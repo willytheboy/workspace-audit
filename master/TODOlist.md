@@ -3065,3 +3065,11 @@
 - [x] Add a compact alert remediation task ledger with resolve/reopen controls.
 - [x] Add parser coverage for the task ledger.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Remediation Task Snapshots
+
+- [x] Add a persistent snapshot collection for Regression Alert remediation task ledgers.
+- [x] Add a guarded Governance API for copying and saving alert task ledger snapshots.
+- [x] Surface snapshot count, save controls, and copyable snapshot cards in Governance.
+- [x] Add parser coverage for the snapshot flow.
+- [x] Validate, relaunch, commit, and push.

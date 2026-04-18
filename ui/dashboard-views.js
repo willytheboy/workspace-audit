@@ -95,6 +95,8 @@ function createEmptyTableRow(message) {
  *     fetchReleaseTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").ReleaseTaskLedgerPayload>,
  *     createReleaseTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot, releaseTaskLedgerSnapshots: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[] }>,
  *     fetchReleaseTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").ReleaseTaskLedgerSnapshotDiffPayload>,
+ *     fetchRegressionAlertTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerPayload>,
+ *     createRegressionAlertTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot, regressionAlertTaskLedgerSnapshots: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot[] }>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceDueDiligencePack: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceDueDiligencePackPayload>,
@@ -1113,6 +1115,11 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (task) => [task.projectName || "", task.title || "", task.status || "", task.priority || "", task.description || ""],
         (left, right) => new Date(right.updatedAt || right.createdAt).getTime() - new Date(left.updatedAt || left.createdAt).getTime()
       ),
+      regressionAlertTaskLedgerSnapshots: filterAndSort(
+        governance.regressionAlertTaskLedgerSnapshots || [],
+        (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), snapshot.markdown || ""],
+        (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      ),
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -1668,6 +1675,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "release") filtered.releaseTaskLedgerSnapshotDiff = null;
       if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
       if (scope !== "operations") filtered.regressionAlertTasks = [];
+      if (scope !== "operations") filtered.regressionAlertTaskLedgerSnapshots = [];
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1808,6 +1816,73 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = false;
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-regression-alert-task-ledger-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const status = element.dataset.regressionAlertTaskLedgerCopy || "all";
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyGovernanceRegressionAlertTaskLedger(status);
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-regression-alert-task-ledger-snapshot-save]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Saving";
+          await saveRegressionAlertTaskLedgerSnapshot();
+          element.textContent = "Saved";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-regression-alert-task-ledger-snapshot-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertTaskLedgerSnapshotId || "";
+        const snapshot = governanceCache?.regressionAlertTaskLedgerSnapshots?.find((item) => item.id === snapshotId);
+        if (!snapshot) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copied";
+          await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
         }
       };
     });
@@ -9021,6 +9096,47 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return lines.join("\n");
   }
 
+  function buildRegressionAlertTaskLedgerMarkdown(status = "all") {
+    const governance = getFilteredGovernance();
+    const allTasks = governance?.regressionAlertTasks || [];
+    const isClosedTask = (task) => ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase());
+    const tasks = status === "open"
+      ? allTasks.filter((task) => !isClosedTask(task))
+      : status === "closed"
+        ? allTasks.filter(isClosedTask)
+        : allTasks;
+    const lines = [
+      "# Regression Alert Remediation Task Ledger",
+      "",
+      `Generated: ${new Date().toISOString()}`,
+      `Status filter: ${status}`,
+      `Visible tasks: ${tasks.length}`,
+      `Open tasks: ${governanceCache?.summary.regressionAlertOpenTaskCount ?? 0}`,
+      `Total tasks: ${governanceCache?.summary.regressionAlertTaskCount ?? 0}`,
+      `Saved snapshots: ${governanceCache?.summary.regressionAlertTaskLedgerSnapshotCount ?? 0}`,
+      "",
+      "Secret policy: non-secret alert task metadata only. Do not store passwords, tokens, private keys, certificates, cookies, browser sessions, or command output.",
+      "",
+      "## Visible Tasks"
+    ];
+
+    if (!tasks.length) {
+      lines.push("- No visible Regression Alert remediation tasks matched the current Governance filters.");
+      return lines.join("\n");
+    }
+
+    for (const task of tasks) {
+      lines.push(`- ${task.title || "Regression alert task"} [${task.priority || "medium"} / ${task.status || "open"}]`);
+      lines.push(`  Project: ${task.projectName || task.projectId || "Portfolio Control Plane"}`);
+      if (task.description) {
+        lines.push(`  Detail: ${String(task.description).split("\n")[0]}`);
+      }
+      lines.push(`  Updated: ${task.updatedAt || task.createdAt || "not recorded"}`);
+    }
+
+    return lines.join("\n");
+  }
+
   function buildGovernanceSummaryText() {
     const governance = getFilteredGovernance();
     if (!governance) {
@@ -9066,6 +9182,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Control plane release gate: ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateDecision || governanceCache?.releaseBuildGate?.decision || "not-evaluated"} (risk ${governanceCache?.agentControlPlaneDecision?.releaseBuildGateRiskScore ?? governanceCache?.releaseBuildGate?.riskScore ?? 0})`,
       `Release Control tasks: ${governanceCache?.summary.releaseControlOpenTaskCount ?? 0} open / ${governanceCache?.summary.releaseControlTaskCount ?? 0} total`,
       `Release Control task ledger snapshots: ${governanceCache?.summary.releaseTaskLedgerSnapshotCount ?? 0}`,
+      `Regression Alert remediation tasks: ${governanceCache?.summary.regressionAlertOpenTaskCount ?? 0} open / ${governanceCache?.summary.regressionAlertTaskCount ?? 0} total`,
+      `Regression Alert task ledger snapshots: ${governanceCache?.summary.regressionAlertTaskLedgerSnapshotCount ?? 0}`,
       `Control Plane decision tasks: ${governanceCache?.summary.agentControlPlaneDecisionOpenTaskCount ?? 0} open / ${governanceCache?.summary.agentControlPlaneDecisionTaskCount ?? 0} total`,
       `Control plane decision action: ${governanceCache?.agentControlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build."}`,
       `Control plane decision reasons: ${governanceCache?.agentControlPlaneDecision?.reasons?.length ? governanceCache.agentControlPlaneDecision.reasons.map((reason) => reason.code || reason.message).join(", ") : "none"}`,
@@ -12403,6 +12521,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.agentControlPlaneDecision ? 1 : 0)
         + (governance.agentControlPlaneDecisionTasks || []).length
         + (governance.regressionAlertTasks || []).length
+        + (governance.regressionAlertTaskLedgerSnapshots || []).length
         + (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).length
         + (governance.agentExecutionResultTaskLedgerSnapshots || []).length
         + (governance.releaseControlTasks || []).length
@@ -14286,6 +14405,23 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Release Task Snapshot";
   }
 
+  async function copyGovernanceRegressionAlertTaskLedger(status = "all") {
+    const markdown = buildRegressionAlertTaskLedgerMarkdown(status);
+    await copyText(markdown);
+    return `Copied ${getFilteredGovernance()?.regressionAlertTasks?.length || 0} Alert Task${(getFilteredGovernance()?.regressionAlertTasks?.length || 0) === 1 ? "" : "s"}`;
+  }
+
+  async function saveRegressionAlertTaskLedgerSnapshot() {
+    await api.createRegressionAlertTaskLedgerSnapshot({
+      title: "Regression Alert Remediation Task Ledger",
+      status: "all",
+      limit: 100,
+      ...getCliBridgeScopeOptions()
+    });
+    await renderGovernance();
+    return "Saved Alert Task Snapshot";
+  }
+
   async function copyLatestReleaseTaskLedgerSnapshotDrift() {
     const diff = await api.fetchReleaseTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
@@ -16039,6 +16175,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     createLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDriftTask,
     checkpointLatestAgentExecutionTargetBaselineAuditLedgerSnapshotDrift,
     copyGovernanceSummary,
+    copyGovernanceRegressionAlertTaskLedger,
+    saveRegressionAlertTaskLedgerSnapshot,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,
     copyLatestGovernanceTaskUpdateLedgerSnapshotDrift,

@@ -2728,6 +2728,7 @@
  *     regressionAlertTaskCount: number,
  *     regressionAlertOpenTaskCount: number,
  *     regressionAlertClosedTaskCount: number,
+ *     regressionAlertTaskLedgerSnapshotCount: number,
  *     convergenceAssimilationSessionPacketSnapshotCount: number,
  *     convergenceAssimilationRunnerLaunchpadGateSnapshotCount: number,
  *     convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotCount: number,
@@ -2857,6 +2858,7 @@
  *   agentControlPlaneDecisionTasks: PersistedTask[],
  *   convergenceTasks: PersistedTask[],
  *   regressionAlertTasks: PersistedTask[],
+ *   regressionAlertTaskLedgerSnapshots: PersistedRegressionAlertTaskLedgerSnapshot[],
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -4293,6 +4295,57 @@
  *   items: ReleaseTaskLedgerItem[],
  *   createdAt: string
  * }} PersistedReleaseTaskLedgerSnapshot
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   status: string,
+ *   priority: string,
+ *   projectId: string,
+ *   projectName: string,
+ *   alertSource: string,
+ *   severity: string,
+ *   detail: string,
+ *   recommendedAction: string,
+ *   secretPolicy: string,
+ *   createdAt: string,
+ *   updatedAt: string
+ * }} RegressionAlertTaskLedgerItem
+ * @typedef {{
+ *   generatedAt: string,
+ *   status: "all" | "open" | "closed",
+ *   limit: number,
+ *   secretPolicy: string,
+ *   summary: {
+ *     total: number,
+ *     open: number,
+ *     closed: number,
+ *     visible: number,
+ *     high: number,
+ *     medium: number,
+ *     low: number,
+ *     normal: number,
+ *     projectTasks: number,
+ *     portfolioTasks: number
+ *   },
+ *   items: RegressionAlertTaskLedgerItem[],
+ *   markdown: string
+ * }} RegressionAlertTaskLedgerPayload
+ * @typedef {{
+ *   id: string,
+ *   title: string,
+ *   statusFilter: "all" | "open" | "closed",
+ *   limit: number,
+ *   total: number,
+ *   openCount: number,
+ *   closedCount: number,
+ *   visibleCount: number,
+ *   projectTaskCount: number,
+ *   portfolioTaskCount: number,
+ *   secretPolicy: string,
+ *   markdown: string,
+ *   items: RegressionAlertTaskLedgerItem[],
+ *   createdAt: string
+ * }} PersistedRegressionAlertTaskLedgerSnapshot
  * @typedef {{
  *   generatedAt: string,
  *   hasSnapshot: boolean,

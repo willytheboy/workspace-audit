@@ -3041,3 +3041,11 @@
 - [x] Add a unified Regression Alert Center section covering scan, source-access, release, control-plane, and mutation-scope alerts.
 - [x] Add parser coverage for the alert center.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Handoff Pack
+
+- [x] Add a copyable no-secret Regression Alert Center handoff pack.
+- [x] Include scan, source-access, release, control-plane, and mutation-scope alert summaries.
+- [x] Wire the alert pack copy action from the Governance panel.
+- [x] Add parser coverage for the handoff pack.
+- [x] Validate, relaunch, commit, and push.

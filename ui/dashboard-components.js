@@ -3478,7 +3478,59 @@ export function createGovernanceDeck(governance) {
   const sortedRegressionAlerts = regressionAlertItems
     .sort((left, right) => (severityRank[left.severity] ?? 3) - (severityRank[right.severity] ?? 3))
     .slice(0, 14);
-  const regressionAlertCenterEntries = sortedRegressionAlerts.length
+  const regressionAlertCenterSummaryEntry = createElement("div", {
+    className: "governance-gap-card regression-alert-center-summary-card",
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: "0.75rem"
+    }
+  }, [
+    createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        gap: "0.75rem"
+      }
+    }, [
+      createElement("div", {}, [
+        createElement("div", {
+          text: "Regression alert handoff",
+          style: {
+            color: "var(--text)",
+            fontWeight: "900",
+            fontSize: "1.02rem"
+          }
+        }),
+        createElement("div", {
+          text: "Copy a no-secret alert pack for operator review, Codex handoff, or Claude handoff before the next autonomous build slice.",
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.86rem",
+            lineHeight: "1.45",
+            marginTop: "0.25rem"
+          }
+        })
+      ]),
+      createTag(`${sortedRegressionAlerts.length} visible`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: sortedRegressionAlerts.length ? "var(--warning)" : "var(--success)"
+      })
+    ]),
+    createElement("div", {
+      className: "governance-actions"
+    }, [
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-center-copy-btn",
+        text: "Copy Alert Pack",
+        attrs: { type: "button" },
+        dataset: { regressionAlertCenterCopy: "true" }
+      })
+    ])
+  ]);
+  const regressionAlertEntryCards = sortedRegressionAlerts.length
     ? sortedRegressionAlerts.map((alert) => {
         const accent = alert.severity === "high"
           ? "var(--danger)"
@@ -3576,6 +3628,10 @@ export function createGovernanceDeck(governance) {
           })
         ])
       ];
+  const regressionAlertCenterEntries = [
+    regressionAlertCenterSummaryEntry,
+    ...regressionAlertEntryCards
+  ];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {

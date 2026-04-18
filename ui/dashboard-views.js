@@ -1717,6 +1717,25 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    * @param {HTMLElement} container
    */
   function bindGovernanceQuickActions(container) {
+    container.querySelectorAll("[data-regression-alert-center-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          await copyText(buildRegressionAlertCenterMarkdown());
+          element.textContent = "Alert Pack Copied";
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
     container.querySelectorAll("[data-governance-action]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -8805,6 +8824,125 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
    */
   function getVisibleGovernanceQueue() {
     return getFilteredGovernance()?.actionQueue || [];
+  }
+
+  function buildRegressionAlertCenterMarkdown() {
+    const governance = getFilteredGovernance();
+    if (!governance) {
+      return "# Regression Alert Center\n\nGovernance data is not loaded.";
+    }
+
+    const scanDiff = governanceCache?.scanDiff || governance.scanDiff || null;
+    const sourceGate = governanceCache?.dataSourcesAccessGate || governance.dataSourcesAccessGate || null;
+    const releaseGate = governanceCache?.releaseBuildGate || governance.releaseBuildGate || null;
+    const mutationScope = governanceCache?.mutationScopeInventory || governance.mutationScopeInventory || null;
+    const controlPlaneDecision = governanceCache?.agentControlPlaneDecision || governance.agentControlPlaneDecision || null;
+    const controlDecision = controlPlaneDecision?.decision || "review";
+    const sourceDecision = sourceGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated";
+    const releaseDecision = releaseGate?.decision || "not-evaluated";
+    const mutationSummary = mutationScope?.summary || { scopeRelevant: 0, guarded: 0, unguarded: 0 };
+    const alertItems = [
+      ...(scanDiff?.alerts || []).map((alert) => ({
+        source: "scan",
+        severity: alert.severity || "low",
+        title: alert.title,
+        detail: alert.detail,
+        recommendedAction: alert.recommendedAction || scanDiff?.recommendedAction || "Review scan movement before continuing.",
+        meta: alert.projectName || alert.kind || "Scan regression"
+      }))
+    ];
+
+    if (scanDiff?.totals?.qualityDelta < 0 && !(scanDiff.alerts || []).some((alert) => alert.kind === "workspace-quality-regression")) {
+      alertItems.push({
+        source: "scan",
+        severity: "medium",
+        title: "Workspace health score declined",
+        detail: `Average quality moved ${scanDiff.totals.qualityDelta} between the latest two scans.`,
+        recommendedAction: scanDiff.recommendedAction || "Triage projects with the largest quality drops before the next unattended build cycle.",
+        meta: "Portfolio scan"
+      });
+    }
+
+    if (sourceDecision && !["ready", "not-evaluated"].includes(sourceDecision)) {
+      alertItems.push({
+        source: "data-sources",
+        severity: sourceDecision === "hold" ? "high" : "medium",
+        title: "Data Sources access gate is not ready",
+        detail: `${sourceGate?.ready || 0} ready, ${sourceGate?.review || 0} review, ${sourceGate?.blocked || 0} blocked source access item(s).`,
+        recommendedAction: sourceGate?.recommendedAction || "Resolve external-only credentials, certificates, SSH, VPN, or browser-session requirements before ingestion.",
+        meta: "Source access gate"
+      });
+    }
+
+    if (releaseDecision && !["ready", "not-evaluated"].includes(releaseDecision)) {
+      alertItems.push({
+        source: "release",
+        severity: releaseDecision === "hold" ? "high" : "medium",
+        title: "Release Build Gate is not ready",
+        detail: `${releaseGate?.reasons?.length || 0} reason(s), ${releaseGate?.actions?.length || 0} action(s), risk score ${releaseGate?.riskScore || 0}.`,
+        recommendedAction: releaseGate?.recommendedAction || "Collect release evidence, run validation, and resolve non-ready release actions.",
+        meta: "Release control"
+      });
+    }
+
+    if (mutationSummary.unguarded) {
+      alertItems.push({
+        source: "mutation-scope",
+        severity: "high",
+        title: "Unguarded mutation route detected",
+        detail: `${mutationSummary.unguarded} scope-relevant mutation route(s) are not protected by active project or portfolio scope.`,
+        recommendedAction: "Stop autonomous mutation work until every scope-relevant route has a server-side scope guard.",
+        meta: "Mutation guard"
+      });
+    }
+
+    if (controlDecision && controlDecision !== "ready") {
+      alertItems.push({
+        source: "control-plane",
+        severity: controlDecision === "hold" ? "high" : "medium",
+        title: "Agent Control Plane decision is not ready",
+        detail: `Current decision is ${controlDecision}; baseline health is ${controlPlaneDecision?.baselineHealth || governanceCache?.summary.agentControlPlaneBaselineHealth || "missing"}.`,
+        recommendedAction: controlPlaneDecision?.recommendedAction || "Review the Agent Control Plane before the next supervised build.",
+        meta: "Agent control plane"
+      });
+    }
+
+    const severityRank = { high: 0, medium: 1, low: 2 };
+    const sortedAlerts = alertItems.sort((left, right) => (severityRank[left.severity] ?? 3) - (severityRank[right.severity] ?? 3));
+    const lines = [
+      "# Regression Alert Center",
+      "",
+      `Generated: ${new Date().toISOString()}`,
+      "Secret policy: non-secret alert metadata only. Do not store passwords, tokens, private keys, certificates, cookies, browser sessions, or command output.",
+      "",
+      "## Summary",
+      "",
+      `- Alert count: ${sortedAlerts.length}`,
+      `- Scan status: ${scanDiff?.status || "not-loaded"}`,
+      `- Scan alerts: ${scanDiff?.alertSummary?.total || 0} total, ${scanDiff?.alertSummary?.high || 0} high, ${scanDiff?.alertSummary?.medium || 0} medium, ${scanDiff?.alertSummary?.low || 0} low`,
+      `- Source access gate: ${sourceDecision}`,
+      `- Release Build Gate: ${releaseDecision}`,
+      `- Agent Control Plane: ${controlDecision}`,
+      `- Mutation scope guard: ${mutationSummary.guarded || 0}/${mutationSummary.scopeRelevant || 0} guarded, ${mutationSummary.unguarded || 0} unguarded`,
+      "",
+      "## Alerts",
+      ""
+    ];
+
+    if (!sortedAlerts.length) {
+      lines.push("- No active regression alerts.");
+      return lines.join("\n");
+    }
+
+    sortedAlerts.forEach((alert, index) => {
+      lines.push(`${index + 1}. ${String(alert.severity).toUpperCase()} - ${alert.title}`);
+      lines.push(`   Source: ${alert.source} / ${alert.meta}`);
+      lines.push(`   Detail: ${alert.detail}`);
+      lines.push(`   Action: ${alert.recommendedAction}`);
+      lines.push("");
+    });
+
+    return lines.join("\n");
   }
 
   function buildGovernanceSummaryText() {

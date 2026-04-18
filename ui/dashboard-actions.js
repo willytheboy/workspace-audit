@@ -128,6 +128,7 @@
  *     startQueuedAgentWorkOrderRuns: () => Promise<void>,
  *     refreshTargetBaselineAgentWorkOrderRuns: () => Promise<void>,
  *     refreshTargetBaselineAuditAgentWorkOrderRuns: () => Promise<void>,
+ *     refreshRegressionAlertBaselineAgentWorkOrderRuns: () => Promise<void>,
  *     blockStaleAgentWorkOrderRuns: () => Promise<void>,
  *     actionSlaBreaches: () => Promise<void>,
  *     resolveSlaBreaches: () => Promise<void>,
@@ -1117,6 +1118,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "target", "baseline", "audit", "refresh", "bulk"],
         run: () => handlers.refreshTargetBaselineAuditAgentWorkOrderRuns()
+      },
+      {
+        id: "refresh-agent-execution-regression-alert-baselines",
+        label: "Refresh agent execution alert baselines",
+        description: "Recapture the current Regression Alert remediation task baseline on visible Agent Execution runs that need alert-baseline review.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "refresh", "bulk"],
+        run: () => handlers.refreshRegressionAlertBaselineAgentWorkOrderRuns()
       },
       {
         id: "block-stale-agent-execution-runs",

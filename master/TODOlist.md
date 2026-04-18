@@ -3121,3 +3121,11 @@
 - [x] Surface alert baseline capture in the Agent Execution Queue, copied execution Markdown, and CLI dry-run prompt context.
 - [x] Add parser and server-test coverage for run-level alert baseline capture.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Work Order Regression Alert Baseline Refresh
+
+- [x] Add a scoped run-level Regression Alert baseline refresh endpoint.
+- [x] Add per-run and bulk refresh controls in Governance.
+- [x] Wire dashboard API, command palette, and parser coverage.
+- [x] Add server-test coverage for scoped and unscoped refresh paths.
+- [x] Validate, relaunch, commit, and push.

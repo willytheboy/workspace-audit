@@ -2067,6 +2067,38 @@ export async function serverTest() {
     const governanceAfterTargetBaselineAuditRefreshJson = await governanceAfterTargetBaselineAuditRefreshResponse.json();
     assert.ok(governanceAfterTargetBaselineAuditRefreshJson.operationLog.some((operation) => operation.type === "agent-work-order-run-target-baseline-audit-refreshed"));
 
+    const unscopedRefreshBatchRunRegressionAlertBaselineResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${batchAgentWorkOrderRunsJson.queuedRuns[0].id}/regression-alert-baseline-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: "Fixture unscoped Regression Alert baseline recapture."
+      })
+    });
+    assert.equal(unscopedRefreshBatchRunRegressionAlertBaselineResponse.status, 409);
+    const unscopedRefreshBatchRunRegressionAlertBaselineJson = await unscopedRefreshBatchRunRegressionAlertBaselineResponse.json();
+    assert.equal(unscopedRefreshBatchRunRegressionAlertBaselineJson.reasonCode, "agent-execution-scope-required");
+
+    const refreshBatchRunRegressionAlertBaselineResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${batchAgentWorkOrderRunsJson.queuedRuns[0].id}/regression-alert-baseline-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        notes: "Fixture Regression Alert baseline recapture.",
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(refreshBatchRunRegressionAlertBaselineResponse.status, 200);
+    const refreshBatchRunRegressionAlertBaselineJson = await refreshBatchRunRegressionAlertBaselineResponse.json();
+    assert.equal(refreshBatchRunRegressionAlertBaselineJson.success, true);
+    assert.equal(refreshBatchRunRegressionAlertBaselineJson.run.id, batchAgentWorkOrderRunsJson.queuedRuns[0].id);
+    assert.equal(refreshBatchRunRegressionAlertBaselineJson.run.regressionAlertTaskLedgerBaselineHealth, "missing");
+    assert.equal(refreshBatchRunRegressionAlertBaselineJson.run.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
+    assert.equal(refreshBatchRunRegressionAlertBaselineJson.run.history[0].note, "Fixture Regression Alert baseline recapture.");
+
+    const governanceAfterRegressionAlertBaselineRefreshResponse = await fetch(`${baseUrl}/api/governance`);
+    assert.equal(governanceAfterRegressionAlertBaselineRefreshResponse.status, 200);
+    const governanceAfterRegressionAlertBaselineRefreshJson = await governanceAfterRegressionAlertBaselineRefreshResponse.json();
+    assert.ok(governanceAfterRegressionAlertBaselineRefreshJson.operationLog.some((operation) => operation.type === "agent-work-order-run-regression-alert-baseline-refreshed"));
+
     const cancelAgentWorkOrderRunResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/${createAgentWorkOrderRunJson.run.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

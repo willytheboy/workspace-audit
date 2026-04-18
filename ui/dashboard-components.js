@@ -18851,6 +18851,21 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      !run.archivedAt && (
+        run.regressionAlertTaskLedgerBaselineHealth !== "healthy"
+          || run.regressionAlertTaskLedgerBaselineRefreshGateDecision !== "ready"
+          || (run.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0
+          || (run.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0) > 0
+      )
+        ? createElement("button", {
+            className: "btn governance-action-btn agent-work-order-run-regression-alert-baseline-refresh-btn",
+            text: "Refresh Alert",
+            attrs: { type: "button" },
+            dataset: {
+              agentWorkOrderRunRegressionAlertBaselineRefreshId: run.id
+            }
+          })
+        : null,
       run.cliBridgeHandoffId
         ? createElement("button", {
             className: "btn governance-action-btn cli-bridge-runner-contract-copy-btn",

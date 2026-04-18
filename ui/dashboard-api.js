@@ -2274,6 +2274,19 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} runId
+   * @param {{ notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
+   * @returns {Promise<{ success: true, run: import("./dashboard-types.js").PersistedAgentWorkOrderRun, agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
+   */
+  refreshAgentWorkOrderRunRegressionAlertBaseline(runId, payload = {}) {
+    return fetchJson(`/api/agent-work-order-runs/${encodeURIComponent(runId)}/regression-alert-baseline-refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+  },
+
+  /**
    * @param {{ retainCompleted: number, runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }} payload
    * @returns {Promise<{ success: true, retainCompleted: number, retained: number, archived: number, archivedRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[], agentWorkOrderRuns: import("./dashboard-types.js").PersistedAgentWorkOrderRun[] }>}
    */

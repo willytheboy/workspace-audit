@@ -228,6 +228,7 @@ function createEmptyTableRow(message) {
  *     updateAgentWorkOrderRun: (runId: string, payload: { status?: string, notes?: string, archived?: boolean, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     refreshAgentWorkOrderRunTargetBaseline: (runId: string, payload?: { notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     refreshAgentWorkOrderRunTargetBaselineAudit: (runId: string, payload?: { notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
+ *     refreshAgentWorkOrderRunRegressionAlertBaseline: (runId: string, payload?: { notes?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     applyAgentWorkOrderRunRetention: (payload: { retainCompleted: number, runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
@@ -8104,6 +8105,32 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-agent-work-order-run-regression-alert-baseline-refresh-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const runId = element.dataset.agentWorkOrderRunRegressionAlertBaselineRefreshId || "";
+        if (!runId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Refreshing";
+          await api.refreshAgentWorkOrderRunRegressionAlertBaseline(runId, {
+            ...getCliBridgeScopeOptions(),
+            notes: "Refreshed Regression Alert baseline capture from Governance."
+          });
+          await renderGovernance();
+        } catch (error) {
+          element.disabled = false;
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        }
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-runner-contract-run-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -13077,6 +13104,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     await renderGovernance();
   }
 
+  async function refreshVisibleRegressionAlertBaselineAgentWorkOrderRuns() {
+    const runs = (getFilteredGovernance()?.agentWorkOrderRuns || [])
+      .filter((run) => !run.archivedAt)
+      .filter((run) => (
+        (run.regressionAlertTaskLedgerBaselineHealth || "missing") !== "healthy"
+          || (run.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready") !== "ready"
+          || (run.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0) > 0
+          || (run.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount || 0) > 0
+      ));
+    if (!runs.length) {
+      throw new Error("No visible Agent Execution runs require Regression Alert baseline refresh.");
+    }
+
+    for (const run of runs) {
+      await api.refreshAgentWorkOrderRunRegressionAlertBaseline(run.id, {
+        ...getCliBridgeScopeOptions(),
+        notes: "Refreshed Regression Alert baseline capture from Governance bulk action."
+      });
+    }
+    await renderGovernance();
+  }
+
   async function blockVisibleStaleAgentWorkOrderRuns() {
     const staleThresholdHours = getGovernanceFilterState().staleThresholdHours || governanceExecutionPolicy.staleThresholdHours;
     const staleRuns = (getFilteredGovernance()?.agentWorkOrderRuns || [])
@@ -16374,6 +16423,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     blockVisibleStaleAgentWorkOrderRuns,
     refreshVisibleTargetBaselineAgentWorkOrderRuns,
     refreshVisibleTargetBaselineAuditAgentWorkOrderRuns,
+    refreshVisibleRegressionAlertBaselineAgentWorkOrderRuns,
     archiveVisibleCompletedAgentWorkOrderRuns,
     actionVisibleSlaBreaches,
     resolveVisibleSlaBreaches,

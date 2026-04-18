@@ -880,6 +880,13 @@ async function refreshTargetBaselineAuditAgentWorkOrderRuns() {
   await views.refreshVisibleTargetBaselineAuditAgentWorkOrderRuns();
 }
 
+async function refreshRegressionAlertBaselineAgentWorkOrderRuns() {
+  if (!requireActiveProject()) return;
+  setView("governance");
+  await views.renderGovernance();
+  await views.refreshVisibleRegressionAlertBaselineAgentWorkOrderRuns();
+}
+
 async function blockStaleAgentWorkOrderRuns() {
   if (!requireActiveProject()) return;
   setView("governance");
@@ -1064,6 +1071,7 @@ const actionRegistry = createDashboardActionRegistry({
     startQueuedAgentWorkOrderRuns,
     refreshTargetBaselineAgentWorkOrderRuns,
     refreshTargetBaselineAuditAgentWorkOrderRuns,
+    refreshRegressionAlertBaselineAgentWorkOrderRuns,
     blockStaleAgentWorkOrderRuns,
     actionSlaBreaches,
     resolveSlaBreaches,

@@ -3710,6 +3710,12 @@ export function createGovernanceDeck(governance) {
           text: "Save Snapshot",
           attrs: { type: "button" },
           dataset: { regressionAlertTaskLedgerSnapshotSave: "true" }
+        }),
+        createElement("button", {
+          className: "btn governance-action-btn regression-alert-task-ledger-drift-copy-btn",
+          text: "Copy Drift",
+          attrs: { type: "button" },
+          dataset: { regressionAlertTaskLedgerDriftCopy: "latest" }
         })
       ])
     ]),
@@ -3867,9 +3873,95 @@ export function createGovernanceDeck(governance) {
         text: "Copy Snapshot",
         attrs: { type: "button" },
         dataset: { regressionAlertTaskLedgerSnapshotId: snapshot.id || "" }
+      }),
+      createElement("button", {
+        className: "btn governance-action-btn regression-alert-task-ledger-snapshot-drift-copy-btn",
+        text: "Copy Drift",
+        attrs: { type: "button" },
+        dataset: { regressionAlertTaskLedgerSnapshotDriftId: snapshot.id || "" }
       })
     ])
   ]));
+  const regressionAlertTaskLedgerSnapshotDiff = governance.regressionAlertTaskLedgerSnapshotDiff || null;
+  const regressionAlertTaskLedgerSnapshotDriftItems = Array.isArray(regressionAlertTaskLedgerSnapshotDiff?.driftItems)
+    ? regressionAlertTaskLedgerSnapshotDiff.driftItems
+    : [];
+  const regressionAlertTaskLedgerSnapshotDiffEntries = regressionAlertTaskLedgerSnapshotDiff
+    ? [
+      createElement("div", {
+        className: "governance-gap-card regression-alert-task-ledger-snapshot-drift-card",
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.6rem"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.8rem",
+            alignItems: "flex-start"
+          }
+        }, [
+          createElement("div", {}, [
+            createElement("div", {
+              text: regressionAlertTaskLedgerSnapshotDiff.snapshotTitle || "Regression Alert Remediation Task Snapshot Drift",
+              style: {
+                fontWeight: "800",
+                color: "var(--text)"
+              }
+            }),
+            createElement("div", {
+              text: regressionAlertTaskLedgerSnapshotDiff.snapshotCreatedAt
+                ? `snapshot ${new Date(regressionAlertTaskLedgerSnapshotDiff.snapshotCreatedAt).toLocaleString()} | checked ${regressionAlertTaskLedgerSnapshotDiff.generatedAt ? new Date(regressionAlertTaskLedgerSnapshotDiff.generatedAt).toLocaleString() : "now"}`
+                : "No saved snapshot baseline is available yet.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                marginTop: "0.3rem"
+              }
+            })
+          ]),
+          createTag(String(regressionAlertTaskLedgerSnapshotDiff.driftSeverity || "missing-snapshot").toUpperCase(), {
+            border: "1px solid var(--border)",
+            background: "var(--bg)",
+            color: regressionAlertTaskLedgerSnapshotDiff.hasDrift ? "var(--warning)" : "var(--success)"
+          })
+        ]),
+        createElement("div", {
+          text: regressionAlertTaskLedgerSnapshotDiff.recommendedAction || "Save a Regression Alert remediation task ledger snapshot before unattended cycles.",
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.88rem",
+            lineHeight: "1.5"
+          }
+        }),
+        createElement("div", {
+          className: "tags"
+        }, [
+          createTag(`${regressionAlertTaskLedgerSnapshotDiff.driftScore || 0} drift score`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerSnapshotDiff.hasDrift ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`${regressionAlertTaskLedgerSnapshotDriftItems.length} drift item(s)`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertTaskLedgerSnapshotDriftItems.length ? "var(--warning)" : "var(--success)"
+          })
+        ]),
+        ...regressionAlertTaskLedgerSnapshotDriftItems.slice(0, 8).map((item) => createElement("div", {
+          text: `${item.label || item.field || "Drift"}: ${item.before ?? "none"} -> ${item.current ?? "none"}${item.delta ? ` (${item.delta})` : ""}`,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        }))
+      ])
+    ]
+    : [];
   const convergenceReviewLedger = governance.convergenceCandidates || null;
   const convergenceReviewCandidates = convergenceReviewLedger?.candidates || [];
   const convergenceReviewSummary = convergenceReviewLedger?.summary || {
@@ -18940,7 +19032,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Operation Log", "Recent Governance automation actions captured from bootstrap, execution, suppression, and restore flows.", operationEntries),
     createListSection("Regression Alert Center", "Unified operator alerts from scan movement, source access, release gates, control-plane state, and mutation-scope coverage.", regressionAlertCenterEntries),
     createListSection("Regression Alert Remediation Tasks", "Compact ledger of tasks created from Regression Alert Center alerts.", regressionAlertTaskEntries),
-    createListSection("Regression Alert Remediation Task Snapshots", "Saved non-secret baselines for alert remediation task handoffs.", regressionAlertTaskLedgerSnapshotEntries),
+    createListSection("Regression Alert Remediation Task Snapshots", "Saved non-secret baselines and drift reports for alert remediation task handoffs.", [...regressionAlertTaskLedgerSnapshotDiffEntries, ...regressionAlertTaskLedgerSnapshotEntries]),
     createListSection("Mutation Scope Audit Feed", "Live scanner feed for guarded and unguarded server mutation routes before autonomous build actions run.", mutationScopeAuditEntries),
     createListSection("Operator Proposal Review Queue", "User-contributed convergence proposals with AI due diligence, task state, and direct triage controls.", convergenceOperatorProposalQueueEntries),
     createListSection("Convergence Review Ledger", "Portfolio-level audit surface for auto-detected overlaps, operator proposals, and hidden Not Related decisions.", convergenceReviewLedgerEntries),

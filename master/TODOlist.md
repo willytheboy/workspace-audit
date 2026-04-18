@@ -3073,3 +3073,11 @@
 - [x] Surface snapshot count, save controls, and copyable snapshot cards in Governance.
 - [x] Add parser coverage for the snapshot flow.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Governance Regression Alert Remediation Task Snapshot Drift
+
+- [x] Add live-vs-snapshot drift comparison for Regression Alert remediation task ledgers.
+- [x] Expose latest and per-snapshot drift reports through guarded Governance APIs.
+- [x] Surface copyable drift summaries in Governance.
+- [x] Add parser coverage for the drift flow.
+- [x] Validate, relaunch, commit, and push.

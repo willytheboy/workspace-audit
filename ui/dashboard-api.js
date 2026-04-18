@@ -1099,6 +1099,14 @@ export const dashboardApi = {
   },
 
   /**
+   * @param {string} [snapshotId]
+   * @returns {Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerSnapshotDiffPayload>}
+   */
+  fetchRegressionAlertTaskLedgerSnapshotDiff(snapshotId = "latest") {
+    return fetchJson(withQuery("/api/governance/regression-alert-task-ledger-snapshots/diff", { snapshotId }));
+  },
+
+  /**
    * @param {{ url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }} [payload]
    * @returns {Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>}
    */

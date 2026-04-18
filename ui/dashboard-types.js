@@ -2859,6 +2859,7 @@
  *   convergenceTasks: PersistedTask[],
  *   regressionAlertTasks: PersistedTask[],
  *   regressionAlertTaskLedgerSnapshots: PersistedRegressionAlertTaskLedgerSnapshot[],
+ *   regressionAlertTaskLedgerSnapshotDiff?: RegressionAlertTaskLedgerSnapshotDiffPayload | null,
  *   dataSourcesAccessGate: DataSourcesAccessGatePayload | null,
  *   dataSourcesAccessReviewQueue: DataSourcesAccessReviewQueuePayload | null,
  *   dataSourcesAccessValidationRunbook: DataSourcesAccessValidationRunbookPayload | null,
@@ -4346,6 +4347,21 @@
  *   items: RegressionAlertTaskLedgerItem[],
  *   createdAt: string
  * }} PersistedRegressionAlertTaskLedgerSnapshot
+ * @typedef {{
+ *   generatedAt: string,
+ *   hasSnapshot: boolean,
+ *   snapshotId: string,
+ *   snapshotTitle: string,
+ *   snapshotCreatedAt: string,
+ *   hasDrift: boolean,
+ *   driftScore: number,
+ *   driftSeverity: "none" | "low" | "medium" | "high" | "missing-snapshot",
+ *   recommendedAction: string,
+ *   driftItems: Array<{ field: string, label: string, before: string | number, current: string | number, delta: number }>,
+ *   liveSummary: RegressionAlertTaskLedgerPayload["summary"] | null,
+ *   snapshotSummary: { total: number, open: number, closed: number, visible: number, projectTasks: number, portfolioTasks: number } | null,
+ *   markdown: string
+ * }} RegressionAlertTaskLedgerSnapshotDiffPayload
  * @typedef {{
  *   generatedAt: string,
  *   hasSnapshot: boolean,

@@ -97,6 +97,7 @@ function createEmptyTableRow(message) {
  *     fetchReleaseTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").ReleaseTaskLedgerSnapshotDiffPayload>,
  *     fetchRegressionAlertTaskLedger: (status?: "all" | "open" | "closed") => Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerPayload>,
  *     createRegressionAlertTaskLedgerSnapshot: (payload?: { title?: string, status?: "all" | "open" | "closed", limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, snapshot: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot, regressionAlertTaskLedgerSnapshots: import("./dashboard-types.js").PersistedRegressionAlertTaskLedgerSnapshot[] }>,
+ *     fetchRegressionAlertTaskLedgerSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").RegressionAlertTaskLedgerSnapshotDiffPayload>,
  *     bootstrapReleaseBuildGateLocalEvidence: (payload?: { url?: string, label?: string, title?: string, notes?: string, status?: "ready" | "review" | "hold", runSmokeCheck?: boolean, saveCheckpoint?: boolean, timeoutMs?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, smokeCheck: import("./dashboard-types.js").DeploymentSmokeCheckRecord | null, checkpoint: import("./dashboard-types.js").ReleaseCheckpointRecord | null, releaseBuildGate: import("./dashboard-types.js").ReleaseBuildGatePayload }>,
  *     createReleaseBuildGateActionTasks: (payload?: { actions?: import("./dashboard-types.js").ReleaseBuildGateAction[], saveSnapshot?: boolean, captureSnapshot?: boolean, autoCaptureSnapshot?: boolean, snapshotTitle?: string, snapshotStatus?: "all" | "open" | "closed", snapshotLimit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<{ success: true, requested: number, createdTasks: import("./dashboard-types.js").PersistedTask[], skipped: Array<{ id: string, label: string, reason: string }>, snapshotCaptured?: boolean, snapshot?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot | null, releaseTaskLedgerSnapshots?: import("./dashboard-types.js").PersistedReleaseTaskLedgerSnapshot[], totals: { requested: number, created: number, skipped: number }, tasks: import("./dashboard-types.js").PersistedTask[] }>,
  *     fetchConvergenceDueDiligencePack: (pairId: string) => Promise<import("./dashboard-types.js").ConvergenceDueDiligencePackPayload>,
@@ -1120,6 +1121,16 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         (snapshot) => [snapshot.title || "", snapshot.statusFilter || "", String(snapshot.total), String(snapshot.openCount), String(snapshot.closedCount), snapshot.markdown || ""],
         (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
       ),
+      regressionAlertTaskLedgerSnapshotDiff: governance.regressionAlertTaskLedgerSnapshotDiff && matchesSearch([
+        "regression alert remediation task ledger snapshot drift",
+        governance.regressionAlertTaskLedgerSnapshotDiff.snapshotTitle || "",
+        governance.regressionAlertTaskLedgerSnapshotDiff.driftSeverity || "",
+        governance.regressionAlertTaskLedgerSnapshotDiff.recommendedAction || "",
+        governance.regressionAlertTaskLedgerSnapshotDiff.hasDrift ? "drift" : "no drift",
+        ...(governance.regressionAlertTaskLedgerSnapshotDiff.driftItems || []).map((item) => `${item.label || ""} ${item.field || ""} ${item.before ?? ""} ${item.current ?? ""} ${item.delta ?? ""}`)
+      ])
+        ? governance.regressionAlertTaskLedgerSnapshotDiff
+        : null,
       dataSourcesAccessGate: governance.dataSourcesAccessGate && matchesSearch([
         "data sources access gate",
         governance.dataSourcesAccessGate.decision || "",
@@ -1676,6 +1687,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       if (scope !== "agents") filtered.agentControlPlaneDecisionTasks = [];
       if (scope !== "operations") filtered.regressionAlertTasks = [];
       if (scope !== "operations") filtered.regressionAlertTaskLedgerSnapshots = [];
+      if (scope !== "operations") filtered.regressionAlertTaskLedgerSnapshotDiff = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessGate = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessReviewQueue = null;
       if (scope !== "data-sources") filtered.dataSourcesAccessValidationRunbook = null;
@@ -1863,6 +1875,27 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-task-ledger-drift-copy]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Copying";
+          await copyLatestRegressionAlertTaskLedgerSnapshotDrift();
+          element.textContent = "Copied";
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-regression-alert-task-ledger-snapshot-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -1878,6 +1911,31 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
           element.disabled = true;
           element.textContent = "Copied";
           await copyText(snapshot.markdown);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
+    container.querySelectorAll("[data-regression-alert-task-ledger-snapshot-drift-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertTaskLedgerSnapshotDriftId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Diffing";
+          const diff = await api.fetchRegressionAlertTaskLedgerSnapshotDiff(snapshotId);
+          await copyText(diff.markdown);
+          element.textContent = diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : "No Drift";
         } catch (error) {
           element.textContent = originalLabel;
           alert(getErrorMessage(error));
@@ -12299,7 +12357,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
 
     try {
       const cliBridgeScopeOptions = getCliBridgeScopeOptions();
-      const [governance, mutationScopeInventory, scanDiff, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunnerDryRunSnapshotDiff, cliBridgeRunnerDryRunSnapshotBaselineStatus, cliBridgeRunnerDryRunSnapshotLifecycleLedger, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, cliBridgeRunTraceSnapshotLifecycleLedger, cliBridgeLifecycleStackStatus, cliBridgeLifecycleStackRemediationPack, cliBridgeLifecycleHandoffPacket, cliBridgeLifecycleHandoffPacketSnapshotDiff, cliBridgeLifecycleHandoffPacketDriftCheckpointLedger, cliBridgeLifecycleHandoffPacketBaselineStatus, cliBridgeLifecycleStackRemediationTaskLedger, cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff, cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger, cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
+      const [governance, mutationScopeInventory, scanDiff, executionViews, executionPolicy, governanceTaskUpdateLedger, governanceTaskUpdateLedgerSnapshotDiff, releaseSummary, releaseCheckpointDrift, releaseBuildGate, releaseTaskLedgerSnapshotDiff, regressionAlertTaskLedgerSnapshotDiff, agentControlPlaneDecisionTaskLedgerSnapshotDiff, agentExecutionResultTaskLedgerSnapshotDiff, dataSourceAccessTaskLedgerSnapshotDiff, cliBridgeRunnerDryRunSnapshotDiff, cliBridgeRunnerDryRunSnapshotBaselineStatus, cliBridgeRunnerDryRunSnapshotLifecycleLedger, cliBridgeRunTraceSnapshotDiff, cliBridgeRunTraceSnapshotBaselineStatus, cliBridgeRunTraceSnapshotLifecycleLedger, cliBridgeLifecycleStackStatus, cliBridgeLifecycleStackRemediationPack, cliBridgeLifecycleHandoffPacket, cliBridgeLifecycleHandoffPacketSnapshotDiff, cliBridgeLifecycleHandoffPacketDriftCheckpointLedger, cliBridgeLifecycleHandoffPacketBaselineStatus, cliBridgeLifecycleStackRemediationTaskLedger, cliBridgeLifecycleStackRemediationTaskLedgerSnapshotDiff, cliBridgeLifecycleStackRemediationTaskLedgerDriftCheckpointLedger, cliBridgeLifecycleStackRemediationTaskLedgerBaselineStatus, convergenceCandidates, convergenceOperatorProposalQueue, convergenceAssimilationRunLedger, convergenceAssimilationResultLedger, convergenceAssimilationResultCheckpointLedger, convergenceAssimilationReadinessGate, convergenceAssimilationSessionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackSnapshotDiff, convergenceAssimilationRunnerLaunchAuthorizationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchControlBoard, convergenceAssimilationRunnerLaunchControlBoardSnapshotDiff, convergenceAssimilationRunnerLaunchControlBoardDriftCheckpointLedger, convergenceAssimilationRunnerLaunchExecutionPacket, convergenceAssimilationRunnerLaunchExecutionPacketSnapshotDiff, convergenceAssimilationRunnerLaunchExecutionPacketDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackStatus, convergenceAssimilationRunnerLaunchStackRemediationPack, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderDraft, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderRunLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedger, convergenceAssimilationRunnerLaunchStackRemediationWorkOrderResultTaskLedgerSnapshots, convergenceAssimilationRunnerLaunchStackRemediationPackSnapshotDiff, convergenceAssimilationRunnerLaunchStackRemediationPackDriftCheckpointLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedger, convergenceAssimilationRunnerLaunchStackActionTaskLedgerSnapshotDiff, convergenceAssimilationRunnerLaunchStackActionTaskLedgerDriftCheckpointLedger, convergenceAssimilationRunnerLaunchpadGateSnapshotDiff, convergenceAssimilationRunnerLaunchpadGateDriftCheckpointLedger, convergenceAssimilationSessionPacketDriftCheckpointLedger, convergenceTaskLedgerSnapshotDiff] = await Promise.all([
         api.fetchGovernance(),
         api.fetchMutationScopeInventory(),
         api.fetchScanDiff(),
@@ -12311,6 +12369,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         api.fetchReleaseCheckpointDrift("latest"),
         api.fetchReleaseBuildGate(),
         api.fetchReleaseTaskLedgerSnapshotDiff("latest"),
+        api.fetchRegressionAlertTaskLedgerSnapshotDiff("latest"),
         api.fetchAgentControlPlaneDecisionTaskLedgerSnapshotDiff("latest"),
         api.fetchAgentExecutionResultTaskLedgerSnapshotDiff("latest"),
         api.fetchSourcesAccessTaskLedgerSnapshotDiff("latest"),
@@ -12402,6 +12461,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         releaseCheckpointDrift,
         releaseBuildGate,
         releaseTaskLedgerSnapshotDiff,
+        regressionAlertTaskLedgerSnapshotDiff,
         agentControlPlaneDecisionTaskLedgerSnapshotDiff,
         agentExecutionResultTaskLedgerSnapshotDiff,
         dataSourceAccessTaskLedgerSnapshotDiff,
@@ -12522,6 +12582,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         + (governance.agentControlPlaneDecisionTasks || []).length
         + (governance.regressionAlertTasks || []).length
         + (governance.regressionAlertTaskLedgerSnapshots || []).length
+        + (regressionAlertTaskLedgerSnapshotDiff ? 1 : 0)
+        + (regressionAlertTaskLedgerSnapshotDiff?.driftItems || []).length
         + (governance.agentControlPlaneDecisionTaskLedgerSnapshots || []).length
         + (governance.agentExecutionResultTaskLedgerSnapshots || []).length
         + (governance.releaseControlTasks || []).length
@@ -14422,6 +14484,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return "Saved Alert Task Snapshot";
   }
 
+  async function copyLatestRegressionAlertTaskLedgerSnapshotDrift() {
+    const diff = await api.fetchRegressionAlertTaskLedgerSnapshotDiff("latest");
+    await copyText(diff.markdown);
+    return diff.hasDrift ? `Copied ${formatDriftSeverityLabel(diff.driftSeverity)}` : diff.hasSnapshot ? "No Drift" : "No Snapshot";
+  }
+
   async function copyLatestReleaseTaskLedgerSnapshotDrift() {
     const diff = await api.fetchReleaseTaskLedgerSnapshotDiff("latest");
     await copyText(diff.markdown);
@@ -16177,6 +16245,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     copyGovernanceSummary,
     copyGovernanceRegressionAlertTaskLedger,
     saveRegressionAlertTaskLedgerSnapshot,
+    copyLatestRegressionAlertTaskLedgerSnapshotDrift,
     copyGovernanceTaskUpdateLedger,
     saveGovernanceTaskUpdateLedgerSnapshot,
     copyLatestGovernanceTaskUpdateLedgerSnapshotDrift,

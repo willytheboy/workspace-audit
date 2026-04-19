@@ -3260,3 +3260,11 @@
 - [x] Add alert-baseline drift decisions to the dry-run lifecycle ledger and lifecycle item task descriptions.
 - [x] Add parser and server-test coverage for UI/markdown visibility.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Runner Dry-Run Gate Mapping
+
+- [x] Mirror dry-run API gate rules inside the visible CLI Runner Readiness Gate.
+- [x] Add preflight cards for target-baseline audit, audit-baseline runs, and alert-baseline drift tasks.
+- [x] Show each gate decision, evidence counts, and required action before a dry-run contract is copied.
+- [x] Add parser coverage for the visible dry-run gate mapping.
+- [x] Validate, relaunch, commit, and push.

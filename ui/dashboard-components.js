@@ -16294,6 +16294,7 @@ export function createGovernanceDeck(governance) {
   const controlPlaneTargetBaselineAuditHealth = controlPlaneDecision?.targetBaselineAuditLedgerBaselineHealth || "missing";
   const controlPlaneTargetBaselineAuditFreshness = controlPlaneDecision?.targetBaselineAuditLedgerBaselineFreshness || "missing";
   const controlPlaneTargetBaselineAuditUncheckpointedDriftCount = controlPlaneDecision?.targetBaselineAuditLedgerBaselineUncheckpointedDriftCount || 0;
+  const controlPlaneTargetBaselineAuditDriftScore = controlPlaneDecision?.targetBaselineAuditLedgerBaselineDriftScore || 0;
   const controlPlaneRegressionAlertSnapshotBaselineHealth = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineHealth || "missing";
   const controlPlaneRegressionAlertSnapshotBaselineFreshness = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineFreshness || "missing";
   const controlPlaneRegressionAlertSnapshotBaselineUncheckpointedDriftCount = controlPlaneDecision?.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount || 0;
@@ -16305,6 +16306,7 @@ export function createGovernanceDeck(governance) {
   const controlPlaneAuditBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineHealthyCount || 0;
   const controlPlaneAuditBaselineRunMissingCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineMissingCount || 0;
   const controlPlaneAuditBaselineRunCapturedCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineCapturedCount || 0;
+  const controlPlaneAuditBaselineRunUncheckpointedDriftCount = controlPlaneDecision?.agentExecutionTargetBaselineAuditBaselineUncheckpointedDriftItemCount || 0;
   const controlPlaneAlertBaselineRunReviewCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineReviewRequiredCount || 0;
   const controlPlaneAlertBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineHealthyCount || 0;
   const controlPlaneAlertBaselineRunMissingCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineMissingCount || 0;
@@ -19875,6 +19877,43 @@ export function createGovernanceDeck(governance) {
     : cliRunnerGateDecision === "hold"
       ? "var(--danger)"
       : "var(--warning)";
+  const cliRunnerTargetBaselineAuditGateDecision = controlPlaneTargetBaselineAuditHealth === "healthy"
+    && controlPlaneTargetBaselineAuditFreshness === "fresh"
+    && controlPlaneTargetBaselineAuditDriftScore === 0
+    && controlPlaneTargetBaselineAuditUncheckpointedDriftCount === 0
+    ? "ready"
+    : "review";
+  const cliRunnerAuditBaselineRunGateDecision = controlPlaneAuditBaselineRunReviewCount === 0
+    && controlPlaneAuditBaselineRunUncheckpointedDriftCount === 0
+    ? "ready"
+    : "review";
+  const cliRunnerAlertBaselineDriftTaskGateDecision = controlPlaneAlertBaselineDriftOpenTaskCount === 0 ? "ready" : "review";
+  const cliRunnerDryRunGateMapping = [
+    {
+      title: "Target Baseline Audit Gate",
+      decision: cliRunnerTargetBaselineAuditGateDecision,
+      detail: `${controlPlaneTargetBaselineAuditHealth}/${controlPlaneTargetBaselineAuditFreshness}; drift score ${controlPlaneTargetBaselineAuditDriftScore}; ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed drift item(s).`,
+      action: cliRunnerTargetBaselineAuditGateDecision === "ready"
+        ? "Target-baseline audit snapshot is clean for the next dry-run contract."
+        : "Review or refresh the target-baseline audit snapshot before copying a runner dry-run contract."
+    },
+    {
+      title: "Audit Baseline Run Gate",
+      decision: cliRunnerAuditBaselineRunGateDecision,
+      detail: `${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured; ${controlPlaneAuditBaselineRunUncheckpointedDriftCount} uncheckpointed drift item(s).`,
+      action: cliRunnerAuditBaselineRunGateDecision === "ready"
+        ? "Execution audit-baseline capture is clean for the next dry-run contract."
+        : "Refresh or review runs captured against missing, stale, or drifted audit-baseline evidence."
+    },
+    {
+      title: "Alert Baseline Drift Task Gate",
+      decision: cliRunnerAlertBaselineDriftTaskGateDecision,
+      detail: `${controlPlaneAlertBaselineDriftOpenTaskCount} open / ${controlPlaneAlertBaselineDriftTaskCount} total / ${controlPlaneAlertBaselineDriftClosedTaskCount} closed Regression Alert baseline drift task(s).`,
+      action: cliRunnerAlertBaselineDriftTaskGateDecision === "ready"
+        ? "Regression Alert baseline drift tasks are clear for the next dry-run contract."
+        : "Resolve, block, or explicitly defer Regression Alert baseline drift tasks before copying a runner dry-run contract."
+    }
+  ];
   const cliRunnerReadinessEntries = [
     createElement("div", {
       className: "governance-gap-card cli-runner-readiness-gate-card",
@@ -19971,6 +20010,63 @@ export function createGovernanceDeck(governance) {
           color: (executionMetrics.staleActive || 0) ? "var(--warning)" : "var(--success)"
         })
       ]),
+      createElement("div", {
+        style: {
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(14rem, 1fr))",
+          gap: "0.6rem"
+        }
+      }, cliRunnerDryRunGateMapping.map((gate) => createElement("div", {
+        style: {
+          padding: "0.7rem",
+          border: "1px solid var(--border)",
+          borderRadius: "0.5rem",
+          background: "var(--bg)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.4rem"
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "0.5rem",
+            alignItems: "flex-start"
+          }
+        }, [
+          createElement("div", {
+            text: gate.title,
+            style: {
+              color: "var(--text)",
+              fontWeight: "900",
+              fontSize: "0.88rem"
+            }
+          }),
+          createTag(gate.decision, {
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
+            color: gate.decision === "ready" ? "var(--success)" : "var(--warning)"
+          })
+        ]),
+        createElement("div", {
+          text: gate.detail,
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.82rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          text: gate.action,
+          style: {
+            color: gate.decision === "ready" ? "var(--success)" : "var(--warning)",
+            fontSize: "0.8rem",
+            lineHeight: "1.45",
+            fontWeight: "700"
+          }
+        })
+      ]))),
       cliRunnerGateReasons.length
         ? createElement("div", {
             style: {

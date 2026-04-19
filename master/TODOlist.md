@@ -3252,3 +3252,11 @@
 - [x] Add drift comparison fields for the new gate in dry-run snapshot diffs.
 - [x] Add parser and server-test coverage for ready and review gate states.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Alert Baseline Drift Task Gate UI
+
+- [x] Surface alert-baseline drift gate decisions on saved dry-run snapshot cards.
+- [x] Include alert-baseline drift task counts in Governance markdown and copied dry-run snapshot context.
+- [x] Add alert-baseline drift decisions to the dry-run lifecycle ledger and lifecycle item task descriptions.
+- [x] Add parser and server-test coverage for UI/markdown visibility.
+- [x] Validate, relaunch, commit, and push.

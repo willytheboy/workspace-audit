@@ -1473,7 +1473,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger.runner || "",
         governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.latestTitle || "",
         governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger.summary?.latestRunner || "",
-        ...(governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger.items || []).map((item) => `${item.title || ""} ${item.runner || ""} ${item.lifecycleAction || ""} ${item.selectedWorkOrderProjectName || ""} ${item.selectedWorkOrderId || ""} ${item.dryRunDecision || ""} ${item.reasonCodes || ""}`)
+        ...(governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger.items || []).map((item) => `${item.title || ""} ${item.runner || ""} ${item.lifecycleAction || ""} ${item.selectedWorkOrderProjectName || ""} ${item.selectedWorkOrderId || ""} ${item.dryRunDecision || ""} ${item.alertBaselineDriftTaskGateDecision || ""} ${item.reasonCodes || ""}`)
       ])
         ? governance.cliBridgeRunnerDryRunSnapshotLifecycleLedger
         : null,
@@ -10441,7 +10441,8 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
         lines.push(`- ${snapshot.title || "CLI Bridge Runner Dry Run"}: ${snapshot.runner || "runner"} / ${snapshot.dryRunDecision || "review"}`);
         lines.push(`  Work order: ${snapshot.selectedWorkOrderId || "fallback"} | Project: ${snapshot.selectedWorkOrderProjectName || snapshot.selectedWorkOrderProjectId || "Portfolio"}`);
         lines.push(`  Scope: ${snapshot.scopeMode || "project"} / ${snapshot.scopeGuardDecision || "project-required"} / ${snapshot.activeProjectName || snapshot.activeProjectId || "none"}`);
-        lines.push(`  Gates: target ${snapshot.targetBaselineAuditGateDecision || "review"} | audit runs ${snapshot.auditBaselineRunGateDecision || "review"} | reasons ${snapshot.reasonCount || 0}`);
+        lines.push(`  Gates: target ${snapshot.targetBaselineAuditGateDecision || "review"} | audit runs ${snapshot.auditBaselineRunGateDecision || "review"} | alert drift ${snapshot.alertBaselineDriftTaskGateDecision || "review"} | reasons ${snapshot.reasonCount || 0}`);
+        lines.push(`  Alert drift tasks: ${snapshot.alertBaselineDriftTaskGateOpenTaskCount ?? snapshot.alertBaselineDriftTaskGate?.openTaskCount ?? 0} open / ${snapshot.alertBaselineDriftTaskGateTaskCount ?? snapshot.alertBaselineDriftTaskGate?.taskCount ?? 0} total`);
         lines.push(`  Created: ${new Date(snapshot.createdAt).toLocaleString()}`);
       }
     } else {
@@ -10470,7 +10471,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       for (const item of ledger.items.slice(0, 8)) {
         lines.push(`- ${item.title || "CLI Bridge Runner Dry Run"}: ${item.runner || "runner"} / ${item.lifecycleAction || "snapshot-saved"} / ${item.dryRunDecision || "review"}`);
         lines.push(`  Work order: ${item.selectedWorkOrderId || "fallback"} | Project: ${item.selectedWorkOrderProjectName || item.selectedWorkOrderProjectId || "Portfolio"}`);
-        lines.push(`  Gates: target ${item.targetBaselineAuditGateDecision || "review"} | audit runs ${item.auditBaselineRunGateDecision || "review"} | operation ${item.operationId || "not linked"}`);
+        lines.push(`  Gates: target ${item.targetBaselineAuditGateDecision || "review"} | audit runs ${item.auditBaselineRunGateDecision || "review"} | alert drift ${item.alertBaselineDriftTaskGateDecision || "review"} | operation ${item.operationId || "not linked"}`);
       }
     } else {
       lines.push("- No visible CLI bridge runner dry-run lifecycle ledger items.");
@@ -13865,7 +13866,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Runner: ${item.runner || "runner"}; lifecycle action: ${item.lifecycleAction || "snapshot-saved"}.`,
       `Created: ${item.createdAt || "unknown"}; operation: ${item.operationId || "not linked"}.`,
       `Work order: ${item.selectedWorkOrderId || "fallback"}; project: ${item.selectedWorkOrderProjectName || item.selectedWorkOrderProjectId || "Portfolio"}.`,
-      `Decisions: dry-run ${item.dryRunDecision || "review"}; context ${item.contextDecision || "review"}; target ${item.targetBaselineAuditGateDecision || "review"}; audit runs ${item.auditBaselineRunGateDecision || "review"}.`,
+      `Decisions: dry-run ${item.dryRunDecision || "review"}; context ${item.contextDecision || "review"}; target ${item.targetBaselineAuditGateDecision || "review"}; audit runs ${item.auditBaselineRunGateDecision || "review"}; alert drift ${item.alertBaselineDriftTaskGateDecision || "review"}.`,
       `Reasons: ${item.reasonCount || 0}; codes: ${item.reasonCodes || "none"}.`,
       "Secret policy: non-secret CLI bridge runner dry-run lifecycle metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
     ].join("\n");
@@ -14091,6 +14092,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `Selected work order: ${snapshotSummary.selectedWorkOrderId || "missing"} -> ${liveSummary.selectedWorkOrderId || "missing"}.`,
       `Target baseline audit gate: ${snapshotSummary.targetBaselineAuditGateDecision || "missing"} -> ${liveSummary.targetBaselineAuditGateDecision || "missing"}.`,
       `Audit baseline run gate: ${snapshotSummary.auditBaselineRunGateDecision || "missing"} -> ${liveSummary.auditBaselineRunGateDecision || "missing"}.`,
+      `Alert baseline drift task gate: ${snapshotSummary.alertBaselineDriftTaskGateDecision || "missing"} -> ${liveSummary.alertBaselineDriftTaskGateDecision || "missing"}.`,
       `Reason count: ${snapshotSummary.reasonCount ?? 0} -> ${liveSummary.reasonCount ?? 0}.`,
       "Secret policy: non-secret CLI bridge runner dry-run drift metadata only; do not store passwords, tokens, certificates, private keys, cookies, browser sessions, raw command output, or provider credentials."
     ];

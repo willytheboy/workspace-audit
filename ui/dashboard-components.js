@@ -10597,8 +10597,21 @@ export function createGovernanceDeck(governance) {
         background: "var(--bg)",
         border: "1px solid var(--border)",
         color: (snapshot.auditBaselineRunGateDecision || snapshot.auditBaselineRunGate?.decision) === "ready" ? "var(--success)" : "var(--warning)"
+      }),
+      createTag(`alert drift ${snapshot.alertBaselineDriftTaskGateDecision || snapshot.alertBaselineDriftTaskGate?.decision || "review"}`, {
+        background: "var(--bg)",
+        border: "1px solid var(--border)",
+        color: (snapshot.alertBaselineDriftTaskGateDecision || snapshot.alertBaselineDriftTaskGate?.decision) === "ready" ? "var(--success)" : "var(--warning)"
       })
     ]),
+    createElement("div", {
+      text: `Alert drift tasks: ${snapshot.alertBaselineDriftTaskGateOpenTaskCount ?? snapshot.alertBaselineDriftTaskGate?.openTaskCount ?? 0} open / ${snapshot.alertBaselineDriftTaskGateTaskCount ?? snapshot.alertBaselineDriftTaskGate?.taskCount ?? 0} total`,
+      style: {
+        color: "var(--text-muted)",
+        fontSize: "0.82rem",
+        lineHeight: "1.45"
+      }
+    }),
     createElement("div", {
       className: "governance-actions"
     }, [
@@ -10867,7 +10880,7 @@ export function createGovernanceDeck(governance) {
                   }
                 }),
                 createElement("div", {
-                  text: `Gates: target ${item.targetBaselineAuditGateDecision || "review"} | audit runs ${item.auditBaselineRunGateDecision || "review"} | reasons ${item.reasonCount || 0}`,
+                  text: `Gates: target ${item.targetBaselineAuditGateDecision || "review"} | audit runs ${item.auditBaselineRunGateDecision || "review"} | alert drift ${item.alertBaselineDriftTaskGateDecision || "review"} | reasons ${item.reasonCount || 0}`,
                   style: {
                     color: "var(--text-muted)",
                     fontSize: "0.82rem",

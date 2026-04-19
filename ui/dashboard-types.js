@@ -3513,6 +3513,7 @@
  *     selectedWorkOrderSourceType: string,
  *     targetBaselineAuditGateDecision: string,
  *     auditBaselineRunGateDecision: string,
+ *     alertBaselineDriftTaskGateDecision: string,
  *     reasonCount: number,
  *     reasonCodes: string,
  *     operationId: string,

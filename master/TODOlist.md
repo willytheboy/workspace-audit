@@ -3228,3 +3228,11 @@
 - [x] Add a dedicated Governance section for Agent Execution Regression Alert Baseline Drift Tasks.
 - [x] Reuse task status controls so operators can resolve, reopen, or block drift tasks.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Alert Baseline Drift Task Gate
+
+- [x] Feed open Regression Alert baseline drift tasks into Agent Control Plane decisions.
+- [x] Add drift-task counts to decision payloads, snapshots, markdown, and UI tags.
+- [x] Add CLI runner readiness gating for unresolved alert-baseline drift tasks.
+- [x] Add parser and server-test coverage for the drift task gate.
+- [x] Validate, relaunch, commit, and push.

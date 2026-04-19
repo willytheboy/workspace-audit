@@ -16296,6 +16296,9 @@ export function createGovernanceDeck(governance) {
   const controlPlaneAlertBaselineRunHealthyCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineHealthyCount || 0;
   const controlPlaneAlertBaselineRunMissingCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineMissingCount || 0;
   const controlPlaneAlertBaselineRunCapturedCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineCapturedCount || 0;
+  const controlPlaneAlertBaselineDriftTaskCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineDriftTaskCount || 0;
+  const controlPlaneAlertBaselineDriftOpenTaskCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineDriftOpenTaskCount || 0;
+  const controlPlaneAlertBaselineDriftClosedTaskCount = controlPlaneDecision?.agentExecutionRegressionAlertBaselineDriftClosedTaskCount || 0;
   const controlPlaneProfileTargetBaselineColor = controlPlaneProfileTargetBaselineHealth === "healthy"
     ? "var(--success)"
     : controlPlaneProfileTargetBaselineHealth === "missing" || controlPlaneProfileTargetBaselineHealth === "drift-review-required"
@@ -16311,6 +16314,9 @@ export function createGovernanceDeck(governance) {
     : controlPlaneRegressionAlertSnapshotBaselineHealth === "missing" || controlPlaneRegressionAlertSnapshotBaselineHealth === "drift-review-required"
       ? "var(--danger)"
       : "var(--warning)";
+  const controlPlaneAlertBaselineDriftTaskColor = controlPlaneAlertBaselineDriftOpenTaskCount > 0
+    ? "var(--warning)"
+    : "var(--success)";
   const controlPlaneRegressionAlertBaselineColor = controlPlaneRegressionAlertBaselineRefreshGate === "hold" || controlPlaneRegressionAlertBaselineOpenEscalatedCount > 0
     ? "var(--danger)"
     : controlPlaneRegressionAlertBaselineHealth === "healthy" && controlPlaneRegressionAlertBaselineRefreshGate === "ready"
@@ -16390,6 +16396,11 @@ export function createGovernanceDeck(governance) {
                 background: "var(--bg)",
                 color: controlPlaneRegressionAlertSnapshotBaselineColor
               }),
+              createTag(`ALERT DRIFT TASKS ${controlPlaneAlertBaselineDriftOpenTaskCount}/${controlPlaneAlertBaselineDriftTaskCount}`, {
+                border: "1px solid var(--border)",
+                background: "var(--bg)",
+                color: controlPlaneAlertBaselineDriftTaskColor
+              }),
               createTag(`REGRESSION ALERT TASK ${controlPlaneRegressionAlertBaselineHealth.toUpperCase()}`, {
                 border: "1px solid var(--border)",
                 background: "var(--bg)",
@@ -16441,7 +16452,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Alert snapshot baseline: ${controlPlaneRegressionAlertSnapshotBaselineHealth} / ${controlPlaneRegressionAlertSnapshotBaselineFreshness} / ${controlPlaneRegressionAlertSnapshotBaselineUncheckpointedDriftCount} uncheckpointed • Regression Alert task baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Alert run capture: ${controlPlaneAlertBaselineRunReviewCount} review / ${controlPlaneAlertBaselineRunHealthyCount} healthy / ${controlPlaneAlertBaselineRunMissingCount} missing / ${controlPlaneAlertBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
+            text: `Baseline health: ${controlPlaneDecision.baselineHealth || "missing"} • Target baseline: ${controlPlaneProfileTargetBaselineHealth} / ${controlPlaneProfileTargetBaselineFreshness} / ${controlPlaneProfileTargetBaselineUncheckpointedDriftCount} uncheckpointed • Audit baseline: ${controlPlaneTargetBaselineAuditHealth} / ${controlPlaneTargetBaselineAuditFreshness} / ${controlPlaneTargetBaselineAuditUncheckpointedDriftCount} uncheckpointed • Alert snapshot baseline: ${controlPlaneRegressionAlertSnapshotBaselineHealth} / ${controlPlaneRegressionAlertSnapshotBaselineFreshness} / ${controlPlaneRegressionAlertSnapshotBaselineUncheckpointedDriftCount} uncheckpointed • Alert baseline drift tasks: ${controlPlaneAlertBaselineDriftOpenTaskCount} open / ${controlPlaneAlertBaselineDriftTaskCount} total / ${controlPlaneAlertBaselineDriftClosedTaskCount} closed • Regression Alert task baseline: ${controlPlaneRegressionAlertBaselineHealth} / refresh ${controlPlaneRegressionAlertBaselineRefreshGate} / ${controlPlaneRegressionAlertBaselineUncheckpointedDriftCount} uncheckpointed / ${controlPlaneRegressionAlertBaselineOpenEscalatedCount} escalated • Audit run capture: ${controlPlaneAuditBaselineRunReviewCount} review / ${controlPlaneAuditBaselineRunHealthyCount} healthy / ${controlPlaneAuditBaselineRunMissingCount} missing / ${controlPlaneAuditBaselineRunCapturedCount} captured • Alert run capture: ${controlPlaneAlertBaselineRunReviewCount} review / ${controlPlaneAlertBaselineRunHealthyCount} healthy / ${controlPlaneAlertBaselineRunMissingCount} missing / ${controlPlaneAlertBaselineRunCapturedCount} captured • Release gate: ${controlPlaneReleaseBuildGateDecision} risk ${controlPlaneDecision.releaseBuildGateRiskScore || controlPlaneReleaseBuildGate?.riskScore || 0} • Active runs: ${controlPlaneDecision.activeRuns || 0} • Stale: ${controlPlaneDecision.staleActiveRuns || 0} • SLA breached: ${controlPlaneDecision.slaBreachedRuns || 0} • Source access tasks: ${controlPlaneDecision.dataSourcesAccessOpenTaskCount || 0} open / ${controlPlaneDecision.dataSourcesAccessTaskCount || 0} total • Access methods: ${controlPlaneDecision.dataSourcesAccessValidationMethodCount || 0} • Evidence: ${controlPlaneDecision.dataSourcesAccessValidationEvidenceValidatedCount || 0}/${controlPlaneDecision.dataSourcesAccessValidationEvidenceCount || 0}`,
             style: {
               color: "var(--text-muted)",
               fontSize: "0.88rem",
@@ -19838,6 +19849,9 @@ export function createGovernanceDeck(governance) {
   if ((executionMetrics.alertBaselineReviewRequired || 0) > 0) {
     cliRunnerGateReasons.push({ severity: "review", message: `${executionMetrics.alertBaselineReviewRequired} Agent Execution run(s) have missing, stale, drifted, or held Regression Alert baseline evidence.` });
   }
+  if (controlPlaneAlertBaselineDriftOpenTaskCount > 0) {
+    cliRunnerGateReasons.push({ severity: "review", message: `${controlPlaneAlertBaselineDriftOpenTaskCount} Regression Alert baseline drift task(s) must be resolved, blocked, or explicitly deferred before unattended CLI work.` });
+  }
   const cliRunnerGateDecision = cliRunnerGateReasons.some((reason) => reason.severity === "hold")
     ? "hold"
     : cliRunnerGateReasons.length
@@ -19922,6 +19936,11 @@ export function createGovernanceDeck(governance) {
           background: "var(--bg)",
           border: "1px solid var(--border)",
           color: controlPlaneTargetBaselineAuditColor
+        }),
+        createTag(`Alert drift tasks ${controlPlaneAlertBaselineDriftOpenTaskCount}/${controlPlaneAlertBaselineDriftTaskCount}`, {
+          background: "var(--bg)",
+          border: "1px solid var(--border)",
+          color: controlPlaneAlertBaselineDriftTaskColor
         }),
         createTag(`Release ${releaseBuildGateDecision}`, {
           background: "var(--bg)",

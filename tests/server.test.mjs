@@ -2017,14 +2017,34 @@ export async function serverTest() {
     assert.equal(regressionAlertBaselineLedgerBaselineStatusJson.uncheckpointedDriftItemCount, 0);
     assert.match(regressionAlertBaselineLedgerBaselineStatusJson.markdown, /# Agent Execution Regression Alert Baseline Ledger Baseline Status/);
 
+    const regressionAlertBaselineLedgerDeferredDriftCheckpointResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshot-drift-checkpoints`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snapshotId: createRegressionAlertBaselineLedgerSnapshotJson.snapshot.id,
+        field: "snapshot-clean",
+        decision: "deferred",
+        note: "Fixture deferred checkpoint for open regression alert baseline drift task gate.",
+        ...alphaAgentExecutionScope
+      })
+    });
+    assert.equal(regressionAlertBaselineLedgerDeferredDriftCheckpointResponse.status, 200);
+    const regressionAlertBaselineLedgerDeferredDriftCheckpointJson = await regressionAlertBaselineLedgerDeferredDriftCheckpointResponse.json();
+    assert.equal(regressionAlertBaselineLedgerDeferredDriftCheckpointJson.success, true);
+    assert.equal(regressionAlertBaselineLedgerDeferredDriftCheckpointJson.task.status, "deferred");
+    assert.equal(regressionAlertBaselineLedgerDeferredDriftCheckpointJson.task.projectId, "agent-execution-regression-alert-baseline");
+
     const governanceAfterRegressionAlertBaselineSnapshotResponse = await fetch(`${baseUrl}/api/governance`);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotResponse.status, 200);
     const governanceAfterRegressionAlertBaselineSnapshotJson = await governanceAfterRegressionAlertBaselineSnapshotResponse.json();
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerSnapshotCount, 1);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointCount, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineDriftTaskCount, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineDriftOpenTaskCount, 1);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.summary.agentExecutionRegressionAlertBaselineLedgerBaselineDriftScore, 0);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerSnapshots.length, 1);
-    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary.confirmed, 1);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary.confirmed, 0);
+    assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerDriftCheckpointLedger.summary.deferred, 1);
     assert.equal(governanceAfterRegressionAlertBaselineSnapshotJson.agentExecutionRegressionAlertBaselineLedgerBaselineStatus.hasBaseline, true);
 
     const unscopedRefreshRegressionAlertBaselineLedgerSnapshotResponse = await fetch(`${baseUrl}/api/agent-work-order-runs/regression-alert-baseline-ledger-snapshots/refresh`, {
@@ -3868,18 +3888,26 @@ export async function serverTest() {
     assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionTargetBaselineAuditBaselineMissingCount, "number");
     assert.ok(["healthy", "missing", "stale", "drifted", "drift-review-required"].includes(initialAgentControlPlaneDecisionJson.regressionAlertBaselineLedgerBaselineHealth));
     assert.equal(typeof initialAgentControlPlaneDecisionJson.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount, "number");
+    assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionRegressionAlertBaselineDriftTaskCount, "number");
+    assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionRegressionAlertBaselineDriftOpenTaskCount, "number");
+    assert.equal(typeof initialAgentControlPlaneDecisionJson.agentExecutionRegressionAlertBaselineDriftClosedTaskCount, "number");
+    assert.equal(initialAgentControlPlaneDecisionJson.agentExecutionRegressionAlertBaselineDriftOpenTaskCount, 1);
+    assert.ok(Array.isArray(initialAgentControlPlaneDecisionJson.agentExecutionRegressionAlertBaselineDriftTasks));
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineHealth, "missing");
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount, 0);
     assert.equal(initialAgentControlPlaneDecisionJson.regressionAlertTaskLedgerBaselineOpenEscalatedCheckpointCount, 0);
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "baseline-missing"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "regression-alert-task-baseline-missing"));
+    assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "execution-regression-alert-baseline-drift-open-tasks"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "execution-audit-baseline-review"));
     assert.ok(initialAgentControlPlaneDecisionJson.reasons.some((reason) => reason.code === "release-build-gate-review"));
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /# Agent Control Plane Decision/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Decision: hold/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert Baseline Snapshot/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert baseline snapshot health:/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert baseline drift tasks:/);
+    assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Regression Alert Baseline Drift Tasks/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Regression Alert task baseline health: missing/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /## Regression Alert Task Baseline/);
     assert.match(initialAgentControlPlaneDecisionJson.markdown, /Execution run audit snapshot baseline:/);

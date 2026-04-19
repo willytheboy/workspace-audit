@@ -10089,6 +10089,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       lines.push(`- Regression Alert baseline snapshot health: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineHealth || "missing"}`);
       lines.push(`- Regression Alert baseline snapshot freshness: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineFreshness || "missing"}`);
       lines.push(`- Regression Alert baseline snapshot uncheckpointed drift: ${governance.agentControlPlaneDecision.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount || 0}`);
+      lines.push(`- Regression Alert baseline drift tasks: ${governance.agentControlPlaneDecision.agentExecutionRegressionAlertBaselineDriftOpenTaskCount || 0} open / ${governance.agentControlPlaneDecision.agentExecutionRegressionAlertBaselineDriftTaskCount || 0} total`);
       lines.push(`- Regression Alert task baseline health: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineHealth || "missing"}`);
       lines.push(`- Regression Alert task baseline refresh gate: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision || "ready"}`);
       lines.push(`- Regression Alert task baseline uncheckpointed drift: ${governance.agentControlPlaneDecision.regressionAlertTaskLedgerBaselineUncheckpointedDriftCount || 0}`);

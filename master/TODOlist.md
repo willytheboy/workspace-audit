@@ -3221,3 +3221,10 @@
 - [x] Create Governance tasks from alert-baseline snapshot drift using non-secret drift context.
 - [x] Add command-palette and parser coverage for latest alert-baseline drift task creation.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Regression Alert Baseline Drift Task Ledger Visibility
+
+- [x] Add Governance payload grouping and summary counts for alert-baseline drift tasks.
+- [x] Add a dedicated Governance section for Agent Execution Regression Alert Baseline Drift Tasks.
+- [x] Reuse task status controls so operators can resolve, reopen, or block drift tasks.
+- [x] Validate, relaunch, commit, and push.

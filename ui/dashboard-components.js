@@ -14394,6 +14394,154 @@ export function createGovernanceDeck(governance) {
       ])
     ])
   ] : [];
+  const agentExecutionRegressionAlertBaselineDriftTasks = governance.agentExecutionRegressionAlertBaselineDriftTasks || [];
+  const agentExecutionRegressionAlertBaselineDriftTaskSummary = governance.summary || {};
+  const agentExecutionRegressionAlertBaselineDriftTaskEntries = [
+    createElement("div", {
+      className: "governance-gap-card agent-execution-regression-alert-baseline-drift-task-summary-card",
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.65rem"
+      }
+    }, [
+      createElement("div", {
+        text: "Regression Alert baseline drift tasks",
+        style: {
+          fontWeight: "800",
+          color: "var(--text)"
+        }
+      }),
+      createElement("div", {
+        text: `${agentExecutionRegressionAlertBaselineDriftTaskSummary.agentExecutionRegressionAlertBaselineDriftOpenTaskCount || 0} open / ${agentExecutionRegressionAlertBaselineDriftTaskSummary.agentExecutionRegressionAlertBaselineDriftTaskCount || 0} total drift task(s).`,
+        style: {
+          color: "var(--text-muted)",
+          fontSize: "0.84rem",
+          lineHeight: "1.45"
+        }
+      })
+    ]),
+    ...(agentExecutionRegressionAlertBaselineDriftTasks.length
+      ? agentExecutionRegressionAlertBaselineDriftTasks.map((task) => {
+          const isClosedTask = ["done", "resolved", "closed", "cancelled", "archived"].includes(String(task.status || "").toLowerCase());
+          const statusColor = isClosedTask
+            ? "var(--success)"
+            : task.status === "blocked"
+              ? "var(--danger)"
+              : "var(--warning)";
+          return createElement("div", {
+            className: "governance-gap-card agent-execution-regression-alert-baseline-drift-task-card",
+            style: {
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.6rem"
+            }
+          }, [
+            createElement("div", {
+              style: {
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "0.8rem",
+                alignItems: "flex-start"
+              }
+            }, [
+              createElement("div", {}, [
+                createElement("div", {
+                  text: task.title || "Regression Alert baseline drift task",
+                  style: {
+                    fontWeight: "800",
+                    color: "var(--text)"
+                  }
+                }),
+                createElement("div", {
+                  text: `${task.projectName || "Agent Execution Regression Alert Baseline"} | ${task.updatedAt ? `updated ${new Date(task.updatedAt).toLocaleString()}` : `created ${task.createdAt ? new Date(task.createdAt).toLocaleString() : "unknown"}`}`,
+                  style: {
+                    color: "var(--text-muted)",
+                    fontSize: "0.84rem",
+                    marginTop: "0.3rem"
+                  }
+                })
+              ]),
+              createElement("div", {
+                style: {
+                  display: "flex",
+                  gap: "0.35rem",
+                  flexWrap: "wrap",
+                  justifyContent: "flex-end"
+                }
+              }, [
+                createTag((task.priority || "normal").toUpperCase(), {
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                  color: task.priority === "high" ? "var(--danger)" : task.priority === "medium" ? "var(--warning)" : "var(--text-muted)"
+                }),
+                createTag((task.status || "open").toUpperCase(), {
+                  border: "1px solid var(--border)",
+                  background: "var(--bg)",
+                  color: statusColor
+                })
+              ])
+            ]),
+            createElement("div", {
+              text: task.description ? String(task.description).split("\n")[0] : "Track Regression Alert baseline snapshot drift before unattended agent work.",
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.88rem",
+                lineHeight: "1.5"
+              }
+            }),
+            createElement("div", {
+              className: "tags"
+            }, [
+              createTag("Alert Baseline Drift", {
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                color: "var(--text-muted)"
+              }),
+              createTag("non-secret-drift-context-only", {
+                background: "var(--bg)",
+                border: "1px solid var(--border)",
+                color: "var(--text-muted)"
+              })
+            ]),
+            createElement("div", {
+              className: "governance-actions"
+            }, [
+              createElement("button", {
+                className: "btn governance-action-btn agent-execution-regression-alert-baseline-drift-task-status-btn",
+                text: isClosedTask ? "Reopen" : "Resolve",
+                attrs: { type: "button" },
+                dataset: {
+                  regressionAlertTaskStatus: isClosedTask ? "open" : "resolved",
+                  taskId: task.id || ""
+                }
+              }),
+              !isClosedTask
+                ? createElement("button", {
+                    className: "btn governance-action-btn agent-execution-regression-alert-baseline-drift-task-block-btn",
+                    text: "Block",
+                    attrs: { type: "button" },
+                    dataset: {
+                      regressionAlertTaskStatus: "blocked",
+                      taskId: task.id || ""
+                    }
+                  })
+                : null
+            ])
+          ]);
+        })
+      : [
+          createElement("div", {
+            className: "governance-gap-card agent-execution-regression-alert-baseline-drift-task-empty-card",
+            style: {
+              color: "var(--text-muted)",
+              fontSize: "0.86rem",
+              lineHeight: "1.45"
+            },
+            text: "No Regression Alert baseline snapshot drift tasks have been tracked yet."
+          })
+        ])
+  ];
   const agentExecutionTargetBaselineAuditLedgerBaselineStatus = governance.agentExecutionTargetBaselineAuditLedgerBaselineStatus || null;
   const agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries = agentExecutionTargetBaselineAuditLedgerBaselineStatus ? [
     createElement("div", {
@@ -20099,6 +20247,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Execution Regression Alert Baseline Ledger", "No-secret copyable checklist for alert-baseline capture health before unattended CLI execution.", agentExecutionRegressionAlertBaselineLedgerEntries),
     createListSection("Agent Execution Regression Alert Baseline Ledger Snapshots", "Persisted alert-baseline ledgers for external handoff and build evidence.", agentExecutionRegressionAlertBaselineLedgerSnapshotEntries),
     createListSection("Agent Execution Regression Alert Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted alert-baseline snapshot.", agentExecutionRegressionAlertBaselineLedgerBaselineStatusEntries),
+    createListSection("Agent Execution Regression Alert Baseline Drift Tasks", "Trackable Governance tasks created from accepted alert-baseline snapshot drift.", agentExecutionRegressionAlertBaselineDriftTaskEntries),
     createListSection("Agent Execution Regression Alert Baseline Drift Checkpoints", "Operator decisions made against alert-baseline snapshot drift before refreshing execution baselines.", agentExecutionRegressionAlertBaselineLedgerDriftCheckpointEntries),
     createListSection("Agent Execution Target Baseline Audit Baseline Status", "Freshness, drift health, and checkpoint coverage for the accepted target-baseline audit snapshot.", agentExecutionTargetBaselineAuditLedgerBaselineStatusEntries),
     createListSection("Agent Execution Target Baseline Audit Drift Checkpoints", "Operator decisions made against target-baseline audit snapshot drift before refreshing execution baselines.", agentExecutionTargetBaselineAuditLedgerDriftCheckpointEntries),

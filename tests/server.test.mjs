@@ -1670,14 +1670,17 @@ export async function serverTest() {
     assert.equal(codexCliBridgeDryRunJson.targetBaselineAuditGate.health, "missing");
     assert.equal(codexCliBridgeDryRunJson.targetBaselineAuditGate.decision, "review");
     assert.equal(codexCliBridgeDryRunJson.auditBaselineRunGate.decision, "review");
+    assert.equal(codexCliBridgeDryRunJson.alertBaselineDriftTaskGate.decision, "ready");
     assert.ok(codexCliBridgeDryRunJson.auditBaselineRunGate.reviewRequiredCount >= 1);
     assert.equal(codexCliBridgeDryRunJson.commandEnvelope.targetBaselineAuditGate.health, "missing");
     assert.equal(codexCliBridgeDryRunJson.commandEnvelope.auditBaselineRunGate.decision, "review");
+    assert.equal(codexCliBridgeDryRunJson.commandEnvelope.alertBaselineDriftTaskGate.decision, "ready");
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-target-baseline-audit-gate"));
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-audit-baseline-run-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Regression Alert baseline drift tasks:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Alert baseline drift task gate: ready/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Selected run Regression Alert baseline capture: missing/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Scope mode: project/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Execution audit snapshot baseline runs:/);
@@ -1686,6 +1689,7 @@ export async function serverTest() {
     assert.match(codexCliBridgeDryRunJson.markdown, /# CLI Bridge Runner Dry Run/);
     assert.match(codexCliBridgeDryRunJson.markdown, /## Target Baseline Audit Gate/);
     assert.match(codexCliBridgeDryRunJson.markdown, /## Audit Baseline Run Gate/);
+    assert.match(codexCliBridgeDryRunJson.markdown, /## Alert Baseline Drift Task Gate/);
     assert.match(codexCliBridgeDryRunJson.markdown, /Do not use or request secrets/);
 
     const initialCliBridgeDryRunSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`);
@@ -1752,10 +1756,12 @@ export async function serverTest() {
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.dryRunDecision, codexCliBridgeDryRunJson.dryRunDecision);
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.targetBaselineAuditGateDecision, "review");
     assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.auditBaselineRunGateDecision, "review");
+    assert.equal(createCliBridgeDryRunSnapshotJson.snapshot.alertBaselineDriftTaskGateDecision, "ready");
     assert.ok(createCliBridgeDryRunSnapshotJson.snapshot.reasonCodes.includes("cli-bridge-target-baseline-audit-gate"));
     assert.ok(createCliBridgeDryRunSnapshotJson.snapshot.reasonCodes.includes("cli-bridge-audit-baseline-run-gate"));
     assert.match(createCliBridgeDryRunSnapshotJson.snapshot.markdown, /# CLI Bridge Runner Dry Run/);
     assert.match(createCliBridgeDryRunSnapshotJson.snapshot.dryRun.markdown, /## Audit Baseline Run Gate/);
+    assert.match(createCliBridgeDryRunSnapshotJson.snapshot.dryRun.markdown, /## Alert Baseline Drift Task Gate/);
 
     const cliBridgeDryRunSnapshotsResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run-snapshots`);
     assert.equal(cliBridgeDryRunSnapshotsResponse.status, 200);
@@ -2999,6 +3005,15 @@ export async function serverTest() {
     assert.match(cliBridgeContextJson.markdown, /Execution audit snapshot baseline runs:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);
     assert.match(cliBridgeContextJson.markdown, /Workspace Audit Pro owns work-order creation/);
+
+    const alertDriftCliBridgeDryRunResponse = await fetch(`${baseUrl}/api/cli-bridge/runner-dry-run?runner=codex&runId=${createAgentWorkOrderRunJson.run.id}&${cliBridgeRunnerDryRunScopeParams}`);
+    assert.equal(alertDriftCliBridgeDryRunResponse.status, 200);
+    const alertDriftCliBridgeDryRunJson = await alertDriftCliBridgeDryRunResponse.json();
+    assert.equal(alertDriftCliBridgeDryRunJson.alertBaselineDriftTaskGate.decision, "review");
+    assert.equal(alertDriftCliBridgeDryRunJson.alertBaselineDriftTaskGate.openTaskCount, 1);
+    assert.ok(alertDriftCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-alert-baseline-drift-task-gate"));
+    assert.match(alertDriftCliBridgeDryRunJson.commandEnvelope.prompt, /Alert baseline drift task gate: review/);
+    assert.match(alertDriftCliBridgeDryRunJson.markdown, /Alert Baseline Drift Task Gate/);
 
     const initialCliBridgeHandoffsResponse = await fetch(`${baseUrl}/api/cli-bridge/handoffs?runner=all&limit=5`);
     assert.equal(initialCliBridgeHandoffsResponse.status, 200);

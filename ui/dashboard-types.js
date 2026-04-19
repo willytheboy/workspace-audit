@@ -3298,6 +3298,7 @@
  *   invocationPolicy: string,
  *   targetBaselineAuditGate?: CliBridgeTargetBaselineAuditGate,
  *   auditBaselineRunGate?: CliBridgeAuditBaselineRunGate,
+ *   alertBaselineDriftTaskGate?: CliBridgeAlertBaselineDriftTaskGate,
  *   prompt: string
  * }} CliBridgeRunnerCommandEnvelope
  * @typedef {{
@@ -3322,6 +3323,15 @@
  *   runnerPolicy: string
  * }} CliBridgeAuditBaselineRunGate
  * @typedef {{
+ *   decision: "ready" | "review",
+ *   taskCount: number,
+ *   openTaskCount: number,
+ *   closedTaskCount: number,
+ *   tasks: PersistedTask[],
+ *   recommendedAction: string,
+ *   runnerPolicy: string
+ * }} CliBridgeAlertBaselineDriftTaskGate
+ * @typedef {{
  *   generatedAt: string,
  *   protocolVersion: string,
  *   bridgeMode: string,
@@ -3335,6 +3345,7 @@
  *   contextDecision: "ready" | "review" | "hold",
  *   targetBaselineAuditGate: CliBridgeTargetBaselineAuditGate,
  *   auditBaselineRunGate: CliBridgeAuditBaselineRunGate,
+ *   alertBaselineDriftTaskGate: CliBridgeAlertBaselineDriftTaskGate,
  *   scopeContext: {
  *     scopeMode: "project" | "portfolio",
  *     activeProjectId: string,
@@ -3369,8 +3380,10 @@
  *   reasonCodes: string[],
  *   targetBaselineAuditGate: CliBridgeTargetBaselineAuditGate,
  *   auditBaselineRunGate: CliBridgeAuditBaselineRunGate,
+ *   alertBaselineDriftTaskGate: CliBridgeAlertBaselineDriftTaskGate,
  *   targetBaselineAuditGateDecision: string,
  *   auditBaselineRunGateDecision: string,
+ *   alertBaselineDriftTaskGateDecision: string,
  *   scopeMode: "project" | "portfolio",
  *   activeProjectId: string,
  *   activeProjectName: string,
@@ -3403,6 +3416,9 @@
  *   auditBaselineRunGateMissingCount: number,
  *   auditBaselineRunGateReviewRequiredCount: number,
  *   auditBaselineRunGateUncheckpointedDriftItemCount: number,
+ *   alertBaselineDriftTaskGateDecision: string,
+ *   alertBaselineDriftTaskGateOpenTaskCount: number,
+ *   alertBaselineDriftTaskGateTaskCount: number,
  *   scopeMode: "project" | "portfolio",
  *   activeProjectId: string,
  *   activeProjectName: string,

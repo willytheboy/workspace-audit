@@ -3244,3 +3244,11 @@
 - [x] Include alert-baseline drift task state in Codex/Claude dry-run prompts.
 - [x] Add parser and server-test coverage for CLI bridge drift-task context.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Runner Alert Baseline Drift Task Gate
+
+- [x] Add a dedicated dry-run gate for unresolved Regression Alert baseline drift tasks.
+- [x] Include the gate in runner dry-run markdown, command envelopes, and snapshots.
+- [x] Add drift comparison fields for the new gate in dry-run snapshot diffs.
+- [x] Add parser and server-test coverage for ready and review gate states.
+- [x] Validate, relaunch, commit, and push.

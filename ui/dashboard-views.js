@@ -6278,6 +6278,29 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-drift-task-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const snapshotId = element.dataset.regressionAlertBaselineLedgerSnapshotDriftTaskId || "";
+        if (!snapshotId) return;
+
+        const originalLabel = element.textContent || "";
+        try {
+          element.disabled = true;
+          element.textContent = "Creating";
+          element.textContent = await createAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask(snapshotId);
+        } catch (error) {
+          element.textContent = originalLabel;
+          alert(getErrorMessage(error));
+        } finally {
+          element.disabled = false;
+        }
+      };
+    });
+
     container.querySelectorAll("[data-regression-alert-baseline-ledger-snapshot-drift-checkpoint-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -15962,6 +15985,53 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     return copyAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id);
   }
 
+  function getAgentExecutionRegressionAlertBaselineDriftPriority(severity) {
+    if (severity === "high") return "high";
+    if (severity === "medium") return "medium";
+    return "low";
+  }
+
+  function buildAgentExecutionRegressionAlertBaselineDriftTaskDescription(diff) {
+    const lines = [
+      `Review Agent Execution Regression Alert baseline ledger drift from snapshot ${diff.snapshotTitle || diff.snapshotId || "unknown"}.`,
+      `Snapshot ID: ${diff.snapshotId || "unknown"}.`,
+      `State filter: ${diff.stateFilter || "review"}.`,
+      `Drift severity: ${diff.driftSeverity || "none"}; score: ${diff.driftScore || 0}.`,
+      `Recommended action: ${diff.recommendedAction || "Review Regression Alert baseline snapshot drift before unattended CLI work."}`,
+      `Summary drift fields: ${(diff.summaryDrift || []).length}; added runs: ${diff.addedCount || 0}; removed runs: ${diff.removedCount || 0}; changed runs: ${diff.changedCount || 0}.`,
+      "Secret policy: non-secret Agent Execution Regression Alert baseline metadata only; do not store credentials, provider tokens, cookies, certificates, private keys, browser sessions, response bodies, or command output."
+    ];
+
+    const changed = diff.changed || [];
+    if (changed.length) {
+      lines.push("Changed runs:");
+      changed.slice(0, 8).forEach((item) => {
+        lines.push(`- ${item.projectName || "Portfolio"} - ${item.title || item.id || "Agent Work Order Run"}: ${(item.driftItems || []).map((driftItem) => driftItem.label || driftItem.field).join(", ") || "field drift"}`);
+      });
+    }
+
+    return lines.join("\n");
+  }
+
+  async function createAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask(snapshotId) {
+    const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])
+      .find((item) => item.id === snapshotId);
+    if (!snapshot) throw new Error(`Regression Alert baseline ledger snapshot not found: ${snapshotId}`);
+
+    const diff = await api.fetchAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId);
+    await api.createTask({
+      projectId: "agent-execution-regression-alert-baseline",
+      projectName: "Agent Execution Regression Alert Baseline",
+      title: `Review Regression Alert baseline drift: ${diff.snapshotTitle || snapshot.title || snapshotId}`.slice(0, 140),
+      description: buildAgentExecutionRegressionAlertBaselineDriftTaskDescription(diff),
+      priority: getAgentExecutionRegressionAlertBaselineDriftPriority(diff.driftSeverity),
+      status: diff.hasDrift ? "open" : "resolved",
+      ...getCliBridgeScopeOptions()
+    });
+    await renderGovernance();
+    return diff.hasDrift ? "Created Drift Task" : "Recorded Clean Drift";
+  }
+
   async function checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshotId, decision = "confirmed", field = "snapshot-drift") {
     const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])
       .find((item) => item.id === snapshotId);
@@ -15982,6 +16052,12 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])[0];
     if (!snapshot) throw new Error("No Regression Alert baseline ledger snapshot is available.");
     return checkpointAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift(snapshot.id, "confirmed");
+  }
+
+  async function createLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask() {
+    const snapshot = (governanceCache?.agentExecutionRegressionAlertBaselineLedgerSnapshots || [])[0];
+    if (!snapshot) throw new Error("No Regression Alert baseline ledger snapshot is available.");
+    return createAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask(snapshot.id);
   }
 
   async function copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus() {
@@ -16838,6 +16914,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot,
     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
+    createLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask,
     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift,
     copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus,
     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus,

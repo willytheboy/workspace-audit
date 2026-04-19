@@ -108,6 +108,7 @@
  *     saveAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
  *     refreshAgentExecutionRegressionAlertBaselineLedgerSnapshot: () => Promise<void>,
  *     copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
+ *     createLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask: () => Promise<void>,
  *     checkpointLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift: () => Promise<void>,
  *     copyAgentExecutionRegressionAlertBaselineLedgerBaselineStatus: () => Promise<void>,
  *     copyAgentExecutionTargetBaselineAuditLedgerBaselineStatus: () => Promise<void>,
@@ -948,6 +949,14 @@ export function createDashboardActionRegistry({ getData, getState, handlers }) {
         category: "Actions",
         keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "drift", "copy"],
         run: () => handlers.copyLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDrift()
+      },
+      {
+        id: "create-latest-agent-execution-regression-alert-baseline-ledger-snapshot-drift-task",
+        label: "Track alert baseline drift",
+        description: "Create a Governance task from the latest Regression Alert baseline ledger snapshot drift.",
+        category: "Actions",
+        keywords: ["governance", "agent", "execution", "regression", "alert", "baseline", "ledger", "snapshot", "drift", "task", "track"],
+        run: () => handlers.createLatestAgentExecutionRegressionAlertBaselineLedgerSnapshotDriftTask()
       },
       {
         id: "checkpoint-latest-agent-execution-regression-alert-baseline-ledger-snapshot-drift",

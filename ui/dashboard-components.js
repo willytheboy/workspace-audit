@@ -14101,6 +14101,14 @@ export function createGovernanceDeck(governance) {
         }
       }),
       createElement("button", {
+        className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-task-btn",
+        text: "Track Drift",
+        attrs: { type: "button" },
+        dataset: {
+          regressionAlertBaselineLedgerSnapshotDriftTaskId: snapshot.id
+        }
+      }),
+      createElement("button", {
         className: "btn governance-action-btn regression-alert-baseline-ledger-snapshot-drift-checkpoint-btn",
         text: "Confirm Drift",
         attrs: { type: "button" },

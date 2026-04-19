@@ -3214,3 +3214,10 @@
 - [x] Add alert pack markdown coverage for accepted alert-baseline snapshot health, freshness, and drift.
 - [x] Add parser coverage for the new center status card and markdown summary.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Regression Alert Baseline Snapshot Drift Tasks
+
+- [x] Add Track Drift controls to Agent Execution Regression Alert baseline snapshots.
+- [x] Create Governance tasks from alert-baseline snapshot drift using non-secret drift context.
+- [x] Add command-palette and parser coverage for latest alert-baseline drift task creation.
+- [x] Validate, relaunch, commit, and push.

@@ -3193,3 +3193,10 @@
 - [x] Surface alert snapshot baseline health in the Control Plane decision card, copied Markdown, and CLI bridge context.
 - [x] Add parser and server-test coverage for the snapshot baseline gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Alert Baseline Snapshot Drift Metrics
+
+- [x] Add accepted Regression Alert baseline snapshot drift score to Control Plane snapshot drift metrics.
+- [x] Add accepted Regression Alert baseline uncheckpointed drift and snapshot count metrics.
+- [x] Include the metrics in parser and server-test coverage.
+- [x] Validate, relaunch, commit, and push.

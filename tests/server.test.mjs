@@ -1677,6 +1677,7 @@ export async function serverTest() {
     assert.ok(codexCliBridgeDryRunJson.reasons.some((reason) => reason.code === "cli-bridge-audit-baseline-run-gate"));
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.displayCommand, /codex exec/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Profile target task baseline:/);
+    assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Regression Alert baseline drift tasks:/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Selected run Regression Alert baseline capture: missing/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Scope mode: project/);
     assert.match(codexCliBridgeDryRunJson.commandEnvelope.prompt, /Execution audit snapshot baseline runs:/);
@@ -2978,6 +2979,9 @@ export async function serverTest() {
     assert.ok(cliBridgeContextJson.controlPlaneDecision.targetBaselineAuditLedgerBaselineHealth);
     assert.ok(cliBridgeContextJson.controlPlaneDecision.regressionAlertBaselineLedgerBaselineHealth);
     assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.regressionAlertBaselineLedgerBaselineUncheckpointedDriftCount, "number");
+    assert.equal(typeof cliBridgeContextJson.controlPlaneDecision.agentExecutionRegressionAlertBaselineDriftTaskCount, "number");
+    assert.equal(cliBridgeContextJson.controlPlaneDecision.agentExecutionRegressionAlertBaselineDriftOpenTaskCount, 1);
+    assert.ok(Array.isArray(cliBridgeContextJson.controlPlaneDecision.agentExecutionRegressionAlertBaselineDriftTasks));
     assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineHealth, "missing");
     assert.equal(cliBridgeContextJson.controlPlaneDecision.regressionAlertTaskLedgerBaselineRefreshGateDecision, "ready");
     assert.ok(cliBridgeContextJson.controlPlaneDecision.agentExecutionTargetBaselineAuditBaselineReviewRequiredCount >= 1);
@@ -2990,6 +2994,7 @@ export async function serverTest() {
     assert.match(cliBridgeContextJson.markdown, /Profile target task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Target baseline audit baseline health:/);
     assert.match(cliBridgeContextJson.markdown, /Regression Alert baseline snapshot health:/);
+    assert.match(cliBridgeContextJson.markdown, /Regression Alert baseline drift tasks:/);
     assert.match(cliBridgeContextJson.markdown, /Regression Alert task baseline health: missing/);
     assert.match(cliBridgeContextJson.markdown, /Execution audit snapshot baseline runs:/);
     assert.match(cliBridgeContextJson.markdown, /Codex CLI/);

@@ -3236,3 +3236,11 @@
 - [x] Add CLI runner readiness gating for unresolved alert-baseline drift tasks.
 - [x] Add parser and server-test coverage for the drift task gate.
 - [x] Validate, relaunch, commit, and push.
+
+## Next CLI Bridge Alert Baseline Drift Task Context
+
+- [x] Add alert-baseline drift task counts and excerpts to CLI bridge context payloads.
+- [x] Include alert-baseline drift task state in CLI bridge context markdown.
+- [x] Include alert-baseline drift task state in Codex/Claude dry-run prompts.
+- [x] Add parser and server-test coverage for CLI bridge drift-task context.
+- [x] Validate, relaunch, commit, and push.

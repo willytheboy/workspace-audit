@@ -6863,7 +6863,11 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.ok(decisionJson.reasons.some((reason) => reason.code === "release-control-open-tasks"));
     assert.match(decisionJson.markdown, /## Release Control Tasks/);
 
-    const controlPlaneReason = decisionJson.reasons.find((reason) => reason.code === "release-control-open-tasks") || decisionJson.reasons[0];
+    const controlPlaneReason = {
+      severity: "review",
+      code: "execution-regression-alert-baseline-drift-review",
+      message: "Confirm, defer, or escalate Regression Alert baseline snapshot drift before autonomous build work."
+    };
     const agentControlPlaneDecisionScope = { scopeMode: "portfolio" };
     const unscopedAgentControlPlaneDecisionTasksResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/tasks`, {
       method: "POST",
@@ -6890,6 +6894,8 @@ export async function releaseBuildGateTaskSeedingTest() {
     assert.equal(seedDecisionTaskJson.totals.skipped, 0);
     assert.equal(seedDecisionTaskJson.createdTasks[0].projectId, "agent-control-plane");
     assert.equal(seedDecisionTaskJson.createdTasks[0].agentControlPlaneDecisionReasonCode, controlPlaneReason.code);
+    assert.match(seedDecisionTaskJson.createdTasks[0].agentControlPlaneCommandHint, /Regression Alert Baseline Status/);
+    assert.match(seedDecisionTaskJson.createdTasks[0].description, /accepted alert-baseline snapshot/);
     assert.equal(seedDecisionTaskJson.createdTasks[0].secretPolicy, "non-secret-control-plane-remediation-evidence-only");
 
     const decisionTaskLedgerResponse = await fetch(`${baseUrl}/api/agent-control-plane/decision/task-ledger`);

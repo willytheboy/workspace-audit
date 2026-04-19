@@ -3200,3 +3200,10 @@
 - [x] Add accepted Regression Alert baseline uncheckpointed drift and snapshot count metrics.
 - [x] Include the metrics in parser and server-test coverage.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Agent Control Plane Baseline Reason Task Hints
+
+- [x] Add specific remediation hints for profile, audit, and Regression Alert baseline decision reasons.
+- [x] Ensure Regression Alert baseline snapshot drift tasks point operators to the accepted snapshot workflow.
+- [x] Add parser and server-test coverage for baseline-specific task hints.
+- [x] Validate, relaunch, commit, and push.

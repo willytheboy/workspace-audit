@@ -3207,3 +3207,10 @@
 - [x] Ensure Regression Alert baseline snapshot drift tasks point operators to the accepted snapshot workflow.
 - [x] Add parser and server-test coverage for baseline-specific task hints.
 - [x] Validate, relaunch, commit, and push.
+
+## Next Regression Alert Center Accepted Snapshot Visibility
+
+- [x] Surface accepted Agent Execution Regression Alert baseline snapshot health in the Regression Alert Center.
+- [x] Add alert pack markdown coverage for accepted alert-baseline snapshot health, freshness, and drift.
+- [x] Add parser coverage for the new center status card and markdown summary.
+- [x] Validate, relaunch, commit, and push.

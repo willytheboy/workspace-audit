@@ -3430,6 +3430,7 @@ export function createGovernanceDeck(governance) {
   ] : [];
   const scanDiff = governance.scanDiff || null;
   const regressionAlertBaselineStatus = governance.regressionAlertTaskLedgerBaselineStatus || null;
+  const regressionAlertSnapshotBaselineStatus = governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus || null;
   const regressionAlertItems = [
     ...(scanDiff?.alerts || []).map((alert) => ({
       source: "scan",
@@ -3483,6 +3484,28 @@ export function createGovernanceDeck(governance) {
       recommendedAction: "Stop autonomous mutation work until every scope-relevant route has a server-side scope guard.",
       projectId: "",
       meta: "Mutation guard"
+    });
+  }
+  if (regressionAlertSnapshotBaselineStatus && !["healthy", "missing"].includes(regressionAlertSnapshotBaselineStatus.health || "")) {
+    regressionAlertItems.push({
+      source: "regression-alert-snapshot-baseline",
+      severity: ["drifted", "drift-review-required"].includes(regressionAlertSnapshotBaselineStatus.health || "") ? "high" : "medium",
+      title: "Accepted Regression Alert baseline snapshot needs review",
+      detail: `Accepted alert-baseline snapshot health is ${regressionAlertSnapshotBaselineStatus.health || "missing"} with freshness ${regressionAlertSnapshotBaselineStatus.freshness || "missing"}, drift score ${regressionAlertSnapshotBaselineStatus.driftScore || 0}, and ${regressionAlertSnapshotBaselineStatus.uncheckpointedDriftItemCount || 0} uncheckpointed drift item(s).`,
+      recommendedAction: regressionAlertSnapshotBaselineStatus.recommendedAction || regressionAlertSnapshotBaselineStatus.driftRecommendedAction || "Review, checkpoint, or refresh the accepted Regression Alert baseline snapshot before unattended build work.",
+      projectId: "",
+      meta: `Snapshot ${regressionAlertSnapshotBaselineStatus.snapshotId || "not-selected"}`
+    });
+  }
+  if (regressionAlertSnapshotBaselineStatus?.health === "missing") {
+    regressionAlertItems.push({
+      source: "regression-alert-snapshot-baseline",
+      severity: "medium",
+      title: "Accepted Regression Alert baseline snapshot is missing",
+      detail: `${regressionAlertSnapshotBaselineStatus.snapshotCount || 0} saved Agent Execution Regression Alert baseline ledger snapshot(s) are available.`,
+      recommendedAction: regressionAlertSnapshotBaselineStatus.recommendedAction || "Save or select an accepted Regression Alert baseline snapshot before relying on alert-baseline gates.",
+      projectId: "",
+      meta: "Accepted snapshot missing"
     });
   }
   if (regressionAlertBaselineStatus && !["healthy", "missing"].includes(regressionAlertBaselineStatus.health || "")) {
@@ -3682,7 +3705,7 @@ export function createGovernanceDeck(governance) {
             }
           }),
           createElement("div", {
-            text: "Scan movement, Data Sources access gate, Release Build Gate, Control Plane decision, Regression Alert task baseline, and mutation-scope guard coverage are currently clear or not-evaluated.",
+            text: "Scan movement, Data Sources access gate, Release Build Gate, Control Plane decision, accepted Regression Alert baseline snapshot, Regression Alert task baseline, and mutation-scope guard coverage are currently clear or not-evaluated.",
             style: {
               color: "var(--text-muted)",
               fontSize: "0.84rem",
@@ -3691,8 +3714,110 @@ export function createGovernanceDeck(governance) {
           })
         ])
       ];
+  const regressionAlertSnapshotBaselineStatusEntry = regressionAlertSnapshotBaselineStatus
+    ? [
+      createElement("div", {
+        className: "governance-gap-card regression-alert-snapshot-baseline-status-card",
+        style: {
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.65rem",
+          borderColor: `color-mix(in srgb, ${
+            regressionAlertSnapshotBaselineStatus.health === "healthy"
+              ? "var(--success)"
+              : regressionAlertSnapshotBaselineStatus.health === "stale"
+                ? "var(--warning)"
+                : "var(--danger)"
+          } 32%, var(--border) 68%)`
+        }
+      }, [
+        createElement("div", {
+          style: {
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            gap: "0.75rem"
+          }
+        }, [
+          createElement("div", {}, [
+            createElement("div", {
+              text: "Accepted Regression Alert baseline snapshot",
+              style: {
+                color: "var(--text)",
+                fontWeight: "900",
+                fontSize: "0.98rem"
+              }
+            }),
+            createElement("div", {
+              text: regressionAlertSnapshotBaselineStatus.hasBaseline
+                ? `${regressionAlertSnapshotBaselineStatus.title || regressionAlertSnapshotBaselineStatus.snapshotId || "Accepted alert-baseline snapshot"} | ${regressionAlertSnapshotBaselineStatus.stateFilter || "review"} | ${regressionAlertSnapshotBaselineStatus.ageHours || 0}h old`
+                : `${regressionAlertSnapshotBaselineStatus.snapshotCount || 0} saved alert-baseline snapshot(s) available; none accepted yet.`,
+              style: {
+                color: "var(--text-muted)",
+                fontSize: "0.84rem",
+                lineHeight: "1.45",
+                marginTop: "0.2rem"
+              }
+            })
+          ]),
+          createTag((regressionAlertSnapshotBaselineStatus.health || "missing").toUpperCase(), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertSnapshotBaselineStatus.health === "healthy"
+              ? "var(--success)"
+              : regressionAlertSnapshotBaselineStatus.health === "stale"
+                ? "var(--warning)"
+                : "var(--danger)"
+          })
+        ]),
+        createElement("div", {
+          className: "tags"
+        }, [
+          createTag((regressionAlertSnapshotBaselineStatus.freshness || "missing").toUpperCase(), {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertSnapshotBaselineStatus.freshness === "fresh" ? "var(--success)" : "var(--warning)"
+          }),
+          createTag(`drift ${regressionAlertSnapshotBaselineStatus.driftScore || 0}`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertSnapshotBaselineStatus.hasDrift ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`${regressionAlertSnapshotBaselineStatus.checkpointedDriftItemCount || 0}/${regressionAlertSnapshotBaselineStatus.driftItemCount || 0} checkpointed`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: (regressionAlertSnapshotBaselineStatus.uncheckpointedDriftItemCount || 0) > 0 ? "var(--warning)" : "var(--success)"
+          }),
+          createTag(`${regressionAlertSnapshotBaselineStatus.snapshotCount || 0} snapshots`, {
+            background: "var(--bg)",
+            border: "1px solid var(--border)",
+            color: regressionAlertSnapshotBaselineStatus.snapshotCount > 0 ? "var(--success)" : "var(--warning)"
+          })
+        ]),
+        createElement("div", {
+          text: regressionAlertSnapshotBaselineStatus.recommendedAction || regressionAlertSnapshotBaselineStatus.driftRecommendedAction || "Save or refresh the accepted alert-baseline snapshot before relying on unattended Regression Alert gates.",
+          style: {
+            color: "var(--text-muted)",
+            fontSize: "0.84rem",
+            lineHeight: "1.45"
+          }
+        }),
+        createElement("div", {
+          className: "governance-actions"
+        }, [
+          createElement("button", {
+            className: "btn governance-action-btn regression-alert-baseline-ledger-baseline-status-copy-btn",
+            text: "Copy Snapshot Status",
+            attrs: { type: "button" },
+            dataset: { regressionAlertBaselineLedgerBaselineStatusCopy: "true" }
+          })
+        ])
+      ])
+    ]
+    : [];
   const regressionAlertCenterEntries = [
     regressionAlertCenterSummaryEntry,
+    ...regressionAlertSnapshotBaselineStatusEntry,
     ...regressionAlertEntryCards
   ];
   const regressionAlertTaskSummary = governance.summary || {};

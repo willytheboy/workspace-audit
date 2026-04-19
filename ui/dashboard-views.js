@@ -9434,6 +9434,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     const mutationScope = governanceCache?.mutationScopeInventory || governance.mutationScopeInventory || null;
     const controlPlaneDecision = governanceCache?.agentControlPlaneDecision || governance.agentControlPlaneDecision || null;
     const regressionAlertBaselineStatus = governanceCache?.regressionAlertTaskLedgerBaselineStatus || governance.regressionAlertTaskLedgerBaselineStatus || null;
+    const regressionAlertSnapshotBaselineStatus = governanceCache?.agentExecutionRegressionAlertBaselineLedgerBaselineStatus || governance.agentExecutionRegressionAlertBaselineLedgerBaselineStatus || null;
     const controlDecision = controlPlaneDecision?.decision || "review";
     const sourceDecision = sourceGate?.decision || governanceCache?.summary.dataSourcesAccessGateDecision || "not-evaluated";
     const releaseDecision = releaseGate?.decision || "not-evaluated";
@@ -9493,6 +9494,28 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       });
     }
 
+    if (regressionAlertSnapshotBaselineStatus && !["healthy", "missing"].includes(regressionAlertSnapshotBaselineStatus.health || "")) {
+      alertItems.push({
+        source: "regression-alert-snapshot-baseline",
+        severity: ["drifted", "drift-review-required"].includes(regressionAlertSnapshotBaselineStatus.health || "") ? "high" : "medium",
+        title: "Accepted Regression Alert baseline snapshot needs review",
+        detail: `Accepted alert-baseline snapshot health is ${regressionAlertSnapshotBaselineStatus.health || "missing"} with freshness ${regressionAlertSnapshotBaselineStatus.freshness || "missing"}, drift score ${regressionAlertSnapshotBaselineStatus.driftScore || 0}, and ${regressionAlertSnapshotBaselineStatus.uncheckpointedDriftItemCount || 0} uncheckpointed drift item(s).`,
+        recommendedAction: regressionAlertSnapshotBaselineStatus.recommendedAction || regressionAlertSnapshotBaselineStatus.driftRecommendedAction || "Review, checkpoint, or refresh the accepted Regression Alert baseline snapshot before unattended build work.",
+        meta: `Snapshot ${regressionAlertSnapshotBaselineStatus.snapshotId || "not-selected"}`
+      });
+    }
+
+    if (regressionAlertSnapshotBaselineStatus?.health === "missing") {
+      alertItems.push({
+        source: "regression-alert-snapshot-baseline",
+        severity: "medium",
+        title: "Accepted Regression Alert baseline snapshot is missing",
+        detail: `${regressionAlertSnapshotBaselineStatus.snapshotCount || 0} saved Agent Execution Regression Alert baseline ledger snapshot(s) are available.`,
+        recommendedAction: regressionAlertSnapshotBaselineStatus.recommendedAction || "Save or select an accepted Regression Alert baseline snapshot before relying on alert-baseline gates.",
+        meta: "Accepted snapshot missing"
+      });
+    }
+
     if (regressionAlertBaselineStatus && !["healthy", "missing"].includes(regressionAlertBaselineStatus.health || "")) {
       alertItems.push({
         source: "regression-alert-baseline",
@@ -9541,6 +9564,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       `- Scan alerts: ${scanDiff?.alertSummary?.total || 0} total, ${scanDiff?.alertSummary?.high || 0} high, ${scanDiff?.alertSummary?.medium || 0} medium, ${scanDiff?.alertSummary?.low || 0} low`,
       `- Source access gate: ${sourceDecision}`,
       `- Release Build Gate: ${releaseDecision}`,
+      `- Accepted Regression Alert baseline snapshot: ${regressionAlertSnapshotBaselineStatus?.health || "not-loaded"} / freshness ${regressionAlertSnapshotBaselineStatus?.freshness || "not-loaded"} / drift ${regressionAlertSnapshotBaselineStatus?.driftScore || 0}`,
       `- Regression Alert task baseline: ${regressionAlertBaselineStatus?.health || "not-loaded"} / refresh ${regressionAlertBaselineStatus?.refreshGateDecision || "not-loaded"}`,
       `- Agent Control Plane: ${controlDecision}`,
       `- Mutation scope guard: ${mutationSummary.guarded || 0}/${mutationSummary.scopeRelevant || 0} guarded, ${mutationSummary.unguarded || 0} unguarded`,

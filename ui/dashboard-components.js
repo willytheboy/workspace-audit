@@ -29,7 +29,8 @@ function appendChildren(parent, children) {
 }
 
 /**
- * @param {keyof HTMLElementTagNameMap} tagName
+ * @template {keyof HTMLElementTagNameMap} TagName
+ * @param {TagName} tagName
  * @param {{
  *   className?: string,
  *   text?: string,
@@ -40,7 +41,7 @@ function appendChildren(parent, children) {
  * }} [options]
  * @param {Array<Node | string | null | undefined>} [children]
  */
-function createElement(tagName, options = {}, children = []) {
+export function createElement(tagName, options = {}, children = []) {
   const element = document.createElement(tagName);
   if (options.className) element.className = options.className;
   if (options.text != null) element.textContent = options.text;
@@ -19585,6 +19586,14 @@ export function createGovernanceDeck(governance) {
             }
           })
         : null,
+      run.projectId && !run.archivedAt && ["queued", "running", "blocked"].includes(run.status)
+        ? createElement("button", {
+            className: "btn governance-action-btn",
+            text: "Preview CLI contract",
+            attrs: { type: "button", "aria-haspopup": "dialog" },
+            dataset: { cliBridgeContractPreviewRunId: run.id }
+          })
+        : null,
       run.cliBridgeHandoffId
         ? createElement("button", {
             className: "btn governance-action-btn cli-bridge-runner-contract-copy-btn",
@@ -19735,6 +19744,7 @@ export function createGovernanceDeck(governance) {
     ["Check source readiness", "Use Data Sources to confirm repo access, health, and any external-only passwords, certificates, SSH, VPN, or browser-session requirements."],
     ["Read the control plane", "Use Governance and Agent Control Plane to decide ready, review, or hold before execution."],
     ["Generate a work order", "Define target repo, files in scope, expected changes, validation commands, acceptance criteria, and rollback plan."],
+    ["Preview the CLI handoff", "Select the work order's project. Open Preview CLI contract in Agent Execution Queue, choose Codex or Claude, and review the working folder and validation commands."],
     ["Execute in small slices", "Run one implementation slice at a time and capture non-secret status, changed files, validation summaries, and blockers."],
     ["Validate and relaunch", "Run checks, rebuild, relaunch locally, smoke-check the app, then commit and push only validated milestone changes."]
   ];
@@ -20382,7 +20392,7 @@ export function createGovernanceDeck(governance) {
     createListSection("Agent Execution Target Baseline Audit Ledger Snapshots", "Persisted target-baseline audit ledgers for external handoff and build evidence.", agentExecutionTargetBaselineAuditLedgerSnapshotEntries),
     createListSection("SLA Breach Ledger", "Recent open and resolved Agent Execution SLA breach lifecycle records.", slaLedgerEntries),
     createListSection("SLA Ledger Snapshots", "Persisted SLA Breach Ledger exports for external audit handoffs.", agentExecutionSlaLedgerSnapshotEntries),
-    createListSection("Agent Execution Queue", "Queued and in-flight Agent Work Order runs with validation outcomes.", agentWorkOrderRunEntries),
+    createListSection("Agent Execution Queue", "Preview a work order's CLI handoff, then track its validation and outcome here.", agentWorkOrderRunEntries),
     createListSection("Governance Gaps", "App-development scoped projects that still have no saved governance profile.", gapEntries),
     createListSection("Project Registry", "Persisted ownership, lifecycle, and target-state profiles across the portfolio.", profileEntries),
     createListSection("Governance Profile Targets", "Scan-derived test coverage and runtime targets for scoped app-development profiles.", profileTargetEntries),

@@ -20,8 +20,8 @@ This guide is a product objective and future in-app workflow target. It should b
 4. Generate a work order.
    Create a bounded work order with target repo, files or modules in scope, expected changes, validation commands, acceptance criteria, and rollback plan.
 
-5. Assign the execution engine.
-   Use Codex CLI for repository-aware coding and testing tasks. Use Claude CLI for complementary planning, large-context review, documentation, or alternate-agent verification when appropriate.
+5. Preview the CLI handoff.
+   Set Active project scope to the work order's project. In **Governance > Agent Execution Queue**, choose **Preview CLI contract** on the work order. Choose Codex CLI for implementation or Claude CLI for a review pass. Check the working folder and validation commands. If the preview says Review required or On hold, address the listed checks and refresh. Use **Copy CLI contract** when it shows Ready.
 
 6. Execute in small slices.
    Run one implementation slice at a time. Capture non-secret status, changed files, validation output summaries, and unresolved blockers. Do not store credentials or raw secret-bearing logs.

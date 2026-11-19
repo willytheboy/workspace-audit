@@ -3274,3 +3274,11 @@
 - [x] Restore project scope, inventory exports, and Governance target controls in the source template and local dashboard.
 - [x] Exercise the real template in the audit generation test.
 - [x] Validate the static build and relaunch the app with the existing inventory.
+
+## 487 Scoped CLI Contract Preview
+
+- [x] Open a Codex or Claude preview from an active Agent Execution work order.
+- [x] Show the server's readiness, working folder, and validation commands for the requested run.
+- [x] Offer the handoff for copying when the exact scoped run is ready.
+- [x] Cover holds, runner changes, fallback contracts, and scope changes with automated tests.
+- [ ] Complete a live pilot with a current project and a ready work order.

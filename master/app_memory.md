@@ -53,3 +53,9 @@ The target product is not only an audit dashboard. It should become the operator
 - Each future app-building workflow should expose clear steps: intent capture, source/access check, work-order generation, agent assignment, execution monitoring, validation evidence, human review, commit, and release gate.
 - The assistant should explicitly tell the user when the Claude CLI / Codex CLI prototype is ready, then provide a step-by-step operating guide before asking the user to supervise external agent execution.
 - The product should make the process teachable: explain why a gate blocks, what evidence is missing, what command or agent is being run, what passed, what failed, and what the next safe action is.
+
+## Supervised Build Pilot
+
+- Start with one current app-development project and one work order with a visible goal and validation commands.
+- Use the work order's CLI contract preview to check scope and readiness for Codex or Claude before the operator copies a handoff.
+- A successful live pilot includes a run-linked result summary, validation evidence, and a relaunch checkpoint for the same project.

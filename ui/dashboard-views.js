@@ -19,6 +19,7 @@ import {
   createTrendSummaryGrid,
   populateSelect
 } from "./dashboard-components.js";
+import { openCliContractPreview } from "./dashboard-cli-contract-preview.js";
 import { createGraphRenderer } from "./dashboard-graph.js";
 import { bindAppLaunchers, getColor } from "./dashboard-utils.js";
 
@@ -233,7 +234,7 @@ function createEmptyTableRow(message) {
  *     actionAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], action?: string, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     resolveAgentWorkOrderRunSlaBreaches: (payload: { runIds?: string[], activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<unknown>,
  *     fetchCliBridgeContext: (options?: { runner?: "all" | "codex" | "claude", status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeContextPayload>,
- *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
+ *     fetchCliBridgeRunnerDryRun: (options?: { runner?: "codex" | "claude", runId?: string, status?: string, limit?: number, activeProjectId?: string, scopeMode?: "project" | "portfolio" }) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunPayload>,
  *     fetchCliBridgeRunnerDryRunSnapshots: () => Promise<import("./dashboard-types.js").PersistedCliBridgeRunnerDryRunSnapshot[]>,
  *     fetchCliBridgeRunnerDryRunSnapshotDiff: (snapshotId?: string) => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotDiffPayload>,
  *     fetchCliBridgeRunnerDryRunSnapshotBaselineStatus: () => Promise<import("./dashboard-types.js").CliBridgeRunnerDryRunSnapshotBaselineStatusPayload>,
@@ -2884,7 +2885,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       "2. Check source readiness: confirm repo path, Git access method, source health, and external-only passwords, certificates, SSH, VPN, or browser-session requirements.",
       "3. Read the control plane: use Governance and Agent Control Plane to decide ready, review, or hold before execution.",
       "4. Generate a work order: define target repo, files or modules in scope, expected changes, validation commands, acceptance criteria, and rollback plan.",
-      "5. Assign the execution engine: use Codex CLI for repository-aware coding and Claude CLI for complementary planning, review, or documentation when ready.",
+      "5. Preview the CLI handoff. Select the work order's project and open Preview CLI contract in Agent Execution Queue. Choose Codex or Claude, review the working folder and validation commands, and copy the handoff when the preview is ready.",
       "6. Execute in small slices: capture non-secret status, changed files, validation summaries, and blockers.",
       "7. Debug systematically: reproduce, isolate, fix the smallest failing layer, rerun validation, then record what changed.",
       "8. Validate before moving on: run syntax checks, tests, build checks, smoke checks, and work-order-specific commands.",
@@ -8346,6 +8347,22 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
       };
     });
 
+    container.querySelectorAll("[data-cli-bridge-contract-preview-run-id]").forEach((element) => {
+      if (!(element instanceof HTMLButtonElement)) return;
+      element.onclick = (event) => {
+        event.stopPropagation();
+        const runId = element.dataset.cliBridgeContractPreviewRunId;
+        const run = governanceCache?.agentWorkOrderRuns.find((item) => item.id === runId);
+        if (!run) return;
+        openCliContractPreview({
+          run,
+          getScope: getCliBridgeScopeOptions,
+          fetchDryRun: (options) => api.fetchCliBridgeRunnerDryRun(options),
+          copyText
+        });
+      };
+    });
+
     container.querySelectorAll("[data-cli-bridge-runner-contract-run-id]").forEach((element) => {
       if (!(element instanceof HTMLButtonElement)) return;
       element.onclick = async (event) => {
@@ -12836,6 +12853,7 @@ export function createDashboardViews({ getData, getState, getRuntime, api, openM
     }
   }
 
+  /** @returns {{ activeProjectId: string, scopeMode: "project" | "portfolio" }} */
   function getCliBridgeScopeOptions() {
     const state = getState();
     return {

@@ -13,6 +13,12 @@
         <h1>Workspace Audit Pro</h1>
         <p class="meta-info" id="meta-info">Loading workspace insights...</p>
         <div class="status-strip" id="runtime-status"></div>
+        <div class="scope-lock" id="scope-lock">
+          <select class="scope-project-select" id="active-project-select" aria-label="Active project scope"></select>
+          <button class="scope-mode-badge" id="scope-mode-toggle" type="button">SCOPED</button>
+          <button class="btn scope-clear-btn" id="clear-active-project-btn" type="button">Clear Scope</button>
+          <div class="scope-guard-warning" id="scope-guard-warning" hidden>Select a project or enter portfolio mode before running guarded build, agent, governance, or mutation actions.</div>
+        </div>
       </div>
       <div class="controls">
         <button class="btn btn-primary" id="refresh-audit-btn">
@@ -30,7 +36,13 @@
         </button>
         <button class="btn" id="export-csv">
           <svg class="btn-icon btn-icon-align-middle" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-          Export
+          CSV
+        </button>
+        <button class="btn" id="export-json">
+          JSON
+        </button>
+        <button class="btn" id="export-markdown">
+          Markdown
         </button>
       </div>
     </header>
@@ -197,6 +209,13 @@
               <div class="status-strip panel-status" id="governance-status"></div>
               <button class="btn panel-refresh-btn" id="seed-governance-profiles-btn" type="button">Seed Profiles</button>
               <button class="btn panel-refresh-btn" id="seed-governance-starter-packs-btn" type="button">Seed Starter Packs</button>
+              <button class="btn panel-refresh-btn" id="refresh-governance-profile-targets-btn" type="button">Refresh Targets</button>
+              <button class="btn panel-refresh-btn" id="seed-governance-profile-target-tasks-btn" type="button">Seed Target Tasks</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-profile-target-task-ledger-btn" type="button">Copy Target Ledger</button>
+              <button class="btn panel-refresh-btn" id="save-governance-profile-target-task-ledger-snapshot-btn" type="button">Save Target Snapshot</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-profile-target-task-ledger-drift-btn" type="button">Copy Target Drift</button>
+              <button class="btn panel-refresh-btn" id="refresh-governance-profile-target-task-ledger-snapshot-btn" type="button">Refresh Target Baseline</button>
+              <button class="btn panel-refresh-btn" id="copy-governance-profile-target-task-ledger-baseline-status-btn" type="button">Copy Target Baseline</button>
               <button class="btn panel-refresh-btn" id="execute-governance-queue-btn" type="button">Execute Queue</button>
               <button class="btn panel-refresh-btn" id="suppress-governance-queue-btn" type="button">Suppress Queue</button>
               <button class="btn panel-refresh-btn" id="start-queued-agent-work-order-runs-btn" type="button">Start Queued Runs</button>

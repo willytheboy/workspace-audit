@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
 import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { generateAudit } from "../lib/audit-core.mjs";
 import { createFixtureWorkspace, readJson } from "./test-helpers.mjs";
 
@@ -9,6 +10,7 @@ export async function auditCoreTest() {
   const result = await generateAudit({
     rootDir: workspaceRoot,
     outputDir: appDir,
+    templatePath: fileURLToPath(new URL("../template.html", import.meta.url)),
     now: "2026-04-10T12:00:00.000Z"
   });
 
@@ -30,4 +32,22 @@ export async function auditCoreTest() {
 
   const html = await readFile(join(appDir, "index.html"), "utf8");
   assert.match(html, /<script type="module" src="\.\/*app\.js"><\/script>/);
+  for (const id of [
+    "scope-lock",
+    "active-project-select",
+    "clear-active-project-btn",
+    "scope-mode-toggle",
+    "scope-guard-warning",
+    "export-json",
+    "export-markdown",
+    "refresh-governance-profile-targets-btn",
+    "seed-governance-profile-target-tasks-btn",
+    "copy-governance-profile-target-task-ledger-btn",
+    "save-governance-profile-target-task-ledger-snapshot-btn",
+    "copy-governance-profile-target-task-ledger-drift-btn",
+    "refresh-governance-profile-target-task-ledger-snapshot-btn",
+    "copy-governance-profile-target-task-ledger-baseline-status-btn"
+  ]) {
+    assert.ok(html.includes(`id="${id}"`), `Generated dashboard is missing #${id}`);
+  }
 }

@@ -3268,3 +3268,9 @@
 - [x] Show each gate decision, evidence counts, and required action before a dry-run contract is copied.
 - [x] Add parser coverage for the visible dry-run gate mapping.
 - [x] Validate, relaunch, commit, and push.
+
+## 486 Dashboard Regeneration Recovery
+
+- [x] Restore project scope, inventory exports, and Governance target controls in the source template and local dashboard.
+- [x] Exercise the real template in the audit generation test.
+- [x] Validate the static build and relaunch the app with the existing inventory.
